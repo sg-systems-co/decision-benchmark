@@ -5,13 +5,19 @@ description = "SG Systems Decision Benchmark: open benchmarks for business decis
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic==2.14.2",
+    "pyyaml==6.0.3",
+]
+
+[build-system]
+requires = ["uv_build==0.13.6"]
+build-backend = "uv_build"
 
 [dependency-groups]
 release = [
     "huggingface-hub==0.36.0",
     "jsonschema==4.25.1",
-    "pyyaml==6.0.3",
     "pyarrow==21.0.0",
 ]
 dev = [
@@ -19,7 +25,7 @@ dev = [
 ]
 
 [tool.uv]
-package = false
+package = true
 default-groups = ["release", "dev"]
 
 [tool.pytest.ini_options]
