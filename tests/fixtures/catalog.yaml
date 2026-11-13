@@ -1,0 +1,47 @@
+# Test-only catalog for the rules-engine tests. It is NOT the release catalog
+# (src/decision_benchmark/task_sets/ap_invoices_my_sg/content/catalog/categories.yaml)
+# and makes no statement about which real goods carry which sales-tax rate.
+version: 0
+categories:
+  - {category: it_services, kind: service, label: IT support and consultancy, countries: [MY, SG],
+     my_tax_class: service_8, group_g: true, gl_role: it_services,
+     sources: ["https://mysst.customs.gov.my/faq-services-tax/"]}
+  - {category: management_services, kind: service, label: Management services, countries: [MY],
+     my_tax_class: service_8, group_g: true, gl_role: professional_fees,
+     sources: ["https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"]}
+  - {category: guard_services, kind: service, label: Security guard services, countries: [MY],
+     my_tax_class: service_8, group_g: true, group_g_excluded: true, gl_role: security,
+     sources: ["https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"]}
+  - {category: logistics_haulage, kind: service, label: Lorry haulage, countries: [MY, SG],
+     my_tax_class: service_6, gl_role: freight_inward,
+     sources: ["https://mysst.customs.gov.my/faq-services-tax/"]}
+  - {category: telecoms, kind: service, label: Telecommunication services, countries: [MY, SG],
+     my_tax_class: service_6, gl_role: telecoms,
+     sources: ["https://mysst.customs.gov.my/faq-services-tax/"]}
+  - {category: test_raw_resin, kind: goods, label: Test raw material (sales tax 10% in this fixture),
+     countries: [MY], my_tax_class: sales_10, schedule_c_eligible: true, gl_role: raw_materials,
+     sources: ["https://mysst.customs.gov.my/faq-sales-tax/"]}
+  - {category: test_finished_goods, kind: goods, label: Test finished goods (sales tax 5% in this fixture),
+     countries: [MY], my_tax_class: sales_5, gl_role: consumables,
+     sources: ["https://mysst.customs.gov.my/faq-sales-tax/"]}
+  - {category: office_supplies, kind: goods, label: Office supplies from a trader, countries: [MY, SG],
+     my_tax_class: none, gl_role: office_supplies,
+     sources: ["https://mysst.customs.gov.my/faq-sales-tax/"]}
+  - {category: utilities_electricity, kind: service, label: Electricity, countries: [MY, SG],
+     my_tax_class: none, gl_role: utilities,
+     sources: ["https://mysst.customs.gov.my/faq-services-tax/"]}
+  - {category: club_subscription, kind: service, label: Sports and recreation club subscription, countries: [SG],
+     sg_disallowed: club_subscription, gl_role: club_subscriptions,
+     sources: ["https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"]}
+  - {category: staff_medical, kind: service, label: Staff medical expenses, countries: [SG],
+     sg_disallowed: staff_medical, gl_role: staff_welfare_medical,
+     sources: ["https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"]}
+  - {category: motor_car_running, kind: service, label: Car servicing and running costs, countries: [SG],
+     sg_disallowed: motor_car, gl_role: motor_vehicle_running,
+     sources: ["https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"]}
+  - {category: family_benefit, kind: service, label: Benefits for staff family members, countries: [SG],
+     sg_disallowed: family_benefit, gl_role: staff_welfare,
+     sources: ["https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"]}
+  - {category: machine_parts, kind: goods, label: Machine spare parts, countries: [SG],
+     gl_role: repairs_maintenance,
+     sources: ["https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"]}

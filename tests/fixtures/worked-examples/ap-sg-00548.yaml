@@ -1,0 +1,88 @@
+# Step-11 plan §6.2: Singapore tax case (club subscription, GST not claimable).
+records:
+  company:
+    company_id: sg-c-012
+    split: train
+    country: SG
+    legal_name: Larkspur Precision Engineering Pte Ltd
+    registration_no: 201412345K
+    address: {lines: ["21 Tuas Avenue 7"], postcode: "639281", country: SG}
+    base_currency: SGD
+    industry: precision engineering
+    gst_reg_no: M2-0098761-K
+    gst_registered_since: 2015-01-01
+    people:
+      - {person_id: p-012-01, name: Tan Mei Ling, role: director, email: meiling@larkspur.example, approval_role: finance_director}
+      - {person_id: p-012-02, name: Ravi Kumar, role: requester, email: ravi@larkspur.example}
+    policy_pack:
+      tolerance_policy: {price_tolerance_pct: "1.5", rounding_tolerance: "0.05", duplicate_window_days: 120}
+      approval_matrix: [{approval_role: finance_director, limit: "50000.00", currency: SGD}]
+      chart_of_accounts:
+        - {code: "6420-000", name: Club and membership subscriptions, type: expense, role: club_subscriptions}
+        - {code: "6400-000", name: Repairs and maintenance, type: expense, role: repairs_maintenance}
+      tax_registration: {country: SG, numbers: {gst: M2-0098761-K}, status: registered}
+      price_change_rule: {text: "Price changes count only through an approved PO amendment."}
+      bank_change_rule: {text: "Bank changes count only through the verified supplier-master process."}
+  suppliers:
+    - supplier_id: S-0207
+      company_id: sg-c-012
+      name: Tanjong Lumba Golf & Country Club Pte Ltd
+      country: SG
+      address: {lines: ["9 Lumba Drive"], postcode: "598765", country: SG}
+      currency: SGD
+      payment_terms_days: 14
+      bank_account: {bank_name: Harbourfront Bank, account_name: Tanjong Lumba Golf & Country Club, account_no: "412-88301-7"}
+      gst_reg_no: 20-0412377-W
+      gst_status: registered
+      gst_status_date: 2004-03-01
+      gst_regime: local
+  purchase_orders:
+    - po_number: "4500018832"
+      company_id: sg-c-012
+      supplier_id: S-0207
+      po_date: 2026-10-15
+      currency: SGD
+      requester_id: p-012-02
+      approver_id: p-012-01
+      status: open
+      lines:
+        - {line_no: 1, description: "Corporate membership, annual subscription Nov 2026 - Oct 2027", category: club_subscription,
+           qty: 1, uom: year, unit_price: "4800.00", gl_account: "6420-000"}
+      total_net: "4800.00"
+  goods_receipts:
+    - {gr_number: SE-26-0331, po_number: "4500018832", gr_date: 2026-11-01, kind: service_confirmation, received_by: p-012-02,
+       lines: [{po_line_no: 1, qty_received: 1, uom: year}]}
+case:
+  case_id: ap-sg-00548
+  split: train
+  country: SG
+  company_id: sg-c-012
+  as_of_date: 2026-11-06
+  supplier_id: S-0207
+  invoice:
+    country: SG
+    invoice_id: INV-0548
+    invoice_number: TLGCC/2026/11/0158
+    issue_date: 2026-11-02
+    document_title: Tax Invoice
+    supplier_block: {name: Tanjong Lumba Golf & Country Club Pte Ltd, address: "9 Lumba Drive, Singapore 598765"}
+    buyer_block: {name: Larkspur Precision Engineering Pte Ltd, address: "21 Tuas Avenue 7, Singapore 639281"}
+    supplier_gst_no: 20-0412377-W
+    po_reference: "4500018832"
+    currency: SGD
+    totals: {net: "4800.00", tax: "432.00", gross: "5232.00"}
+    bank_block: {bank_name: Harbourfront Bank, account_no: "412-88301-7"}
+    lines:
+      - {line_no: 1, description: "Corporate membership, annual subscription Nov 2026 - Oct 2027", qty: 1, uom: year,
+         unit_price: "4800.00", net_amount: "4800.00", tax_category: SR, tax_rate: "9", tax_amount: "432.00", po_line_no: 1,
+         category: club_subscription}
+expect:
+  decision: APPROVE
+  tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  gl_account: "6420-000"
+  reason_codes: [MATCHED_WITHIN_TOLERANCE, GST_NOT_CLAIMABLE_DISALLOWED]
+  answer_source: rules
+  truth_supplier_id: S-0207
+  truth_po_number: "4500018832"
+  truth_price_variance_pct: "0"
+  requires_supplier_contact: false

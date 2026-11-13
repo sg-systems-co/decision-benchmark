@@ -1,0 +1,101 @@
+# Step-11 plan §6.3: two problems (price above PO, service tax 8% on logistics instead of 6%).
+records:
+  company:
+    company_id: my-c-019
+    split: train
+    country: MY
+    legal_name: Seri Kenari Foods Sdn Bhd
+    registration_no: "201201033781"
+    address: {lines: ["PT 4471, Kawasan Perindustrian Bukit Raja"], city: Klang, state: Selangor, country: MY}
+    base_currency: MYR
+    industry: food manufacturing
+    tin: C21100458020
+    sst_registration_no: B16-1712-21004410
+    is_registered_manufacturer: true
+    people:
+      - {person_id: p-019-02, name: Siti Hajar, role: requester, email: hajar@serikenari.example}
+      - {person_id: p-019-05, name: Gopal Krishnan, role: manager, email: gopal@serikenari.example, approval_role: logistics_manager}
+    policy_pack:
+      tolerance_policy: {price_tolerance_pct: "2.0", rounding_tolerance: "0.05", duplicate_window_days: 90}
+      approval_matrix: [{approval_role: logistics_manager, limit: "20000.00", currency: MYR}]
+      chart_of_accounts:
+        - {code: "5300-400", name: Freight and haulage inward, type: expense, role: freight_inward}
+      tax_registration: {country: MY, numbers: {sst: B16-1712-21004410}, status: registered}
+      price_change_rule: {text: "Price changes count only through an approved PO amendment."}
+      bank_change_rule: {text: "Bank changes count only through the verified supplier-master process."}
+  suppliers:
+    - supplier_id: S-0388
+      company_id: my-c-019
+      name: Laju Muat Logistics Sdn Bhd
+      country: MY
+      address: {lines: ["No. 3, Jalan Kargo 2"], city: Butterworth, state: Pulau Pinang, country: MY}
+      currency: MYR
+      payment_terms_days: 45
+      bank_account: {bank_name: Bank Tanjung Bersatu, account_name: Laju Muat Logistics Sdn Bhd, account_no: "8012-5566-0193"}
+      tin: C10988712030
+      brn: "200801009912"
+      sst_registration_no: P11-1809-32000925
+      sst_type: service
+      turnover_band: RM25m-100m
+  purchase_orders:
+    - po_number: PO-SKF-26-0331
+      company_id: my-c-019
+      supplier_id: S-0388
+      po_date: 2026-09-15
+      currency: MYR
+      requester_id: p-019-02
+      approver_id: p-019-05
+      status: open
+      lines:
+        - {line_no: 1, description: "Lorry haulage Shah Alam - Butterworth, 10-tonne", category: logistics_haulage,
+           qty: 10, uom: trip, unit_price: "1180.00", gl_account: "5300-400"}
+      total_net: "11800.00"
+  goods_receipts:
+    - {gr_number: SC-26-0712, po_number: PO-SKF-26-0331, gr_date: 2026-10-30, kind: service_confirmation, received_by: p-019-02,
+       lines: [{po_line_no: 1, qty_received: 10, uom: trip}]}
+  emails:
+    - {thread_id: T-1206, message_id: M-1206-1, company_id: my-c-019, case_id: ap-my-01206, sent_at: "2026-10-01T08:30:00",
+       sender: {name: Laju Muat Billing, address: billing@lajumuat.example}, to: [{address: ap@serikenari.example}],
+       subject: "Fuel surcharge from October", body: "Please note our haulage rates include a fuel surcharge from October.",
+       intent: price_increase_notice, mentions_price_change: true, price_change_status: none}
+case:
+  case_id: ap-my-01206
+  split: train
+  country: MY
+  company_id: my-c-019
+  as_of_date: 2026-11-04
+  supplier_id: S-0388
+  invoice:
+    country: MY
+    invoice_id: INV-1206
+    invoice_number: LMQ-26-10-2291
+    issue_date: 2026-11-01
+    supplier_block: {name: Laju Muat Logistics Sdn Bhd, address: "No. 3, Jalan Kargo 2, Butterworth"}
+    buyer_block: {name: Seri Kenari Foods Sdn Bhd, address: "PT 4471, Kawasan Perindustrian Bukit Raja, Klang"}
+    po_reference: PO-SKF-26-0331
+    currency: MYR
+    totals: {net: "12400.00", tax: "992.00", gross: "13392.00"}
+    bank_block: {bank_name: Bank Tanjung Bersatu, account_no: "8012-5566-0193"}
+    is_einvoice: true
+    einvoice_version: "1.0"
+    einvoice_type_code: "01"
+    supplier_tin: C10988712030
+    supplier_brn: "200801009912"
+    supplier_sst_no: P11-1809-32000925
+    buyer_tin: C21100458020
+    buyer_brn: "201201033781"
+    tax_total_by_type: {"02": "992.00"}
+    lines:
+      - {line_no: 1, description: "Lorry haulage Shah Alam - Butterworth (10 trips)", qty: 10, uom: trip, unit_price: "1240.00",
+         net_amount: "12400.00", tax_rate: "8", tax_amount: "992.00", classification_code: "022", tax_type: "02", po_line_no: 1,
+         category: logistics_haulage}
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  tax_treatment: SST_WRONG_RATE
+  gl_account: "5300-400"
+  reason_codes: [WRONG_TAX_RATE, PRICE_ABOVE_PO]
+  answer_source: rules
+  truth_supplier_id: S-0388
+  truth_po_number: PO-SKF-26-0331
+  truth_price_variance_pct: "5.08"
+  requires_supplier_contact: true
