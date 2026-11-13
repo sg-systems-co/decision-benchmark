@@ -1,0 +1,1 @@
+{"case_id": "ap-my-00421", "decision": ["DISPUTE_PRICE", "REQUEST_CORRECTED_INVOICE"], "tax_treatment": "SST_WRONG_RATE", "gl_account": "5100-200", "reason_codes": ["PRICE_ABOVE_PO"]}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sg-systems-co/decision-benchmark/blob/main/schemas/ap-invoices-my-sg/v0.9/output.schema.json",
+  "title": "Decision Benchmark, ap-invoices-my-sg, v0.9: output for one case",
+  "description": "One JSON object per case (JSONL). Output that breaks this schema, or names two decisions, is scored as a wrong decision. See docs/task-sets/ap-invoices-my-sg/spec-v0.9.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "decision", "tax_treatment", "gl_account", "reason_codes"],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "APPROVE",
+        "DISPUTE_PRICE",
+        "DISPUTE_QUANTITY",
+        "HOLD_NOT_RECEIVED",
+        "REJECT_DUPLICATE",
+        "REQUEST_CORRECTED_INVOICE",
+        "FRAUD_REVIEW",
+        "ROUTE_FOR_APPROVAL",
+        "HAND_OVER"
+      ]
+    },
+    "tax_treatment": {
+      "description": "Singapore codes for SG cases, Malaysian codes for MY cases. A code from the other country is a wrong tax treatment, not a schema error. null only when decision is HAND_OVER.",
+      "enum": [
+        "CLAIMABLE",
+        "NOT_CLAIMABLE_DISALLOWED",
+        "NOT_CLAIMABLE_INVALID_INVOICE",
+        "GST_WRONGLY_CHARGED",
+        "NO_GST",
+        "SST_CORRECT",
+        "SST_WRONG_RATE",
+        "SST_SHOULD_BE_EXEMPT",
+        "SST_SUPPLIER_NOT_REGISTERED",
+        "NO_SST",
+        null
+      ]
+    },
+    "gl_account": {
+      "description": "One code from the company's chart of accounts. Scored as exact match. null only when decision is HAND_OVER.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "reason_codes": {
+      "description": "Short codes explaining the decision. A recommended list is in reason-codes.md; it is not enforced in v0.9.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "confidence": {
+      "description": "Optional. Needed for the risk-coverage curve.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "explanation": {
+      "description": "Optional free text. Never scored on the leaderboard.",
+      "type": "string"
+    }
+  },
+  "if": {
+    "properties": {
+      "decision": { "not": { "const": "HAND_OVER" } }
+    }
+  },
+  "then": {
+    "properties": {
+      "tax_treatment": { "type": "string" },
+      "gl_account": { "type": "string" }
+    }
+  }
+}
