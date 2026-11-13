@@ -36,7 +36,8 @@ CITATION.cff                   [8]
 pyproject.toml, uv.lock        [8] pinned Python and dependencies for the build
 .github/
   workflows/guards.yml         [8] secret scan + hidden-data check on every push/PR
-  workflows/hf-publish.yml     [8] dry run on PR, upload on v* tag push
+  workflows/hf-publish.yml     [8] dry run on PR, upload on manual dispatch of an existing v* tag
+  scripts/install-gitleaks.sh  [8] downloads gitleaks at a pinned version and checksum
   ISSUE_TEMPLATE/verified-run.md  [8] request a verified hidden-split run
 docs/
   task-sets/ap-invoices-my-sg/
@@ -373,10 +374,9 @@ File: `.github/workflows/hf-publish.yml`. Helpers in `release/`. Python with `hu
 | Trigger | Job | Uploads? | Uses HF_TOKEN? |
 | --- | --- | --- | --- |
 | `pull_request` touching `hf/`, `schemas/`, `docs/task-sets/`, `release/`, `LICENSE*`, the workflow | `dry-run` | No | No |
-| `push` of a tag matching `v*` | `check` then `publish` | Yes | Yes, `publish` job only |
-| `workflow_dispatch` | `dry-run` only | No | No |
+| `workflow_dispatch` with a required `tag` input | `publish` | Yes | Yes, in the upload step only |
 
-The publish job runs only on `v*` tags, and its `if:` condition also requires `startsWith(github.ref, 'refs/tags/v')`.
+The `tag` input must match `vX.Y.Z` (optionally with a pre-release suffix) and must name a tag that already exists in the repo. The job checks out that tag, so it publishes exactly the tagged commit. The workflow can be started from the Actions tab or through the GitHub API. Pushing a tag doesn't start it on its own, which avoids double runs. (Changed in the build-run review, 13 Nov 2026.)
 
 The dry run:
 - validates the card front matter (`huggingface_hub` `DatasetCardData`, offline parse)
@@ -430,7 +430,7 @@ It runs in `guards.yml` on the whole working tree, and in the publish workflow o
 2. **Hidden canary.** Fail if any file contains the hidden-split canary GUID.
 3. **Split values.** Every data row's `split` must be `train` or `test`. Any other value fails, including `hidden`, `val` or empty.
 4. **Row counts.** Exactly 2,000 train cases and 500 test cases, with unique `case_id`s. Extra rows fail.
-5. **Data only where allowed.** Any `*.parquet`, `*.jsonl`, `*.csv`, `*.json` (except the schema and examples) or `*.pdf` outside the allowlisted data paths fails. So does any file with answer-key columns (`answer_*`) outside them.
+5. **Data only where allowed.** Any `*.parquet`, `*.jsonl`, `*.csv`, `*.json` or `*.pdf` outside the allowlisted data paths fails. Exempt: `release/manifests/`, `schemas/**/examples/` and `schemas/**/*.schema.json`. A file with answer-key columns (`answer_*`) fails anywhere outside the allowlisted data paths, including in the exempt folders.
 6. **Public test canary present.** Every test row carries the public test canary. A missing canary fails, which catches a mislabelled split.
 
 Before upload, the publish workflow also runs the secret scan (gitleaks) on `build/hf/`. The train/test company overlap check moves to the generator's own tests. It isn't a security guard.
@@ -447,7 +447,7 @@ Tests in `tests/release/` build temporary trees with planted violations and chec
 - The job fails if the HF tag already exists. Releases are never overwritten.
 - The card's version label and `CHANGELOG.md` must have an entry for the tag, or the `check` job fails.
 - Users pin with `load_dataset("sgsystems/decision-benchmark-ap-my-sg", "decision", revision="v0.9.0")`.
-- Tags pushed by `GITHUB_TOKEN` don't trigger workflows. Sebastian pushes the tag (`git tag v0.9.0-alpha.1 && git push origin v0.9.0-alpha.1`). That one command is the release step. Nothing else is done by hand.
+- Sebastian never runs git by hand. When he says "release", Claude creates and pushes the tag, then starts the publish workflow with that tag through the API. Anyone with write access can also start it from the Actions tab.
 
 ### 7.5a Reproducible builds (applies once the generator lands)
 
@@ -533,21 +533,21 @@ v1.0 comes after accountant review and the real-data check, as the spec says.
 
 ## 10. Build steps for the next run
 
-Each step is one small PR. No PR uploads anything to Hugging Face. The first upload is row 8, triggered by Sebastian pushing a tag.
+Rows 1–7 and 9 are separate commits in **one build PR**, so there is one review and one merge. No commit uploads anything to Hugging Face. The first upload is row 8, after merge, when Sebastian says "release".
 
 | # | PR | Acceptance checks |
 | --- | --- | --- |
 | 1 | Skeleton: stub folders with README, `CHANGELOG.md` (with the scoring clarification), `CITATION.cff` (author "SG Systems"), `.gitignore` additions, `pyproject.toml` + `uv.lock` | Tree matches §2. No code. README and licences unchanged. CHANGELOG has the 3 / 3 / 10 clarification. |
 | 2 | `release/check_public.py` + tests | Each rule in §7.4 has a failing test case and a passing one. The current tree passes. |
-| 3 | `guards.yml` (check_public + gitleaks) | CI green on the PR. A throwaway branch adding `hidden/x.jsonl` fails CI, and so does one adding a fake token. Both branches are deleted afterwards. |
+| 3 | `guards.yml` (tests + check_public + gitleaks) | CI green on the PR. Unit tests in `tests/release/` prove that a `hidden/x.jsonl` file and a fake token make the checks fail. Nothing hidden-looking and no fake token is ever pushed to GitHub. Tests build them at runtime in temporary folders. |
 | 4 | Output schema + examples + `evalsafe-mapping.md` | The spec's example output validates. A HAND_OVER with null tax and GL validates. Invalid examples fail: two decisions, unknown field, confidence 1.2, null GL on a non-HAND_OVER. |
 | 5 | Dataset card source `hf/ap-invoices-my-sg/README.md` (alpha form: no configs, `viewer: false`) + `docs/submitting-results.md` | Front matter parses with `huggingface_hub`. Text matches §4 plus the alpha notice. |
 | 6 | `release/allowlist.txt`, `stage.py`, `publish.py` with `--dry-run`, including create_repo, collection and the clear 401/403 error | `stage.py` yields exactly the 6 files in §7.6. `--dry-run` makes no network write (network calls stubbed in tests). A stubbed 403 gives the clear "token lacks write rights" message. A fake token never appears in the output. |
 | 7 | `hf-publish.yml` | The PR job has no `secrets.` reference. A dry run on the PR prints the expected file list. The publish job runs only on `v*` tag pushes. |
-| 8 | (Sebastian) `git push origin v0.9.0-alpha.1` | The Action creates `sgsystems/decision-benchmark-ap-my-sg` and the collection, uploads exactly the 6 files, and tags `v0.9.0-alpha.1`. The card renders. The log shows no token. |
+| 8 | (Claude, when Sebastian says "release") push tag `v0.9.0-alpha.1` and start the publish workflow with it | The Action creates `sgsystems/decision-benchmark-ap-my-sg` and the collection, uploads exactly the 6 files, and tags `v0.9.0-alpha.1`. The card renders. The log shows no token. |
 | 9 | README update (§11) | Links resolve. |
 
-Reproducible-build work (§7.5a) and the canaries land with the generator step, not in step 8.
+The canary GUIDs and the canary checks land in step 8. Writing the public canary into data files, and the reproducible-build work (§7.5a), land with the generator step.
 
 ## 11. Proposed README changes (not made in this PR)
 
@@ -566,7 +566,7 @@ All 15 questions from the first draft were answered in review. No questions rema
 3. **First release.** `v0.9.0-alpha.1` with card, schema, spec, tax rules and changelog only.
 4. **Data storage.** No generated data in git. The build environment is pinned (`uv.lock` plus a container image pinned by digest), and PDFs are rendered without timestamps, so the sha256 manifest reproduces. If PDFs can't be made byte-identical, the manifest covers the structured records only, and the card says so.
 5. **Public answers.** Train and test answers are public. Public test files carry their own canary string, separate from the hidden canary.
-6. **HF_TOKEN.** Stays a plain repo secret. No protected environment. The publish job runs on `v*` tags only.
+6. **HF_TOKEN.** Stays a plain repo secret. No protected environment. The publish job only publishes existing `v*` tags (started by manual dispatch; see §7.1).
 7. **Versions.** Tags `vX.Y.Z`. Patch versions are only for card or doc changes. Any data or answer change is a new spec version.
 8. **evalsafe.** No change in v0.9. The list in §6 is kept for later.
 9. **Schema.**
