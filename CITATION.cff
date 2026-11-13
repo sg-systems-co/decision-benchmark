@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+title: "SG Systems Decision Benchmark: Supplier Invoices (Malaysia, Singapore)"
+type: dataset
+authors:
+  - name: "SG Systems"
+version: "v0.9 (synthetic, rules-based)"
+date-released: "2026-11-13"
+license: CC-BY-4.0
+repository-code: "https://github.com/sg-systems-co/decision-benchmark"
+url: "https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg"
+keywords:
+  - benchmark
+  - accounts payable
+  - invoices
+  - Malaysia
+  - Singapore

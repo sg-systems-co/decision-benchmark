@@ -1,0 +1,26 @@
+[project]
+name = "decision-benchmark"
+version = "0.9.0a1"
+description = "SG Systems Decision Benchmark: open benchmarks for business decisions in Southeast Asia"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+release = [
+    "huggingface-hub==0.36.0",
+    "jsonschema==4.25.1",
+    "pyyaml==6.0.3",
+    "pyarrow==21.0.0",
+]
+dev = [
+    "pytest==8.4.2",
+]
+
+[tool.uv]
+package = false
+default-groups = ["release", "dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,130 @@
+name: hf-publish
+
+# Publishes the public dataset (card, schema, spec, data) to
+# huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg.
+#
+# - pull_request: dry run. Stages the allowlisted files, runs every offline
+#   check, prints the file list. No secrets, no uploads.
+# - workflow_dispatch: publishes one existing v* tag, given as the "tag" input.
+#   Start it from the Actions tab or through the GitHub API. Pushing a tag does
+#   not start it, so a release never runs twice.
+#
+# HF_TOKEN is only exposed to the single upload step, as an environment
+# variable. It is never echoed, logged or put on a command line.
+
+on:
+  pull_request:
+    paths:
+      - "hf/**"
+      - "schemas/**"
+      - "docs/task-sets/**"
+      - "release/**"
+      - "LICENSE*"
+      - "CHANGELOG.md"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/hf-publish.yml"
+      - ".github/scripts/**"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to publish, for example v0.9.0-alpha.1"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hf-publish-${{ github.event_name }}-${{ github.event.inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6.4.3
+        with:
+          enable-cache: false
+
+      - name: Install pinned dependencies
+        run: uv sync --locked
+
+      - name: Install gitleaks (pinned, checksum verified)
+        run: .github/scripts/install-gitleaks.sh
+
+      - name: Stage allowlisted files
+        run: uv run --locked python release/stage.py
+
+      - name: Offline release checks (newest CHANGELOG tag)
+        run: |
+          tag="$(uv run --locked python release/publish.py --print-changelog-tag)"
+          uv run --locked python release/publish.py --tag "$tag" --dry-run
+
+      - name: Secret scan of the staged folder
+        run: gitleaks dir build/hf --redact --no-banner --log-level warn
+
+  publish:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Validate the tag input
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "::error::tag must look like vX.Y.Z or vX.Y.Z-suffix"
+            exit 1
+          fi
+
+      - name: Check out the tag
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+          persist-credentials: false
+
+      - name: Confirm the tag exists and is checked out
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          tag_commit="$(git rev-parse -q --verify "refs/tags/${TAG}^{commit}")" || {
+            echo "::error::tag ${TAG} does not exist in this repo"; exit 1; }
+          if [[ "$(git rev-parse HEAD)" != "$tag_commit" ]]; then
+            echo "::error::checked-out commit is not tag ${TAG}"; exit 1
+          fi
+          echo "Publishing ${TAG} at ${tag_commit}"
+
+      - uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6.4.3
+        with:
+          enable-cache: false
+
+      - name: Install pinned dependencies
+        run: uv sync --locked
+
+      - name: Install gitleaks (pinned, checksum verified)
+        run: .github/scripts/install-gitleaks.sh
+
+      - name: Stage allowlisted files
+        run: uv run --locked python release/stage.py
+
+      - name: Offline release checks
+        env:
+          TAG: ${{ inputs.tag }}
+        run: uv run --locked python release/publish.py --tag "$TAG" --dry-run
+
+      - name: Secret scan of the staged folder
+        run: gitleaks dir build/hf --redact --no-banner --log-level warn
+
+      - name: Upload to Hugging Face and tag the revision
+        env:
+          TAG: ${{ inputs.tag }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_HUB_DISABLE_PROGRESS_BARS: "1"
+        run: uv run --locked python release/publish.py --tag "$TAG"
