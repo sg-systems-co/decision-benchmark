@@ -38,7 +38,8 @@ class LineFacts(Model):
 
     vehicle_is_motor_car: bool | None = None
     staff_medical_obligatory: bool | None = None
-    recipient_provides_same_service: bool | None = None
+    same_service_unclear: bool = False
+    """Group G: the documents don't show whether the buyer provides the same service (else company.services_provided decides)."""
     personal_use: bool = False
 
 
