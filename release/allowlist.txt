@@ -1,0 +1,20 @@
+# The only files that may be uploaded to Hugging Face.
+#
+# Format: <path or glob in this repo> -> <path on Hugging Face>
+# A destination ending in "/" keeps the file name.
+# Every active line must match at least one file, or staging fails.
+# release/stage.py copies matches into build/hf/; nothing else is uploaded.
+
+hf/ap-invoices-my-sg/README.md                      -> README.md
+LICENSE-DATA                                        -> LICENSE
+schemas/ap-invoices-my-sg/v0.9/output.schema.json   -> schema/output.schema.json
+docs/task-sets/ap-invoices-my-sg/spec-v0.9.md       -> docs/spec-v0.9.md
+docs/task-sets/ap-invoices-my-sg/tax-rules-v0.9.md  -> docs/tax-rules-v0.9.md
+CHANGELOG.md                                        -> CHANGELOG.md
+
+# Added when the generator lands (v0.9.0):
+# build/data/decision/*.parquet                     -> data/decision/
+# build/data/agent/*.parquet                        -> data/agent/
+# build/data/companies/*.parquet                    -> data/companies/
+# build/pdf/train/*                                 -> pdf/train/
+# build/pdf/test/*                                  -> pdf/test/
