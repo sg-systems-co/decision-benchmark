@@ -6,7 +6,9 @@ from typing import Any
 
 from pydantic import model_validator
 
-from .common import AnswerSource, Decision, Model, Num, TaxTreatment, Tier
+from decision_benchmark.core.case import AnswerEnvelope
+
+from .common import TASK_SET_ID, AnswerSource, Decision, Model, Num, TaxTreatment, Tier
 
 
 class Finding(Model):
@@ -50,3 +52,14 @@ class AnswerKey(Model):
             "gl_account": self.gl_account,
             "reason_codes": list(self.reason_codes),
         }
+
+    def envelope(self) -> AnswerEnvelope:
+        """The answer key in the shared core format, for the scorer."""
+        out = self.as_output()
+        return AnswerEnvelope(
+            case_id=self.case_id,
+            task_set=TASK_SET_ID,
+            decision=out["decision"],
+            answer={k: out[k] for k in ("tax_treatment", "gl_account", "reason_codes")},
+            answer_source=self.answer_source,
+        )

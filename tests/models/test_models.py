@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from decision_benchmark.models import (
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import (
     AnswerKey,
     Email,
     Invoice,

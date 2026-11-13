@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from decision_benchmark.models import Catalog, load_catalog
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import Catalog, load_catalog
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "catalog.yaml"
 RELEASE = (
     Path(__file__).resolve().parents[2]
-    / "src/decision_benchmark/content/ap-invoices-my-sg/catalog/categories.yaml"
+    / "src/decision_benchmark/task_sets/ap_invoices_my_sg/content/catalog/categories.yaml"
 )
 
 

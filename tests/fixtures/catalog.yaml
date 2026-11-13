@@ -1,5 +1,5 @@
 # Test-only catalog for the rules-engine tests. It is NOT the release catalog
-# (src/decision_benchmark/content/ap-invoices-my-sg/catalog/categories.yaml)
+# (src/decision_benchmark/task_sets/ap_invoices_my_sg/content/catalog/categories.yaml)
 # and makes no statement about which real goods carry which sales-tax rate.
 version: 0
 categories:

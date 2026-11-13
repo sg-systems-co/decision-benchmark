@@ -1,4 +1,8 @@
-"""Company records, ledger history and the case (step-11 plan §4.8, §4.11)."""
+"""Company records, ledger history and the case (step-11 plan §4.8, §4.11).
+
+Case is this task set's payload inside the shared core.CaseEnvelope (see envelope.py).
+Provenance is the core type, re-exported.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +10,8 @@ from datetime import date
 from typing import Literal
 
 from pydantic import model_validator
+
+from decision_benchmark.core.case import Provenance
 
 from .common import Country, Model
 from .company import Company
@@ -51,12 +57,6 @@ class CompanyRecords(Model):
 
     def supplier(self, supplier_id: str) -> Supplier | None:
         return next((s for s in self.suppliers if s.supplier_id == supplier_id), None)
-
-
-class Provenance(Model):
-    generator_version: str
-    seed: int
-    pipeline_hash: str
 
 
 class Case(Model):

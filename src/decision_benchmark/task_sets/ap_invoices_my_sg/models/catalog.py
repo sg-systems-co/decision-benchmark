@@ -2,7 +2,7 @@
 
 The catalog says, per category, how the tax rules treat it and which GL role it
 books to. Every entry cites at least one source from the tax-rule sheet. The
-file format is described in content/ap-invoices-my-sg/catalog/README.md.
+file format is described in content/catalog/README.md in this task set.
 """
 
 from __future__ import annotations

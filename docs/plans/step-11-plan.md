@@ -2,7 +2,7 @@
 
 Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices-my-sg`. Spec: v0.9 ("synthetic, rules-based"), frozen.
 
-This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review.
+This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review. PR A ended with commit A8, which split generic code (`core/`) from the task set (`task_sets/ap_invoices_my_sg/`); §3, §3.1 and §12 describe the split.
 
 Inputs read: `spec-v0.9.md`, `tax-rules-v0.9.md`, `schemas/ap-invoices-my-sg/v0.9/`, `release/`, `CHANGELOG.md`, `docs/plans/step-08-plan.md`, and the stack decisions extract of 13 Nov 2026 (DECIDED and PROPOSED items).
 
@@ -28,78 +28,122 @@ The plan follows the spec and the tax-rule sheet as written. Where they leave so
 
 ## 3. Module layout
 
-Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it.
+Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it. **[A8]** = the last commit of PR A, which split core from the task set (§3.1).
+
+The spec gives every task set one case format, one scorer and one leaderboard. So the package has two halves: `core/` holds generic code, and `task_sets/<id>/` holds everything that knows about one task set. `ap_invoices_my_sg` is the first task set; expense claims are planned as a later one.
 
 ```
 pyproject.toml                    [A] becomes an installable package (uv_build backend), so the
                                       hidden repo can depend on a tagged version; new dependency groups
 src/decision_benchmark/
-  models/                         [A] pydantic schemas (§4)
-    common.py                         Money, ids, dates, enums (decisions, tax codes, reason codes)
-    company.py  supplier.py  procurement.py (PO, receipt)  invoice_my.py  invoice_sg.py
-    email.py  policy.py  case.py  answer.py  facts.py
-  rules/                          [A] rules engine, pure functions, no I/O
-    view.py                           CaseView builder (the one case view)
-    matching.py                       PO, receipt, price, quantity, partial delivery
-    duplicates.py                     exact and near duplicates, credit-note reissues
-    fraud.py                          bank details vs record, bank change by email
-    validity_sg.py                    IRAS tax-invoice checks
-    validity_my.py                    MyInvois mandatory fields
-    tax_sg.py  tax_my.py              tax treatment
-    routing.py                        no PO, approval limit
-    gl.py                             GL account
-    decide.py                         findings -> decision by fixed priority -> answer key
-    constants.py                      rates and thresholds, each with its source URL from the rule sheet
-    table_rows.py                     maps each row of the rule-sheet table to its tests (§5.4)
-  generator/                      [B1]
-    seeds.py                          derived seeds (§8.1)
-    quotas.py                         exact exception counts per split
-    entities.py                       companies, suppliers, people, banks, CoA, policy packs
-    scenario.py                       clean base case: PO, receipt, invoice, history, cover email
-    ops.py                            named edit operations used by hard-case templates (§7.2)
-    hardcases.py                      loads and instantiates templates
-    text.py                           phrasebank loader and assembler
-    consistency.py                    cross-file checks (§8.4)
-    export.py                         parquet writers for decision / agent / companies
-    cli.py                            `db-generate`
-  render/                         [B3]
-    viewmodel.py                      record -> formatted strings per layout
-    typst.py                          calls the pinned Typst compiler
-    degrade.py                        Augraphy scan and photo pipelines
-    pdfcheck.py                       text check of rendered PDFs against the record
-  scorer/                         [C]
-    metrics.py                        all leaderboard metrics, plain Python
-    validate.py                       predictions JSONL and metadata.yaml checks
-    cli.py                            `db-score`, `db-leaderboard`
-    inspect_tasks.py                  Inspect tasks: ap_decision, ap_agent
-    inspect_scorers.py                Inspect scorer + metrics wrapping metrics.py
-  env/                            [D1]
-    state.py                          in-memory company systems for one case, audit log
-    tools.py                          the MCP tools (§10.2), plain functions over state
-    colleagues.py                     scripted fact-sheet replies (§10.3)
-    server.py                         OpenEnv MCPEnvironment adapter
-  graders/                        [D2]
-    rubric.py                         10-step rubric from final state (§10.4)
-    traps.py                          trap counters
-    judge.py                          AI judge for step 10 (reported separately)
-  content/ap-invoices-my-sg/      shipped as package data, so the hidden repo gets the same content
-    catalog/                      [A] item and service categories, tax class, GL role, sources
-    policy/                       [B1] policy-pack templates and policy-document text templates
-    phrasebanks/                  [B1 starter, B2 full] text banks (§7.3)
-    hardcases/                    [B1 format, B2 content] hard-case templates (§7.2)
-    names/                        [B1] company, person, street, bank name banks
-    typst/                        [B3] invoice layouts
-    fonts.lock.yaml               [B3] font files: URL, sha256, licence (fonts are not committed)
-    release-seeds.yaml            [B1] public seeds for train and test
-baselines/                        [C] always_approve.py, always_hand_over.py, rules_only.py
-results/ap-invoices-my-sg/v0.9/   [C] baseline entries; leaderboard.md
+  core/                           generic code only; never imports task_sets/ and never names a
+                                  task set (tests/core/test_core_isolation.py enforces both)
+    model.py                      [A8] Model, Money, Num, internal fields, export_dict, AnswerSource
+    case.py                       [A8] CaseEnvelope, Document, Provenance, AnswerEnvelope (§3.1)
+    task_set.py                   [A8] TaskSetSpec and the registry (§3.1)
+    generator/                    [B1]
+      seeds.py                        derived seeds (§8.1)
+      quotas.py                       exact counts per split, from TaskSetSpec.quotas
+      text.py                         phrasebank loader and assembler
+      export.py                       parquet writers for envelopes (decision / agent / companies)
+      cli.py                          `db-generate --task-set <id>`
+    render/                       [B3]
+      typst.py                        calls the pinned Typst compiler
+      degrade.py                      Augraphy scan and photo pipelines
+      pdfcheck.py                     text check of a rendered PDF against expected strings
+    scorer/                       [C]
+      metrics.py                      all leaderboard metrics, plain Python, costs from TaskSetSpec.costs
+      validate.py                     predictions JSONL (against TaskSetSpec.output_schema) and metadata.yaml
+      baselines.py                    always-approve and always-hand-over for any task set
+      cli.py                          `db-score`, `db-leaderboard`
+      inspect_tasks.py                Inspect task factory: a decision task and an agent task per TaskSetSpec
+      inspect_scorers.py              Inspect scorer + metrics wrapping metrics.py
+    env/                          [D1]
+      base.py                         per-case state container, audit log, read-only guard, state hash
+      server.py                       OpenEnv MCPEnvironment adapter over a task set's tool list
+    graders/                      [D2]
+      framework.py                    runs a rubric over final state: gates, step results, pass rule
+      judge.py                        AI-judge wrapper (reported separately)
+  task_sets/
+    __init__.py                   [A8] imports every task set, which registers its TaskSetSpec
+    ap_invoices_my_sg/
+      __init__.py  spec.py        [A8] the TaskSetSpec (decisions, extra fields, costs, quotas,
+                                      schema path, HF repo id), registered on import
+      envelope.py                 [A8] the invoice Case as payload of the core CaseEnvelope
+      models/                     [A] pydantic records (§4)
+        common.py                     task-set enums (countries, decisions, tax codes, tiers);
+                                      re-exports the core base types
+        company.py  supplier.py  procurement.py (PO, receipt)  invoice_base.py  invoice_my.py
+        invoice_sg.py  email.py  policy.py  case.py  answer.py  facts.py  catalog.py
+      rules/                      [A] rules engine, pure functions, no I/O
+        view.py                       CaseView builder (the one case view)
+        matching.py                   PO, receipt, price, quantity, partial delivery
+        duplicates.py                 exact and near duplicates, credit-note reissues
+        fraud.py                      bank details vs record, bank change by email
+        validity_sg.py                IRAS tax-invoice checks
+        validity_my.py                MyInvois mandatory fields
+        tax_sg.py  tax_my.py          tax treatment
+        routing.py                    no PO, approval limit
+        gl.py                         GL account
+        decide.py                     findings -> decision by fixed priority -> answer key
+        constants.py                  rates and thresholds, each with its source URL from the rule sheet
+        table_rows.py                 maps each row of the rule-sheet table to its tests (§5.4)
+      generator/                  [B1]
+        entities.py                   companies, suppliers, people, banks, CoA, policy packs
+        scenario.py                   clean base case: PO, receipt, invoice, history, cover email
+        ops.py                        named edit operations used by hard-case templates (§7.2)
+        hardcases.py                  loads and instantiates templates
+        consistency.py                cross-file checks (§8.4)
+      render/                     [B3]
+        viewmodel.py                  record -> formatted strings per layout; expected strings for pdfcheck
+      baseline.py                 [C] rules-only baseline
+      env/                        [D1]
+        state.py                      this task set's company systems on top of core env/base.py
+        tools.py                      the MCP tools (§10.2), plain functions over state
+        colleagues.py                 scripted fact-sheet replies (§10.3)
+      rubric/                     [D2]
+        rubric.py                     the 10-step rubric (§10.4) for core graders/framework.py
+        traps.py                      trap counters
+        judge_prompt.md               the step-10 judge prompt
+      content/                    shipped as package data, so the hidden repo gets the same content
+        catalog/                  [A] item and service categories, tax class, GL role, sources
+        policy/                   [B1] policy-pack templates and policy-document text templates
+        phrasebanks/              [B1 starter, B2 full] text banks (§7.3)
+        hardcases/                [B1 format, B2 content] hard-case templates (§7.2)
+        names/                    [B1] company, person, street, bank name banks
+        typst/                    [B3] invoice layouts
+        fonts.lock.yaml           [B3] font files: URL, sha256, licence (fonts are not committed)
+        release-seeds.yaml        [B1] public seeds for train and test
+baselines/ap-invoices-my-sg/      [C] baseline entries (predictions + metadata)
+results/ap-invoices-my-sg/v0.9/   [C] results entries; leaderboard.md
 docker/                           [B3] build.Dockerfile (release builds); [D1] env.Dockerfile
 tests/
-  rules/  generator/  render/  scorer/  env/  graders/
+  core/                           [A8] isolation, registry, envelopes; later generator, render, scorer, env, graders
+  models/  rules/                 [A] task-set tests; later generator/, env/, rubric/ for the task set
   fixtures/                       YAML only: check_public rule 5 rejects .json/.jsonl/.csv in git
 ```
 
 All content files are YAML or Typst. That matters because `check_public.py` (repo mode) fails on any `.json`, `.jsonl`, `.csv` or `.parquet` file outside its exempt paths.
+
+Later sections use short paths. `content/.../` means `task_sets/ap_invoices_my_sg/content/`; `generator/ops.py`, `rules/…`, `env/tools.py` and `rubric/…` are in the task set; `core/…` paths are in core.
+
+Where a file goes, in one rule: if a second task set (expense claims) would use it unchanged, it goes in `core/`; if it names invoices, POs, SST, GST or this task set's decisions, it goes in the task set. Core code reads task-specific things only through the `TaskSetSpec` or through functions the task set hands it (for example the tool list for the environment, or the rubric steps for the grader framework).
+
+### 3.1 Shared case format and task-set registration (built in A8)
+
+**Case envelope** (`core/case.py`). Only the fields the spec already gives every task set:
+
+- `case_id`, `task_set`, `split`, `country`, `languages`, `modality`, `provenance`, `canary`
+- `documents`: a list of `{role, record | file}`. `record` names a field of the payload that holds a structured record; `file` is a path in the release (PDF, scan or photo). Exactly one of the two.
+- `payload`: the task set's own case model. For this task set it is the invoice `Case` (§4.8).
+
+Until B1, the invoice `Case` still carries its own `case_id`, `split`, `country`, `languages`, `modality` and `provenance`, because the rules engine and the A fixtures read them there. `ApCaseEnvelope` checks that envelope and payload agree. B1 removes the copies from the payload when the generator starts writing envelopes, and the export writes envelope columns plus a payload column. No answer key changes from this.
+
+**Answer-key envelope** (`core/case.py`): `case_id`, `task_set`, `decision`, `answer` (the extra scored fields the task set declares, by name; never a confidence), `answer_source`. The task set's `AnswerKey` keeps its findings and agent-grader truth and converts with `AnswerKey.envelope()`. For this task set the extra fields are `tax_treatment`, `gl_account` and `reason_codes`.
+
+**TaskSetSpec** (`core/task_set.py`): `id`, `title`, `spec_version`, `decisions` (must include `HAND_OVER`), `approve_decision`, `trap_decisions` (approving a case whose right decision is one of these is a critical error), `extra_fields`, `costs` (the leaderboard weighting first, then the alternatives), `invalid_output_is` (which cost an invalid prediction gets; Q19), `quotas` (percent per primary exception type, summing to 100), `output_schema` (path) and `hf_repo_id`. `task_sets/ap_invoices_my_sg/spec.py` builds it from the spec's tables and registers it on import; `import decision_benchmark.task_sets` registers every task set. A test checks that the spec's decisions and fields match `output.schema.json`.
+
+**release/ (note only; no code change in A8).** `release/` still hard-codes this task set: `publish.py` has the HF repo id, and `allowlist.txt` names the card, schema and docs paths of `ap-invoices-my-sg`. When B3 touches release wiring (§9.4), it makes `stage.py` and `publish.py` take `--task-set <id>`, read `hf_repo_id` from the TaskSetSpec, and use one allowlist per task set (`release/allowlists/<id>.txt`). `check_public.py` stays generic as it is. The HF collection stays one collection for all task sets. Until then, the hard-coded values must equal the spec's; a B3 test checks that.
 
 ## 4. Data model
 
@@ -168,6 +212,8 @@ Per case, per simulated person:
 Topics are a fixed list for all cases: `delivery`, `quantity`, `price`, `bank_details`, `approval`, `tax`, `vehicle_use`, `duplicate`, `service_period`, `other`.
 
 ### 4.8 Case
+
+The task set's payload inside the core case envelope (§3.1). Fields as built in A (the "Links" line was dropped in A: the engine finds the PO, receipts and threads itself):
 
 - `case_id` (`ap-my-00421`, `ap-sg-00017`), `split`, `country`, `company_id`, `as_of_date`
 - `invoice` (MY or SG model), `invoice_file` (`pdf/{split}/{case_id}.pdf` or `.jpg`), `modality` (`pdf`/`scan`/`photo`)
@@ -588,7 +634,7 @@ Run on every case; any failure stops the build.
 
 - Proposed share (Q21): 70% digital PDF, 20% scan, 10% phone photo. Scans and photos are used only for 1-page invoices.
 - Typst renders PNG at 200 ppi directly, so no extra rasteriser is needed.
-- Two Augraphy pipelines with fixed parameter ranges in `render/degrade.py`: `scan` (paper texture, light ink bleed, low-ink lines, small rotation, photocopy noise) and `photo` (perspective, lighting gradient, shadow, slight blur). Severity is capped so text stays readable.
+- Two Augraphy pipelines with fixed parameter ranges in `core/render/degrade.py`: `scan` (paper texture, light ink bleed, low-ink lines, small rotation, photocopy noise) and `photo` (perspective, lighting gradient, shadow, slight blur). Severity is capped so text stays readable.
 - Seeding: Augraphy `random_seed` from the case seed, plus `random` and `numpy` seeded inside the call. `cv2.setNumThreads(1)`.
 - JPEG at fixed quality and subsampling, no EXIF or other metadata.
 
@@ -614,8 +660,8 @@ The build image (`docker/build.Dockerfile`) is pinned by digest, built and pushe
 
 ### 10.1 Design
 
-- Core: `env/state.py` + `env/tools.py`, plain Python over one case's `CaseView`. Testable without Docker.
-- Adapter: `env/server.py` exposes the tools through OpenEnv's `MCPEnvironment`. The first commit of D1 is a short spike that confirms the OpenEnv API at a pinned version. If it doesn't fit, the fallback is a plain MCP server (official `mcp` SDK) in the same image. The core doesn't change either way.
+- Core: the task set's `env/state.py` + `env/tools.py` on top of `core/env/base.py`, plain Python over one case's `CaseView`. Testable without Docker.
+- Adapter: `core/env/server.py` exposes the tools through OpenEnv's `MCPEnvironment`. The first commit of D1 is a short spike that confirms the OpenEnv API at a pinned version. If it doesn't fit, the fallback is a plain MCP server (official `mcp` SDK) in the same image. The core doesn't change either way.
 - Image: `docker/env.Dockerfile`, pinned base, loads the `companies` and `agent` rows for the run. It strips every `answer_*` column at load time. A test scans the container's files and the loaded state for `answer_` keys and fails if any appear.
 - Inspect: `ap_agent` task uses the image as a Docker sandbox and connects to its MCP server. A Prime Intellect verifiers adapter can come later.
 - Episode: the agent gets the invoice (record or file, per the run's input mode) and the instruction. It ends at the first terminal action or at a step limit (60 tool calls), which counts as no decision (scored as invalid output, Q19).
@@ -682,7 +728,7 @@ Final state = the decision record, the outbox and the audit log, read from the s
 
 A failed gate sets every later step to 0. A case passes only if steps 1–9 pass. Also recorded per case: steps used, tool calls, US$, time.
 
-The judge (`graders/judge.py`) uses a committed prompt and a model id fixed for all of v0.9 (Q30). It runs only in our own runs, never in results CI.
+The judge (`core/graders/judge.py`) uses a committed prompt (the task set's `rubric/judge_prompt.md`) and a model id fixed for all of v0.9 (Q30). It runs only in our own runs, never in results CI.
 
 ### 10.5 Traps and bad-agent tests
 
@@ -706,7 +752,7 @@ The oracle proves the graders accept correct work. The others prove they reject 
 
 ## 11. Scorer
 
-### 11.1 Metrics (`scorer/metrics.py`, plain Python)
+### 11.1 Metrics (`core/scorer/metrics.py`, plain Python)
 
 Per case, with `t` = answer decision and `p` = predicted decision:
 
@@ -778,13 +824,13 @@ Each row is one build PR, one commit per step, reviewed and merged before the ne
 
 | PR | Contents | Acceptance checks |
 | --- | --- | --- |
-| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes |
-| **B1** Structured generator | seeds, quotas, entities, scenario, ops, hard-case loader with a starter set, starter phrasebanks, CaseView, consistency checks, parquet export, `db-generate` | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files |
+| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests; A8: split `core/` from `task_sets/ap_invoices_my_sg/` (case and answer envelopes, TaskSetSpec, registry; §3.1) | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes; A8: core never imports a task set or names one (test), every answer key fits the answer envelope and the TaskSetSpec, no answer key changed |
+| **B1** Structured generator | core: seeds, quotas from TaskSetSpec, phrasebank assembler, envelope parquet export, `db-generate --task-set`; task set: entities, scenario, ops, hard-case loader with a starter set, starter phrasebanks, consistency checks; envelope copies removed from the payload `Case` (§3.1) | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files |
 | **B2** Text content | full phrasebanks and hard-case families (content from Claude, reviewed by Sebastian), name banks, linters, variety and shortcut checks | linters pass; variety thresholds met; shortcut check ≤ majority + 5 points; every family's `expect` holds on 50 draws |
-| **B3** Rendering + data alpha | Typst layouts, fonts lock, `render/*`, PDF text check, build image, `build-data` job, allowlist and card changes, manifest | every case renders; PDF text check passes; release double build compares records and PDFs; card states what the manifest covers; dry run lists the expected ~2,500 files; then (on "release") `v0.9.0-alpha.2` with data (Q1) |
-| **C** Scorer + baselines + results CI | `scorer/*`, `db-score`, `db-leaderboard`, Inspect `ap_decision`, pass^3 cross-check, baselines, `results.yml`, `check_public` exemption | hand-computed costs on a 20-case fixture, incl. every CHANGELOG clarification row; always-hand-over cost = 1 − HAND_OVER share exactly; pass^3 cross-check test; a fake results PR fixture passes, a broken one fails; baselines committed |
-| **D1** Environment | `env/*`, OpenEnv adapter (after spike), env image, Inspect `ap_agent` | every tool covered by tests; no `answer_*` reachable in the container; read-only except clerk actions (state hash unchanged after reads); colleague replies reproducible |
-| **D2** Graders + bad agents | `graders/*`, judge prompt, bad-agent and oracle tests | oracle 100% pass; every bad agent behaves as in §10.5; gates zero later steps; then (on "release") `v0.9.0` |
+| **B3** Rendering + data alpha | core: `render/typst.py`, Augraphy `render/degrade.py`, PDF text check; task set: Typst layouts, fonts lock, `render/viewmodel.py`; build image, `build-data` job; `release/` takes `--task-set` and reads the HF repo id from the TaskSetSpec, one allowlist per task set (§3.1); card changes, manifest | every case renders; PDF text check passes; release values (HF repo id, schema path) come from the TaskSetSpec; release double build compares records and PDFs; card states what the manifest covers; dry run lists the expected ~2,500 files; then (on "release") `v0.9.0-alpha.2` with data (Q1) |
+| **C** Scorer + baselines + results CI | core: `scorer/*` driven by the TaskSetSpec (costs, decisions, schema), `db-score`, `db-leaderboard`, Inspect task factory (decision task registered as `ap_decision`), trivial baselines, `results.yml`, `check_public` exemption; task set: rules-only baseline; pass^3 cross-check | hand-computed costs on a 20-case fixture, incl. every CHANGELOG clarification row; always-hand-over cost = 1 − HAND_OVER share exactly; pass^3 cross-check test; a fake results PR fixture passes, a broken one fails; baselines committed |
+| **D1** Environment | core: `env/base.py`, OpenEnv adapter `env/server.py` (after spike), agent task in the Inspect factory; task set: `env/state.py`, MCP tools, colleagues; env image, Inspect `ap_agent` | every tool covered by tests; no `answer_*` reachable in the container; read-only except clerk actions (state hash unchanged after reads); colleague replies reproducible |
+| **D2** Graders + bad agents | core: grader framework, judge wrapper; task set: `rubric/*` (10 steps, traps, judge prompt); bad-agent and oracle tests | oracle 100% pass; every bad agent behaves as in §10.5; gates zero later steps; then (on "release") `v0.9.0` |
 | **H** Hidden repo (in `decision-benchmark-hidden`) | §13 | done there; nothing lands here |
 
 Why this order: once `v0.9.0` data carries scores, any answer-key fix forces a new spec version. The alpha data release lets people look at the data while C and D still exercise it (rules-only disagreements, oracle agent). Only after both pass do we tag `v0.9.0`. If you prefer `v0.9.0` right after B3 as originally suggested, that also works; the risk is a v0.10 if C or D finds a key bug.

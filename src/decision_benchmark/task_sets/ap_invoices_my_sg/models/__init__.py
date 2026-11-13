@@ -1,4 +1,4 @@
-"""Pydantic schemas for task set ap-invoices-my-sg (step-11 plan §4)."""
+"""Pydantic schemas for task set ap-invoices-my-sg (step-11 plan §4). Generic base types come from core."""
 
 from .answer import AnswerKey, Finding
 from .case import Case, CompanyRecords, LedgerInvoice, Provenance
@@ -6,6 +6,7 @@ from .catalog import Catalog, Category, load_catalog
 from .common import (
     MY_TAX_CODES,
     SG_TAX_CODES,
+    TASK_SET_ID,
     AnswerSource,
     Country,
     Decision,
@@ -40,6 +41,7 @@ from .supplier import BankAccount, BankChange, Contact, Supplier
 __all__ = [
     "MY_TAX_CODES",
     "SG_TAX_CODES",
+    "TASK_SET_ID",
     "Account",
     "Address",
     "AnswerKey",

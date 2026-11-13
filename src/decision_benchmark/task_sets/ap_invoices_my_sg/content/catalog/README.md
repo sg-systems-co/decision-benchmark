@@ -6,7 +6,7 @@ The file is drafted by Claude in the planning chat and approved by Sebastian (st
 
 ## Format
 
-YAML. Validated by `decision_benchmark.models.Catalog` (`src/decision_benchmark/models/catalog.py`). Unknown keys are errors. Don't write numbers as floats; this file has none.
+YAML. Validated by `decision_benchmark.task_sets.ap_invoices_my_sg.models.Catalog` (`src/decision_benchmark/task_sets/ap_invoices_my_sg/models/catalog.py`). Unknown keys are errors. Don't write numbers as floats; this file has none.
 
 ```yaml
 version: 1

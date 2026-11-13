@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from decision_benchmark.rules.table_rows import ROWS
+from decision_benchmark.task_sets.ap_invoices_my_sg.rules.table_rows import ROWS
 
 from . import test_table_rows
 

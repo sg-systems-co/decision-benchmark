@@ -8,8 +8,8 @@ import jsonschema
 import pytest
 import yaml
 
-from decision_benchmark.models import Case, CompanyRecords
-from decision_benchmark.rules import answer_case
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import Case, CompanyRecords
+from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
 
 from .factory import CATALOG, answer, my_base, sg_base
 

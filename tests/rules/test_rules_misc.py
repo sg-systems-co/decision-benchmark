@@ -2,9 +2,9 @@
 
 import pytest
 
-from decision_benchmark.models import Decision as D
-from decision_benchmark.models import TaxTreatment as T
-from decision_benchmark.rules import UnsupportedCase
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import Decision as D
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices_my_sg.rules import UnsupportedCase
 
 from .factory import answer, ledger_copy, my_base, my_line, set_lines, set_po_line, sg_base, sg_line
 

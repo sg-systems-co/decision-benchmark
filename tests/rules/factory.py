@@ -9,8 +9,8 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 
-from decision_benchmark.models import Case, CompanyRecords, load_catalog
-from decision_benchmark.rules import answer_case
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import Case, CompanyRecords, load_catalog
+from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
 
 CATALOG = load_catalog(Path(__file__).resolve().parents[1] / "fixtures" / "catalog.yaml")
 

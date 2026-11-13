@@ -5,8 +5,8 @@ covers which row is recorded in decision_benchmark/rules/table_rows.py, and
 test_table_coverage.py checks that every row is covered.
 """
 
-from decision_benchmark.models import Decision as D
-from decision_benchmark.models import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import Decision as D
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import TaxTreatment as T
 
 from .factory import answer, my_base, my_line, set_lines, set_po_line, sg_base, sg_line
 
