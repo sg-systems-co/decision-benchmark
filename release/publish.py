@@ -81,9 +81,10 @@ def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT) -> list[str]:
 
 
 def git_sha(root: Path = REPO_ROOT) -> str:
-    sha = os.environ.get("GITHUB_SHA")
-    if sha:
-        return sha
+    """The commit being published: the checked-out tag, not GITHUB_SHA (which is the
+    default branch on workflow_dispatch). RELEASE_GIT_SHA overrides, for tests."""
+    if os.environ.get("RELEASE_GIT_SHA"):
+        return os.environ["RELEASE_GIT_SHA"]
     try:
         return subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], capture_output=True, text=True,
                               check=True).stdout.strip()

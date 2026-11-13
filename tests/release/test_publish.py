@@ -31,7 +31,7 @@ def staged(tmp_path):
 @pytest.fixture
 def token_env(monkeypatch):
     monkeypatch.setenv("HF_TOKEN", fake_token())
-    monkeypatch.setenv("GITHUB_SHA", "abc1234")
+    monkeypatch.setenv("RELEASE_GIT_SHA", "abc1234")
 
 
 def http_error(code: int) -> HfHubHTTPError:
