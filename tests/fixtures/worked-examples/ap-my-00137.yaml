@@ -1,0 +1,104 @@
+# Step-11 plan §6.1: clean Malaysian case.
+records:
+  company:
+    company_id: my-c-007
+    split: train
+    country: MY
+    legal_name: Teratai Plastik Industri Sdn Bhd
+    registration_no: "202001045512"
+    address: {lines: ["Lot 12, Jalan Perindustrian 3"], city: Shah Alam, postcode: "40000", state: Selangor, country: MY}
+    base_currency: MYR
+    industry: plastic packaging
+    tin: C24518830050
+    sst_registration_no: B16-1809-31000877
+    is_registered_manufacturer: true
+    services_provided: []
+    people:
+      - {person_id: p-007-01, name: Nurul Aina, role: requester, email: aina@teratai.example}
+      - {person_id: p-007-03, name: Lim Wei Jie, role: manager, email: weijie@teratai.example, approval_role: ops_manager}
+    policy_pack:
+      tolerance_policy: {price_tolerance_pct: "2.0", quantity_tolerance_units: "0", rounding_tolerance: "0.05", duplicate_window_days: 90}
+      approval_matrix: [{approval_role: ops_manager, limit: "20000.00", currency: MYR}]
+      chart_of_accounts:
+        - {code: "6150-100", name: IT support and maintenance, type: expense, role: it_services}
+        - {code: "5300-400", name: Freight and haulage inward, type: expense, role: freight_inward}
+      tax_registration: {country: MY, numbers: {sst: B16-1809-31000877}, status: registered}
+      price_change_rule: {text: "Price changes count only through an approved PO amendment."}
+      bank_change_rule: {text: "Bank changes count only through the verified supplier-master process."}
+  suppliers:
+    - supplier_id: S-0031
+      company_id: my-c-007
+      name: Awan Biru Systems Sdn Bhd
+      country: MY
+      address: {lines: ["Unit 8-2, Menara Awan"], city: Petaling Jaya, country: MY}
+      registration_no: "201701022334"
+      currency: MYR
+      payment_terms_days: 30
+      bank_account: {bank_name: Bank Seri Pertama, account_name: Awan Biru Systems Sdn Bhd, account_no: "5140 2201 8876"}
+      tin: C20345671020
+      brn: "201701022334"
+      sst_registration_no: W10-2403-32000418
+      sst_type: service
+      turnover_band: RM5m-25m
+  purchase_orders:
+    - po_number: PO-26-0912
+      company_id: my-c-007
+      supplier_id: S-0031
+      po_date: 2026-09-28
+      currency: MYR
+      requester_id: p-007-01
+      approver_id: p-007-03
+      status: open
+      lines:
+        - {line_no: 1, description: "IT support retainer, Oct 2026", category: it_services, qty: 1, uom: month, unit_price: "3200.00", gl_account: "6150-100"}
+      total_net: "3200.00"
+  goods_receipts:
+    - {gr_number: GR-26-1450, po_number: PO-26-0912, gr_date: 2026-10-31, kind: service_confirmation, received_by: p-007-01,
+       lines: [{po_line_no: 1, qty_received: 1, uom: month}]}
+  ledger: []
+  emails:
+    - {thread_id: T-0137, message_id: M-0137-1, company_id: my-c-007, case_id: ap-my-00137, sent_at: "2026-11-03T09:12:00",
+       sender: {name: Awan Biru AR, address: ar@awanbiru.example}, to: [{address: ap@teratai.example}],
+       subject: "Invoice ABS-INV-2611-044", body: "Dear AP team, please find attached our invoice for October support.",
+       attachments: [INV-0137], intent: invoice_cover}
+case:
+  case_id: ap-my-00137
+  split: train
+  country: MY
+  company_id: my-c-007
+  as_of_date: 2026-11-05
+  supplier_id: S-0031
+  invoice:
+    country: MY
+    invoice_id: INV-0137
+    invoice_number: ABS-INV-2611-044
+    issue_date: 2026-11-03
+    supplier_block: {name: Awan Biru Systems Sdn Bhd, address: "Unit 8-2, Menara Awan, Petaling Jaya"}
+    buyer_block: {name: Teratai Plastik Industri Sdn Bhd, address: "Lot 12, Jalan Perindustrian 3, Shah Alam"}
+    po_reference: PO-26-0912
+    currency: MYR
+    totals: {net: "3200.00", tax: "256.00", gross: "3456.00"}
+    bank_block: {bank_name: Bank Seri Pertama, account_no: "5140 2201 8876"}
+    is_einvoice: true
+    einvoice_version: "1.0"
+    einvoice_type_code: "01"
+    supplier_tin: C20345671020
+    supplier_brn: "201701022334"
+    supplier_sst_no: W10-2403-32000418
+    buyer_tin: C24518830050
+    buyer_brn: "202001045512"
+    buyer_sst_no: B16-1809-31000877
+    tax_total_by_type: {"02": "256.00"}
+    lines:
+      - {line_no: 1, description: "IT support retainer, Oct 2026", qty: 1, uom: month, unit_price: "3200.00", net_amount: "3200.00",
+         tax_rate: "8", tax_amount: "256.00", classification_code: "022", tax_type: "02", po_line_no: 1, category: it_services}
+expect:
+  decision: APPROVE
+  tax_treatment: SST_CORRECT
+  gl_account: "6150-100"
+  reason_codes: [MATCHED_WITHIN_TOLERANCE]
+  answer_source: rules
+  truth_supplier_id: S-0031
+  truth_po_number: PO-26-0912
+  truth_price_variance_pct: "0"
+  requires_supplier_contact: false
