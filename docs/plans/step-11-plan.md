@@ -1,6 +1,6 @@
 # Step 11 plan: generator, rules engine, scorer, agent environment
 
-Status: draft for review, 13 Nov 2026. Task set: `ap-invoices-my-sg`. Spec: v0.9 ("synthetic, rules-based"), frozen.
+Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices-my-sg`. Spec: v0.9 ("synthetic, rules-based"), frozen.
 
 This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review.
 
@@ -828,9 +828,25 @@ Why this order: once `v0.9.0` data carries scores, any answer-key fix forces a n
 10. **Solo-maintainer load.** Mitigation: seven small PRs, few dependencies, content as reviewable YAML.
 11. **Hidden data reaching Claude's context.** Mitigation: the hook; hidden work only in the hidden repo.
 
-## 16. Open questions
+## 16. Open questions and decisions
 
 Each has my recommendation. None changes the spec; several record a reading of it.
+
+### Decisions (Sebastian, 13 Nov 2026)
+
+All 33 recommendations are accepted as written, with these specifics:
+
+- **Q1.** `v0.9.0-alpha.2` after B3; `v0.9.0` only after C and D2.
+- **Q2.** 9% confirmed on the IRAS GST rates page. Cite it in `rules/constants.py` and record it as a CHANGELOG clarification.
+- **Q3.** Accepted, plus a CHANGELOG clarification of rule-sheet row 4 ("invalid or missing" GST number): "missing" means the supplier is not registered, or the printed number doesn't match the supplier record → `GST_WRONGLY_CHARGED`. A registered supplier who just leaves the number off the invoice → `NOT_CLAIMABLE_INVALID_INVOICE`, per the IRAS invalidity list. Both end as REQUEST_CORRECTED_INVOICE.
+- **Q19.** Worst cost (10; 5 and 20 under the alternatives), not counted as critical. CHANGELOG clarification.
+- **Q22.** Faker dropped; committed name banks.
+- **Q25.** A paid Thai check; spot checks for MS and ZH.
+- **Q30.** Judge model decided at D2. Earlier PRs don't wait on it.
+- **CHANGELOG.** The clarifications for Q2, Q3, Q19, Q20 and Q29 go into one block in PR A, while no scores exist.
+- **Catalog.** Claude drafts it with sources in the planning chat for PR A, in the format PR A specifies.
+
+### Questions as raised
 
 1. **Release order.** Publish data first as `v0.9.0-alpha.2` after B3, tag `v0.9.0` only after C and D pass? *Recommend yes* (§12).
 2. **SG GST rate.** The rule sheet never states 9%. *Recommend* using 9% (IRAS, since 1 Jan 2024), citing it in `rules/constants.py`, and adding it to CHANGELOG as a clarification while no scores exist.
