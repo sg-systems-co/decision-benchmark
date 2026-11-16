@@ -15,7 +15,9 @@ The file is drafted by Claude in the planning chat and approved by Sebastian (st
 | `sales_exempt` | 4 |
 | Schedule C eligible (of the sales-tax goods) | 17: raw materials, packaging, components |
 | `service_6` | 7 (F&B, logistics ×3, telecoms, parking, construction) |
-| `service_8` | 16 (11 Group G with the B2B test, 2 Group G excluded: employment and guards) |
+| `service_8` | 16 (13 Group G, advertising, hotel, vehicle servicing) |
+| B2B exemption (`b2b_exempt`) | 16: Group G except (j) and (k), logistics J1(a) and J1(d), advertising I8, construction L |
+| Group relief (`group_relief`) | 10: the Group G items (a) to (i) |
 | `none` | 1 |
 
 Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one each of the other five).
@@ -23,20 +25,19 @@ Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one e
 **Where the rates come from.** Every source is an official page or a PDF linked from one, and every one was opened and read on 16 Nov 2026.
 
 - Goods: the gazetted Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] and Sales Tax (Goods Exempted from Sales Tax) Order 2025 [P.U. (A) 171/2025], with all later amendments, as linked from https://mysst.customs.gov.my/sst-orders/ (see the header of `categories.yaml`). Each goods entry names its HS heading or exact subheading in `note`.
-- Services: the RMCD industry guides linked from https://mysst.customs.gov.my/industry-guides/, the service-tax FAQ and the MOF releases. Group G entries name their item letter in `note`.
+- Services: the RMCD industry guides linked from https://mysst.customs.gov.my/industry-guides/, the service-tax FAQ and the MOF releases. Every taxable service names its First Schedule item in `service_item`.
 - Singapore: the IRAS page on conditions for claiming input tax.
 
 **Left out on purpose.** Rental and leasing (Q10; its rate also changed to 6% on 1 January 2026), financial services, private healthcare, education, beauty, cleaning services, domestic flights and Malaysian electricity (none of these is settled by the rule sheet).
 
 ### Rules for the generator (B1)
 
-- **B2B exemptions v0.9 does not model.** Logistics (`logistics_haulage`, `courier_services`, `warehousing`), advertising and construction works have B2B exemptions of their own. A company's `services_provided` may only contain categories with `group_g: true` and `group_g_excluded: false`, so no buyer ever provides one of the other services.
-- **"Same service" means the same Group G item.** `it_services` and `software_development` are both item (h), and `business_consultancy` and `training_courses` are both item (g). A company that provides one of them lists both in `services_provided`, because the engine compares categories.
-- **Group relief** covers items (a) to (i) and (l) only (Service Tax Policy 8/2020, amendment no. 1). Never set `group_relation: unclear` on an invoice for `maintenance_repair` (item n), `recruitment_services` or `security_guards`: there the group question doesn't arise, so HAND_OVER would be wrong.
+- **B2B exemption.** A company's `services_provided` lists First Schedule items (`service_item` values such as `G(h)`, `J1(a)`, `I8`, `L`), not categories. A line is exempt when its category has `b2b_exempt: true`, both parties are SST-registered, the buyer provides the same item and the line is not for personal use. Different categories can share an item: `it_services` and `software_development` are both `G(h)`, `logistics_haulage` and `warehousing` both `J1(a)`. Courier is `J1(d)`, a different item from `J1(a)`.
+- **Group relief** applies only to categories with `group_relief: true` (Group G items (a) to (i) and (l), Service Tax Policy 8/2020, amendment no. 1). Set `group_relation: unclear` only on invoices for those; for any other category the relation doesn't matter and the case is not a HAND_OVER.
 - **Construction:** contracts signed on or after 1 July 2025, commercial premises only.
-- **Courier:** parcels up to 30 kg each. **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
+- **Courier:** a courier licensed under the Postal Services Act 2012 (item `J1(d)`), parcels up to 30 kg each. **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
 - **Singapore motor cars and staff medical:** `vehicle_servicing`, `company_car_tyres_parts` and `company_car_leasing` need the line fact `vehicle_is_motor_car`; `staff_medical` needs `staff_medical_obligatory`, true when any IRAS exception applies. Where the documents don't say, the case is HAND_OVER.
-- **`group_medical_insurance`:** IRAS allows the claim when the insurance is obligatory under the Work Injury Compensation Act or a collective agreement. Until the engine models that, use it only with documents that state the cover is voluntary.
+- **`group_medical_insurance`** needs the line fact `insurance_obligatory`: true when the cover is obligatory under the Work Injury Compensation Act or a collective agreement (claimable), false when it is not (disallowed). Where the documents don't say, the case is HAND_OVER.
 - **`parking` in Singapore** is delivery-vehicle parking only.
 - `sales_exempt` and `none` categories appear in clean cases only; the generator never charges tax on them.
 
@@ -58,33 +59,33 @@ categories:
     label: "Lorry haulage and freight transport"
     countries: [MY, SG]                # where the generator may use it
     tax:                               # one profile per country; see "Tax profiles"
-      MY: {tax_class: service_6}
+      MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false}
       # SG omitted: no Regulation 26/27 class, so the default SG profile applies
     gl_role: freight_inward            # key into the chart-of-accounts templates
     sources:                           # at least one https URL, taken from tax-rules-v0.9.md
       - "https://mysst.customs.gov.my/faq-services-tax/"
-    note: "Logistics is one of the four 6% service categories."
+    note: "Group J item 1(a): one of the four 6% service categories, B2B exemption for the same item only."
 ```
 
 ### Tax profiles
 
 | Country | Required | Keys |
 | --- | --- | --- |
-| `MY` (`MyTaxProfile`) | yes, for every category used in MY | `tax_class`: `sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `none` (not taxable under SST in v0.9). `schedule_c_eligible` (goods under sales tax only), `group_g` (Group G professional service, B2B exemption test), `group_g_excluded` (Group G but excluded: employment, guard services). The three flags default to `false`. |
+| `MY` (`MyTaxProfile`) | yes, for every category used in MY | `tax_class`: `sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `none` (not taxable under SST in v0.9). `schedule_c_eligible` (goods under sales tax only). `service_item`: the First Schedule item, e.g. `G(a)`, `J1(a)`, `I8`, `L`; required for `service_6` and `service_8`, null otherwise. `b2b_exempt`: the item is in a B2B scheme (Group G except (j) and (k), Group J same item, Group I item 8, Group L). `group_relief`: Group G items (a) to (i) and (l) only. The flags default to `false`. |
 | `SG` (`SgTaxProfile`) | no; omit when nothing applies | `disallowed`: Regulation 26/27 class: `club_subscription`, `staff_medical`, `motor_car`, `family_benefit`, `medical_accident_insurance`, `betting`, or null (the default). |
 
 ### Checks the loader enforces
 
 - Every country in `countries` has a country pack; `tax` has no key outside `countries`.
 - A country whose pack requires a profile (MY) has one.
-- MY: goods never carry a `service_*` class, services never a `sales_*` class; `group_g: true` needs `kind: service` and `tax_class: service_8`; `group_g_excluded: true` needs `group_g: true`; `schedule_c_eligible: true` needs `kind: goods` and a `sales_*` class.
+- MY: goods never carry a `service_*` class, services never a `sales_*` class; `service_item` is set exactly for `service_6` and `service_8`; `b2b_exempt` and `group_relief` need a `service_item`; `group_relief` only on Group G items; `G(j)` and `G(k)` are never `b2b_exempt`; `schedule_c_eligible: true` needs `kind: goods` and a `sales_*` class.
 - Every source is an `https://` URL.
 
 ### What to include (step-11 plan §7.1, decisions Q9 and Q10)
 
 - About 60 categories: 30 goods, 30 services.
-- Every situation in the rule-sheet table needs at least one category: the four 6% services (F&B, logistics, telecoms, parking), Group G services (and the excluded employment and guard services), Schedule C raw materials, components, packaging and manufacturing aids, and all six Singapore Regulation 26/27 classes.
+- Every situation in the rule-sheet table needs at least one category: the four 6% services (F&B, logistics, telecoms, parking), the B2B schemes (Group G, logistics, advertising, construction) and the items without it (employment and guard services), Schedule C raw materials, components, packaging and manufacturing aids, and all six Singapore Regulation 26/27 classes.
 - Leave out categories the rule sheet doesn't settle: rental and leasing (Q10), and goods whose 5% or 10% sales-tax rate has no source in the rule sheet (Q9). Construction may be included at `service_6`.
 - `sales_exempt` and `none` categories are allowed in clean cases, but the generator never plants tax on them.
-- The SG `motor_car` and `staff_medical` classes need the invoice line's facts (`vehicle_is_motor_car`, `staff_medical_obligatory`, declared by the SG pack) (whether the vehicle is a motor car under Regulation 25(1); whether the medical cost is obligatory). Where the documents don't say, the case is HAND_OVER by construction.
+- The SG `motor_car`, `staff_medical` and `medical_accident_insurance` classes need the invoice line's facts (`vehicle_is_motor_car`, `staff_medical_obligatory`, `insurance_obligatory`, declared by the SG pack) (whether the vehicle is a motor car under Regulation 25(1); whether the medical cost or the insurance is obligatory). Where the documents don't say, the case is HAND_OVER by construction.
 - `gl_role` names are free text but must match the chart-of-accounts templates (added in PR B1). Use plain roles such as `it_services`, `freight_inward`, `raw_materials`, `club_subscriptions`, `staff_welfare_medical`, `motor_vehicle_running`.

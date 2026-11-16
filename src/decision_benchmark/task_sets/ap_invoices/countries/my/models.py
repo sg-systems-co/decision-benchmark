@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Literal
+from typing import Annotated, Literal
+
+from pydantic import Field
 
 from ...models.common import CountryBlock, Model, Money, TaxProfile, internal
 
@@ -18,13 +20,22 @@ class MyTaxTreatment(StrEnum):
 
 MyTaxClass = Literal["sales_5", "sales_10", "sales_exempt", "service_8", "service_6", "none"]
 MyTaxType = Literal["01", "02", "03", "04", "05", "06", "E"]
+ServiceItem = Annotated[str, Field(pattern=r"^[A-Z]([0-9]+)?(\([a-z]\))?$")]
+"""An item in the First Schedule, Service Tax Regulations 2018: group letter, item number, item letter.
+Examples: "G(a)", "G(h)", "J1(a)", "I8", "L"."""
 
 
 class MyTaxProfile(TaxProfile):
     tax_class: MyTaxClass
     schedule_c_eligible: bool = False
-    group_g: bool = False
-    group_g_excluded: bool = False
+    service_item: ServiceItem | None = None
+    """First Schedule item of a taxable service. Required for service_6 and service_8, null otherwise."""
+    b2b_exempt: bool = False
+    """The item is in a B2B exemption scheme (Group G except items (j) and (k), Group J same item,
+    Group I item 8, Group L): exempt when both parties are registered, the buyer provides the same
+    item, and the service is not for personal use."""
+    group_relief: bool = False
+    """Group G items (a) to (i) and (l) only (Service Tax Policy 8/2020 and amendment no. 1)."""
 
 
 class MyInvoisLine(Model):
@@ -57,8 +68,8 @@ class MyInvois(CountryBlock):
 class MyCompanyFacts(CountryBlock):
     country: Literal["MY"] = "MY"
     is_registered_manufacturer: bool = False
-    services_provided: list[str] = []
-    """Catalog service categories the company itself provides (Group G B2B test)."""
+    services_provided: list[ServiceItem] = []
+    """First Schedule service items the company itself provides (B2B exemption test), e.g. "G(h)"."""
     group_companies: list[str] = []
 
 

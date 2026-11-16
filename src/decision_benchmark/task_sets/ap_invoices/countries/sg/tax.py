@@ -77,6 +77,12 @@ def assess(inv: Invoice, supplier: Supplier, catalog: Catalog) -> TaxResult:
             if fact is None:
                 unsettled.append(Unsettled("staff_medical_obligation_unclear", tax_related=True))
             (claimable if fact else disallowed).append(line.line_no)
+        elif cls == "medical_accident_insurance":
+            # Claimable when obligatory under the Work Injury Compensation Act or a collective agreement.
+            fact = line.facts.get("insurance_obligatory")
+            if fact is None:
+                unsettled.append(Unsettled("insurance_obligation_unclear", tax_related=True))
+            (claimable if fact else disallowed).append(line.line_no)
         elif cls is not None:
             disallowed.append(line.line_no)
         else:

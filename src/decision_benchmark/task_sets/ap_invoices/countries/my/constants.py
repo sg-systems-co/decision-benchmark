@@ -16,6 +16,10 @@ GROUP_G_SOURCE = (
     "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
 )
 
+NO_B2B_ITEMS = ("G(j)", "G(k)")
+"""Group G items without the B2B exemption: employment services, private agencies (guards).
+RMCD Guide on Management Services, para 24."""
+
 TAX_TYPE_SALES = "01"
 TAX_TYPE_SERVICE = "02"
 
