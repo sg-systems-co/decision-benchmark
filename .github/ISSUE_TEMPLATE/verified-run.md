@@ -5,7 +5,7 @@ title: "Verified run: <model or system name>"
 labels: verified-run
 ---
 
-**Task set and spec version:** ap-invoices-my-sg, v0.9
+**Task set and spec version:** ap-invoices, v0.9
 
 **Model or system** (name and version):
 

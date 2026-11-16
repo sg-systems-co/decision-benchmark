@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas/ap-invoices-my-sg/v0.9"
+SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas/ap-invoices/v0.9"
 SCHEMA = json.loads((SCHEMA_DIR / "output.schema.json").read_text())
 VALIDATOR = Draft202012Validator(SCHEMA)
 
@@ -39,7 +39,7 @@ def test_invalid_examples_fail(path):
 
 
 def test_spec_example_is_verbatim_and_valid():
-    spec = (Path(__file__).resolve().parents[2] / "docs/task-sets/ap-invoices-my-sg/spec-v0.9.md").read_text()
+    spec = (Path(__file__).resolve().parents[2] / "docs/task-sets/ap-invoices/spec-v0.9.md").read_text()
     assert SPEC_EXAMPLE in spec
     VALIDATOR.validate(json.loads(SPEC_EXAMPLE))
 

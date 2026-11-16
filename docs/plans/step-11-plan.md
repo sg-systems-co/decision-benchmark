@@ -1,8 +1,8 @@
 # Step 11 plan: generator, rules engine, scorer, agent environment
 
-Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices-my-sg`. Spec: v0.9 ("synthetic, rules-based"), frozen.
+Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices` (called `ap-invoices-my-sg` until A10). Spec: v0.9 ("synthetic, rules-based"), frozen.
 
-This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review.
+This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review. PR A ended with commits A8 and A9, which split generic code (`core/`) from the task set (`task_sets/ap_invoices/`) and moved the shared case fields onto the core envelope. A10 split the task set into country-neutral models and rules plus one country pack per country, and renamed it `ap-invoices`. §3, §3.1, §3.2, §4 and §12 describe the result.
 
 Inputs read: `spec-v0.9.md`, `tax-rules-v0.9.md`, `schemas/ap-invoices-my-sg/v0.9/`, `release/`, `CHANGELOG.md`, `docs/plans/step-08-plan.md`, and the stack decisions extract of 13 Nov 2026 (DECIDED and PROPOSED items).
 
@@ -28,78 +28,153 @@ The plan follows the spec and the tax-rule sheet as written. Where they leave so
 
 ## 3. Module layout
 
-Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it.
+Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it. **[A8]**, **[A9]**, **[A10]** = the later commits of PR A: core split from the task set, envelope fields moved off the invoice `Case` (§3.1), country packs (§3.2).
+
+The spec gives every task set one case format, one scorer and one leaderboard. So the package has two halves: `core/` holds generic code, and `task_sets/<id>/` holds everything that knows about one task set. `ap_invoices` is the first task set; expense claims are planned as a later one.
 
 ```
 pyproject.toml                    [A] becomes an installable package (uv_build backend), so the
                                       hidden repo can depend on a tagged version; new dependency groups
 src/decision_benchmark/
-  models/                         [A] pydantic schemas (§4)
-    common.py                         Money, ids, dates, enums (decisions, tax codes, reason codes)
-    company.py  supplier.py  procurement.py (PO, receipt)  invoice_my.py  invoice_sg.py
-    email.py  policy.py  case.py  answer.py  facts.py
-  rules/                          [A] rules engine, pure functions, no I/O
-    view.py                           CaseView builder (the one case view)
-    matching.py                       PO, receipt, price, quantity, partial delivery
-    duplicates.py                     exact and near duplicates, credit-note reissues
-    fraud.py                          bank details vs record, bank change by email
-    validity_sg.py                    IRAS tax-invoice checks
-    validity_my.py                    MyInvois mandatory fields
-    tax_sg.py  tax_my.py              tax treatment
-    routing.py                        no PO, approval limit
-    gl.py                             GL account
-    decide.py                         findings -> decision by fixed priority -> answer key
-    constants.py                      rates and thresholds, each with its source URL from the rule sheet
-    table_rows.py                     maps each row of the rule-sheet table to its tests (§5.4)
-  generator/                      [B1]
-    seeds.py                          derived seeds (§8.1)
-    quotas.py                         exact exception counts per split
-    entities.py                       companies, suppliers, people, banks, CoA, policy packs
-    scenario.py                       clean base case: PO, receipt, invoice, history, cover email
-    ops.py                            named edit operations used by hard-case templates (§7.2)
-    hardcases.py                      loads and instantiates templates
-    text.py                           phrasebank loader and assembler
-    consistency.py                    cross-file checks (§8.4)
-    export.py                         parquet writers for decision / agent / companies
-    cli.py                            `db-generate`
-  render/                         [B3]
-    viewmodel.py                      record -> formatted strings per layout
-    typst.py                          calls the pinned Typst compiler
-    degrade.py                        Augraphy scan and photo pipelines
-    pdfcheck.py                       text check of rendered PDFs against the record
-  scorer/                         [C]
-    metrics.py                        all leaderboard metrics, plain Python
-    validate.py                       predictions JSONL and metadata.yaml checks
-    cli.py                            `db-score`, `db-leaderboard`
-    inspect_tasks.py                  Inspect tasks: ap_decision, ap_agent
-    inspect_scorers.py                Inspect scorer + metrics wrapping metrics.py
-  env/                            [D1]
-    state.py                          in-memory company systems for one case, audit log
-    tools.py                          the MCP tools (§10.2), plain functions over state
-    colleagues.py                     scripted fact-sheet replies (§10.3)
-    server.py                         OpenEnv MCPEnvironment adapter
-  graders/                        [D2]
-    rubric.py                         10-step rubric from final state (§10.4)
-    traps.py                          trap counters
-    judge.py                          AI judge for step 10 (reported separately)
-  content/ap-invoices-my-sg/      shipped as package data, so the hidden repo gets the same content
-    catalog/                      [A] item and service categories, tax class, GL role, sources
-    policy/                       [B1] policy-pack templates and policy-document text templates
-    phrasebanks/                  [B1 starter, B2 full] text banks (§7.3)
-    hardcases/                    [B1 format, B2 content] hard-case templates (§7.2)
-    names/                        [B1] company, person, street, bank name banks
-    typst/                        [B3] invoice layouts
-    fonts.lock.yaml               [B3] font files: URL, sha256, licence (fonts are not committed)
-    release-seeds.yaml            [B1] public seeds for train and test
-baselines/                        [C] always_approve.py, always_hand_over.py, rules_only.py
-results/ap-invoices-my-sg/v0.9/   [C] baseline entries; leaderboard.md
+  core/                           generic code only; never imports task_sets/ and never names a
+                                  task set (tests/core/test_core_isolation.py enforces both)
+    model.py                      [A8] Model, Money, Num, internal fields, export_dict, AnswerSource
+    case.py                       [A8] CaseEnvelope, Document, Provenance, AnswerEnvelope (§3.1)
+    task_set.py                   [A8] TaskSetSpec and the registry (§3.1)
+    generator/                    [B1]
+      seeds.py                        derived seeds (§8.1)
+      quotas.py                       exact counts per split, from TaskSetSpec.quotas
+      text.py                         phrasebank loader and assembler
+      export.py                       parquet writers for envelopes (decision / agent / companies)
+      cli.py                          `db-generate --task-set <id>`
+    render/                       [B3]
+      typst.py                        calls the pinned Typst compiler
+      degrade.py                      Augraphy scan and photo pipelines
+      pdfcheck.py                     text check of a rendered PDF against expected strings
+    scorer/                       [C]
+      metrics.py                      all leaderboard metrics, plain Python, costs from TaskSetSpec.costs
+      validate.py                     predictions JSONL (against TaskSetSpec.output_schema) and metadata.yaml
+      baselines.py                    always-approve and always-hand-over for any task set
+      cli.py                          `db-score`, `db-leaderboard`
+      inspect_tasks.py                Inspect task factory: a decision task and an agent task per TaskSetSpec
+      inspect_scorers.py              Inspect scorer + metrics wrapping metrics.py
+    env/                          [D1]
+      base.py                         per-case state container, audit log, read-only guard, state hash
+      server.py                       OpenEnv MCPEnvironment adapter over a task set's tool list
+    graders/                      [D2]
+      framework.py                    runs a rubric over final state: gates, step results, pass rule
+      judge.py                        AI-judge wrapper (reported separately)
+  task_sets/
+    __init__.py                   [A8] imports every task set, which registers its TaskSetSpec
+    ap_invoices/
+      __init__.py  spec.py        [A8] the TaskSetSpec (decisions, extra fields, costs, quotas, report_by,
+                                      schema path, HF repo id), registered on import; loads the country packs
+      envelope.py                 [A8, A9] ApCaseEnvelope: the invoice Case as payload of the core CaseEnvelope
+      codes.py                    [A10] Decision, Tier, every finding/reason code (one StrEnum), priority table
+      findings.py                 [A10] finding(), priority sort, UnsupportedCase, Unsettled, TaxResult
+      table_rows.py               [A] maps each row of the rule-sheet table to its tests (§5.4)
+      models/                     [A, A10] country-neutral pydantic records (§4)
+        common.py                     CountryCode, CountryBlock and TaxProfile bases, the pack lookup;
+                                      re-exports the core base types, Decision and Tier
+        tax.py                        TaxRegistration (scheme, number, type, valid_from, valid_to)
+        company.py  supplier.py  procurement.py (PO, receipt)  invoice.py  email.py  policy.py
+        case.py  answer.py  facts.py  catalog.py
+      countries/                  [A10] one pack per country behind one CountryPack interface (§3.2)
+        __init__.py                   registry: PACKS = {country: pack}; pack(), scheme_types(), TaxTreatment
+        base.py                       CountryPack interface and shared checks
+        my/   models.py  constants.py  validity.py  tax.py    SST, MyInvois
+        sg/   models.py  constants.py  validity.py  tax.py    GST, IRAS tax invoice, PINT-SG
+      rules/                      [A] shared rules engine, pure functions, no I/O, no country names
+        view.py                       CaseView builder (the one case view); view.pack
+        matching.py                   PO, receipt, price, quantity, partial delivery
+        duplicates.py                 exact and near duplicates, credit-note reissues
+        fraud.py                      bank details vs record, bank change by email (email signals)
+        routing.py                    no PO, approval limit
+        gl.py                         GL account
+        decide.py                     pack validity + pack tax + shared checks -> decision by fixed priority
+      generator/                  [B1]
+        entities.py                   companies, suppliers, people, banks, CoA, policy packs
+        scenario.py                   clean base case: PO, receipt, invoice, history, cover email
+        ops.py                        named edit operations used by hard-case templates (§7.2)
+        hardcases.py                  loads and instantiates templates
+        consistency.py                cross-file checks (§8.4)
+      render/                     [B3]
+        viewmodel.py                  record -> formatted strings per layout; expected strings for pdfcheck
+      baseline.py                 [C] rules-only baseline
+      env/                        [D1]
+        state.py                      this task set's company systems on top of core env/base.py
+        tools.py                      the MCP tools (§10.2), plain functions over state
+        colleagues.py                 scripted fact-sheet replies (§10.3)
+      rubric/                     [D2]
+        rubric.py                     the 10-step rubric (§10.4) for core graders/framework.py
+        traps.py                      trap counters
+        judge_prompt.md               the step-10 judge prompt
+      content/                    shipped as package data, so the hidden repo gets the same content
+        catalog/                  [A] item and service categories, tax class, GL role, sources
+        policy/                   [B1] policy-pack templates and policy-document text templates
+        phrasebanks/              [B1 starter, B2 full] text banks (§7.3)
+        hardcases/                [B1 format, B2 content] hard-case templates (§7.2)
+        names/                    [B1] company, person, street, bank name banks
+        typst/                    [B3] invoice layouts
+        fonts.lock.yaml           [B3] font files: URL, sha256, licence (fonts are not committed)
+        release-seeds.yaml        [B1] public seeds for train and test
+baselines/ap-invoices/           [C] baseline entries (predictions + metadata)
+results/ap-invoices/v0.9/         [C] results entries; leaderboard.md (per country and overall)
 docker/                           [B3] build.Dockerfile (release builds); [D1] env.Dockerfile
 tests/
-  rules/  generator/  render/  scorer/  env/  graders/
+  core/                           [A8] isolation, registry, envelopes; later generator, render, scorer, env, graders
+  models/  rules/                 [A] task-set tests (rules/test_shared_code.py: no country names in shared
+                                  code, every pack fills the interface, constants defined once)
   fixtures/                       YAML only: check_public rule 5 rejects .json/.jsonl/.csv in git
 ```
 
 All content files are YAML or Typst. That matters because `check_public.py` (repo mode) fails on any `.json`, `.jsonl`, `.csv` or `.parquet` file outside its exempt paths.
+
+Later sections use short paths. `content/.../` means `task_sets/ap_invoices/content/`; `generator/ops.py`, `rules/…`, `env/tools.py` and `rubric/…` are in the task set; `countries/<cc>/…` is a country pack; `core/…` paths are in core. Where an older section says `rules/tax_my.py`, `rules/validity_sg.py` or `rules/constants.py`, read `countries/my/tax.py`, `countries/sg/validity.py` or the pack's `constants.py`.
+
+Where a file goes, in one rule: if a second task set (expense claims) would use it unchanged, it goes in `core/`; if it names invoices, POs or this task set's decisions, it goes in the task set; if it names one country's tax, e-invoice format or registrations, it goes in that country's pack. Core code reads task-specific things only through the `TaskSetSpec` or through functions the task set hands it (for example the tool list for the environment, or the rubric steps for the grader framework).
+
+### 3.1 Shared case format and task-set registration (built in A8)
+
+**Case envelope** (`core/case.py`). Only the fields the spec already gives every task set:
+
+- `case_id`, `task_set`, `split`, `country`, `languages`, `modality`, `provenance`, `canary`
+- `documents`: a list of `{role, record | file}`. `record` names a field of the payload that holds a structured record; `file` is a path in the release (PDF, scan or photo). Exactly one of the two.
+- `payload`: the task set's own case model. For this task set it is the invoice `Case` (§4.8).
+
+A9 removed the duplicated fields from the invoice `Case`: `case_id`, `split`, `country`, `languages`, `modality`, the invoice file and `provenance` live only on the envelope. The rules engine takes the envelope (`answer_case(records, envelope, catalog)`). The B1 export writes envelope columns plus a payload column.
+
+**Answer-key envelope** (`core/case.py`): `case_id`, `task_set`, `decision`, `answer` (the extra scored fields the task set declares, by name; never a confidence), `answer_source`. The task set's `AnswerKey` keeps its findings and agent-grader truth and converts with `AnswerKey.envelope()`. For this task set the extra fields are `tax_treatment`, `gl_account` and `reason_codes`.
+
+**TaskSetSpec** (`core/task_set.py`): `id`, `title`, `spec_version`, `decisions` (must include `HAND_OVER`), `approve_decision`, `trap_decisions` (approving a case whose right decision is one of these is a critical error), `extra_fields`, `costs` (the leaderboard weighting first, then the alternatives), `invalid_output_is` (which cost an invalid prediction gets; Q19), `quotas` (percent per primary exception type, summing to 100), `report_by` (envelope fields the results are also reported by; here `country`), `output_schema` (path) and `hf_repo_id`. `task_sets/ap_invoices/spec.py` builds it from the spec's tables and registers it on import; `import decision_benchmark.task_sets` registers every task set. A test checks that the spec's decisions and fields match `output.schema.json`.
+
+**release/ (note only; no code change in A8 or A10).** `release/` still hard-codes this task set: `publish.py` has the old HF repo id (`sgsystems/decision-benchmark-ap-my-sg`), and `allowlist.txt` names the card, schema and docs paths of `ap-invoices`. The spec already names the new repo id (§9.5). When B3 touches release wiring (§9.4), it makes `stage.py` and `publish.py` take `--task-set <id>`, read `hf_repo_id` from the TaskSetSpec, and use one allowlist per task set (`release/allowlists/<id>.txt`). `check_public.py` stays generic as it is. The HF collection stays one collection for all task sets. Until then, the hard-coded values must equal the spec's; a B3 test checks that.
+
+### 3.2 Country packs (built in A10)
+
+Goal: adding a country (for example TH) means adding one country pack, not editing shared models or rules.
+
+A pack is a folder `countries/<cc>/` with one `CountryPack` subclass (`__init__.py`) and plain modules. The registry is one dict in `countries/__init__.py`. No plugin framework and no dynamic loading. Each pack declares:
+
+| What | MY | SG |
+| --- | --- | --- |
+| Currency | `MYR` | `SGD` |
+| Tax registration schemes and types | `MY_TIN` (`tin`), `MY_SST` (`sales`, `service`) | `SG_GST` (`local`, `ovr`) |
+| Exemption-certificate kinds | `schedule_c`, `group_g_b2b_declaration` | none |
+| Tax-treatment codes (StrEnum) | `SST_CORRECT`, `SST_WRONG_RATE`, `SST_SHOULD_BE_EXEMPT`, `SST_SUPPLIER_NOT_REGISTERED`, `NO_SST` | `CLAIMABLE`, `NOT_CLAIMABLE_DISALLOWED`, `NOT_CLAIMABLE_INVALID_INVOICE`, `GST_WRONGLY_CHARGED`, `NO_GST` |
+| Category tax profile | `MyTaxProfile`: `tax_class`, `schedule_c_eligible`, `group_g`, `group_g_excluded` (required) | `SgTaxProfile`: `disallowed` (optional) |
+| E-invoice block | `MyInvois`: MyInvois header fields, `tax_total_by_type`, per-line `classification_code`, `tax_type`, `tax_exemption_reason` | `PintSg`: PINT-SG fields, `document_title`, `supplier_gst_no`, SGD amounts, per-line `tax_category` |
+| Party tax facts | company: `is_registered_manufacturer`, `services_provided`, `group_companies`; supplier: `is_manufacturer`, `turnover_band`, `service_categories`, `msic_code`, `group_relation` (internal) | none |
+| Line facts | `same_service_unclear`, `personal_use` (bool, default false) | `vehicle_is_motor_car`, `staff_medical_obligatory` (bool or null, default null) |
+| Validity check | MyInvois mandatory fields | none on its own: tax-invoice validity only matters for an input-tax claim, so the tax assessment reports it |
+| Tax assessment | per line, invoice code by precedence (Q4) | registration, OVR, tax invoice, Regulations 26/27 |
+| Constants with sources | `countries/my/constants.py` | `countries/sg/constants.py` |
+
+The shared rules call the pack through `view.pack`: `decide.py` asks for `validity(invoice)` and `assess_tax(view, catalog)` (a `TaxResult`: treatment, findings, unsettled, extra reason codes). `routing.py` asks for `gross_in_local_currency(invoice)` (the SGD gross of a foreign-currency SG invoice). Nothing else in `rules/` knows a country. `tests/rules/test_shared_code.py` fails if a shared model or rule names a country or imports a pack directly.
+
+All finding and reason codes stay in one StrEnum (`codes.py`), because the reason-code list is one published list per task set. A new country's codes are added there, next to its pack. The output schema's tax-treatment enum is the union of the packs' codes (a test checks it).
+
+Adding TH later: `countries/th/` with the same files, one line in `PACKS`, its codes in `codes.py` and the output schema (a new spec version), and its categories' `TH` profiles in the catalog. Shared models and rules don't change.
 
 ## 4. Data model
 
@@ -107,9 +182,9 @@ Pydantic v2 models, `extra="forbid"`, frozen. Money is `Decimal`, serialised as 
 
 ### 4.1 Company (buying company)
 
-- `company_id` (`my-c-007`), `split`, `country` (`MY`/`SG`), `legal_name`, `trading_name`, `registration_no` (MY SSM number / SG UEN), `address`, `base_currency` (`MYR`/`SGD`), `industry`
-- MY: `tin`, `sst_registration_no` (or null), `is_registered_manufacturer`, `services_provided` (list of service categories; used for the Group G B2B test), `group_companies` (names; used for group relief)
-- SG: `gst_reg_no`, `gst_registered_since` (every SG buyer is GST-registered in v0.9; see Q5)
+- `company_id` (`my-c-007`), `split`, `country` (a country with a pack), `legal_name`, `trading_name`, `registration_no` (MY SSM number / SG UEN), `address`, `base_currency` (the pack's currency), `industry`
+- `tax_registrations`: list of `{scheme, number, type, valid_from, valid_to}`, each scheme and type checked against its country pack (§3.2). MY needs `MY_TIN`; every SG company holds an `SG_GST` registration with `valid_from` (Q5).
+- `tax_facts`: the country pack's company-facts block (MY: `is_registered_manufacturer`, `services_provided` for the Group G B2B test, `group_companies`), or null.
 - `people`: list of Person
 - `policy_pack`: PolicyPack
 
@@ -118,11 +193,11 @@ Pydantic v2 models, `extra="forbid"`, frozen. Money is `Decimal`, serialised as 
 ### 4.2 Policy pack
 
 - `tolerance_policy`: `price_tolerance_pct`, `price_tolerance_abs` (optional; the larger allowance applies if both are set), `quantity_tolerance_units` (default 0), `rounding_tolerance` (amount allowed between sum of lines and printed total), `duplicate_window_days`
-- `approval_matrix`: list of `{approval_role, limit, currency}`
+- `approval_matrix`: list of `{approval_role, limit, currency}` (currency: three-letter code)
 - `non_po_policy`: `allowed_categories` (for example utilities, telecoms), `max_amount`
 - `chart_of_accounts`: list of `{code, name, type (expense/asset/liability/tax), description, active}`
-- `tax_registration`: country, numbers, status, effective dates (mirrors the company fields; this is what the policy folder shows)
-- `exemption_certificates`: list of `{kind (schedule_c / group_g_b2b_declaration), number, valid_from, valid_to, categories}`
+- `exemption_certificates`: list of `{kind, number, valid_from, valid_to, categories}`; the company's pack lists the allowed kinds (MY: `schedule_c`, `group_g_b2b_declaration`)
+- The policy folder shows the company's `tax_registrations` (A10 dropped the separate `tax_registration` copy with its untyped numbers map)
 - `price_change_rule`: "price changes count only through an approved PO amendment in the ERP" (flag + text)
 - `bank_change_rule`: "supplier bank changes count only through the verified change process in the supplier master" (flag + text)
 - `documents`: rendered policy texts (from `content/.../policy/` templates) that the environment's policy folder serves
@@ -131,9 +206,9 @@ Pydantic v2 models, `extra="forbid"`, frozen. Money is `Decimal`, serialised as 
 
 - `supplier_id`, `company_id`, `name`, `country`, `address`, `registration_no`, `currency`, `payment_terms_days`, `contacts` (`{contact_id, name, email, phone}`)
 - `bank_account`: `{bank_name, account_name, account_no, swift}`; `bank_change_log`: list of `{changed_on, old_account_no, new_account_no, method, verified_by}`
-- MY: `tin`, `brn`, `sst_registration_no` (or null), `sst_type` (`sales`/`service`/`both`/`none`), `is_manufacturer`, `turnover_band` (drives whether an e-invoice is expected), `service_categories`, `msic_code`
-- SG: `gst_reg_no` (or null), `gst_status` (`registered`/`deregistered`/`none`), `gst_status_date`, `gst_regime` (`local`/`ovr`)
-- Thai suppliers (MY cases only): same MY fields with `country: TH`, no SST registration.
+- `tax_registrations`: as for the company. MY: `MY_TIN`, and one `MY_SST` entry per type (`sales`, `service`). SG: `SG_GST` with type `local` or `ovr`; a deregistration is `valid_to` = the day before. No registration in a scheme means not registered.
+- `tax_facts`: the buyer country's supplier-facts block (MY: `is_manufacturer`, `turnover_band`, `service_categories`, `msic_code`, and internal `group_relation`), or null. The buyer's country decides, so a Thai supplier of a MY buyer carries a MY block.
+- `country`: the supplier's own country (`MY`, `SG`, `TH`, … or `OTHER`); it needs no pack.
 
 Generator-only metadata (for example "this supplier is a lookalike of S-0042") lives outside the model and is never exported.
 
@@ -145,18 +220,22 @@ Generator-only metadata (for example "this supplier is a lookalike of S-0042") l
 
 ### 4.5 Invoice
 
-**Common core (both countries):** `invoice_id`, `doc_type` (`invoice`/`credit_note`), `invoice_number`, `issue_date`, `due_date`, `supplier_block` (name, address, tax ids as printed), `buyer_block` (name, address, tax ids as printed; any part may be absent), `po_reference` (or null), `currency`, `exchange_rate` (or null), `lines` (`{line_no, description, qty, uom, unit_price, net_amount, tax_rate, tax_amount}`), `totals` (`net`, `tax`, `gross`, `rounding`), `bank_block` (as printed), `payment_terms_text`, `notes`, `original_invoice_ref` (credit notes), `languages`.
+One `Invoice` model for every country (A10 removed `InvoiceMY` and `InvoiceSG`):
 
-**MY extras (MyInvois-style; names follow the MyInvois data structure in snake_case):** `is_einvoice`, `einvoice_version`, `einvoice_type_code` (`01` invoice, `02` credit note), `uuid`, `validation_datetime`, `supplier_tin`, `supplier_brn`, `supplier_sst_no`, `supplier_msic_code`, `buyer_tin`, `buyer_brn`, `buyer_sst_no`, per line `classification_code` and `tax_type` (`01`, `02`, `06`, `E`), per line `tax_exemption_reason`, `tax_total_by_type`.
+- `country`, `invoice_id`, `doc_type` (`invoice`/`credit_note`), `invoice_number`, `issue_date`, `due_date`, `supplier_block` (name, address as printed), `buyer_block` (name, address as printed; any part may be absent), `po_reference` (or null), `currency`, `exchange_rate` (or null), `totals` (`net`, `tax`, `gross`, `rounding`), `bank_block` (as printed), `payment_terms_text`, `notes`, `original_invoice_ref` (credit notes), `service_period_start`, `service_period_end`, `languages`
+- `lines`: `{line_no, description, qty, uom, unit_price, net_amount, tax_rate, tax_amount, po_line_no}`, plus internal `category` and internal `facts` (a map of fact name to true/false/null; the invoice country's pack declares the names, types and defaults)
+- `einvoice`: the country block, chosen by its `country` and checked by the pack. It must match the invoice's country, and its `lines` (per-line country fields) must name existing invoice lines.
+
+**MY block (`MyInvois`; names follow the MyInvois data structure in snake_case):** `is_einvoice`, `einvoice_version`, `einvoice_type_code` (`01` invoice, `02` credit note), `uuid`, `validation_datetime`, `supplier_tin`, `supplier_brn`, `supplier_sst_no`, `supplier_msic_code`, `buyer_tin`, `buyer_brn`, `buyer_sst_no`, `tax_total_by_type`; per line `classification_code`, `tax_type` (`01`, `02`, `06`, `E`), `tax_exemption_reason`.
 
 The mandatory set used by the "missing mandatory field" check is exactly the list in the rule sheet: supplier and buyer TIN, registration numbers, type code and date, currency, per line classification, description, unit price and tax type, and total tax per tax type. Fields not on that list may be absent without consequence. Suppliers below the e-invoice threshold send ordinary invoices (`is_einvoice: false`; e-invoice-only fields null).
 
-**SG extras (PINT-SG-style):** `is_peppol`, `customization_id`, `profile_id`, `invoice_type_code` (`380`/`381`), `document_title` (`"Tax Invoice"`, `"Invoice"` or null), `supplier_gst_no`, per line `tax_category` (`SR`, `ZR`, `ES`, `OS`, `NA`) and `tax_rate`, `tax_total`, `tax_total_sgd` and `gross_sgd` (for foreign-currency invoices), `price_includes_gst_statement` (simplified invoices).
+**SG block (`PintSg`):** `is_peppol`, `customization_id`, `profile_id`, `invoice_type_code` (`380`/`381`), `document_title` (`"Tax Invoice"`, `"Invoice"` or null), `supplier_gst_no`, `tax_total_sgd` and `gross_sgd` (foreign-currency invoices), `price_includes_gst_statement` (simplified invoices); per line `tax_category` (`SR`, `ZR`, `ES`, `OS`, `NA`).
 
 ### 4.6 Email
 
 - `thread_id`, `message_id`, `company_id`, `case_id` (or null for background mail), `sent_at`, `from` (`{name, address}`), `to`, `cc`, `subject`, `body`, `languages`, `attachments` (references to records, for example the case invoice)
-- Structured flags, never exported: `intent`, `requests_bank_change`, `new_bank_account`, `mentions_price_change`, `price_change_status` (`amended_in_erp`/`verbal_only`/`none`), `lookalike_sender`, `contains_instruction_injection`. The rules engine reads only these flags, during generation.
+- Internal, never exported: `intent`, and `signals`, a list of typed signals, at most one per kind: `bank_change_request` (`new_bank_account`), `price_change` (`status`: `amended_in_erp` / `verbal_only`), `lookalike_sender`, `instruction_injection`. The rules engine reads only these signals, never the text.
 
 ### 4.7 Fact sheet (agent track)
 
@@ -169,28 +248,30 @@ Topics are a fixed list for all cases: `delivery`, `quantity`, `price`, `bank_de
 
 ### 4.8 Case
 
-- `case_id` (`ap-my-00421`, `ap-sg-00017`), `split`, `country`, `company_id`, `as_of_date`
-- `invoice` (MY or SG model), `invoice_file` (`pdf/{split}/{case_id}.pdf` or `.jpg`), `modality` (`pdf`/`scan`/`photo`)
-- Links: `supplier_id`, `po_number`, `gr_numbers`, `thread_ids`
+Since A9 the invoice `Case` is the payload of the core case envelope (§3.1) and holds invoice data only:
+
+- `company_id`, `as_of_date`, `supplier_id`
+- `invoice` (the one `Invoice` model)
 - `fact_sheets`
 - Planting record: `exception_types` (list), `families` (template ids), `two_problems`
-- Provenance: `generator_version`, `seed` (the case's derived seed), `pipeline_hash`
-- `languages`
+
+On the envelope, not the payload: `case_id` (`ap-my-00421`, `ap-sg-00017`), `split`, `country` (must equal the invoice's), `languages`, `modality` (`pdf`/`scan`/`photo`), `provenance` (`generator_version`, `seed`, `pipeline_hash`), `canary`, and `documents`. The documents always include the structured invoice record (`{role: invoice, record: invoice}`) and, once rendered, at most one invoice file (`pdf/{split}/{case_id}.pdf` or `.jpg`). The "Links" line of the original plan (`po_number`, `gr_numbers`, `thread_ids`) was dropped in A: the engine finds the PO, receipts and threads itself.
 
 ### 4.9 Answer key
 
 - `decision`, `tax_treatment` (or null), `gl_account` (or null), `reason_codes` (ordered by priority), `answer_source` (`rules` / `handover_by_construction`)
 - `findings`: list of `{code, tier, evidence}` (for example `{code: PRICE_ABOVE_PO, tier: mismatch, evidence: {line: 1, po: "1180.00", invoice: "1240.00", variance_pct: "5.08"}}`)
-- For agent graders: `truth_supplier_id`, `truth_po_number`, `truth_price_variance_pct`, `requires_supplier_contact`
+- `grader_truth` (agent-track graders only, never scored): `supplier_id`, `po_number`, `price_variance_pct`, `requires_supplier_contact`
+- `tax_treatment` is a code of the invoice country's pack; `reason_codes` and finding codes come from the one `Code` StrEnum
 
 ### 4.10 Parquet configs
 
-Exactly the three configs the card and allowlist expect: `data/{decision,agent,companies}/{train,test}-00000-of-00001.parquet`, plus `pdf/{train,test}/{case_id}.{pdf,jpg}`.
+Countries are the dataset's configs (A10). Each country has three configs: `MY` and `SG` (decision track, the leaderboard data), `MY_agent` and `SG_agent`, `MY_companies` and `SG_companies`. Files: `data/{country}/{decision,agent,companies}/{train,test}-00000-of-00001.parquet`, plus `pdf/{train,test}/{case_id}.{pdf,jpg}`. The card's `configs` block lists all six. The columns are the same in every country; country fields stay inside the JSON columns (`invoice_json` holds the `einvoice` block).
 
 | Config | Columns |
 | --- | --- |
 | `decision` | `case_id`, `split`, `country`, `company_id`, `as_of_date`, `languages`, `modality`, `invoice_json`, `invoice_file`, `purchase_order_json`, `goods_receipt_json`, `supplier_json`, `history_json` (last 10), `emails_json`, `policy_pack_json`, `answer_decision`, `answer_tax_treatment`, `answer_gl_account`, `answer_reason_codes`, `answer_source`, `answer_findings_json`, `exception_types`, `families`, `two_problems`, `generator_version`, `seed`, `pipeline_hash`, `canary` |
-| `agent` | `case_id`, `split`, `country`, `company_id`, `as_of_date`, `languages`, `modality`, `invoice_json`, `invoice_file`, `fact_sheets_json`, the same `answer_*` columns plus `answer_supplier_id`, `answer_po_number`, `answer_price_variance_pct`, `answer_requires_supplier_contact`, provenance, `canary` |
+| `agent` | `case_id`, `split`, `country`, `company_id`, `as_of_date`, `languages`, `modality`, `invoice_json`, `invoice_file`, `fact_sheets_json`, the same `answer_*` columns plus `answer_grader_truth_json` (supplier id, PO number, price variance, supplier contact), provenance, `canary` |
 | `companies` | `company_id`, `split`, `country`, `company_json` (incl. people and policy pack), `suppliers_json`, `purchase_orders_json`, `goods_receipts_json`, `invoices_json` (history), `inbox_json`, `canary` |
 
 - `canary` is the public test canary string on every test row of every config (check_public rule 6 requires it on test files) and null on train rows.
@@ -588,7 +669,7 @@ Run on every case; any failure stops the build.
 
 - Proposed share (Q21): 70% digital PDF, 20% scan, 10% phone photo. Scans and photos are used only for 1-page invoices.
 - Typst renders PNG at 200 ppi directly, so no extra rasteriser is needed.
-- Two Augraphy pipelines with fixed parameter ranges in `render/degrade.py`: `scan` (paper texture, light ink bleed, low-ink lines, small rotation, photocopy noise) and `photo` (perspective, lighting gradient, shadow, slight blur). Severity is capped so text stays readable.
+- Two Augraphy pipelines with fixed parameter ranges in `core/render/degrade.py`: `scan` (paper texture, light ink bleed, low-ink lines, small rotation, photocopy noise) and `photo` (perspective, lighting gradient, shadow, slight blur). Severity is capped so text stays readable.
 - Seeding: Augraphy `random_seed` from the case seed, plus `random` and `numpy` seeded inside the call. `cv2.setNumThreads(1)`.
 - JPEG at fixed quality and subsampling, no EXIF or other metadata.
 
@@ -610,12 +691,22 @@ The build image (`docker/build.Dockerfile`) is pinned by digest, built and pushe
 - `release/manifests/v0.9.0*.sha256` committed (exempt path).
 - About 2,500 rendered files (~150 MB PDFs, ~250 MB JPEGs). `publish.py` uses `upload_folder` in one commit; the dry run checks the file count. If HF rejects the size, switch to `upload_large_folder` (Q32).
 
+### 9.5 Moving the Hugging Face dataset (release run after A10; not done in A10)
+
+The task set is now `ap-invoices`, so the dataset moves from `sgsystems/decision-benchmark-ap-my-sg` to `sgsystems/decision-benchmark-ap-invoices`. The old repo holds only the card (v0.9.0-alpha.1), so nothing that people can score against moves. Steps for the next release run (alpha.2, after B3), in order:
+
+1. `release/publish.py`: `REPO_ID` = `TaskSetSpec.hf_repo_id` (B3 makes publish read it from the spec, §3.1). The dry run prints the new id.
+2. Card (`hf/ap-invoices/README.md`): new title and repo links, the six country configs (§4.10), a line "Formerly `sgsystems/decision-benchmark-ap-my-sg`".
+3. Release run: `publish.py` creates the new repo (`create_repo`, `exist_ok`), uploads, tags `v0.9.0-alpha.2`, and adds the new repo to the collection.
+4. Old repo: one commit that replaces its card with a short "Moved to `sgsystems/decision-benchmark-ap-invoices`" notice (keep the `v0.9.0-alpha.1` tag), then remove it from the collection. Don't delete it, so old links still explain where the data went. Hugging Face's repo rename would also redirect, but a rename keeps the alpha.1 tag on the new repo with a card that names the old task set; a fresh repo plus a notice is clearer.
+5. README.md and CITATION.cff: switch the dataset link to the new repo in the same PR as step 1.
+
 ## 10. Agent environment
 
 ### 10.1 Design
 
-- Core: `env/state.py` + `env/tools.py`, plain Python over one case's `CaseView`. Testable without Docker.
-- Adapter: `env/server.py` exposes the tools through OpenEnv's `MCPEnvironment`. The first commit of D1 is a short spike that confirms the OpenEnv API at a pinned version. If it doesn't fit, the fallback is a plain MCP server (official `mcp` SDK) in the same image. The core doesn't change either way.
+- Core: the task set's `env/state.py` + `env/tools.py` on top of `core/env/base.py`, plain Python over one case's `CaseView`. Testable without Docker.
+- Adapter: `core/env/server.py` exposes the tools through OpenEnv's `MCPEnvironment`. The first commit of D1 is a short spike that confirms the OpenEnv API at a pinned version. If it doesn't fit, the fallback is a plain MCP server (official `mcp` SDK) in the same image. The core doesn't change either way.
 - Image: `docker/env.Dockerfile`, pinned base, loads the `companies` and `agent` rows for the run. It strips every `answer_*` column at load time. A test scans the container's files and the loaded state for `answer_` keys and fails if any appear.
 - Inspect: `ap_agent` task uses the image as a Docker sandbox and connects to its MCP server. A Prime Intellect verifiers adapter can come later.
 - Episode: the agent gets the invoice (record or file, per the run's input mode) and the instruction. It ends at the first terminal action or at a step limit (60 tool calls), which counts as no decision (scored as invalid output, Q19).
@@ -682,7 +773,7 @@ Final state = the decision record, the outbox and the audit log, read from the s
 
 A failed gate sets every later step to 0. A case passes only if steps 1–9 pass. Also recorded per case: steps used, tool calls, US$, time.
 
-The judge (`graders/judge.py`) uses a committed prompt and a model id fixed for all of v0.9 (Q30). It runs only in our own runs, never in results CI.
+The judge (`core/graders/judge.py`) uses a committed prompt (the task set's `rubric/judge_prompt.md`) and a model id fixed for all of v0.9 (Q30). It runs only in our own runs, never in results CI.
 
 ### 10.5 Traps and bad-agent tests
 
@@ -706,7 +797,7 @@ The oracle proves the graders accept correct work. The others prove they reject 
 
 ## 11. Scorer
 
-### 11.1 Metrics (`scorer/metrics.py`, plain Python)
+### 11.1 Metrics (`core/scorer/metrics.py`, plain Python)
 
 Per case, with `t` = answer decision and `p` = predicted decision:
 
@@ -742,7 +833,7 @@ All metrics are also broken down by country, input mode, exception type and two-
 - Validates each line against `output.schema.json`; reports invalid lines by line number.
 - Needs only core dependencies (no Inspect). `--aggregates-only` never prints per-case lines (used by the hidden repo).
 
-`db-leaderboard` rebuilds `results/ap-invoices-my-sg/v0.9/leaderboard.md` from all entry folders.
+`db-leaderboard` rebuilds `results/ap-invoices/v0.9/leaderboard.md` from all entry folders, with one table per country and one overall (TaskSetSpec `report_by`).
 
 ### 11.3 Inspect tasks
 
@@ -753,7 +844,7 @@ All metrics are also broken down by country, input mode, exception type and two-
 
 ### 11.4 Results PR flow (CI)
 
-New workflow `results.yml`, on pull requests touching `results/ap-invoices-my-sg/v0.9/**`, no secrets:
+New workflow `results.yml`, on pull requests touching `results/ap-invoices/v0.9/**`, no secrets:
 1. Check folder shape: three `predictions-run*.jsonl` + `metadata.yaml`; nothing else.
 2. Validate `metadata.yaml` (required keys from `docs/submitting-results.md`).
 3. Validate every prediction line; exactly 500 unique test `case_id`s per run.
@@ -762,7 +853,7 @@ New workflow `results.yml`, on pull requests touching `results/ap-invoices-my-sg
 
 After merge, Claude runs `db-leaderboard` in a follow-up commit. No CI job writes to the repo.
 
-**Needed tooling fix:** `check_public.py` (repo mode, rule 5) currently rejects any `.jsonl` file in git, so a results PR would fail `guards.yml`. PR C adds `results/ap-invoices-my-sg/*/*/predictions-run[123].jsonl` to the repo-mode exemptions. Those files are still checked for `answer_*` fields and the hidden canary (Q27).
+**Needed tooling fix:** `check_public.py` (repo mode, rule 5) currently rejects any `.jsonl` file in git, so a results PR would fail `guards.yml`. PR C adds `results/ap-invoices/*/*/predictions-run[123].jsonl` to the repo-mode exemptions. Those files are still checked for `answer_*` fields and the hidden canary (Q27).
 
 ### 11.5 Baselines (`baselines/`)
 
@@ -778,13 +869,13 @@ Each row is one build PR, one commit per step, reviewed and merged before the ne
 
 | PR | Contents | Acceptance checks |
 | --- | --- | --- |
-| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes |
-| **B1** Structured generator | seeds, quotas, entities, scenario, ops, hard-case loader with a starter set, starter phrasebanks, CaseView, consistency checks, parquet export, `db-generate` | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files |
+| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests; A8: split `core/` from `task_sets/ap_invoices/` (case and answer envelopes, TaskSetSpec, registry; §3.1); A10: country packs, typed registrations, one Invoice model, email signals, `grader_truth`, one code StrEnum, rename to `ap-invoices` (§3.2) | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes; A8: core never imports a task set or names one (test), every answer key fits the answer envelope and the TaskSetSpec, no answer key changed; A9: the payload `Case` holds invoice data only, the engine reads the envelope, no answer key changed; A10: country packs, shared models and rules name no country (test), every pack fills the interface (test), constants defined once (test), all answer keys of A1–A9's tests identical |
+| **B1** Structured generator | core: seeds, quotas from TaskSetSpec, phrasebank assembler, envelope parquet export (one config per country and track), `db-generate --task-set`; task set: entities (registrations and tax facts through the country pack), scenario, ops, hard-case loader with a starter set, starter phrasebanks, consistency checks | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files; every internal fact the answer key depends on (line category, line facts, email signals such as bank_change_request and price_change) is stated in the exported documents or emails; a test fails for any case where it isn't, unless the answer is HAND_OVER by construction for that missing fact |
 | **B2** Text content | full phrasebanks and hard-case families (content from Claude, reviewed by Sebastian), name banks, linters, variety and shortcut checks | linters pass; variety thresholds met; shortcut check ≤ majority + 5 points; every family's `expect` holds on 50 draws |
-| **B3** Rendering + data alpha | Typst layouts, fonts lock, `render/*`, PDF text check, build image, `build-data` job, allowlist and card changes, manifest | every case renders; PDF text check passes; release double build compares records and PDFs; card states what the manifest covers; dry run lists the expected ~2,500 files; then (on "release") `v0.9.0-alpha.2` with data (Q1) |
-| **C** Scorer + baselines + results CI | `scorer/*`, `db-score`, `db-leaderboard`, Inspect `ap_decision`, pass^3 cross-check, baselines, `results.yml`, `check_public` exemption | hand-computed costs on a 20-case fixture, incl. every CHANGELOG clarification row; always-hand-over cost = 1 − HAND_OVER share exactly; pass^3 cross-check test; a fake results PR fixture passes, a broken one fails; baselines committed |
-| **D1** Environment | `env/*`, OpenEnv adapter (after spike), env image, Inspect `ap_agent` | every tool covered by tests; no `answer_*` reachable in the container; read-only except clerk actions (state hash unchanged after reads); colleague replies reproducible |
-| **D2** Graders + bad agents | `graders/*`, judge prompt, bad-agent and oracle tests | oracle 100% pass; every bad agent behaves as in §10.5; gates zero later steps; then (on "release") `v0.9.0` |
+| **B3** Rendering + data alpha | core: `render/typst.py`, Augraphy `render/degrade.py`, PDF text check; task set: Typst layouts, fonts lock, `render/viewmodel.py`; build image, `build-data` job; `release/` takes `--task-set` and reads the HF repo id from the TaskSetSpec, one allowlist per task set (§3.1); the HF move to `decision-benchmark-ap-invoices` (§9.5); card changes, manifest | every case renders; PDF text check passes; release values (HF repo id, schema path) come from the TaskSetSpec; release double build compares records and PDFs; card states what the manifest covers; dry run lists the expected ~2,500 files; then (on "release") `v0.9.0-alpha.2` with data (Q1) |
+| **C** Scorer + baselines + results CI | core: `scorer/*` driven by the TaskSetSpec (costs, decisions, schema, results per `report_by` value and overall), `db-score`, `db-leaderboard`, Inspect task factory (decision task registered as `ap_decision`), trivial baselines, `results.yml`, `check_public` exemption; task set: rules-only baseline; pass^3 cross-check | hand-computed costs on a 20-case fixture, incl. every CHANGELOG clarification row; always-hand-over cost = 1 − HAND_OVER share exactly; pass^3 cross-check test; a fake results PR fixture passes, a broken one fails; baselines committed |
+| **D1** Environment | core: `env/base.py`, OpenEnv adapter `env/server.py` (after spike), agent task in the Inspect factory; task set: `env/state.py`, MCP tools, colleagues; env image, Inspect `ap_agent` | every tool covered by tests; no `answer_*` reachable in the container; read-only except clerk actions (state hash unchanged after reads); colleague replies reproducible |
+| **D2** Graders + bad agents | core: grader framework, judge wrapper; task set: `rubric/*` (10 steps, traps, judge prompt); bad-agent and oracle tests | oracle 100% pass; every bad agent behaves as in §10.5; gates zero later steps; then (on "release") `v0.9.0` |
 | **H** Hidden repo (in `decision-benchmark-hidden`) | §13 | done there; nothing lands here |
 
 Why this order: once `v0.9.0` data carries scores, any answer-key fix forces a new spec version. The alpha data release lets people look at the data while C and D still exercise it (rules-only disagreements, oracle agent). Only after both pass do we tag `v0.9.0`. If you prefer `v0.9.0` right after B3 as originally suggested, that also works; the risk is a v0.10 if C or D finds a key bug.
