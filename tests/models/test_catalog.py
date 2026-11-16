@@ -53,3 +53,33 @@ def test_release_catalog_loads():
 def test_inconsistent_entries_fail(kw, msg):
     with pytest.raises(ValidationError, match=msg):
         Catalog.model_validate(_cat(**kw))
+
+
+@pytest.mark.skipif(not RELEASE.exists(), reason="release catalog not drafted yet")
+def test_release_catalog_covers_every_rule_sheet_situation():
+    """Every tax situation in the rule-sheet table has at least one category to plant it on."""
+    cat = load_catalog(RELEASE)
+    my = [c for c in cat.categories if "MY" in c.countries]
+    sg = [c.tax["SG"].disallowed for c in cat.categories if "SG" in c.tax]
+    six = {c.category for c in my if c.tax["MY"].tax_class == "service_6"}
+    assert {"catering", "logistics_haulage", "telecoms", "parking"} <= six
+    assert any(c.tax["MY"].group_g and not c.tax["MY"].group_g_excluded for c in my)
+    assert sum(c.tax["MY"].group_g_excluded for c in my) >= 2  # employment and guards
+    assert any(c.tax["MY"].schedule_c_eligible for c in my)
+    assert set(sg) == {"club_subscription", "staff_medical", "motor_car", "family_benefit",
+                       "medical_accident_insurance", "betting"}
+
+
+@pytest.mark.skipif(not RELEASE.exists(), reason="release catalog not drafted yet")
+def test_release_catalog_has_no_unsourced_goods_rate():
+    """Q9: no 5% goods in v0.9, and every taxed goods category cites both sales-tax orders."""
+    orders = {
+        "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf",
+        "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf",
+    }
+    for c in load_catalog(RELEASE).categories:
+        if "MY" not in c.tax or not c.tax["MY"].tax_class.startswith("sales_"):
+            continue
+        assert c.tax["MY"].tax_class != "sales_5", c.category
+        assert orders <= set(c.sources), c.category
+        assert c.note.startswith("HS "), c.category

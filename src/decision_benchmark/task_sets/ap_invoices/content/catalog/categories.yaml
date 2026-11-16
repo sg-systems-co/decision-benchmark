@@ -1,0 +1,752 @@
+# Release catalog for ap-invoices (step-11 plan §7.1). Format and checks: README.md in this folder.
+#
+# How the Malaysian sales-tax classes were set (decision Q9 needs a source for every goods rate):
+#   - sales_10: the HS heading appears neither in the First Schedule (5%) or Second Schedule of the
+#     Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] nor in the Sales Tax (Goods
+#     Exempted from Sales Tax) Order 2025 [P.U. (A) 171/2025], so paragraph 2(1) of the rate order
+#     (10% on all taxable goods) applies to the whole heading.
+#   - sales_exempt: the heading is in the exemption order and appears nowhere in the rate order.
+#   - No sales_5 category: the official text could only be checked at heading level, and every
+#     5% heading we looked at could be split by subheading. 5% goods are added once the
+#     subheading lists are checked.
+#   - Both orders were read with their July 2025 amendment orders (Kertas Statut 108 and 109 of
+#     2025). The 1 January 2026 exemptions (animal feed, fertiliser, pesticides) touch no category
+#     here.
+# Singapore: a category gets an SG profile only when Regulation 26/27 blocks the claim.
+version: 1
+categories:
+
+# ---------------------------------------------------------------- goods: manufacturing inputs
+# Raw materials, packaging, components and manufacturing aids: Schedule C can apply when the
+# buyer is a registered manufacturer holding the exemption for that category.
+
+- category: industrial_paints_coatings
+  kind: goods
+  label: "Industrial paints, primers and coatings"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 32.08, 32.09."
+
+- category: adhesives_glues
+  kind: goods
+  label: "Industrial adhesives and glues"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 35.06."
+
+- category: solvents_thinners
+  kind: goods
+  label: "Solvents and thinners"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 38.14. A manufacturing aid when used in production."
+
+- category: plastic_film_sheet
+  kind: goods
+  label: "Plastic film and sheet"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 39.20 (non-cellular, not reinforced)."
+
+- category: plastic_packaging
+  kind: goods
+  label: "Plastic packaging: bags, bottles, caps, containers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 39.23."
+
+- category: adhesive_tape
+  kind: goods
+  label: "Self-adhesive packing tape"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 39.19."
+
+- category: corrugated_cartons
+  kind: goods
+  label: "Corrugated cartons and boxes"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 48.19."
+
+- category: product_labels
+  kind: goods
+  label: "Printed product labels"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 48.21."
+
+- category: woven_sacks
+  kind: goods
+  label: "Woven sacks and bulk bags"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 63.05."
+
+- category: wooden_pallets
+  kind: goods
+  label: "Wooden pallets"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: packaging_materials
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 44.15."
+
+- category: fasteners
+  kind: goods
+  label: "Bolts, nuts, screws and washers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: components
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 73.18."
+
+- category: electric_cables
+  kind: goods
+  label: "Insulated electric wire and cable"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: components
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 85.44."
+
+- category: switches_connectors
+  kind: goods
+  label: "Electrical switches, plugs and connectors (up to 1,000 V)"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10, schedule_c_eligible: true}
+  gl_role: components
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 85.36."
+
+# ---------------------------------------------------------------- goods: spares, tools, supplies
+# Not manufacturing inputs, so never Schedule C in v0.9.
+
+- category: bearings
+  kind: goods
+  label: "Ball and roller bearings (maintenance spares)"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 84.82."
+
+- category: industrial_valves
+  kind: goods
+  label: "Industrial valves and taps (maintenance spares)"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 84.81."
+
+- category: rubber_hoses
+  kind: goods
+  label: "Rubber hoses and tubes"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 40.09."
+
+- category: batteries
+  kind: goods
+  label: "Electric accumulators (lead-acid and lithium batteries)"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 85.07."
+
+- category: process_gauges
+  kind: goods
+  label: "Pressure, flow and level gauges"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 90.26."
+
+- category: control_instruments
+  kind: goods
+  label: "Thermostats and automatic controllers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 90.32."
+
+- category: hand_tools
+  kind: goods
+  label: "Hand tools: spanners, pliers, cutters"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: tools_small_equipment
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 82.03."
+
+- category: tool_bits
+  kind: goods
+  label: "Drill bits, cutting inserts and other tool bits"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: tools_small_equipment
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 82.07."
+
+- category: cleaning_chemicals
+  kind: goods
+  label: "Detergents and cleaning preparations"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: cleaning_supplies
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 34.02."
+
+- category: safety_footwear
+  kind: goods
+  label: "Safety boots and shoes"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: safety_ppe
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 64.03 (leather uppers)."
+
+- category: office_furniture
+  kind: goods
+  label: "Office furniture: desks, cabinets, shelving"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: office_furniture
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 94.03. Seats (94.01) appear in the 5% schedule and are not in this category."
+
+- category: pens_markers
+  kind: goods
+  label: "Pens and markers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_10}
+  gl_role: office_supplies
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+  note: "HS 96.08."
+
+# ---------------------------------------------------------------- goods: exempt from sales tax
+
+- category: fresh_milk
+  kind: goods
+  label: "Fresh milk for the staff pantry"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_exempt}
+  gl_role: staff_welfare
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+  note: "HS 04.01."
+
+- category: rice
+  kind: goods
+  label: "Rice for a staff canteen"
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_exempt}
+  gl_role: staff_welfare
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+  note: "HS 10.06."
+
+- category: medicaments
+  kind: goods
+  label: "Medicines for a company clinic or first-aid room"
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_exempt}
+  gl_role: staff_welfare_medical
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+  note: "HS 30.04. Malaysia only: in Singapore this would be a staff medical expense."
+
+- category: agricultural_machinery
+  kind: goods
+  label: "Plantation and farm machinery (other than soil preparation)"
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_exempt}
+  gl_role: plant_machinery
+  sources:
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+  note: "HS 84.36. Soil-preparation machinery (84.32) is left out: it appears in both orders."
+
+# ---------------------------------------------------------------- goods: Singapore Regulation 26/27
+
+- category: company_car_tyres_parts
+  kind: goods
+  label: "Tyres and spare parts for a company car"
+  countries: [SG]
+  tax:
+    SG: {disallowed: motor_car}
+  gl_role: motor_vehicle_running
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Needs the line fact vehicle_is_motor_car. Unknown: HAND_OVER."
+
+- category: staff_family_gifts
+  kind: goods
+  label: "Gifts and hampers for staff's family members"
+  countries: [SG]
+  tax:
+    SG: {disallowed: family_benefit}
+  gl_role: staff_welfare
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+
+# ---------------------------------------------------------------- services: 6% in Malaysia
+
+- category: logistics_haulage
+  kind: service
+  label: "Lorry haulage and freight transport"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: freight_inward
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group J. Logistics also has a B2B exemption that v0.9 does not model: the buyer must not provide logistics services."
+
+- category: courier_services
+  kind: service
+  label: "Courier and express delivery"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: postage_courier
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group J (logistics). Same B2B caveat as logistics_haulage."
+
+- category: warehousing
+  kind: service
+  label: "Warehousing and storage"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: warehousing
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group J (logistics). Same B2B caveat as logistics_haulage."
+
+- category: telecoms
+  kind: service
+  label: "Mobile, fixed-line and broadband services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: telecoms
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: parking
+  kind: service
+  label: "Season parking"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: parking
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Singapore cases use it for delivery-vehicle parking only, so the motor-car rule never comes into play."
+
+- category: catering
+  kind: service
+  label: "Catering for staff meetings and events"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: staff_welfare
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Food and beverage without alcohol. Staff only: family members would be a Singapore family benefit."
+
+- category: construction_works
+  kind: service
+  label: "Renovation and construction works on commercial premises"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_6}
+  gl_role: building_works
+  sources:
+    - "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf"
+    - "https://www.mof.gov.my/portal/en/news/press-release/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025"
+    - "https://www.mof.gov.my/portal/images/2026/01/05/Siaran-Media-Pemakluman-Dasar-Dikemaskini-Berhubung-Cukai-Jualan-Dan-Cukai-Perkhidmatan-SST.pdf"
+  note: "Group L. Commercial premises only (residential is excluded). Contracts signed before 1 July 2025 can be exempt to 30 June 2027, so the generator uses contracts signed after that date. Construction also has a B2B exemption v0.9 does not model: the buyer must not provide construction works."
+
+# ---------------------------------------------------------------- services: 8%, Group G
+
+- category: legal_services
+  kind: service
+  label: "Legal services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: legal_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: audit_accounting
+  kind: service
+  label: "Audit, accounting and bookkeeping"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: audit_accounting_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: engineering_consultancy
+  kind: service
+  label: "Engineering consultancy"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: professional_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: architectural_services
+  kind: service
+  label: "Architectural services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: professional_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: surveying_valuation
+  kind: service
+  label: "Surveying and property valuation"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: professional_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: it_services
+  kind: service
+  label: "IT support and managed IT services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: it_services
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: software_development
+  kind: service
+  label: "Software development and system integration"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: it_services
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Same Group G service as it_services for the B2B test."
+
+- category: business_consultancy
+  kind: service
+  label: "Business and management consultancy"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: professional_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+
+- category: training_courses
+  kind: service
+  label: "Staff training and coaching"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: training
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group G consultancy, training or coaching. Not education by a registered institution (a separate group)."
+
+- category: management_services
+  kind: service
+  label: "Management services (project and administrative management)"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true}
+  gl_role: management_fees
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+
+- category: recruitment_services
+  kind: service
+  label: "Recruitment and staffing services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
+  gl_role: recruitment
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Employment services: no B2B exemption."
+
+- category: security_guards
+  kind: service
+  label: "Security guard services"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
+  gl_role: security
+  sources:
+    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Guard services: no B2B exemption."
+
+# ---------------------------------------------------------------- services: 8%, outside the Group G B2B test
+
+- category: maintenance_repair
+  kind: service
+  label: "Machinery and equipment maintenance and repair"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group G maintenance or repair, taxable since 2024. Kept out of the B2B test (group_g false) because the rule sheet's sources do not say whether the B2B exemption covers it: the buyer must not provide maintenance services."
+
+- category: advertising
+  kind: service
+  label: "Advertising and digital advertising"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8}
+  gl_role: marketing_advertising
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group I. Advertising has its own B2B exemption that v0.9 does not model: the buyer must not provide advertising services."
+
+- category: hotel_accommodation
+  kind: service
+  label: "Hotel rooms for business travel"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8}
+  gl_role: travel
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group A. Tourism tax is separate and not modelled."
+
+- category: vehicle_servicing
+  kind: service
+  label: "Vehicle servicing and repair"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: service_8}
+    SG: {disallowed: motor_car}
+  gl_role: motor_vehicle_running
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Malaysia: Group I motor vehicle service or repair centre. Singapore: needs the line fact vehicle_is_motor_car; a goods vehicle is claimable, unknown is HAND_OVER."
+
+# ---------------------------------------------------------------- services: not taxable under SST
+
+- category: water_supply
+  kind: service
+  label: "Water supply"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: none}
+  gl_role: utilities
+  sources:
+    - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Not a prescribed taxable service. Clean cases only; the generator never charges tax on it."
+
+- category: electricity
+  kind: service
+  label: "Electricity"
+  countries: [SG]
+  gl_role: utilities
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Singapore only. Malaysian electricity has its own service-tax rules (thresholds per consumer), which the rule sheet does not cover."
+
+# ---------------------------------------------------------------- services: Singapore Regulation 26/27
+
+- category: club_subscription
+  kind: service
+  label: "Sports and recreation club membership"
+  countries: [SG]
+  tax:
+    SG: {disallowed: club_subscription}
+  gl_role: club_subscriptions
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Includes transfer fees."
+
+- category: staff_medical
+  kind: service
+  label: "Clinic consultations for staff"
+  countries: [SG]
+  tax:
+    SG: {disallowed: staff_medical}
+  gl_role: staff_welfare_medical
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Needs the line fact staff_medical_obligatory (Work Injury Compensation Act or collective agreement). Obligatory: claimable. Unknown: HAND_OVER."
+
+- category: group_medical_insurance
+  kind: service
+  label: "Group medical and personal accident insurance for staff"
+  countries: [SG]
+  tax:
+    SG: {disallowed: medical_accident_insurance}
+  gl_role: staff_welfare_medical
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+
+- category: company_car_leasing
+  kind: service
+  label: "Company car leasing"
+  countries: [SG]
+  tax:
+    SG: {disallowed: motor_car}
+  gl_role: motor_vehicle_running
+  sources:
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Singapore only (Malaysian rental is left out, decision Q10). Needs the line fact vehicle_is_motor_car."
+
+- category: lucky_draw_tickets
+  kind: service
+  label: "Sweepstakes and lucky-draw tickets for a company event"
+  countries: [SG]
+  tax:
+    SG: {disallowed: betting}
+  gl_role: staff_welfare
+  sources:
+    - "https://www.iras.gov.sg/docs/default-source/e-tax/etax-guide_guide-on-reimbursement-and-disbursement-of-expenses_2019-12-30.pdf?sfvrsn=3254880e_32"
+    - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "Betting, sweepstakes, lotteries and games of chance."
