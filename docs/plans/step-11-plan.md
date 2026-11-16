@@ -148,7 +148,7 @@ A9 removed the duplicated fields from the invoice `Case`: `case_id`, `split`, `c
 
 **TaskSetSpec** (`core/task_set.py`): `id`, `title`, `spec_version`, `decisions` (must include `HAND_OVER`), `approve_decision`, `trap_decisions` (approving a case whose right decision is one of these is a critical error), `extra_fields`, `costs` (the leaderboard weighting first, then the alternatives), `invalid_output_is` (which cost an invalid prediction gets; Q19), `quotas` (percent per primary exception type, summing to 100), `report_by` (envelope fields the results are also reported by; here `country`), `output_schema` (path) and `hf_repo_id`. `task_sets/ap_invoices/spec.py` builds it from the spec's tables and registers it on import; `import decision_benchmark.task_sets` registers every task set. A test checks that the spec's decisions and fields match `output.schema.json`.
 
-**release/ (note only; no code change in A8 or A10).** `release/` still hard-codes this task set: `publish.py` has the old HF repo id (`sgsystems/decision-benchmark-ap-my-sg`), and `allowlist.txt` names the card, schema and docs paths of `ap-invoices`. The spec already names the new repo id (§9.5). When B3 touches release wiring (§9.4), it makes `stage.py` and `publish.py` take `--task-set <id>`, read `hf_repo_id` from the TaskSetSpec, and use one allowlist per task set (`release/allowlists/<id>.txt`). `check_public.py` stays generic as it is. The HF collection stays one collection for all task sets. Until then, the hard-coded values must equal the spec's; a B3 test checks that.
+**release/ (note only; no code change in A8 or A10).** `release/` still hard-codes this task set: `publish.py` reads the HF repo id from the TaskSetSpec since v0.9.0-alpha.1.1 (§9.5), but the task set itself is still fixed, and `allowlist.txt` names the card, schema and docs paths of `ap-invoices`. The spec already names the new repo id (§9.5). When B3 touches release wiring (§9.4), it makes `stage.py` and `publish.py` take `--task-set <id>`, read `hf_repo_id` from the TaskSetSpec, and use one allowlist per task set (`release/allowlists/<id>.txt`). `check_public.py` stays generic as it is. The HF collection stays one collection for all task sets. Until then, the hard-coded values must equal the spec's; a B3 test checks that.
 
 ### 3.2 Country packs (built in A10)
 
@@ -691,15 +691,9 @@ The build image (`docker/build.Dockerfile`) is pinned by digest, built and pushe
 - `release/manifests/v0.9.0*.sha256` committed (exempt path).
 - About 2,500 rendered files (~150 MB PDFs, ~250 MB JPEGs). `publish.py` uses `upload_folder` in one commit; the dry run checks the file count. If HF rejects the size, switch to `upload_large_folder` (Q32).
 
-### 9.5 Moving the Hugging Face dataset (release run after A10; not done in A10)
+### 9.5 Moving the Hugging Face dataset (done in release v0.9.0-alpha.1.1)
 
-The task set is now `ap-invoices`, so the dataset moves from `sgsystems/decision-benchmark-ap-my-sg` to `sgsystems/decision-benchmark-ap-invoices`. The old repo holds only the card (v0.9.0-alpha.1), so nothing that people can score against moves. Steps for the next release run (alpha.2, after B3), in order:
-
-1. `release/publish.py`: `REPO_ID` = `TaskSetSpec.hf_repo_id` (B3 makes publish read it from the spec, §3.1). The dry run prints the new id.
-2. Card (`hf/ap-invoices/README.md`): new title and repo links, the six country configs (§4.10), a line "Formerly `sgsystems/decision-benchmark-ap-my-sg`".
-3. Release run: `publish.py` creates the new repo (`create_repo`, `exist_ok`), uploads, tags `v0.9.0-alpha.2`, and adds the new repo to the collection.
-4. Old repo: one commit that replaces its card with a short "Moved to `sgsystems/decision-benchmark-ap-invoices`" notice (keep the `v0.9.0-alpha.1` tag), then remove it from the collection. Don't delete it, so old links still explain where the data went. Hugging Face's repo rename would also redirect, but a rename keeps the alpha.1 tag on the new repo with a card that names the old task set; a fresh repo plus a notice is clearer.
-5. README.md and CITATION.cff: switch the dataset link to the new repo in the same PR as step 1.
+Decision (Sebastian, 16 Nov 2026): rename the existing repo with `move_repo` instead of creating a fresh one, so the old URL redirects. `release/publish.py` takes the repo id from `TaskSetSpec.hf_repo_id`. Before uploading, if the old id exists and the new one doesn't, it moves the repo once. It never creates, uploads to or tags anything under the old id (hard rule, tested). The card, README.md and CITATION.cff name only the new id.
 
 ## 10. Agent environment
 

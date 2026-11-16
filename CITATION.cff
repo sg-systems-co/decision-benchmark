@@ -8,7 +8,7 @@ version: "v0.9 (synthetic, rules-based)"
 date-released: "2026-11-13"
 license: CC-BY-4.0
 repository-code: "https://github.com/sg-systems-co/decision-benchmark"
-url: "https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg"
+url: "https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-invoices"
 keywords:
   - benchmark
   - accounts payable

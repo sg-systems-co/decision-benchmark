@@ -13,7 +13,7 @@ Open benchmarks that test how well AI models and agents decide real-looking busi
 
 ## Data
 
-- Public dataset: [sgsystems/decision-benchmark-ap-my-sg](https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg) on Hugging Face, in the collection "SG Systems Decision Benchmark". Train and test splits only.
+- Public dataset: [sgsystems/decision-benchmark-ap-invoices](https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-invoices) on Hugging Face, in the collection "SG Systems Decision Benchmark". Train and test splits only.
 - The hidden split is never published. It is used only for verified leaderboard runs.
 
 ## Results

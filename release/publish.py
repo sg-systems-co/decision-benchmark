@@ -7,11 +7,16 @@
 
 Real runs do the Hugging Face setup themselves:
   1. check the token (whoami)
-  2. create the dataset repo if missing (exist_ok)
+  2. if the task set's old repo id exists and the new one doesn't, move (rename) the old
+     repo to the new id, once; Hugging Face then redirects the old URL
+     create the dataset repo if missing (exist_ok)
   3. create the collection if missing and add the dataset to it
   4. refuse to run if the tag already exists on Hugging Face
   5. upload build/hf/ to main in one commit, removing files not in this release
   6. tag that commit with the release tag
+
+The repo id comes from the task set's spec (TaskSetSpec.hf_repo_id). Nothing is
+ever created, uploaded or tagged under an old id in MOVED_FROM (hard rule).
 
 The token is read from the HF_TOKEN environment variable by huggingface_hub.
 It is never printed, logged or passed on a command line.
@@ -32,8 +37,21 @@ import check_public  # noqa: E402
 import stage  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+TASK_SET = "ap-invoices"
 HF_NAMESPACE = "sgsystems"
-REPO_ID = f"{HF_NAMESPACE}/decision-benchmark-ap-my-sg"
+
+
+def spec_repo_id(task_set: str = TASK_SET) -> str:
+    import decision_benchmark.task_sets  # noqa: F401  (registers every task set)
+    from decision_benchmark.core.task_set import get
+
+    return get(task_set).hf_repo_id
+
+
+REPO_ID = spec_repo_id()
+MOVED_FROM = {"sgsystems/decision-benchmark-ap-invoices": "sgsystems/decision-benchmark-ap-my-sg"}
+"""New repo id -> the old id it was renamed from. Old ids are read-only for this script."""
+OLD_REPO_IDS = frozenset(MOVED_FROM.values())
 REPO_TYPE = "dataset"
 COLLECTION_TITLE = "SG Systems Decision Benchmark"
 COLLECTION_DESCRIPTION = "Open benchmarks for business decisions in Southeast Asia."
@@ -103,10 +121,17 @@ def _default_api_factory():
     return HfApi()  # reads HF_TOKEN from the environment
 
 
+def check_target(repo_id: str) -> None:
+    """Hard rule: never create, upload to or tag a repo under an old (moved) id."""
+    if repo_id in OLD_REPO_IDS:
+        raise ReleaseError(f"{repo_id} is an old repo id; nothing may be created or written under it.")
+
+
 def publish(tag: str, staged: Path, api_factory: Callable = _default_api_factory) -> None:
     """Real upload. Raises ReleaseError with a message that is safe to print."""
     from huggingface_hub.errors import HfHubHTTPError
 
+    check_target(REPO_ID)
     if not os.environ.get("HF_TOKEN"):
         raise ReleaseError("HF_TOKEN is not set. Add it as a repo secret named HF_TOKEN.")
     api = api_factory()
@@ -127,6 +152,16 @@ def publish(tag: str, staged: Path, api_factory: Callable = _default_api_factory
 
     user = step("checking the token", "identify the token owner", api.whoami)
     print(f"publish: token belongs to {user.get('name', '?') if isinstance(user, dict) else '?'}")
+    old = MOVED_FROM.get(REPO_ID)
+    if old is not None:
+        new_exists = step("checking the new repo id", f"check whether {REPO_ID} exists",
+                          lambda: api.repo_exists(REPO_ID, repo_type=REPO_TYPE))
+        old_exists = not new_exists and step("checking the old repo id", f"check whether {old} exists",
+                                             lambda: api.repo_exists(old, repo_type=REPO_TYPE))
+        if old_exists:
+            step("moving the old repo to the new id", f"move {old} to {REPO_ID}",
+                 lambda: api.move_repo(from_id=old, to_id=REPO_ID, repo_type=REPO_TYPE))
+            print(f"publish: moved {old} -> {REPO_ID}; the old URL now redirects")
     step("creating the dataset repo if missing", f"create the dataset repo {REPO_ID}",
          lambda: api.create_repo(REPO_ID, repo_type=REPO_TYPE, private=False, exist_ok=True))
     collection = step(
@@ -162,6 +197,7 @@ def main(argv: list[str] | None = None, api_factory: Callable = _default_api_fac
             return 0
         if not args.tag:
             parser.error("--tag is required")
+        check_target(REPO_ID)
         files = verify_release(args.tag, args.staged.resolve())
         print(f"publish: release {args.tag} -> https://huggingface.co/datasets/{REPO_ID}")
         print(f"publish: collection '{COLLECTION_TITLE}' in {HF_NAMESPACE}")
