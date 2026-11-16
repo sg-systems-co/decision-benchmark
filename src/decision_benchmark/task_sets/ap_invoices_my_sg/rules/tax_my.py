@@ -14,6 +14,9 @@ from .findings import UnsupportedCase, Unsettled, finding
 
 ZERO = Decimal("0")
 
+GROUP_RELATIONS_HANDLED = ("unrelated", "unclear")
+"""Every value of Supplier.group_relation that assess() handles explicitly."""
+
 PRECEDENCE = (
     TaxTreatment.SST_SUPPLIER_NOT_REGISTERED,
     TaxTreatment.SST_SHOULD_BE_EXEMPT,
@@ -59,10 +62,16 @@ def assess(
                 findings.append(finding("SUPPLIER_NOT_TAX_REGISTERED", line=n, tax="service"))
                 continue
             if cat.group_g and not cat.group_g_excluded:
-                # Group relief: documents don't show whether the supplier is in the buyer's group.
+                # Group relief: every value of Supplier.group_relation is handled here explicitly.
+                # A clear "same group" value must not be added without its rule (Service Tax
+                # Policy 8/2020) and tests in the same PR; test_group_relation_values_are_all_handled
+                # fails if the Literal gains a value that is not in GROUP_RELATIONS_HANDLED.
                 if supplier.group_relation == "unclear":
+                    # The documents don't show whether the supplier is in the buyer's group.
                     unsettled.append(Unsettled("group_relief_unclear", tax_related=True))
                     continue
+                if supplier.group_relation != "unrelated":
+                    raise UnsupportedCase(f"group relation {supplier.group_relation!r} has no rule in v0.9")
                 # 3. B2B exemption for Group G services between registered persons.
                 if company.sst_registration_no and not line.facts.personal_use:
                     if line.facts.same_service_unclear:
@@ -75,10 +84,12 @@ def assess(
         elif tax_type == MY_TAX_TYPE_SALES:
             if not (cat.my_tax_class or "").startswith("sales_") or cat.my_tax_class == "sales_exempt":
                 raise UnsupportedCase(f"sales tax on {cat.category}, outside the planted v0.9 situations")
-            if not (supplier.sst_registered_for("sales") and supplier.is_manufacturer):
+            if not supplier.sst_registered_for("sales"):
                 codes.append(TaxTreatment.SST_SUPPLIER_NOT_REGISTERED)
                 findings.append(finding("SUPPLIER_NOT_TAX_REGISTERED", line=n, tax="sales"))
                 continue
+            if not supplier.is_manufacturer:
+                raise UnsupportedCase("sales tax charged by a registered non-manufacturer, outside the v0.9 rule sheet")
             # 2. Schedule C raw materials bought by a registered manufacturer.
             if cat.schedule_c_eligible and _schedule_c_holds(company, cat.category, inv.issue_date):
                 codes.append(TaxTreatment.SST_SHOULD_BE_EXEMPT)

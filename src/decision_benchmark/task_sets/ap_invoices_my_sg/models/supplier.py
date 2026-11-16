@@ -64,6 +64,9 @@ class Supplier(Model):
     """registered: registered since this date; deregistered: deregistered on this date."""
     gst_regime: Literal["local", "ovr"] = "local"
     # Generator truth
+    # Do not add a clear "same group" value without its rule (Service Tax Policy 8/2020, group
+    # relief) in rules/tax_my.py and tests in the same PR. tax_my.py handles every value explicitly;
+    # tests/rules/test_tax_my_scope.py fails if this Literal gains a value it doesn't handle.
     group_relation: Literal["unrelated", "unclear"] = internal("unrelated")
     """unclear: the documents don't show whether the supplier is in the buyer's group (group relief)."""
 
