@@ -13,7 +13,9 @@ from huggingface_hub.errors import HfHubHTTPError
 import publish
 import stage
 
-TAG = "v0.9.0-alpha.1"
+TAG = "v0.9.0-alpha.1.1"
+NEW = "sgsystems/decision-benchmark-ap-invoices"
+OLD = "sgsystems/decision-benchmark-ap-my-sg"
 
 
 def fake_token() -> str:
@@ -41,15 +43,35 @@ def http_error(code: int) -> HfHubHTTPError:
 
 
 class FakeApi:
-    def __init__(self, fail: dict[str, int] | None = None, tags: tuple[str, ...] = ()):
+    def __init__(self, fail: dict[str, int] | None = None, tags: tuple[str, ...] = (),
+                 existing: tuple[str, ...] = ()):
         self.fail = fail or {}
         self.tags = tags
+        self.existing = set(existing)
         self.calls: list[str] = []
+        self.written: list[str] = []
 
     def _call(self, name):
         self.calls.append(name)
         if name in self.fail:
             raise http_error(self.fail[name])
+
+    def _write(self, repo_id):
+        """Every call that creates or changes a repo goes through here. Old ids are never written."""
+        assert repo_id not in publish.OLD_REPO_IDS, f"wrote to old id {repo_id}"
+        self.written.append(repo_id)
+
+    def repo_exists(self, repo_id, **kw):
+        self._call("repo_exists")
+        assert kw == {"repo_type": "dataset"}
+        return repo_id in self.existing
+
+    def move_repo(self, from_id, to_id, **kw):
+        self._call("move_repo")
+        assert (from_id, to_id, kw) == (OLD, NEW, {"repo_type": "dataset"})
+        self._write(to_id)
+        self.existing.discard(from_id)
+        self.existing.add(to_id)
 
     def whoami(self):
         self._call("whoami")
@@ -57,6 +79,7 @@ class FakeApi:
 
     def create_repo(self, repo_id, **kw):
         self._call("create_repo")
+        self._write(repo_id)
         assert repo_id == publish.REPO_ID and kw == {"repo_type": "dataset", "private": False, "exist_ok": True}
 
     def create_collection(self, **kw):
@@ -66,6 +89,7 @@ class FakeApi:
 
     def add_collection_item(self, slug, **kw):
         self._call("add_collection_item")
+        self._write(kw["item_id"])
         assert kw == {"item_id": publish.REPO_ID, "item_type": "dataset", "exists_ok": True}
 
     def list_repo_refs(self, repo_id, **kw):
@@ -74,12 +98,14 @@ class FakeApi:
 
     def upload_folder(self, **kw):
         self._call("upload_folder")
+        self._write(kw["repo_id"])
         assert kw["delete_patterns"] == "*" and kw["repo_type"] == "dataset"
         assert kw["commit_message"] == f"{TAG} from sg-systems-co/decision-benchmark@abc1234"
         return SimpleNamespace(oid="deadbeef")
 
     def create_tag(self, repo_id, **kw):
         self._call("create_tag")
+        self._write(repo_id)
         assert kw["tag"] == TAG and kw["revision"] == "deadbeef"
 
 
@@ -106,8 +132,8 @@ def test_real_run_calls_in_order_and_never_prints_token(staged, token_env, capsy
     api = FakeApi()
     code, out = run(staged, capsys, api=api)
     assert code == 0, out
-    assert api.calls == ["whoami", "create_repo", "create_collection", "add_collection_item",
-                         "list_repo_refs", "upload_folder", "create_tag"]
+    assert api.calls == ["whoami", "repo_exists", "repo_exists", "create_repo", "create_collection",
+                         "add_collection_item", "list_repo_refs", "upload_folder", "create_tag"]
     assert fake_token() not in out
 
 
@@ -162,3 +188,52 @@ def test_tag_for_other_spec_version_fails(staged, capsys):
 def test_print_changelog_tag(capsys):
     assert publish.main(["--print-changelog-tag"]) == 0
     assert capsys.readouterr().out.strip() == TAG
+
+
+def test_repo_id_comes_from_the_task_set_spec():
+    from decision_benchmark.core.task_set import get
+
+    assert publish.REPO_ID == get("ap-invoices").hf_repo_id == NEW
+    assert publish.MOVED_FROM == {NEW: OLD}
+
+
+def test_old_repo_is_moved_once_when_the_new_id_does_not_exist(staged, token_env, capsys):
+    api = FakeApi(existing=(OLD,))
+    code, out = run(staged, capsys, api=api)
+    assert code == 0, out
+    assert api.calls[:5] == ["whoami", "repo_exists", "repo_exists", "move_repo", "create_repo"]
+    assert api.calls.count("move_repo") == 1
+    assert f"moved {OLD} -> {NEW}" in out
+    assert set(api.written) == {NEW}
+
+
+def test_no_move_when_the_new_id_exists(staged, token_env, capsys):
+    # After a move Hugging Face redirects the old id, so both may look like they exist.
+    api = FakeApi(existing=(OLD, NEW))
+    code, out = run(staged, capsys, api=api)
+    assert code == 0, out
+    assert "move_repo" not in api.calls and api.calls.count("repo_exists") == 1
+    assert set(api.written) == {NEW}
+
+
+def test_no_move_when_neither_exists(staged, token_env, capsys):
+    api = FakeApi()
+    assert run(staged, capsys, api=api)[0] == 0
+    assert "move_repo" not in api.calls and set(api.written) == {NEW}
+
+
+@pytest.mark.parametrize("extra", [[], ["--dry-run"]], ids=["real", "dry_run"])
+def test_never_writes_under_the_old_id(staged, token_env, capsys, monkeypatch, extra):
+    """Hard rule: if the target were ever an old id, stop before any API call."""
+    monkeypatch.setattr(publish, "REPO_ID", OLD)
+    api = FakeApi()
+    code, out = run(staged, capsys, api=api, extra=extra)
+    assert code == 1 and "old repo id" in out
+    assert api.calls == []
+
+
+def test_move_failure_stops_before_any_write(staged, token_env, capsys):
+    api = FakeApi(existing=(OLD,), fail={"move_repo": 403})
+    code, out = run(staged, capsys, api=api)
+    assert code == 1 and "HF_TOKEN lacks the rights to move" in out
+    assert api.written == []

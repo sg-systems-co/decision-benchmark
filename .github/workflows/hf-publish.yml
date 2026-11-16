@@ -1,7 +1,8 @@
 name: hf-publish
 
 # Publishes the public dataset (card, schema, spec, data) to
-# huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg.
+# huggingface.co/datasets/sgsystems/decision-benchmark-ap-invoices
+# The repo id comes from the task set's spec (TaskSetSpec.hf_repo_id).
 #
 # - pull_request: dry run. Stages the allowlisted files, runs every offline
 #   check, prints the file list. No secrets, no uploads.

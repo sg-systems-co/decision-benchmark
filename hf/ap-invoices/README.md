@@ -183,7 +183,7 @@ Scores are compared only within one dataset version.
   author       = {{SG Systems}},
   year         = {2026},
   version      = {v0.9 (synthetic, rules-based)},
-  howpublished = {\url{https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-my-sg}},
+  howpublished = {\url{https://huggingface.co/datasets/sgsystems/decision-benchmark-ap-invoices}},
   note         = {Code: https://github.com/sg-systems-co/decision-benchmark}
 }
 ```
