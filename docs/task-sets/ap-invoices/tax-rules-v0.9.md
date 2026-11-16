@@ -72,12 +72,12 @@ IRAS lists common reasons an invoice is invalid:
 - From 1 July 2025 the scope added leasing or rental, construction, financial services, private healthcare, education and beauty services ([MOF](https://www.mof.gov.my/portal/en/news/press-release/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025)).
   - Rental is charged at 8%, with exemptions including [B2B transactions and group relief](https://www.mof.gov.my/portal/pdf/siaran-media/expansion-sst-scope.pdf).
   - Construction works are at 6% ([Budget 2026 revenue section](https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf)).
-- **B2B exemption for Group G professional services** ([RMCD guide on management services](https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf)). It applies when:
+- **B2B exemption for Group G professional services** ([RMCD guide on management services](https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf)). It applies when:
   - both provider and recipient are registered persons
   - the recipient provides the same service
   - it is not for personal use
   - employment services and guard services are excluded
-- **Group relief:** some Group G services between companies in the same group are not taxable ([Service Tax Policy 8/2020](https://mysst.customs.gov.my/assets/document/Service%20Policy/STP%208_2020.pdf)).
+- **Group relief:** some Group G services between companies in the same group are not taxable ([Service Tax Policy 8/2020](https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%208_2020.pdf)).
 - **Registration:** for Group G services the threshold is RM500,000 over 12 months ([RMCD](https://mysst.customs.gov.my/registering-business/)). A supplier below it, and not registered, should not charge service tax.
 
 **E-invoices (MyInvois):**

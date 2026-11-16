@@ -6,12 +6,12 @@
 #     Exempted from Sales Tax) Order 2025 [P.U. (A) 171/2025], so paragraph 2(1) of the rate order
 #     (10% on all taxable goods) applies to the whole heading.
 #   - sales_exempt: the heading is in the exemption order and appears nowhere in the rate order.
-#   - No sales_5 category: the official text could only be checked at heading level, and every
-#     5% heading we looked at could be split by subheading. 5% goods are added once the
-#     subheading lists are checked.
-#   - Both orders were read with their July 2025 amendment orders (Kertas Statut 108 and 109 of
-#     2025). The 1 January 2026 exemptions (animal feed, fertiliser, pesticides) touch no category
-#     here.
+#   - sales_5: the exact subheading (10-digit code in `note`) is listed in the First Schedule of
+#     the rate order and the heading is not in the exemption order.
+#   - Read from the gazetted PDFs linked on mysst.customs.gov.my/sst-orders/, with every later
+#     amendment listed there: rate order P.U. (A) 199/2025, 399/2025 and 281/2026; exemption order
+#     P.U. (A) 200/2025 and 400/2025. None of them touches a heading or subheading used here
+#     (P.U. (A) 400/2025 only rewords one 30.04 subheading, which stays exempt). Checked 16 Nov 2026.
 # Singapore: a category gets an SG profile only when Regulation 26/27 blocks the claim.
 version: 1
 categories:
@@ -28,8 +28,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: raw_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 32.08, 32.09."
 
@@ -41,8 +41,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: raw_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 35.06."
 
@@ -54,8 +54,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: raw_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 38.14. A manufacturing aid when used in production."
 
@@ -67,8 +67,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: raw_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 39.20 (non-cellular, not reinforced)."
 
@@ -80,8 +80,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 39.23."
 
@@ -93,8 +93,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 39.19."
 
@@ -106,8 +106,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 48.19."
 
@@ -119,8 +119,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 48.21."
 
@@ -132,8 +132,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 63.05."
 
@@ -145,8 +145,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: packaging_materials
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 44.15."
 
@@ -158,8 +158,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: components
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 73.18."
 
@@ -171,8 +171,8 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: components
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 85.44."
 
@@ -184,10 +184,124 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: components
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
   note: "HS 85.36."
+
+- category: hdpe_resin
+  kind: goods
+  label: "High-density polyethylene resin"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 3901.20.00 00 (First Schedule, 5%)."
+
+- category: polypropylene_resin
+  kind: goods
+  label: "Polypropylene resin pellets"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 3902.10.40 00 (First Schedule, 5%)."
+
+- category: pvc_resin
+  kind: goods
+  label: "PVC resin, suspension type"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 3904.10.10 00 (First Schedule, 5%)."
+
+- category: copper_wire
+  kind: goods
+  label: "Copper wire"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5, schedule_c_eligible: true}
+  gl_role: raw_materials
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://mysst.customs.gov.my/faq-sales-tax/"
+  note: "HS 7408.11 (First Schedule, 5%; all its listed subheadings)."
+
+# ---------------------------------------------------------------- goods: equipment at 5%
+
+- category: laptops_desktops
+  kind: goods
+  label: "Laptops and desktop computers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5}
+  gl_role: it_equipment
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+  note: "HS 8471.30.20 00 (laptops) and 8471.41.10 00 (personal computers), First Schedule, 5%."
+
+- category: printers_copiers
+  kind: goods
+  label: "Printers and multifunction copiers"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5}
+  gl_role: office_equipment
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+  note: "HS 8443.31 and 8443.32 (First Schedule, 5%; all listed subheadings)."
+
+- category: electric_forklifts
+  kind: goods
+  label: "Electric forklift trucks"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5}
+  gl_role: plant_machinery
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+  note: "HS 8427.10.00 00 (First Schedule, 5%)."
+
+- category: power_tools
+  kind: goods
+  label: "Electric drills, saws and other power tools"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5}
+  gl_role: tools_small_equipment
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+  note: "HS 8467.21, 8467.22, 8467.29 (First Schedule, 5%)."
+
+- category: centrifugal_pumps
+  kind: goods
+  label: "Centrifugal pumps"
+  countries: [MY, SG]
+  tax:
+    MY: {tax_class: sales_5}
+  gl_role: repairs_maintenance
+  sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+  note: "HS 8413.70 (First Schedule, 5%; all listed subheadings)."
 
 # ---------------------------------------------------------------- goods: spares, tools, supplies
 # Not manufacturing inputs, so never Schedule C in v0.9.
@@ -200,8 +314,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 84.82."
 
 - category: industrial_valves
@@ -212,8 +326,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 84.81."
 
 - category: rubber_hoses
@@ -224,8 +338,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 40.09."
 
 - category: batteries
@@ -236,8 +350,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 85.07."
 
 - category: process_gauges
@@ -248,8 +362,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 90.26."
 
 - category: control_instruments
@@ -260,8 +374,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: repairs_maintenance
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 90.32."
 
 - category: hand_tools
@@ -272,8 +386,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: tools_small_equipment
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 82.03."
 
 - category: tool_bits
@@ -284,8 +398,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: tools_small_equipment
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 82.07."
 
 - category: cleaning_chemicals
@@ -296,8 +410,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: cleaning_supplies
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 34.02."
 
 - category: safety_footwear
@@ -308,8 +422,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: safety_ppe
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 64.03 (leather uppers)."
 
 - category: office_furniture
@@ -320,8 +434,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: office_furniture
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 94.03. Seats (94.01) appear in the 5% schedule and are not in this category."
 
 - category: pens_markers
@@ -332,8 +446,8 @@ categories:
     MY: {tax_class: sales_10}
   gl_role: office_supplies
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
   note: "HS 96.08."
 
 # ---------------------------------------------------------------- goods: exempt from sales tax
@@ -346,8 +460,8 @@ categories:
     MY: {tax_class: sales_exempt}
   gl_role: staff_welfare
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
   note: "HS 04.01."
 
 - category: rice
@@ -358,8 +472,8 @@ categories:
     MY: {tax_class: sales_exempt}
   gl_role: staff_welfare
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
   note: "HS 10.06."
 
 - category: medicaments
@@ -370,8 +484,8 @@ categories:
     MY: {tax_class: sales_exempt}
   gl_role: staff_welfare_medical
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
   note: "HS 30.04. Malaysia only: in Singapore this would be a staff medical expense."
 
 - category: agricultural_machinery
@@ -382,8 +496,8 @@ categories:
     MY: {tax_class: sales_exempt}
   gl_role: plant_machinery
   sources:
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf"
-    - "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
   note: "HS 84.36. Soil-preparation machinery (84.32) is left out: it appears in both orders."
 
 # ---------------------------------------------------------------- goods: Singapore Regulation 26/27
@@ -419,8 +533,9 @@ categories:
     MY: {tax_class: service_6}
   gl_role: freight_inward
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J. Logistics also has a B2B exemption that v0.9 does not model: the buyer must not provide logistics services."
+  note: "Group J. Logistics has a B2B exemption that v0.9 does not model: the buyer must not provide logistics services. Domestic haulage only (door-to-door, transit and transshipment have their own exemptions)."
 
 - category: courier_services
   kind: service
@@ -430,8 +545,10 @@ categories:
     MY: {tax_class: service_6}
   gl_role: postage_courier
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Courier%20Services.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J (logistics). Same B2B caveat as logistics_haulage."
+  note: "Group J (logistics). Parcels up to 30 kg each (heavier parcels are outside the courier item). Same B2B caveat as logistics_haulage."
 
 - category: warehousing
   kind: service
@@ -441,6 +558,7 @@ categories:
     MY: {tax_class: service_6}
   gl_role: warehousing
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
   note: "Group J (logistics). Same B2B caveat as logistics_haulage."
 
@@ -452,7 +570,9 @@ categories:
     MY: {tax_class: service_6}
   gl_role: telecoms
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Telekomunikasi%2027022024.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
+
 
 - category: parking
   kind: service
@@ -462,6 +582,7 @@ categories:
     MY: {tax_class: service_6}
   gl_role: parking
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20RUANG%20LETAK%20KENDERAAN%20V4%204.6.2026.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
   note: "Singapore cases use it for delivery-vehicle parking only, so the motor-car rule never comes into play."
 
@@ -473,8 +594,9 @@ categories:
     MY: {tax_class: service_6}
   gl_role: staff_welfare
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Makanan%20%26%20Minuman_V7%2019042024.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Food and beverage without alcohol. Staff only: family members would be a Singapore family benefit."
+  note: "Group B food and beverage without alcohol. Staff only: family members would be a Singapore family benefit."
 
 - category: construction_works
   kind: service
@@ -484,6 +606,7 @@ categories:
     MY: {tax_class: service_6}
   gl_role: building_works
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDE%20ON%20CONSTRUCTION%20WORK%20SERVICES%20DATED%2017.03.2026%20%5BAMENDMENT%5D%20%5BBI%5D_2.11.26%20(1).pdf"
     - "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf"
     - "https://www.mof.gov.my/portal/en/news/press-release/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025"
     - "https://www.mof.gov.my/portal/images/2026/01/05/Siaran-Media-Pemakluman-Dasar-Dikemaskini-Berhubung-Cukai-Jualan-Dan-Cukai-Perkhidmatan-SST.pdf"
@@ -499,8 +622,9 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: legal_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (a)."
 
 - category: audit_accounting
   kind: service
@@ -510,8 +634,9 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: audit_accounting_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (c)."
 
 - category: engineering_consultancy
   kind: service
@@ -521,8 +646,9 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: professional_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (e)."
 
 - category: architectural_services
   kind: service
@@ -532,8 +658,9 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: professional_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (f)."
 
 - category: surveying_valuation
   kind: service
@@ -543,8 +670,9 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: professional_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (d)."
 
 - category: it_services
   kind: service
@@ -554,8 +682,10 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: it_services
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (h)."
 
 - category: software_development
   kind: service
@@ -565,9 +695,10 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: it_services
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Same Group G service as it_services for the B2B test."
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (h), the same item as it_services."
 
 - category: business_consultancy
   kind: service
@@ -577,8 +708,10 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: professional_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Perundingan_Latihan_TunjukAjar_290224.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (g)."
 
 - category: training_courses
   kind: service
@@ -588,9 +721,10 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: training
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-    - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group G consultancy, training or coaching. Not education by a registered institution (a separate group)."
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Perundingan_Latihan_TunjukAjar_290224.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (g), consultancy, training or coaching. Not education by a registered institution (a separate group)."
 
 - category: management_services
   kind: service
@@ -600,7 +734,8 @@ categories:
     MY: {tax_class: service_8, group_g: true}
   gl_role: management_fees
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (i)."
 
 - category: recruitment_services
   kind: service
@@ -610,8 +745,9 @@ categories:
     MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
   gl_role: recruitment
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Employment services: no B2B exemption."
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pekerjaan%20V3%2014052024.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (j). Employment services: no B2B exemption."
 
 - category: security_guards
   kind: service
@@ -621,8 +757,9 @@ categories:
     MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
   gl_role: security
   sources:
-    - "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Guard services: no B2B exemption."
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (k). Guard services: no B2B exemption."
 
 # ---------------------------------------------------------------- services: 8%, outside the Group G B2B test
 
@@ -631,11 +768,12 @@ categories:
   label: "Machinery and equipment maintenance and repair"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8}
+    MY: {tax_class: service_8, group_g: true}
   gl_role: repairs_maintenance
   sources:
-    - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group G maintenance or repair, taxable since 2024. Kept out of the B2B test (group_g false) because the rule sheet's sources do not say whether the B2B exemption covers it: the buyer must not provide maintenance services."
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+  note: "Group G item (n), taxable since 26 Feb 2024. Not covered by group relief (Service Tax Policy 8/2020 covers items (a) to (i) and (l)). The maintenance guide (para 32) confirms the Group G B2B exemption covers it."
 
 - category: advertising
   kind: service
@@ -645,8 +783,9 @@ categories:
     MY: {tax_class: service_8}
   gl_role: marketing_advertising
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Advertising%20V4_20220119.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group I. Advertising has its own B2B exemption that v0.9 does not model: the buyer must not provide advertising services."
+  note: "Group I item 8, at 8% since 1 March 2024. Advertising has its own B2B exemption that v0.9 does not model: the buyer must not provide advertising services."
 
 - category: hotel_accommodation
   kind: service
@@ -656,8 +795,9 @@ categories:
     MY: {tax_class: service_8}
   gl_role: travel
   sources:
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PENGINAPAN%20V4_26022024.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group A. Tourism tax is separate and not modelled."
+  note: "Group A, room only at 8%. Tourism tax is separate and not modelled."
 
 - category: vehicle_servicing
   kind: service
@@ -668,9 +808,9 @@ categories:
     SG: {disallowed: motor_car}
   gl_role: motor_vehicle_running
   sources:
-    - "https://mysst.customs.gov.my/faq-services-tax/"
+    - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20SERVIS%20AM%20ATAU%20PEMBAIKAN%20KENDERAAN%20BERMOTOR%20V3%2010.6.2026.pdf"
     - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
-  note: "Malaysia: Group I motor vehicle service or repair centre. Singapore: needs the line fact vehicle_is_motor_car; a goods vehicle is claimable, unknown is HAND_OVER."
+  note: "Malaysia: Group I item 5, labour at 8% (spare parts are not service-taxed, so invoices bill labour only). Singapore: needs the line fact vehicle_is_motor_car; a goods vehicle is claimable, unknown is HAND_OVER."
 
 # ---------------------------------------------------------------- services: not taxable under SST
 
@@ -716,7 +856,7 @@ categories:
   gl_role: staff_welfare_medical
   sources:
     - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
-  note: "Needs the line fact staff_medical_obligatory (Work Injury Compensation Act or collective agreement). Obligatory: claimable. Unknown: HAND_OVER."
+  note: "Needs the line fact staff_medical_obligatory: true when any IRAS exception applies (Work Injury Compensation Act, a collective agreement, or since 1 Oct 2021 treatment for a work-related health risk under written law, or COVID-19 treatment under a government advisory). Obligatory: claimable. Unknown: HAND_OVER."
 
 - category: group_medical_insurance
   kind: service
@@ -727,6 +867,7 @@ categories:
   gl_role: staff_welfare_medical
   sources:
     - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
+  note: "IRAS allows the claim when the insurance is obligatory under the Work Injury Compensation Act or a collective agreement. The engine does not model that exception yet (fix requested), so until it does the generator only uses this for voluntary cover stated in the documents."
 
 - category: company_car_leasing
   kind: service

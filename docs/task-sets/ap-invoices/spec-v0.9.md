@@ -59,7 +59,7 @@ Every output has one decision, one tax treatment and one GL account. The decisio
 - **Malaysia (SST):** was the tax charged correctly? [Sales tax is single-stage](https://mysst.customs.gov.my/faq-sales-tax/), and there is no input credit to claim. The clerk's question is whether the supplier should have charged it, and at which rate. Codes:
   - SST\_CORRECT
   - SST\_WRONG\_RATE (service tax is [8%, or 6% for F&B, telecoms, parking and logistics](https://mysst.customs.gov.my/faq-services-tax/); sales tax is 5% or 10%)
-  - SST\_SHOULD\_BE\_EXEMPT (e.g. the [B2B exemption for Group G services](https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf) between registered persons, or raw materials bought under a Schedule C certificate)
+  - SST\_SHOULD\_BE\_EXEMPT (e.g. the [B2B exemption for Group G services](https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf) between registered persons, or raw materials bought under a Schedule C certificate)
   - SST\_SUPPLIER\_NOT\_REGISTERED
   - NO\_SST
 - Full rules, with sources, are in the [tax-rule sheet](tax-rules-v0.9.md), verified against the official pages on 13 Nov 2026. Answers follow official rules and guidance only.

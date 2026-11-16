@@ -72,14 +72,11 @@ def test_release_catalog_covers_every_rule_sheet_situation():
 
 @pytest.mark.skipif(not RELEASE.exists(), reason="release catalog not drafted yet")
 def test_release_catalog_has_no_unsourced_goods_rate():
-    """Q9: no 5% goods in v0.9, and every taxed goods category cites both sales-tax orders."""
-    orders = {
-        "https://repositori.parlimen.gov.my/bitstream/123456789/3521/83/ST.104.2025%20-%20ST104.2025.pdf",
-        "https://repositori.parlimen.gov.my/bitstream/123456789/3521/84/ST.105.2025%20-%20ST105.2025.pdf",
-    }
+    """Q9: every goods category with a sales-tax class cites both gazetted sales-tax orders and names its HS code."""
+    r2 = "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/"
+    orders = {r2 + "1-PUA%20170_2025.pdf", r2 + "3-PUA%20171%20(2025).pdf"}
     for c in load_catalog(RELEASE).categories:
         if "MY" not in c.tax or not c.tax["MY"].tax_class.startswith("sales_"):
             continue
-        assert c.tax["MY"].tax_class != "sales_5", c.category
         assert orders <= set(c.sources), c.category
         assert c.note.startswith("HS "), c.category
