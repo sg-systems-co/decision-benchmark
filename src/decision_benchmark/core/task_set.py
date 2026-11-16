@@ -12,7 +12,7 @@ from decimal import Decimal
 
 from pydantic import Field, model_validator
 
-from .case import AnswerEnvelope
+from .case import AnswerEnvelope, CaseEnvelope
 from .model import Model, Num
 
 HAND_OVER = "HAND_OVER"
@@ -47,6 +47,9 @@ class TaskSetSpec(Model):
     """Which cost a schema-breaking, missing or duplicate prediction gets (CostWeights field name)."""
     quotas: dict[str, Num]
     """Share of cases (percent) per primary exception type. Sums to 100."""
+    report_by: tuple[str, ...] = ()
+    """Case-envelope fields that results are also reported by (each value, plus overall).
+    The dataset uses the same fields as Hugging Face configs."""
     output_schema: str
     """Path of the output JSON schema, relative to the repository root."""
     hf_repo_id: str
@@ -65,6 +68,9 @@ class TaskSetSpec(Model):
             raise ValueError("at least one cost weighting")
         if self.invalid_output_is not in ("handover", "false_alarm", "missed"):
             raise ValueError("invalid_output_is names a CostWeights field")
+        unknown = set(self.report_by) - set(CaseEnvelope.model_fields)
+        if unknown:
+            raise ValueError(f"report_by names fields the case envelope does not have: {sorted(unknown)}")
         if sum(self.quotas.values(), Decimal(0)) != 100:
             raise ValueError("quotas must sum to 100")
         return self

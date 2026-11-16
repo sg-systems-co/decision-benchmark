@@ -1,0 +1,53 @@
+"""Singapore: GST input-tax claims, IRAS tax invoices, PINT-SG fields."""
+
+from __future__ import annotations
+
+from decimal import Decimal
+from typing import TYPE_CHECKING
+
+from ...findings import TaxResult
+from ..base import CountryPack, LineFact
+from . import constants, tax
+from .models import PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
+
+if TYPE_CHECKING:
+    from ...models import Catalog, Company, Finding, Invoice
+    from ...rules.view import CaseView
+
+
+class SingaporePack(CountryPack):
+    country = "SG"
+    currency = "SGD"
+    registration_types = {"SG_GST": ("local", "ovr")}
+    tax_codes = SgTaxTreatment
+    tax_profile = SgTaxProfile
+    profile_required = False
+    einvoice = PintSg
+    company_facts = SgCompanyFacts
+    supplier_facts = SgSupplierFacts
+    line_facts = {
+        "vehicle_is_motor_car": LineFact(default=None, nullable=True),
+        "staff_medical_obligatory": LineFact(default=None, nullable=True),
+    }
+    constants = constants
+
+    def check_company(self, company: Company) -> None:
+        super().check_company(company)
+        # Step-11 plan Q5: every Singapore buying company is GST-registered in v0.9.
+        reg = company.registration("SG_GST")
+        if reg is None or reg.valid_from is None:
+            raise ValueError("a Singapore company needs base_currency SGD and a GST registration")
+
+    def validity(self, invoice: Invoice) -> list[Finding]:
+        # Tax-invoice validity only matters for an input-tax claim, so assess_tax reports it.
+        return []
+
+    def gross_in_local_currency(self, invoice: Invoice) -> Decimal | None:
+        assert isinstance(invoice.einvoice, PintSg)
+        return invoice.einvoice.gross_sgd
+
+    def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
+        return tax.assess(view.invoice, view.supplier, catalog)
+
+
+PACK = SingaporePack()

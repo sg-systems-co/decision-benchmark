@@ -11,10 +11,10 @@ from pydantic import ValidationError
 import decision_benchmark.task_sets  # noqa: F401  (registers every task set)
 from decision_benchmark.core import Document, TaskSetSpec, get, register, registered
 from decision_benchmark.core.case import AnswerEnvelope
-from decision_benchmark.task_sets.ap_invoices_my_sg import SPEC
-from decision_benchmark.task_sets.ap_invoices_my_sg.envelope import ApCaseEnvelope, envelope
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import Case, CompanyRecords, load_catalog
-from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
+from decision_benchmark.task_sets.ap_invoices import SPEC
+from decision_benchmark.task_sets.ap_invoices.envelope import ApCaseEnvelope, envelope
+from decision_benchmark.task_sets.ap_invoices.models import Case, CompanyRecords, load_catalog
+from decision_benchmark.task_sets.ap_invoices.rules import answer_case
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = load_catalog(ROOT / "tests/fixtures/catalog.yaml")
@@ -27,8 +27,8 @@ def _load(path):
 
 
 def test_registry():
-    assert "ap-invoices-my-sg" in registered()
-    assert get("ap-invoices-my-sg") is SPEC
+    assert "ap-invoices" in registered()
+    assert get("ap-invoices") is SPEC
     assert register(SPEC) is SPEC  # registering the same spec again is harmless
     with pytest.raises(ValueError):
         register(SPEC.model_copy(update={"title": "something else"}))
@@ -47,7 +47,8 @@ def test_spec_costs_and_quotas_follow_the_spec():
     assert (primary.handover, primary.false_alarm, primary.missed) == (1, 3, 10)
     assert [(c.handover, c.false_alarm, c.missed) for c in SPEC.costs[1:]] == [(1, 2, 5), (1, 3, 20)]
     assert SPEC.quotas["clean"] == 40 and SPEC.quotas["ambiguous"] == 3
-    assert SPEC.hf_repo_id == "sgsystems/decision-benchmark-ap-my-sg"
+    assert SPEC.hf_repo_id == "sgsystems/decision-benchmark-ap-invoices"
+    assert SPEC.report_by == ("country",)
 
 
 def _spec_kwargs(**over):
@@ -65,8 +66,10 @@ def _spec_kwargs(**over):
         {"quotas": {"clean": Decimal(50)}},
         {"invalid_output_is": "zero"},
         {"id": "Not_A_Slug"},
+        {"report_by": ("region",)},
     ],
-    ids=["no_hand_over", "approve_unknown", "trap_is_approve", "quotas_not_100", "bad_invalid_cost", "bad_id"],
+    ids=["no_hand_over", "approve_unknown", "trap_is_approve", "quotas_not_100", "bad_invalid_cost", "bad_id",
+         "report_by_unknown_field"],
 )
 def test_spec_validation(over):
     with pytest.raises(ValidationError):

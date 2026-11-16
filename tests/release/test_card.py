@@ -9,7 +9,7 @@ from huggingface_hub import DatasetCard
 import check_public as cp
 
 ROOT = Path(__file__).resolve().parents[2]
-CARD_PATH = ROOT / "hf/ap-invoices-my-sg/README.md"
+CARD_PATH = ROOT / "hf/ap-invoices/README.md"
 
 
 def test_card_front_matter_parses_with_huggingface_hub():

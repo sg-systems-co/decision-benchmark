@@ -25,6 +25,10 @@ Decided by Sebastian on 13 Nov 2026 (step-11 plan, §16). The spec and the tax-r
 - **Tax treatment and GL account on HAND_OVER cases (answer keys, scoring).** Where the open question is the tax itself (for example whether a vehicle falls under the Regulation 25(1) exclusions), the answer key's tax treatment is null. The GL account is always set. Tax accuracy and GL accuracy leave out cases whose answer-key value is null.
 - **Risk–coverage curve (scoring).** Drawn only when every prediction other than HAND_OVER gives a `confidence`. Cases the entry decided are ranked by confidence, highest first; tied confidences form one step. At each step, risk is the share of wrong decisions among the cases kept so far, and coverage is the share of all cases kept. HAND_OVER predictions are never kept. The area under the curve (AURC) is the mean risk over all steps.
 
+### Renamed
+
+- **Task set `ap-invoices-my-sg` is now `ap-invoices`** (16 Nov 2026, PR #4 review). Countries are no longer part of the task-set name: each country is a country pack in the code, a config of the Hugging Face dataset (`MY`, `SG`), and a slice of the results (reported per country and overall). Paths moved with it: `docs/task-sets/ap-invoices/`, `schemas/ap-invoices/v0.9/`, `hf/ap-invoices/`, `results/ap-invoices/v0.9/`. The schema, decisions, tax-treatment codes, reason codes and answer keys are unchanged. The Hugging Face dataset moves to `sgsystems/decision-benchmark-ap-invoices` in the next release run; `sgsystems/decision-benchmark-ap-my-sg` (which held only the card at v0.9.0-alpha.1) is then marked as moved.
+
 ## [v0.9.0-alpha.1] - 2026-11-13
 
 Spec: v0.9 (synthetic, rules-based). Scores comparable with: v0.9.*

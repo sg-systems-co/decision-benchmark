@@ -24,7 +24,7 @@ def test_repo_stages_exactly_the_six_alpha_files(tmp_path):
 def test_staged_spec_is_byte_identical(tmp_path):
     out = tmp_path / "hf"
     stage.stage(stage.REPO_ROOT, out)
-    src = stage.REPO_ROOT / "docs/task-sets/ap-invoices-my-sg/spec-v0.9.md"
+    src = stage.REPO_ROOT / "docs/task-sets/ap-invoices/spec-v0.9.md"
     assert (out / "docs/spec-v0.9.md").read_bytes() == src.read_bytes()
 
 

@@ -1,0 +1,69 @@
+"""Malaysia: SST (sales tax and service tax), MyInvois e-invoices."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from ...findings import TaxResult
+from ..base import CountryPack, LineFact
+from . import constants, tax, validity
+from .models import MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
+
+if TYPE_CHECKING:
+    from ...models import Catalog, Category, Company, Finding, Invoice
+    from ...rules.view import CaseView
+
+
+class MalaysiaPack(CountryPack):
+    country = "MY"
+    currency = "MYR"
+    registration_types = {"MY_TIN": ("tin",), "MY_SST": ("sales", "service")}
+    certificate_kinds = ("schedule_c", "group_g_b2b_declaration")
+    tax_codes = MyTaxTreatment
+    tax_profile = MyTaxProfile
+    profile_required = True
+    einvoice = MyInvois
+    company_facts = MyCompanyFacts
+    supplier_facts = MySupplierFacts
+    line_facts = {
+        "same_service_unclear": LineFact(default=False, nullable=False),
+        "personal_use": LineFact(default=False, nullable=False),
+    }
+    constants = constants
+
+    def check_company(self, company: Company) -> None:
+        super().check_company(company)
+        if company.registration("MY_TIN") is None:
+            raise ValueError("a Malaysian company needs base_currency MYR and a TIN")
+
+    def check_category(self, category: Category) -> None:
+        super().check_category(category)
+        p = category.tax["MY"]
+        assert isinstance(p, MyTaxProfile)
+        name, kind, cls = category.category, category.kind, p.tax_class
+        if p.group_g and (kind != "service" or cls != "service_8"):
+            raise ValueError(f"{name}: Group G categories are services taxed at 8%")
+        if p.group_g_excluded and not p.group_g:
+            raise ValueError(f"{name}: group_g_excluded needs group_g")
+        if p.schedule_c_eligible and (kind != "goods" or not cls.startswith("sales_")):
+            raise ValueError(f"{name}: Schedule C applies to goods under sales tax")
+        if kind == "goods" and cls.startswith("service_"):
+            raise ValueError(f"{name}: goods can't carry a service-tax class")
+        if kind == "service" and cls.startswith("sales_"):
+            raise ValueError(f"{name}: services can't carry a sales-tax class")
+
+    def validity(self, invoice: Invoice) -> list[Finding]:
+        return validity.check(invoice)
+
+    def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
+        return tax.assess(
+            view.invoice,
+            view.supplier,
+            self.supplier_facts_of(view.supplier),
+            view.company,
+            self.company_facts_of(view.company),
+            catalog,
+        )
+
+
+PACK = MalaysiaPack()

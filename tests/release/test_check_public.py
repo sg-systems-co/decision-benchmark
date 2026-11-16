@@ -191,13 +191,13 @@ def test_rule5_data_in_repo_fails(tmp_path, rel):
 
 def test_rule5_exempt_paths_pass(tmp_path):
     write(tmp_path, "release/manifests/v0.9.0-alpha.1.sha256", "abc  README.md\n")
-    write(tmp_path, "schemas/ap-invoices-my-sg/v0.9/output.schema.json", '{"type": "object"}\n')
-    write(tmp_path, "schemas/ap-invoices-my-sg/v0.9/examples/valid/a.json", '{"decision": "APPROVE"}\n')
+    write(tmp_path, "schemas/ap-invoices/v0.9/output.schema.json", '{"type": "object"}\n')
+    write(tmp_path, "schemas/ap-invoices/v0.9/examples/valid/a.json", '{"decision": "APPROVE"}\n')
     assert cp.check(tmp_path, "repo") == []
 
 
 def test_rule5_answer_keys_in_exempt_path_fail(tmp_path):
-    write(tmp_path, "schemas/ap-invoices-my-sg/v0.9/examples/valid/a.json", '{"answer_decision": "APPROVE"}\n')
+    write(tmp_path, "schemas/ap-invoices/v0.9/examples/valid/a.json", '{"answer_decision": "APPROVE"}\n')
     assert rules(cp.check(tmp_path, "repo")) == {"5"}
 
 

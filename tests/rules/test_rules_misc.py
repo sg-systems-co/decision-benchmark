@@ -2,11 +2,23 @@
 
 import pytest
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import Decision as D
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import TaxTreatment as T
-from decision_benchmark.task_sets.ap_invoices_my_sg.rules import UnsupportedCase
+from decision_benchmark.task_sets.ap_invoices.models import Decision as D
+from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices.rules import UnsupportedCase
 
-from .factory import answer, ledger_copy, my_base, my_line, set_lines, set_po_line, sg_base, sg_line
+from .factory import (
+    answer,
+    ein,
+    ledger_copy,
+    my_base,
+    my_line,
+    replace_lines,
+    set_lines,
+    set_po_line,
+    sg_base,
+    sg_line,
+    tax_facts,
+)
 
 # Duplicates ------------------------------------------------------------------
 
@@ -59,8 +71,8 @@ def test_reissue_after_full_credit_note_is_not_a_duplicate():
     r, c = my_base()
     original = ledger_copy(c, "L1", invoice_number="ABS-INV-2610-990", issue_date="2026-10-30")
     credit = ledger_copy(
-        c, "L2", invoice_number="ABS-CN-2610-007", issue_date="2026-10-31", doc_type="credit_note",
-        einvoice_type_code="02", original_invoice_ref="ABS-INV-2610-990",
+        c, "L2", {"einvoice_type_code": "02"}, invoice_number="ABS-CN-2610-007", issue_date="2026-10-31",
+        doc_type="credit_note", original_invoice_ref="ABS-INV-2610-990",
     )
     r["ledger"] += [original, credit]
     assert answer(r, c).decision is D.APPROVE
@@ -70,9 +82,9 @@ def test_clean_credit_note_is_approved_with_the_tax_of_the_original():
     r, c = my_base()
     r["ledger"].append(ledger_copy(c, "L1", invoice_number="ABS-INV-2610-990", issue_date="2026-10-30"))
     c["invoice"].update(
-        doc_type="credit_note", invoice_number="ABS-CN-2611-001", einvoice_type_code="02",
-        original_invoice_ref="ABS-INV-2610-990",
+        doc_type="credit_note", invoice_number="ABS-CN-2611-001", original_invoice_ref="ABS-INV-2610-990",
     )
+    ein(c)["einvoice_type_code"] = "02"
     a = answer(r, c)
     assert (a.decision, a.tax_treatment, a.gl_account) == (D.APPROVE, T.SST_CORRECT, "6150-100")
 
@@ -92,7 +104,7 @@ def _bank_email(new="9999 0000 1111"):
         "thread_id": "T1", "message_id": "M1", "company_id": "my-c-001", "case_id": "ap-my-00001",
         "sent_at": "2026-11-02T09:00:00", "sender": {"address": "ar@awanbiru-systems.example"},
         "to": [{"address": "ap@teratai.example"}], "subject": "Bank change", "body": "Please pay to our new account.",
-        "requests_bank_change": True, "new_bank_account": new,
+        "signals": [{"kind": "bank_change_request", "new_bank_account": new}],
     }
 
 
@@ -175,7 +187,7 @@ def test_quantity_already_invoiced_is_not_billable_again():
     set_lines(c, [my_line(1, "it_services", 60, "32.00", po_line_no=1)])
     r["ledger"].append(ledger_copy(c, "L1", invoice_number="ABS-1", issue_date="2026-10-15", totals={
         "net": "1500.00", "tax": "120.00", "gross": "1620.00"}))
-    r["ledger"][0]["invoice"]["lines"] = [my_line(1, "it_services", 50, "30.00", po_line_no=1)]
+    replace_lines(r["ledger"][0]["invoice"], [my_line(1, "it_services", 50, "30.00", po_line_no=1)])
     a = answer(r, c)
     assert a.decision is D.DISPUTE_QUANTITY
 
@@ -184,7 +196,7 @@ def test_price_within_tolerance_is_approved():
     r, c = my_base()
     set_lines(c, [my_line(1, "it_services", 1, "3264.00", po_line_no=1)])  # +2.00%
     a = answer(r, c)
-    assert a.decision is D.APPROVE and str(a.truth_price_variance_pct) == "2.00"
+    assert a.decision is D.APPROVE and str(a.grader_truth.price_variance_pct) == "2.00"
 
 
 def test_absolute_price_tolerance_applies_when_larger():
@@ -198,7 +210,7 @@ def test_price_below_po_is_not_a_problem():
     r, c = my_base()
     set_lines(c, [my_line(1, "it_services", 1, "3000.00", po_line_no=1)])
     a = answer(r, c)
-    assert a.decision is D.APPROVE and str(a.truth_price_variance_pct) == "-6.25"
+    assert a.decision is D.APPROVE and str(a.grader_truth.price_variance_pct) == "-6.25"
 
 
 def test_approved_po_amendment_counts():
@@ -217,7 +229,7 @@ def test_verbal_price_approval_in_email_does_not_count():
         "thread_id": "T1", "message_id": "M1", "company_id": "my-c-001", "case_id": "ap-my-00001",
         "sent_at": "2026-11-01T10:00:00", "sender": {"address": "proc@teratai.example"},
         "to": [{"address": "ap@teratai.example"}], "subject": "price", "body": "I agreed the new price by phone.",
-        "mentions_price_change": True, "price_change_status": "verbal_only",
+        "signals": [{"kind": "price_change", "status": "verbal_only"}],
     })
     set_lines(c, [my_line(1, "it_services", 1, "3400.00", po_line_no=1)])
     assert answer(r, c).decision is D.DISPUTE_PRICE
@@ -245,14 +257,14 @@ def test_no_po_reference_and_no_fitting_po_is_routed():
     set_po_line(r, category="telecoms", gl_account="6210-000")
     a = answer(r, c)
     assert a.decision is D.ROUTE_FOR_APPROVAL and a.reason_codes == ["NO_PO"]
-    assert a.gl_account == "6150-100" and a.truth_po_number is None and a.truth_price_variance_pct is None
+    assert a.gl_account == "6150-100" and a.grader_truth.po_number is None and a.grader_truth.price_variance_pct is None
 
 
 def test_no_po_reference_but_one_fitting_po_is_matched():
     r, c = my_base()
     c["invoice"]["po_reference"] = None
     a = answer(r, c)
-    assert a.decision is D.APPROVE and a.truth_po_number == "PO-1"
+    assert a.decision is D.APPROVE and a.grader_truth.po_number == "PO-1"
 
 
 def test_non_po_category_within_limit_is_approved():
@@ -287,13 +299,13 @@ def test_two_fitting_pos_is_a_hand_over_with_tax_set():
     second = dict(r["purchase_orders"][0], po_number="PO-2")
     r["purchase_orders"].append(second)
     a = answer(r, c)
-    assert a.decision is D.HAND_OVER and a.tax_treatment is T.SST_CORRECT
-    assert a.truth_po_number is None and a.gl_account == "6150-100"
+    assert a.decision is D.HAND_OVER and a.tax_treatment == T.SST_CORRECT
+    assert a.grader_truth.po_number is None and a.gl_account == "6150-100"
 
 
 def test_group_relief_unclear_is_a_hand_over_with_null_tax():
     r, c = my_base()
-    r["suppliers"][0]["group_relation"] = "unclear"
+    tax_facts(r["suppliers"][0], group_relation="unclear")
     a = answer(r, c)
     assert a.decision is D.HAND_OVER and a.tax_treatment is None
 
@@ -306,7 +318,7 @@ def test_group_g_same_service_unclear_is_a_hand_over():
 
 def test_unsettled_case_with_another_problem_is_unsupported():
     r, c = my_base()
-    r["suppliers"][0]["group_relation"] = "unclear"
+    tax_facts(r["suppliers"][0], group_relation="unclear")
     c["invoice"]["bank_block"]["account_no"] = "0000"
     with pytest.raises(UnsupportedCase, match="Q14"):
         answer(r, c)

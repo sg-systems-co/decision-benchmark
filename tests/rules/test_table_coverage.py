@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.rules.table_rows import ROWS
+from decision_benchmark.task_sets.ap_invoices.table_rows import ROWS
 
 from . import test_table_rows
 
-SHEET = Path(__file__).resolve().parents[2] / "docs/task-sets/ap-invoices-my-sg/tax-rules-v0.9.md"
+SHEET = Path(__file__).resolve().parents[2] / "docs/task-sets/ap-invoices/tax-rules-v0.9.md"
 HEADER = "| Situation planted in a case |"
 
 

@@ -1,19 +1,31 @@
 """One positive and at least one near-miss test per row of the rule-sheet table.
 
 The table is "From rules to benchmark checks" in tax-rules-v0.9.md. Which test
-covers which row is recorded in decision_benchmark/rules/table_rows.py, and
+covers which row is recorded in decision_benchmark/task_sets/ap_invoices/table_rows.py, and
 test_table_coverage.py checks that every row is covered.
 """
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import Decision as D
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices.models import Decision as D
+from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
 
-from .factory import answer, my_base, my_line, set_lines, set_po_line, sg_base, sg_line
+from .factory import (
+    answer,
+    ein,
+    my_base,
+    my_line,
+    my_supplier_sst,
+    set_lines,
+    set_po_line,
+    sg_base,
+    sg_line,
+    supplier_regs,
+    tax_facts,
+)
 
 
 def _check(a, decision, tax, *codes):
     assert a.decision is decision, a.findings
-    assert a.tax_treatment is tax
+    assert a.tax_treatment == tax
     for code in codes:
         assert code in a.reason_codes, a.reason_codes
 
@@ -43,7 +55,8 @@ def test_row01_positive():
 
 def test_row01_negative_supplier_deregistered_before_invoice():
     r, c = sg_base()
-    r["suppliers"][0].update(gst_status="deregistered", gst_status_date="2026-06-30")
+    # Deregistered on 30 Jun 2026: the registration was last valid on 29 Jun.
+    supplier_regs(r, {"scheme": "SG_GST", "number": "20-0412377-W", "type": "local", "valid_to": "2026-06-29"})
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.GST_WRONGLY_CHARGED)
 
 
@@ -58,14 +71,14 @@ def test_row02_positive_no_customer_name():
 
 def test_row02_positive_no_tax_invoice_wording():
     r, c = sg_base()
-    c["invoice"]["document_title"] = "Invoice"
+    ein(c)["document_title"] = "Invoice"
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.NOT_CLAIMABLE_INVALID_INVOICE, "INVALID_TAX_INVOICE")
 
 
 def test_row02_negative_at_or_below_threshold_simplified_invoice_ok():
     r, c = _sg_with("machine_parts", "6400-000", qty=1, price="917.43")  # gross 1,000.00
     c["invoice"]["buyer_block"]["name"] = None
-    c["invoice"]["document_title"] = None
+    ein(c)["document_title"] = None
     assert c["invoice"]["totals"]["gross"] == "1000.00"
     _check(answer(r, c), D.APPROVE, T.CLAIMABLE)
 
@@ -81,7 +94,8 @@ def test_row03_positive():
 
 def test_row03_negative_sgd_amounts_shown():
     r, c = sg_base()
-    c["invoice"].update(currency="USD", exchange_rate="1.30", gross_sgd="2125.50", tax_total_sgd="175.50")
+    c["invoice"].update(currency="USD", exchange_rate="1.30")
+    ein(c).update(gross_sgd="2125.50", tax_total_sgd="175.50")
     _check(answer(r, c), D.APPROVE, T.CLAIMABLE)
 
 
@@ -91,27 +105,27 @@ def test_row03_negative_sgd_amounts_shown():
 
 def test_row04_positive_supplier_not_registered():
     r, c = sg_base()
-    r["suppliers"][0].update(gst_status="none", gst_reg_no=None, gst_status_date=None)
+    supplier_regs(r)
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.GST_WRONGLY_CHARGED, "SUPPLIER_NOT_TAX_REGISTERED")
 
 
 def test_row04_positive_number_does_not_match_record():
     r, c = sg_base()
-    c["invoice"]["supplier_gst_no"] = "20-9999999-X"
+    ein(c)["supplier_gst_no"] = "20-9999999-X"
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.GST_WRONGLY_CHARGED, "SUPPLIER_NOT_TAX_REGISTERED")
 
 
 def test_row04_negative_registered_supplier_omits_number_is_invalid_invoice():
     r, c = sg_base()
-    c["invoice"]["supplier_gst_no"] = None
+    ein(c)["supplier_gst_no"] = None
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.NOT_CLAIMABLE_INVALID_INVOICE, "INVALID_TAX_INVOICE")
 
 
 def test_row04_negative_unregistered_supplier_charges_no_gst():
     r, c = _sg_with("machine_parts", "6400-000", qty=10, price="150.00")
-    r["suppliers"][0].update(gst_status="none", gst_reg_no=None, gst_status_date=None)
+    supplier_regs(r)
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", rate="0", po_line_no=1)])
-    c["invoice"]["supplier_gst_no"] = None
+    ein(c)["supplier_gst_no"] = None
     _check(answer(r, c), D.APPROVE, T.NO_GST)
 
 
@@ -120,13 +134,15 @@ def test_row04_negative_unregistered_supplier_charges_no_gst():
 
 def test_row05_positive():
     r, c = sg_base()
-    r["suppliers"][0].update(gst_regime="ovr", country="OTHER")
+    r["suppliers"][0]["country"] = "OTHER"
+    supplier_regs(r, {"scheme": "SG_GST", "number": "20-0412377-W", "type": "ovr", "valid_from": "2015-06-01"})
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.GST_WRONGLY_CHARGED, "OVR_GST_CHARGED_TO_REGISTERED_BUYER")
 
 
 def test_row05_negative_ovr_vendor_charges_no_gst():
     r, c = sg_base()
-    r["suppliers"][0].update(gst_regime="ovr", country="OTHER")
+    r["suppliers"][0]["country"] = "OTHER"
+    supplier_regs(r, {"scheme": "SG_GST", "number": "20-0412377-W", "type": "ovr", "valid_from": "2015-06-01"})
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", rate="0", po_line_no=1)])
     _check(answer(r, c), D.APPROVE, T.NO_GST)
 
@@ -172,7 +188,7 @@ def test_row07_negative_six_percent_is_correct():
 
 def test_row08_positive():
     r, c = _my_with("management_services", "6160-000", rate="8")
-    r["company"]["services_provided"] = ["management_services"]
+    tax_facts(r["company"], services_provided=["management_services"])
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
 
 
@@ -183,14 +199,15 @@ def test_row08_negative_buyer_does_not_provide_the_service():
 
 def test_row08_negative_guard_services_are_excluded():
     r, c = _my_with("guard_services", "6170-000", rate="8")
-    r["company"]["services_provided"] = ["guard_services"]
+    tax_facts(r["company"], services_provided=["guard_services"])
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 
 
 def test_row08_negative_buyer_not_registered():
     r, c = _my_with("management_services", "6160-000", rate="8")
-    r["company"].update(services_provided=["management_services"], sst_registration_no=None)
-    c["invoice"]["buyer_sst_no"] = None
+    tax_facts(r["company"], services_provided=["management_services"])
+    r["company"]["tax_registrations"] = [x for x in r["company"]["tax_registrations"] if x["scheme"] != "MY_SST"]
+    ein(c)["buyer_sst_no"] = None
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 
 
@@ -200,7 +217,8 @@ def test_row08_negative_buyer_not_registered():
 
 def _schedule_c(valid_to="2027-12-31"):
     r, c = _my_with("test_raw_resin", "5100-100", rate="10", tax_type="01", qty=100, price="12.40")
-    r["suppliers"][0].update(sst_type="sales", is_manufacturer=True)
+    my_supplier_sst(r, "sales")
+    tax_facts(r["suppliers"][0], is_manufacturer=True)
     r["company"]["policy_pack"]["exemption_certificates"] = [
         {"kind": "schedule_c", "number": "SC-0001", "valid_from": "2026-01-01", "valid_to": valid_to,
          "categories": ["test_raw_resin"]}
@@ -218,7 +236,7 @@ def test_row09_negative_certificate_expired():
 
 def test_row09_negative_buyer_not_a_registered_manufacturer():
     r, c = _schedule_c()
-    r["company"]["is_registered_manufacturer"] = False
+    tax_facts(r["company"], is_registered_manufacturer=False)
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 
 
@@ -227,14 +245,14 @@ def test_row09_negative_buyer_not_a_registered_manufacturer():
 
 def test_row10_positive():
     r, c = my_base()
-    r["suppliers"][0].update(sst_registration_no=None, sst_type="none")
-    c["invoice"]["supplier_sst_no"] = None
+    my_supplier_sst(r)
+    ein(c)["supplier_sst_no"] = None
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_SUPPLIER_NOT_REGISTERED, "SUPPLIER_NOT_TAX_REGISTERED")
 
 
 def test_row10_negative_unregistered_supplier_charges_nothing():
     r, c = _my_with("it_services", "6150-100", rate="0")
-    r["suppliers"][0].update(sst_registration_no=None, sst_type="none")
+    my_supplier_sst(r)
     _check(answer(r, c), D.APPROVE, T.NO_SST)
 
 
@@ -256,19 +274,19 @@ def test_row11_negative_something_else_wrong():
 
 def test_row12_positive_buyer_tin():
     r, c = my_base()
-    c["invoice"]["buyer_tin"] = None
+    ein(c)["buyer_tin"] = None
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_CORRECT, "MISSING_MANDATORY_FIELD")
 
 
 def test_row12_positive_line_tax_type():
     r, c = my_base()
-    c["invoice"]["lines"][0]["tax_type"] = None
+    ein(c)["lines"][0]["tax_type"] = None
     _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_CORRECT, "MISSING_MANDATORY_FIELD")
 
 
 def test_row12_negative_ordinary_invoice_below_threshold():
     r, c = my_base()
-    c["invoice"].update(is_einvoice=False, buyer_tin=None)
+    ein(c).update(is_einvoice=False, buyer_tin=None)
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 
 

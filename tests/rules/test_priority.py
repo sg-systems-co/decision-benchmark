@@ -5,9 +5,9 @@ import itertools
 
 import pytest
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import Decision as D
+from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 
-from .factory import answer, ledger_copy, my_base, my_line, set_lines
+from .factory import answer, ein, ledger_copy, my_base, my_line, set_lines
 
 
 def plant_fraud(r, c):
@@ -19,7 +19,7 @@ def plant_duplicate(r, c):
 
 
 def plant_invalid(r, c):
-    c["invoice"]["buyer_tin"] = None
+    ein(c)["buyer_tin"] = None
 
 
 def plant_mismatch(r, c):

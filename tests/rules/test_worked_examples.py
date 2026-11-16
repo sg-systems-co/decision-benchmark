@@ -8,15 +8,15 @@ import jsonschema
 import pytest
 import yaml
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.envelope import ApCaseEnvelope
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import CompanyRecords
-from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
+from decision_benchmark.task_sets.ap_invoices.envelope import ApCaseEnvelope
+from decision_benchmark.task_sets.ap_invoices.models import CompanyRecords
+from decision_benchmark.task_sets.ap_invoices.rules import answer_case
 
-from .factory import CATALOG, answer, my_base, sg_base
+from .factory import CATALOG, answer, my_base, sg_base, tax_facts
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = sorted((ROOT / "tests/fixtures/worked-examples").glob("*.yaml"))
-SCHEMA = json.loads((ROOT / "schemas/ap-invoices-my-sg/v0.9/output.schema.json").read_text())
+SCHEMA = json.loads((ROOT / "schemas/ap-invoices/v0.9/output.schema.json").read_text())
 
 
 def _load(path):
@@ -48,7 +48,7 @@ def test_findings_evidence_of_the_two_problem_case():
 
 def test_hand_over_answer_keys_validate_against_the_schema():
     r, c = my_base()
-    r["suppliers"][0]["group_relation"] = "unclear"
+    tax_facts(r["suppliers"][0], group_relation="unclear")
     jsonschema.validate(answer(r, c).as_output(), SCHEMA)
     r, c = sg_base()
     jsonschema.validate(answer(r, c).as_output(), SCHEMA)

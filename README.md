@@ -4,7 +4,7 @@ Open benchmarks that test how well AI models and agents decide real-looking busi
 
 ## Task sets
 
-- Supplier-invoice decisions: Malaysia and Singapore (in progress). Spec: [v0.9](docs/task-sets/ap-invoices-my-sg/spec-v0.9.md), tax rules: [v0.9](docs/task-sets/ap-invoices-my-sg/tax-rules-v0.9.md)
+- Supplier-invoice decisions: Malaysia and Singapore (in progress). Spec: [v0.9](docs/task-sets/ap-invoices/spec-v0.9.md), tax rules: [v0.9](docs/task-sets/ap-invoices/tax-rules-v0.9.md)
 
 ## Tracks
 

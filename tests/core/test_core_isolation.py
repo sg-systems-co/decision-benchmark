@@ -39,9 +39,9 @@ def test_core_never_imports_a_task_set():
 
 def test_the_import_check_catches_relative_imports(tmp_path):
     probe = CORE / "_probe_for_test.py"
-    probe.write_text("from ..task_sets import ap_invoices_my_sg\n", encoding="utf-8")
+    probe.write_text("from ..task_sets import ap_invoices\n", encoding="utf-8")
     try:
-        assert "decision_benchmark.task_sets.ap_invoices_my_sg" in imported_modules(probe)
+        assert "decision_benchmark.task_sets.ap_invoices" in imported_modules(probe)
     finally:
         probe.unlink()
 

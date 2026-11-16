@@ -18,6 +18,7 @@ from typing import Annotated, Any
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 
 CENT = Decimal("0.01")
+ZERO = Decimal("0")
 
 
 class Model(BaseModel):
