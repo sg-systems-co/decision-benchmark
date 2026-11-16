@@ -99,7 +99,7 @@ def assess(
                         continue
                     if profile.service_item in company_facts.services_provided:
                         codes.append(T.SST_SHOULD_BE_EXEMPT)
-                        findings.append(finding(Code.TAX_SHOULD_BE_EXEMPT, line=n, basis="group_g_b2b"))
+                        findings.append(finding(Code.TAX_SHOULD_BE_EXEMPT, line=n, basis="b2b"))
                         continue
         elif tax_type == TAX_TYPE_SALES:
             if not cls.startswith("sales_") or cls == "sales_exempt":

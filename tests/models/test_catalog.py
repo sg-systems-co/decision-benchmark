@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from decision_benchmark.task_sets.ap_invoices.countries.my.constants import GROUP_RELIEF_ITEMS
 from decision_benchmark.task_sets.ap_invoices.models import Catalog, load_catalog
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "catalog.yaml"
@@ -44,6 +45,8 @@ def test_release_catalog_loads():
         (dict(my={"tax_class": "none", "b2b_exempt": True}), "need a service_item"),
         (dict(my={"tax_class": "none", "group_relief": True}), "need a service_item"),
         (dict(my={"tax_class": "service_8", "service_item": "I8", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(n)", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(j)", "group_relief": True}), "only for Group G"),
         (dict(my={"tax_class": "service_6", "service_item": "J1(a)", "group_relief": True}), "only for Group G"),
         (dict(kind="goods", my={"tax_class": "sales_10", "service_item": "G(a)"}), "only for service_6 and service_8"),
         (dict(kind="goods", my={"tax_class": "none", "service_item": "G(a)"}), "only for service_6 and service_8"),
@@ -77,7 +80,7 @@ def test_release_catalog_covers_every_rule_sheet_situation():
     assert {p.service_item for p in services if p.b2b_exempt and p.service_item.startswith("I")} == {"I8"}
     assert {"G(j)", "G(k)"} <= {p.service_item for p in services if not p.b2b_exempt}  # employment and guards
     assert any(p.group_relief for p in services)
-    assert all(p.service_item[2] in "abcdefghil" for p in services if p.group_relief)
+    assert all(p.service_item in GROUP_RELIEF_ITEMS for p in services if p.group_relief)
     assert any(c.tax["MY"].schedule_c_eligible for c in my)
     assert set(sg) == {"club_subscription", "staff_medical", "motor_car", "family_benefit",
                        "medical_accident_insurance", "betting"}

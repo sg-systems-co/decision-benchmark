@@ -189,7 +189,9 @@ def test_row07_negative_six_percent_is_correct():
 def test_row08_positive():
     r, c = _my_with("management_services", "6160-000", rate="8")
     tax_facts(r["company"], services_provided=["G(i)"])
-    _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
+    a = answer(r, c)
+    _check(a, D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
+    assert [f.evidence for f in a.findings if f.code == "TAX_SHOULD_BE_EXEMPT"] == [{"line": 1, "basis": "b2b"}]
 
 
 def test_row08_negative_buyer_does_not_provide_the_service():

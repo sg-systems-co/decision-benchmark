@@ -18,7 +18,7 @@ class MalaysiaPack(CountryPack):
     country = "MY"
     currency = "MYR"
     registration_types = {"MY_TIN": ("tin",), "MY_SST": ("sales", "service")}
-    certificate_kinds = ("schedule_c", "group_g_b2b_declaration")
+    certificate_kinds = ("schedule_c", "b2b_declaration")
     tax_codes = MyTaxTreatment
     tax_profile = MyTaxProfile
     profile_required = True
@@ -53,8 +53,8 @@ class MalaysiaPack(CountryPack):
             raise ValueError(f"{name}: a taxable service needs its service_item")
         if not cls.startswith("service_") and p.service_item is not None:
             raise ValueError(f"{name}: service_item is only for service_6 and service_8")
-        if p.group_relief and not (p.service_item or "").startswith("G"):
-            raise ValueError(f"{name}: group_relief is only for Group G items")
+        if p.group_relief and p.service_item not in constants.GROUP_RELIEF_ITEMS:
+            raise ValueError(f"{name}: group_relief is only for Group G items (a) to (i) and (l)")
         if p.b2b_exempt and p.service_item in constants.NO_B2B_ITEMS:
             raise ValueError(f"{name}: {p.service_item} has no B2B exemption")
 
