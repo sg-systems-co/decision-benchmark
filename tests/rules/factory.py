@@ -10,6 +10,7 @@ import copy
 from pathlib import Path
 
 from decision_benchmark.task_sets.ap_invoices_my_sg.models import Case, CompanyRecords, load_catalog
+from decision_benchmark.task_sets.ap_invoices_my_sg.envelope import envelope
 from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
 
 CATALOG = load_catalog(Path(__file__).resolve().parents[1] / "fixtures" / "catalog.yaml")
@@ -112,7 +113,7 @@ def my_base() -> tuple[dict, dict]:
         "emails": [],
     }
     case = {
-        "case_id": "ap-my-00001", "split": "train", "country": "MY", "company_id": cid,
+        "company_id": cid,
         "as_of_date": "2026-11-05", "supplier_id": "S1",
         "invoice": {
             "country": "MY", "invoice_id": "INV-CASE-1", "invoice_number": "ABS-INV-2611-044",
@@ -186,7 +187,7 @@ def sg_base() -> tuple[dict, dict]:
         "emails": [],
     }
     case = {
-        "case_id": "ap-sg-00001", "split": "train", "country": "SG", "company_id": cid,
+        "company_id": cid,
         "as_of_date": "2026-11-05", "supplier_id": "S1",
         "invoice": {
             "country": "SG", "invoice_id": "INV-CASE-1", "invoice_number": "KMP-26-0981",
@@ -231,5 +232,11 @@ def ledger_copy(case: dict, ledger_id: str, **invoice_changes) -> dict:
             "posted_on": str(inv["issue_date"]), "invoice": inv}
 
 
+def wrap(case: dict):
+    """The envelope for a payload dict: case id ap-my-00001 or ap-sg-00001, train split."""
+    payload = Case.model_validate(case)
+    return envelope(f"ap-{payload.invoice.country.lower()}-00001", "train", payload)
+
+
 def answer(records: dict, case: dict):
-    return answer_case(CompanyRecords.model_validate(records), Case.model_validate(case), CATALOG)
+    return answer_case(CompanyRecords.model_validate(records), wrap(case), CATALOG)

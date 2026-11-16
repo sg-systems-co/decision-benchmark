@@ -8,12 +8,11 @@ from __future__ import annotations
 
 from datetime import date
 from typing import Literal
-
 from pydantic import model_validator
 
 from decision_benchmark.core.case import Provenance
 
-from .common import Country, Model
+from .common import Model
 from .company import Company
 from .email import Email
 from .facts import FactSheet
@@ -60,26 +59,23 @@ class CompanyRecords(Model):
 
 
 class Case(Model):
-    case_id: str
-    split: str
-    country: Country
+    """The invoice task set's payload inside core.CaseEnvelope (see envelope.py).
+
+    It holds invoice data only. case_id, split, country, languages, modality,
+    the invoice file and provenance live on the envelope.
+    """
+
     company_id: str
     as_of_date: date
     supplier_id: str
     invoice: Invoice
-    invoice_file: str | None = None
-    modality: Literal["pdf", "scan", "photo"] = "pdf"
     fact_sheets: list[FactSheet] = []
     exception_types: list[str] = []
     families: list[str] = []
     two_problems: bool = False
-    provenance: Provenance | None = None
-    languages: list[str] = ["en"]
 
     @model_validator(mode="after")
     def _consistent(self) -> Case:
-        if self.invoice.country != self.country.value:
-            raise ValueError("invoice country differs from case country")
         if self.invoice.issue_date > self.as_of_date:
             raise ValueError("invoice is dated after the case's as_of_date")
         return self

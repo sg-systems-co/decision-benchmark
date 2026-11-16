@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from ..envelope import ApCaseEnvelope
 from ..models import (
     Case,
     Company,
@@ -83,7 +84,8 @@ def _candidate_pos(records: CompanyRecords, case: Case, visible: list[PurchaseOr
     ]
 
 
-def build_case_view(records: CompanyRecords, case: Case) -> CaseView:
+def build_case_view(records: CompanyRecords, envelope: ApCaseEnvelope) -> CaseView:
+    case = envelope.payload
     if records.company.company_id != case.company_id:
         raise ValueError("case belongs to another company")
     supplier = records.supplier(case.supplier_id)
@@ -109,12 +111,12 @@ def build_case_view(records: CompanyRecords, case: Case) -> CaseView:
         reverse=True,
     )[:HISTORY_SIZE]
     emails = sorted(
-        (e for e in records.emails if e.case_id == case.case_id and e.sent_at.date() <= day),
+        (e for e in records.emails if e.case_id == envelope.case_id and e.sent_at.date() <= day),
         key=lambda e: (e.sent_at, e.message_id),
     )
     return CaseView(
-        case_id=case.case_id,
-        country=case.country.value,
+        case_id=envelope.case_id,
+        country=envelope.country,
         as_of_date=day,
         company=records.company,
         supplier=supplier_as_of(supplier, day),

@@ -23,7 +23,7 @@ EXAMPLES = sorted((ROOT / "tests/fixtures/worked-examples").glob("*.yaml"))
 
 def _load(path):
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return CompanyRecords.model_validate(data["records"]), Case.model_validate(data["case"])
+    return CompanyRecords.model_validate(data["records"]), ApCaseEnvelope.model_validate(data["case"])
 
 
 def test_registry():
@@ -82,24 +82,46 @@ def test_document_has_exactly_one_source():
 
 @pytest.mark.parametrize("path", EXAMPLES, ids=lambda p: p.stem)
 def test_worked_examples_fit_both_envelopes(path):
-    records, case = _load(path)
-    env = envelope(case)
-    assert env.payload is case and env.documents[0].record == "invoice"
-    again = ApCaseEnvelope.model_validate(env.model_dump(mode="json"))
-    assert again == env
-    key = answer_case(records, case, CATALOG).envelope()
-    SPEC.check_answer(key)
-    assert key.decision == answer_case(records, case, CATALOG).decision.value
+    records, env = _load(path)
+    assert env.documents[0].record == "invoice" and env.invoice_file is None
+    rebuilt = envelope(env.case_id, env.split, env.payload)
+    assert rebuilt == env
+    assert ApCaseEnvelope.model_validate(env.model_dump(mode="json")) == env
+    key = answer_case(records, env, CATALOG)
+    SPEC.check_answer(key.envelope())
+    assert key.case_id == env.case_id
 
 
-def test_envelope_must_agree_with_payload():
-    _, case = _load(EXAMPLES[0])
-    data = envelope(case).model_dump(mode="json")
-    data["split"] = "other"
-    with pytest.raises(ValidationError):
-        ApCaseEnvelope.model_validate(data)
-    data = envelope(case).model_dump(mode="json")
-    data["documents"].append({"role": "po", "record": "purchase_order"})
+def test_payload_holds_invoice_data_only():
+    assert set(Case.model_fields) == {
+        "company_id", "as_of_date", "supplier_id", "invoice",
+        "fact_sheets", "exception_types", "families", "two_problems",
+    }
+
+
+def test_invoice_file_is_a_document():
+    _, env = _load(EXAMPLES[0])
+    with_file = envelope(env.case_id, env.split, env.payload, invoice_file="pdf/train/ap-my-00137.pdf")
+    assert with_file.invoice_file == "pdf/train/ap-my-00137.pdf"
+    assert [d.file for d in with_file.documents] == [None, "pdf/train/ap-my-00137.pdf"]
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"country": "SG"},
+        {"task_set": "other"},
+        {"modality": "fax"},
+        {"documents": [{"role": "invoice", "file": "a.pdf"}]},
+        {"documents": [{"role": "invoice", "record": "invoice"}, {"role": "po", "record": "purchase_order"}]},
+        {"documents": [{"role": "invoice", "record": "invoice"}, {"role": "invoice", "file": "a.pdf"},
+                       {"role": "invoice", "file": "b.jpg"}]},
+    ],
+    ids=["country_differs_from_invoice", "task_set", "modality", "no_invoice_record", "unknown_record", "two_files"],
+)
+def test_envelope_rejects(change):
+    _, env = _load(EXAMPLES[0])
+    data = env.model_dump(mode="json") | change
     with pytest.raises(ValidationError):
         ApCaseEnvelope.model_validate(data)
 

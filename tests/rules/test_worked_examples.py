@@ -8,7 +8,8 @@ import jsonschema
 import pytest
 import yaml
 
-from decision_benchmark.task_sets.ap_invoices_my_sg.models import Case, CompanyRecords
+from decision_benchmark.task_sets.ap_invoices_my_sg.envelope import ApCaseEnvelope
+from decision_benchmark.task_sets.ap_invoices_my_sg.models import CompanyRecords
 from decision_benchmark.task_sets.ap_invoices_my_sg.rules import answer_case
 
 from .factory import CATALOG, answer, my_base, sg_base
@@ -20,7 +21,7 @@ SCHEMA = json.loads((ROOT / "schemas/ap-invoices-my-sg/v0.9/output.schema.json")
 
 def _load(path):
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return CompanyRecords.model_validate(data["records"]), Case.model_validate(data["case"]), data["expect"]
+    return CompanyRecords.model_validate(data["records"]), ApCaseEnvelope.model_validate(data["case"]), data["expect"]
 
 
 def test_three_examples_exist():

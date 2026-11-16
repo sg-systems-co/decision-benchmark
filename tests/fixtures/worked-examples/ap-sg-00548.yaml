@@ -54,28 +54,34 @@ records:
        lines: [{po_line_no: 1, qty_received: 1, uom: year}]}
 case:
   case_id: ap-sg-00548
+  task_set: ap-invoices-my-sg
   split: train
   country: SG
-  company_id: sg-c-012
-  as_of_date: 2026-11-06
-  supplier_id: S-0207
-  invoice:
-    country: SG
-    invoice_id: INV-0548
-    invoice_number: TLGCC/2026/11/0158
-    issue_date: 2026-11-02
-    document_title: Tax Invoice
-    supplier_block: {name: Tanjong Lumba Golf & Country Club Pte Ltd, address: "9 Lumba Drive, Singapore 598765"}
-    buyer_block: {name: Larkspur Precision Engineering Pte Ltd, address: "21 Tuas Avenue 7, Singapore 639281"}
-    supplier_gst_no: 20-0412377-W
-    po_reference: "4500018832"
-    currency: SGD
-    totals: {net: "4800.00", tax: "432.00", gross: "5232.00"}
-    bank_block: {bank_name: Harbourfront Bank, account_no: "412-88301-7"}
-    lines:
-      - {line_no: 1, description: "Corporate membership, annual subscription Nov 2026 - Oct 2027", qty: 1, uom: year,
-         unit_price: "4800.00", net_amount: "4800.00", tax_category: SR, tax_rate: "9", tax_amount: "432.00", po_line_no: 1,
-         category: club_subscription}
+  languages: [en]
+  modality: pdf
+  documents:
+    - {role: invoice, record: invoice}
+  payload:
+    company_id: sg-c-012
+    as_of_date: 2026-11-06
+    supplier_id: S-0207
+    invoice:
+      country: SG
+      invoice_id: INV-0548
+      invoice_number: TLGCC/2026/11/0158
+      issue_date: 2026-11-02
+      document_title: Tax Invoice
+      supplier_block: {name: Tanjong Lumba Golf & Country Club Pte Ltd, address: "9 Lumba Drive, Singapore 598765"}
+      buyer_block: {name: Larkspur Precision Engineering Pte Ltd, address: "21 Tuas Avenue 7, Singapore 639281"}
+      supplier_gst_no: 20-0412377-W
+      po_reference: "4500018832"
+      currency: SGD
+      totals: {net: "4800.00", tax: "432.00", gross: "5232.00"}
+      bank_block: {bank_name: Harbourfront Bank, account_no: "412-88301-7"}
+      lines:
+        - {line_no: 1, description: "Corporate membership, annual subscription Nov 2026 - Oct 2027", qty: 1, uom: year,
+           unit_price: "4800.00", net_amount: "4800.00", tax_category: SR, tax_rate: "9", tax_amount: "432.00", po_line_no: 1,
+           category: club_subscription}
 expect:
   decision: APPROVE
   tax_treatment: NOT_CLAIMABLE_DISALLOWED

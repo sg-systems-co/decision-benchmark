@@ -63,35 +63,41 @@ records:
        attachments: [INV-0137], intent: invoice_cover}
 case:
   case_id: ap-my-00137
+  task_set: ap-invoices-my-sg
   split: train
   country: MY
-  company_id: my-c-007
-  as_of_date: 2026-11-05
-  supplier_id: S-0031
-  invoice:
-    country: MY
-    invoice_id: INV-0137
-    invoice_number: ABS-INV-2611-044
-    issue_date: 2026-11-03
-    supplier_block: {name: Awan Biru Systems Sdn Bhd, address: "Unit 8-2, Menara Awan, Petaling Jaya"}
-    buyer_block: {name: Teratai Plastik Industri Sdn Bhd, address: "Lot 12, Jalan Perindustrian 3, Shah Alam"}
-    po_reference: PO-26-0912
-    currency: MYR
-    totals: {net: "3200.00", tax: "256.00", gross: "3456.00"}
-    bank_block: {bank_name: Bank Seri Pertama, account_no: "5140 2201 8876"}
-    is_einvoice: true
-    einvoice_version: "1.0"
-    einvoice_type_code: "01"
-    supplier_tin: C20345671020
-    supplier_brn: "201701022334"
-    supplier_sst_no: W10-2403-32000418
-    buyer_tin: C24518830050
-    buyer_brn: "202001045512"
-    buyer_sst_no: B16-1809-31000877
-    tax_total_by_type: {"02": "256.00"}
-    lines:
-      - {line_no: 1, description: "IT support retainer, Oct 2026", qty: 1, uom: month, unit_price: "3200.00", net_amount: "3200.00",
-         tax_rate: "8", tax_amount: "256.00", classification_code: "022", tax_type: "02", po_line_no: 1, category: it_services}
+  languages: [en]
+  modality: pdf
+  documents:
+    - {role: invoice, record: invoice}
+  payload:
+    company_id: my-c-007
+    as_of_date: 2026-11-05
+    supplier_id: S-0031
+    invoice:
+      country: MY
+      invoice_id: INV-0137
+      invoice_number: ABS-INV-2611-044
+      issue_date: 2026-11-03
+      supplier_block: {name: Awan Biru Systems Sdn Bhd, address: "Unit 8-2, Menara Awan, Petaling Jaya"}
+      buyer_block: {name: Teratai Plastik Industri Sdn Bhd, address: "Lot 12, Jalan Perindustrian 3, Shah Alam"}
+      po_reference: PO-26-0912
+      currency: MYR
+      totals: {net: "3200.00", tax: "256.00", gross: "3456.00"}
+      bank_block: {bank_name: Bank Seri Pertama, account_no: "5140 2201 8876"}
+      is_einvoice: true
+      einvoice_version: "1.0"
+      einvoice_type_code: "01"
+      supplier_tin: C20345671020
+      supplier_brn: "201701022334"
+      supplier_sst_no: W10-2403-32000418
+      buyer_tin: C24518830050
+      buyer_brn: "202001045512"
+      buyer_sst_no: B16-1809-31000877
+      tax_total_by_type: {"02": "256.00"}
+      lines:
+        - {line_no: 1, description: "IT support retainer, Oct 2026", qty: 1, uom: month, unit_price: "3200.00", net_amount: "3200.00",
+           tax_rate: "8", tax_amount: "256.00", classification_code: "022", tax_type: "02", po_line_no: 1, category: it_services}
 expect:
   decision: APPROVE
   tax_treatment: SST_CORRECT

@@ -2,7 +2,7 @@
 
 Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices-my-sg`. Spec: v0.9 ("synthetic, rules-based"), frozen.
 
-This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review. PR A ended with commit A8, which split generic code (`core/`) from the task set (`task_sets/ap_invoices_my_sg/`); §3, §3.1 and §12 describe the split.
+This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review. PR A ended with commits A8 and A9, which split generic code (`core/`) from the task set (`task_sets/ap_invoices_my_sg/`) and moved the shared case fields onto the core envelope; §3, §3.1, §4.8 and §12 describe this.
 
 Inputs read: `spec-v0.9.md`, `tax-rules-v0.9.md`, `schemas/ap-invoices-my-sg/v0.9/`, `release/`, `CHANGELOG.md`, `docs/plans/step-08-plan.md`, and the stack decisions extract of 13 Nov 2026 (DECIDED and PROPOSED items).
 
@@ -28,7 +28,7 @@ The plan follows the spec and the tax-rule sheet as written. Where they leave so
 
 ## 3. Module layout
 
-Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it. **[A8]** = the last commit of PR A, which split core from the task set (§3.1).
+Legend: **[A]**, **[B1]** … = the build PR in §12 that creates it. **[A8]**, **[A9]** = the commits of PR A that split core from the task set and moved the envelope fields off the invoice `Case` (§3.1).
 
 The spec gives every task set one case format, one scorer and one leaderboard. So the package has two halves: `core/` holds generic code, and `task_sets/<id>/` holds everything that knows about one task set. `ap_invoices_my_sg` is the first task set; expense claims are planned as a later one.
 
@@ -69,7 +69,7 @@ src/decision_benchmark/
     ap_invoices_my_sg/
       __init__.py  spec.py        [A8] the TaskSetSpec (decisions, extra fields, costs, quotas,
                                       schema path, HF repo id), registered on import
-      envelope.py                 [A8] the invoice Case as payload of the core CaseEnvelope
+      envelope.py                 [A8, A9] ApCaseEnvelope: the invoice Case as payload of the core CaseEnvelope
       models/                     [A] pydantic records (§4)
         common.py                     task-set enums (countries, decisions, tax codes, tiers);
                                       re-exports the core base types
@@ -137,7 +137,7 @@ Where a file goes, in one rule: if a second task set (expense claims) would use 
 - `documents`: a list of `{role, record | file}`. `record` names a field of the payload that holds a structured record; `file` is a path in the release (PDF, scan or photo). Exactly one of the two.
 - `payload`: the task set's own case model. For this task set it is the invoice `Case` (§4.8).
 
-Until B1, the invoice `Case` still carries its own `case_id`, `split`, `country`, `languages`, `modality` and `provenance`, because the rules engine and the A fixtures read them there. `ApCaseEnvelope` checks that envelope and payload agree. B1 removes the copies from the payload when the generator starts writing envelopes, and the export writes envelope columns plus a payload column. No answer key changes from this.
+A9 removed the duplicated fields from the invoice `Case`: `case_id`, `split`, `country`, `languages`, `modality`, the invoice file and `provenance` live only on the envelope. The rules engine takes the envelope (`answer_case(records, envelope, catalog)`). The B1 export writes envelope columns plus a payload column.
 
 **Answer-key envelope** (`core/case.py`): `case_id`, `task_set`, `decision`, `answer` (the extra scored fields the task set declares, by name; never a confidence), `answer_source`. The task set's `AnswerKey` keeps its findings and agent-grader truth and converts with `AnswerKey.envelope()`. For this task set the extra fields are `tax_treatment`, `gl_account` and `reason_codes`.
 
@@ -213,15 +213,14 @@ Topics are a fixed list for all cases: `delivery`, `quantity`, `price`, `bank_de
 
 ### 4.8 Case
 
-The task set's payload inside the core case envelope (§3.1). Fields as built in A (the "Links" line was dropped in A: the engine finds the PO, receipts and threads itself):
+Since A9 the invoice `Case` is the payload of the core case envelope (§3.1) and holds invoice data only:
 
-- `case_id` (`ap-my-00421`, `ap-sg-00017`), `split`, `country`, `company_id`, `as_of_date`
-- `invoice` (MY or SG model), `invoice_file` (`pdf/{split}/{case_id}.pdf` or `.jpg`), `modality` (`pdf`/`scan`/`photo`)
-- Links: `supplier_id`, `po_number`, `gr_numbers`, `thread_ids`
+- `company_id`, `as_of_date`, `supplier_id`
+- `invoice` (MY or SG model)
 - `fact_sheets`
 - Planting record: `exception_types` (list), `families` (template ids), `two_problems`
-- Provenance: `generator_version`, `seed` (the case's derived seed), `pipeline_hash`
-- `languages`
+
+On the envelope, not the payload: `case_id` (`ap-my-00421`, `ap-sg-00017`), `split`, `country` (must equal the invoice's), `languages`, `modality` (`pdf`/`scan`/`photo`), `provenance` (`generator_version`, `seed`, `pipeline_hash`), `canary`, and `documents`. The documents always include the structured invoice record (`{role: invoice, record: invoice}`) and, once rendered, at most one invoice file (`pdf/{split}/{case_id}.pdf` or `.jpg`). The "Links" line of the original plan (`po_number`, `gr_numbers`, `thread_ids`) was dropped in A: the engine finds the PO, receipts and threads itself.
 
 ### 4.9 Answer key
 
@@ -824,8 +823,8 @@ Each row is one build PR, one commit per step, reviewed and merged before the ne
 
 | PR | Contents | Acceptance checks |
 | --- | --- | --- |
-| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests; A8: split `core/` from `task_sets/ap_invoices_my_sg/` (case and answer envelopes, TaskSetSpec, registry; §3.1) | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes; A8: core never imports a task set or names one (test), every answer key fits the answer envelope and the TaskSetSpec, no answer key changed |
-| **B1** Structured generator | core: seeds, quotas from TaskSetSpec, phrasebank assembler, envelope parquet export, `db-generate --task-set`; task set: entities, scenario, ops, hard-case loader with a starter set, starter phrasebanks, consistency checks; envelope copies removed from the payload `Case` (§3.1) | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files |
+| **A** Data model + rules engine | package mode in `pyproject.toml`; pydantic models; catalog with sources; `rules/*`; tests; A8: split `core/` from `task_sets/ap_invoices_my_sg/` (case and answer envelopes, TaskSetSpec, registry; §3.1) | Every rule-sheet table row has ≥1 positive and ≥1 near-miss negative test; a test parses the table in `tax-rules-v0.9.md` and fails if a row has no registered test; priority tests for every tier pair; the three worked examples in §6 give exactly the answer keys shown; every answer key validates against `output.schema.json`; no network; `check_public` passes; A8: core never imports a task set or names one (test), every answer key fits the answer envelope and the TaskSetSpec, no answer key changed; A9: the payload `Case` holds invoice data only, the engine reads the envelope, no answer key changed |
+| **B1** Structured generator | core: seeds, quotas from TaskSetSpec, phrasebank assembler, envelope parquet export, `db-generate --task-set`; task set: entities, scenario, ops, hard-case loader with a starter set, starter phrasebanks, consistency checks | 2,000 / 500 cases with exact quotas and 15% two-problem; planted = found for every case; all §8.4 checks pass; two builds byte-identical; CI double-builds 100 cases; companies disjoint across splits; `check_public` staged mode passes on a local stage of the parquet files; every internal fact the answer key depends on (line category, LineFacts, email flags such as requests_bank_change and price_change_status) is stated in the exported documents or emails; a test fails for any case where it isn't, unless the answer is HAND_OVER by construction for that missing fact |
 | **B2** Text content | full phrasebanks and hard-case families (content from Claude, reviewed by Sebastian), name banks, linters, variety and shortcut checks | linters pass; variety thresholds met; shortcut check ≤ majority + 5 points; every family's `expect` holds on 50 draws |
 | **B3** Rendering + data alpha | core: `render/typst.py`, Augraphy `render/degrade.py`, PDF text check; task set: Typst layouts, fonts lock, `render/viewmodel.py`; build image, `build-data` job; `release/` takes `--task-set` and reads the HF repo id from the TaskSetSpec, one allowlist per task set (§3.1); card changes, manifest | every case renders; PDF text check passes; release values (HF repo id, schema path) come from the TaskSetSpec; release double build compares records and PDFs; card states what the manifest covers; dry run lists the expected ~2,500 files; then (on "release") `v0.9.0-alpha.2` with data (Q1) |
 | **C** Scorer + baselines + results CI | core: `scorer/*` driven by the TaskSetSpec (costs, decisions, schema), `db-score`, `db-leaderboard`, Inspect task factory (decision task registered as `ap_decision`), trivial baselines, `results.yml`, `check_public` exemption; task set: rules-only baseline; pass^3 cross-check | hand-computed costs on a 20-case fixture, incl. every CHANGELOG clarification row; always-hand-over cost = 1 − HAND_OVER share exactly; pass^3 cross-check test; a fake results PR fixture passes, a broken one fails; baselines committed |
