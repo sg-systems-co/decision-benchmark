@@ -18,7 +18,7 @@ categories:
   tax:
     MY: {tax_class: service_8, group_g: true}
   gl_role: professional_fees
-  sources: ['https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
 - category: guard_services
   kind: service
   label: Security guard services
@@ -26,7 +26,7 @@ categories:
   tax:
     MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
   gl_role: security
-  sources: ['https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
 - category: logistics_haulage
   kind: service
   label: Lorry haulage

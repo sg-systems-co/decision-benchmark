@@ -13,7 +13,7 @@ TAX_CLASS_RATE = {
 SALES_TAX_SOURCE = "https://mysst.customs.gov.my/faq-sales-tax/"
 SERVICE_TAX_SOURCE = "https://mysst.customs.gov.my/faq-services-tax/"
 GROUP_G_SOURCE = (
-    "https://mysst.customs.gov.my/assets/document/Industry%20Guides/GI/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
+    "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
 )
 
 TAX_TYPE_SALES = "01"

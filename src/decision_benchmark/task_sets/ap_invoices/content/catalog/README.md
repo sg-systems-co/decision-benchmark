@@ -2,7 +2,47 @@
 
 `categories.yaml` lists every goods and service category the generator may put on an invoice line. For each one it says how the tax rules treat it and which GL role it books to. The rules engine reads it; it never guesses a category's treatment.
 
-The file is drafted by Claude in the planning chat and approved by Sebastian (step-11 plan §7.1, §14). Until it lands, the rules engine is tested with a small test-only catalog in `tests/fixtures/catalog.yaml`.
+The file is drafted by Claude in the planning chat and approved by Sebastian (step-11 plan §7.1, §14). The rules-engine tests keep using the small test-only catalog in `tests/fixtures/catalog.yaml`; `tests/models/test_catalog.py` loads the release catalog.
+
+## Release catalog v1 (16 Nov 2026)
+
+70 categories: 40 goods, 30 services. 62 are used in Malaysia, 67 in Singapore.
+
+| Malaysia | Count |
+| --- | --- |
+| `sales_10` | 25 |
+| `sales_5` | 9 |
+| `sales_exempt` | 4 |
+| Schedule C eligible (of the sales-tax goods) | 17: raw materials, packaging, components |
+| `service_6` | 7 (F&B, logistics ×3, telecoms, parking, construction) |
+| `service_8` | 16 (11 Group G with the B2B test, 2 Group G excluded: employment and guards) |
+| `none` | 1 |
+
+Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one each of the other five).
+
+**Where the rates come from.** Every source is an official page or a PDF linked from one, and every one was opened and read on 16 Nov 2026.
+
+- Goods: the gazetted Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] and Sales Tax (Goods Exempted from Sales Tax) Order 2025 [P.U. (A) 171/2025], with all later amendments, as linked from https://mysst.customs.gov.my/sst-orders/ (see the header of `categories.yaml`). Each goods entry names its HS heading or exact subheading in `note`.
+- Services: the RMCD industry guides linked from https://mysst.customs.gov.my/industry-guides/, the service-tax FAQ and the MOF releases. Group G entries name their item letter in `note`.
+- Singapore: the IRAS page on conditions for claiming input tax.
+
+**Left out on purpose.** Rental and leasing (Q10; its rate also changed to 6% on 1 January 2026), financial services, private healthcare, education, beauty, cleaning services, domestic flights and Malaysian electricity (none of these is settled by the rule sheet).
+
+### Rules for the generator (B1)
+
+- **B2B exemptions v0.9 does not model.** Logistics (`logistics_haulage`, `courier_services`, `warehousing`), advertising and construction works have B2B exemptions of their own. A company's `services_provided` may only contain categories with `group_g: true` and `group_g_excluded: false`, so no buyer ever provides one of the other services.
+- **"Same service" means the same Group G item.** `it_services` and `software_development` are both item (h), and `business_consultancy` and `training_courses` are both item (g). A company that provides one of them lists both in `services_provided`, because the engine compares categories.
+- **Group relief** covers items (a) to (i) and (l) only (Service Tax Policy 8/2020, amendment no. 1). Never set `group_relation: unclear` on an invoice for `maintenance_repair` (item n), `recruitment_services` or `security_guards`: there the group question doesn't arise, so HAND_OVER would be wrong.
+- **Construction:** contracts signed on or after 1 July 2025, commercial premises only.
+- **Courier:** parcels up to 30 kg each. **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
+- **Singapore motor cars and staff medical:** `vehicle_servicing`, `company_car_tyres_parts` and `company_car_leasing` need the line fact `vehicle_is_motor_car`; `staff_medical` needs `staff_medical_obligatory`, true when any IRAS exception applies. Where the documents don't say, the case is HAND_OVER.
+- **`group_medical_insurance`:** IRAS allows the claim when the insurance is obligatory under the Work Injury Compensation Act or a collective agreement. Until the engine models that, use it only with documents that state the cover is voluntary.
+- **`parking` in Singapore** is delivery-vehicle parking only.
+- `sales_exempt` and `none` categories appear in clean cases only; the generator never charges tax on them.
+
+### GL roles
+
+The chart-of-accounts templates (B1) must have exactly one active account for each role used here: `audit_accounting_fees`, `building_works`, `cleaning_supplies`, `club_subscriptions`, `components`, `freight_inward`, `it_equipment`, `it_services`, `legal_fees`, `management_fees`, `marketing_advertising`, `motor_vehicle_running`, `office_equipment`, `office_furniture`, `office_supplies`, `packaging_materials`, `parking`, `plant_machinery`, `postage_courier`, `professional_fees`, `raw_materials`, `recruitment`, `repairs_maintenance`, `safety_ppe`, `security`, `staff_welfare`, `staff_welfare_medical`, `telecoms`, `tools_small_equipment`, `training`, `travel`, `utilities`, `warehousing`.
 
 ## Format
 
