@@ -301,3 +301,23 @@ Each commit is one area and keeps the suite green; counts are cumulative from 38
 ## 15. Verification for the build (after approval)
 
 Full suite green at every commit; `derive.py --check`; every key validates against the v0.10 output schema; coverage test with an empty `PENDING`; golden diff reviewed against `changes.md`; reference-row test green; `check_public --mode repo` OK.
+
+## 16. Decisions from review (PR #11, 17 Nov 2026)
+
+Answers to §14:
+
+1. **Refund-route exemptions (G-3, P-20):** `SST_CORRECT`, no buyer action. The tax is correctly charged on the invoice; the refund is an optional later claim to RMCD. Buyer actions (D1) cover obligations only; the spec's buyer-actions section says so.
+2. **The 22 missing line facts (§5.4):** v0.10 is amended as a clarification (no v0.10 scores exist; the fields are optional). They go into the country parts with types, families and rules, `derive.py` is rerun, and the CHANGELOG gets a clarification line. This is the first commit of build PR 1, before the typed line-fact models.
+3. **Two GL accounts on one invoice:** same clarification. Each `tax_lines` entry gets an optional `gl_account`. The case-level `gl_account` stays: the GL of the line with the largest amount excluding tax (ties: lowest `line_no`). Main score and GL accuracy unchanged; line GL is reported in the per-line column like per-line tax. The `UnsupportedCase` for two GL accounts is removed.
+4. **MS-3 spanning a rate change:** no pro-rata split by days. Whole period on one side → that side's rate. Spans the date and the invoice or a case document shows the split → each part checked. Spans the date, no split shown → HAND_OVER, basis MS-3.
+5. **K-1 backdating:** judged at the case's processing date, never the release as-of date. A MyPMK registration on or before the processing date whose backdating covers the invoice date makes the line exempt; a later registration doesn't count.
+6. **SG-1 condition 8 (missing-trader fraud):** stays unplanted in v0.10; a guard test checks that no generated case relies on it.
+
+Changes to the plan:
+
+- **A. Four build PRs**, each reviewed and merged before the next, each keeping the suite green and listing changed keys in `changes.md` with the rule ID:
+  - PR 1, foundation: the spec clarification (answers 2 and 3), then commits 1–5.
+  - PR 2, Malaysia: commits 6–12.
+  - PR 3, Singapore, withholding, mixed invoices: commits 13–16.
+  - PR 4, catalog, `check_rules`, reference-row check, version 0.10.0: commits 17–19.
+- **B. Treaty rates (§10):** the per-row `confirmed` flag stays. Step 11d (the hand check of the 131 flagged Singapore fields) arrives as a separate data change before PR 3; PR 3 loads the file as it stands then and edits no rates.
