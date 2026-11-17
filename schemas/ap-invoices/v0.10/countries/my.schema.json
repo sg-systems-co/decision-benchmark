@@ -1,0 +1,757 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sg-systems-co/decision-benchmark/blob/main/schemas/ap-invoices/v0.10/countries/my.schema.json",
+  "title": "Decision Benchmark, ap-invoices, v0.10: Malaysia part",
+  "description": "Everything in the output that is specific to Malaysia: tax-treatment codes with their definitions and rule IDs (docs/tax-rules-v0.10.md), the worst-line order, rule IDs, buyer actions and line facts. output.schema.json refers here.",
+  "x-country": "MY",
+  "x-severity-order": [
+    "SST_SUPPLIER_NOT_REGISTERED",
+    "SST_NOT_CHARGEABLE_BY_TRADER",
+    "SST_SHOULD_BE_EXEMPT",
+    "SST_WRONG_RATE",
+    "SST_UNDERCHARGED",
+    "SST_CORRECT",
+    "SST_BUYER_ACCOUNTS",
+    "NO_SST"
+  ],
+  "$defs": {
+    "tax_code": {
+      "oneOf": [
+        {
+          "const": "SST_SUPPLIER_NOT_REGISTERED",
+          "description": "Service tax or sales tax charged by a supplier that is not registered for it (and not liable to be) on the invoice date.",
+          "x-rules": ["MS-1", "MG-1"]
+        },
+        {
+          "const": "SST_NOT_CHARGEABLE_BY_TRADER",
+          "description": "Sales tax charged on goods the supplier did not manufacture: by a trader, distributor or retailer, or by a registered manufacturer reselling goods it bought in. Only a registered manufacturer charges sales tax, on taxable goods it manufactured and sold.",
+          "x-rules": ["MG-1"]
+        },
+        {
+          "const": "SST_SHOULD_BE_EXEMPT",
+          "description": "Tax charged where an exclusion, exemption, relief or area rule means none is due (item exclusions, B2B exemptions, group relief, designated and special areas, Ministerial exemptions K-x, L-x, P-x, G-x, exempt goods, Schedule A/B/C).",
+          "x-rules": ["MS-1", "MS-4", "MS-5", "MS-6", "MS-7", "MS-10", "MG-2", "MG-4", "MG-5", "MG-6"]
+        },
+        {
+          "const": "SST_WRONG_RATE",
+          "description": "Tax charged at a rate other than the one for the service or tariff code and the dates on the documents, higher or lower.",
+          "x-rules": ["MS-2", "MS-3", "MG-2", "MG-3"]
+        },
+        {
+          "const": "SST_UNDERCHARGED",
+          "description": "Service tax or sales tax left off a taxable line: service tax on a taxable service to a buyer with no exemption, or sales tax on taxable goods by the registered manufacturer that made them. The buyer owes only what is invoiced, but the invoice is wrong.",
+          "x-rules": ["MS-9", "MG-1"]
+        },
+        {
+          "const": "SST_CORRECT",
+          "description": "Tax due and charged at the right rate by a supplier entitled to charge it.",
+          "x-rules": ["MS-1", "MS-2", "MG-1", "MG-2"]
+        },
+        {
+          "const": "SST_BUYER_ACCOUNTS",
+          "description": "Imported taxable service: the overseas supplier correctly shows no SST, and the buyer accounts for service tax itself (Service Tax Act s26, s26A). Comes with the buyer action ACCOUNT_IMPORTED_SERVICE_TAX.",
+          "x-rules": ["MS-8"]
+        },
+        {
+          "const": "NO_SST",
+          "description": "No SST due and none charged.",
+          "x-rules": ["MS-1", "MS-8", "MG-2"]
+        }
+      ]
+    },
+    "rule_id": {
+      "enum": [
+        "MS-1",
+        "MS-2",
+        "MS-3",
+        "MS-4",
+        "MS-5",
+        "MS-6",
+        "MS-7",
+        "MS-8",
+        "MS-9",
+        "MS-10",
+        "MG-1",
+        "MG-2",
+        "MG-3",
+        "MG-4",
+        "MG-5",
+        "MG-6",
+        "ME-1",
+        "ME-2",
+        "ME-3",
+        "ME-4",
+        "K-1",
+        "K-2",
+        "K-3",
+        "K-4",
+        "K-5",
+        "K-6",
+        "K-7",
+        "K-8",
+        "L-1",
+        "L-2",
+        "L-3",
+        "L-4",
+        "L-5",
+        "L-6",
+        "L-7",
+        "L-8",
+        "P-1",
+        "P-2",
+        "P-3",
+        "P-4",
+        "P-5",
+        "P-6",
+        "P-7",
+        "P-8",
+        "P-9",
+        "P-10",
+        "P-11",
+        "P-12",
+        "P-13",
+        "P-14",
+        "P-15",
+        "P-16",
+        "P-17",
+        "P-18",
+        "P-19",
+        "P-20",
+        "P-21",
+        "G-1",
+        "G-2",
+        "G-3",
+        "G-4",
+        "G-5",
+        "G-6",
+        "G-7",
+        "WH-1",
+        "WH-2",
+        "WH-3",
+        "WH-4"
+      ]
+    },
+    "tax_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line_no", "treatment", "basis"],
+      "properties": {
+        "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
+        "treatment": {"anyOf": [{"$ref": "#/$defs/tax_code"}, {"type": "null"}]},
+        "basis": {"$ref": "#/$defs/rule_id"}
+      }
+    },
+    "buyer_action": {
+      "oneOf": [
+        {
+          "$ref": "../output.schema.json#/$defs/simple_action",
+          "properties": {"action": {"enum": ["ACCOUNT_IMPORTED_SERVICE_TAX", "ISSUE_SELF_BILLED_EINVOICE"]}}
+        },
+        {
+          "$ref": "../output.schema.json#/$defs/withhold_tax",
+          "properties": {"basis": {"enum": ["WH-1", "WH-2", "WH-3", "WH-4"]}}
+        }
+      ]
+    },
+    "line_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line_no"],
+      "minProperties": 2,
+      "properties": {
+        "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
+        "service_item": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "First Schedule item of the service, e.g. G(c), J1(d), I8, K, L. null: the line is not a service.",
+          "x-family": "classification",
+          "x-rules": ["MS-4", "MS-5", "MS-6"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^[A-M]([0-9]+)?(\\([a-z]\\))?$"}}
+        },
+        "tariff_code": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Tariff code of the goods, as precise as the documents show, e.g. 8711.20.96 00. null: the line is not goods.",
+          "x-family": "classification",
+          "x-rules": ["MG-2", "MG-6"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^\\d{4}(\\.\\d{2}){0,2}( \\d{2})?$"}}
+        },
+        "fb_content": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group A-E operators: what the line is, for the 6%/8% split.",
+          "x-family": "classification",
+          "x-rules": ["MS-2", "MS-4"],
+          "properties": {
+            "value": {
+              "enum": [
+                "food",
+                "non_alcoholic_drink",
+                "food_with_alcohol",
+                "alcohol_alone",
+                "corkage",
+                "tobacco",
+                "other",
+                null
+              ]
+            }
+          }
+        },
+        "financial_charge": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group H: what the charge is.",
+          "x-family": "classification",
+          "x-rules": ["MS-4", "P-1", "P-3", "P-5", "P-6"],
+          "properties": {
+            "value": {
+              "enum": [
+                "fee_or_commission",
+                "interest_or_profit",
+                "penalty",
+                "basic_banking",
+                "insurance_premium",
+                "reinsurance",
+                "card_activation",
+                null
+              ]
+            }
+          }
+        },
+        "asset_type": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group K: the rented asset.",
+          "x-family": "classification",
+          "x-rules": ["MS-4", "K-3"],
+          "properties": {
+            "value": {
+              "enum": [
+                "housing",
+                "reading_material",
+                "aircraft",
+                "drone",
+                "vessel",
+                "floating_storage",
+                "vehicle",
+                "machinery",
+                "commercial_premises",
+                "other",
+                null
+              ]
+            }
+          }
+        },
+        "education_fee_item": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group M: the fee item.",
+          "x-family": "classification",
+          "x-rules": ["MS-4", "P-16"],
+          "properties": {
+            "value": {
+              "enum": [
+                "tuition",
+                "books",
+                "uniform",
+                "food",
+                "transport",
+                "accommodation",
+                "refundable_deposit",
+                "pta_fee",
+                "trip",
+                "student_pass",
+                null
+              ]
+            }
+          }
+        },
+        "service_period_start": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "First day of the service on this line.",
+          "x-family": "time_and_rate",
+          "x-rules": ["MS-3"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "service_period_end": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Last day of the service on this line.",
+          "x-family": "time_and_rate",
+          "x-rules": ["MS-3"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "amount_paid_before_change": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Amount received by the supplier before the rate change that the service spans.",
+          "x-family": "time_and_rate",
+          "x-rules": ["MS-3"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "delivery_date": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Delivery date of the goods.",
+          "x-family": "time_and_rate",
+          "x-rules": ["MG-3"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "subject_outside_malaysia": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The service concerns goods, land or matters outside Malaysia (Group G, H, I8 exclusions).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "statutory_fee_amount": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Statutory fee to a government or statutory body included in the line (Group G(a)-(f)).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "residential": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The work or maintenance is on a residential building or for its owner or occupant.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "L-5", "P-11"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "asset_in_malaysia": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The rented asset is located in Malaysia (within 12 nautical miles of the baselines).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "K-7"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "financial_lease": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The rental is a financial lease.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "air_route": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group I item 10: the flight route.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {
+            "value": {
+              "enum": [
+                "within_peninsula",
+                "peninsula_east_malaysia",
+                "between_sabah_sarawak",
+                "within_sabah",
+                "within_sarawak",
+                "rural_air_service",
+                "international",
+                null
+              ]
+            }
+          }
+        },
+        "carriage": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group J: the leg of carriage.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "P-18"],
+          "properties": {
+            "value": {
+              "enum": [
+                "domestic",
+                "outside_to_outside",
+                "last_exit_to_outside",
+                "outside_to_first_entry",
+                "transshipment",
+                "to_licensed_warehouse",
+                "door_to_door_international",
+                "ocean_peninsula_east_malaysia",
+                null
+              ]
+            }
+          }
+        },
+        "patient_citizen": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The patient is a Malaysian citizen (Group I items 14-16).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "P-13"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "student_citizen": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The student is a Malaysian citizen (Group M).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "oku_holder": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The trainee or student holds a valid Kad OKU.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "P-17"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "mro_aircraft_ship": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Maintenance, repair or overhaul of an aircraft or ship.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-9"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "building_charge": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Charge by a developer, JMB or MC.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-10", "P-11"],
+          "properties": {"value": {"enum": ["maintenance", "sinking_fund", "warranty_repair", "none", null]}}
+        },
+        "personal_use": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The service is for personal consumption.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "same_service_as_buyer": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The buyer itself provides a taxable service under the same First Schedule item.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-5", "MS-8"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "sublet": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The buyer rents the asset to sublet or sublease it (Order item 8).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "sublet_share": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Share of the rented asset that is sublet.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-5"],
+          "properties": {"value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}}
+        },
+        "supplier_paid": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The overseas supplier of an imported service has been paid (STP 2/2020).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-8"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "materials_works_separated": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The invoice shows materials and construction work separately.",
+          "x-family": "split",
+          "x-rules": ["L-8"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "installation_separated": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The invoice shows installation separately from the goods.",
+          "x-family": "split",
+          "x-rules": ["L-8"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "itemised_consultation_fee": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The healthcare consultation fee is itemised separately.",
+          "x-family": "split",
+          "x-rules": ["P-12"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "package_single_price": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Several services from one Group A-E operator are sold as one package at one price.",
+          "x-family": "split",
+          "x-rules": ["MS-2"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "contract_signed": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Date the written contract was signed.",
+          "x-family": "contract",
+          "x-rules": ["K-4", "L-1"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "contract_stamped": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Date the contract was stamped by LHDN.",
+          "x-family": "contract",
+          "x-rules": ["K-4", "L-1"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "price_review_clause": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The contract has a price-review clause.",
+          "x-family": "contract",
+          "x-rules": ["K-4", "L-1"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "residential_share": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Residential share of a mixed development (built-up area).",
+          "x-family": "contract",
+          "x-rules": ["L-2"],
+          "properties": {"value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}}
+        },
+        "design_and_build": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The service is to a registered main contractor on a design-and-build project.",
+          "x-family": "contract",
+          "x-rules": ["L-3"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "place_of_worship": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Construction for religious worship and its facilities.",
+          "x-family": "contract",
+          "x-rules": ["L-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "client_established_in_malaysia": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The client of the offshore or onshore facility is established in Malaysia.",
+          "x-family": "contract",
+          "x-rules": ["L-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "exemption_statement_on_invoice": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The invoice carries the statement or reference numbers the exemption requires.",
+          "x-family": "contract",
+          "x-rules": ["L-3", "L-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "payment_nature": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "What the payment to a non-resident is, for withholding.",
+          "x-family": "withholding",
+          "x-rules": ["WH-1", "WH-2", "WH-3", "WH-4"],
+          "properties": {
+            "value": {
+              "enum": [
+                "interest",
+                "royalty",
+                "services_on_property",
+                "technical_advice",
+                "movable_property_rent",
+                "contract_payment",
+                "other_gain",
+                "public_entertainer",
+                "freight",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "place_of_performance": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Where the service is performed.",
+          "x-family": "withholding",
+          "x-rules": ["WH-2"],
+          "properties": {"value": {"enum": ["in_country", "outside", "mixed", null]}}
+        },
+        "in_country_share": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Share of a mixed contract performed in Malaysia.",
+          "x-family": "withholding",
+          "x-rules": ["WH-2"],
+          "properties": {"value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}}
+        },
+        "hotel_reimbursement": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Hotel accommodation reimbursed in the line (left out of the gross amount).",
+          "x-family": "withholding",
+          "x-rules": ["WH-2"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "certificate_of_residence": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The case holds the payee's certificate of residence (needed for a treaty rate).",
+          "x-family": "withholding",
+          "x-rules": ["WH-1", "WH-2", "WH-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        }
+      }
+    },
+    "case_summary": {
+      "$comment": "Derived by schemas/derive.py from x-severity-order. Do not edit by hand.",
+      "description": "A set tax_treatment is the worst treatment in tax_lines, by x-severity-order.",
+      "allOf": [
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_SUPPLIER_NOT_REGISTERED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "SST_SUPPLIER_NOT_REGISTERED",
+                        "SST_NOT_CHARGEABLE_BY_TRADER",
+                        "SST_SHOULD_BE_EXEMPT",
+                        "SST_WRONG_RATE",
+                        "SST_UNDERCHARGED",
+                        "SST_CORRECT",
+                        "SST_BUYER_ACCOUNTS",
+                        "NO_SST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"const": "SST_SUPPLIER_NOT_REGISTERED"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_NOT_CHARGEABLE_BY_TRADER"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "SST_NOT_CHARGEABLE_BY_TRADER",
+                        "SST_SHOULD_BE_EXEMPT",
+                        "SST_WRONG_RATE",
+                        "SST_UNDERCHARGED",
+                        "SST_CORRECT",
+                        "SST_BUYER_ACCOUNTS",
+                        "NO_SST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"const": "SST_NOT_CHARGEABLE_BY_TRADER"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_SHOULD_BE_EXEMPT"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "SST_SHOULD_BE_EXEMPT",
+                        "SST_WRONG_RATE",
+                        "SST_UNDERCHARGED",
+                        "SST_CORRECT",
+                        "SST_BUYER_ACCOUNTS",
+                        "NO_SST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "SST_SHOULD_BE_EXEMPT"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_WRONG_RATE"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": ["SST_WRONG_RATE", "SST_UNDERCHARGED", "SST_CORRECT", "SST_BUYER_ACCOUNTS", "NO_SST"]
+                    }
+                  }
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "SST_WRONG_RATE"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_UNDERCHARGED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["SST_UNDERCHARGED", "SST_CORRECT", "SST_BUYER_ACCOUNTS", "NO_SST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "SST_UNDERCHARGED"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_CORRECT"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["SST_CORRECT", "SST_BUYER_ACCOUNTS", "NO_SST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "SST_CORRECT"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "SST_BUYER_ACCOUNTS"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["SST_BUYER_ACCOUNTS", "NO_SST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "SST_BUYER_ACCOUNTS"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {"required": ["tax_treatment", "tax_lines"], "properties": {"tax_treatment": {"const": "NO_SST"}}},
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {"required": ["treatment"], "properties": {"treatment": {"enum": ["NO_SST"]}}},
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "NO_SST"}}}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -17,13 +17,19 @@ CITING_FILES = (
     f"{P}/content/catalog/categories.yaml",
     "docs/task-sets/ap-invoices/tax-rules-v0.9.md",
     "docs/task-sets/ap-invoices/spec-v0.9.md",
+    "docs/task-sets/ap-invoices/spec-v0.10.md",
     f"{P}/countries/my/constants.py",
     f"{P}/countries/sg/constants.py",
     "CHANGELOG.md",
     "docs/tax-rules-v0.10.md",
 )
-# URLs in those files that are not sources.
-NOT_SOURCES = {"https://keepachangelog.com/en/1.1.0/"}
+# URLs in those files that are not sources. The two IRAS section roots are where the v0.10 sheet says
+# its pages live ("pages listed in §4"); each page it uses has its own entry.
+NOT_SOURCES = {
+    "https://keepachangelog.com/en/1.1.0/",
+    "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/",
+    "https://www.iras.gov.sg/taxes/withholding-tax/",
+}
 FIELDS = ("id", "title", "authority", "country", "official_url", "retrieved", "sha256", "bytes",
           "content_type", "archive_path", "wayback_url", "cited_by")
 URL = re.compile(r"https?://[^\s<>\"'`\]]+")

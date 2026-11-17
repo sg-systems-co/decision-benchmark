@@ -1,0 +1,8 @@
+{
+  "case_id": "ap-my-01410",
+  "decision": "APPROVE",
+  "tax_treatment": "SST_BUYER_ACCOUNTS",
+  "gl_account": "6400-200",
+  "reason_codes": [],
+  "buyer_actions": [{"action": "WITHHOLD_TAX", "basis": "WH-2", "base_amount": "18000.00"}]
+}

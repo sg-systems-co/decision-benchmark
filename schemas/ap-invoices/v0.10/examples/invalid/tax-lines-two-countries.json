@@ -1,0 +1,11 @@
+{
+  "case_id": "ap-my-00733",
+  "decision": "APPROVE",
+  "tax_treatment": "SST_CORRECT",
+  "gl_account": "6300-100",
+  "reason_codes": [],
+  "tax_lines": [
+    {"line_no": 1, "treatment": "SST_CORRECT", "basis": "MS-2"},
+    {"line_no": 2, "treatment": "CLAIMABLE", "basis": "SG-1"}
+  ]
+}

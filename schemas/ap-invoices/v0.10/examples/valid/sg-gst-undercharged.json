@@ -1,0 +1,9 @@
+{
+  "case_id": "ap-sg-00205",
+  "decision": "REQUEST_CORRECTED_INVOICE",
+  "tax_treatment": "GST_UNDERCHARGED",
+  "gl_account": "6300-000",
+  "reason_codes": ["WRONG_TAX_RATE"],
+  "tax_lines": [{"line_no": 1, "treatment": "GST_UNDERCHARGED", "basis": "SG-3"}],
+  "buyer_actions": []
+}

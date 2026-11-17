@@ -1,0 +1,30 @@
+{
+  "case_id": "ap-sg-01290",
+  "decision": "APPROVE",
+  "tax_treatment": "REVERSE_CHARGE",
+  "gl_account": "6600-100",
+  "reason_codes": ["MATCHED_WITHIN_TOLERANCE"],
+  "tax_lines": [{"line_no": 1, "treatment": "REVERSE_CHARGE", "basis": "SG-8"}],
+  "buyer_actions": [
+    {"action": "ACCOUNT_REVERSE_CHARGE_GST"},
+    {"action": "WITHHOLD_TAX", "rate": 10, "basis": "WH-5", "base_amount": "25000.00"}
+  ],
+  "facts": {
+    "lines": [
+      {
+        "line_no": 1,
+        "payment_nature": {
+          "value": "royalty",
+          "evidence": [
+            {
+              "doc_id": "MSG-SG-01290-2",
+              "span": {"start": 88, "end": 141},
+              "quote": "licence fee for the right to reproduce the training videos"
+            }
+          ]
+        },
+        "certificate_of_residence": {"value": false, "evidence": [{"doc_id": "SUP-SG-0412", "path": "documents"}]}
+      }
+    ]
+  }
+}

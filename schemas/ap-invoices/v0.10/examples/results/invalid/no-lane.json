@@ -1,0 +1,24 @@
+{
+  "spec_version": "v0.10",
+  "task_set": "ap-invoices",
+  "split": "test",
+  "confidence_given": true,
+  "engine_version": "0.10.0",
+  "rules_version": "v0.10",
+  "run_date": "2026-12-01",
+  "name": "example-model",
+  "version": "2026-11",
+  "row_kind": "entry",
+  "track": "decision",
+  "input": "pdf",
+  "cost_usd": 4.1,
+  "median_latency_s": 6.2,
+  "contact": "example-handle",
+  "scores": {
+    "cost": 1.42,
+    "tax_accuracy": 0.81,
+    "line_tax_accuracy": "not submitted",
+    "buyer_action_accuracy": "not submitted",
+    "facts_score": "not submitted"
+  }
+}

@@ -1,0 +1,1 @@
+{"case_id": "ap-my-00421", "decision": "DISPUTE_PRICE", "tax_treatment": "SST_CORRECT", "gl_account": "5100-200", "reason_codes": ["PRICE_ABOVE_PO"], "confidence": 0.82, "explanation": "Unit price RM 12.40 vs PO RM 11.80, +5.1%, tolerance 2%."}

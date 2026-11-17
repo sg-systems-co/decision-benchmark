@@ -63,10 +63,12 @@ jobs:
       - name: Stage allowlisted files
         run: uv run --locked python release/stage.py
 
+      # Between releases the card describes the next spec version ([Unreleased] in
+      # CHANGELOG.md); the publish job below never passes --allow-unreleased-card.
       - name: Offline release checks (newest CHANGELOG tag)
         run: |
           tag="$(uv run --locked python release/publish.py --print-changelog-tag)"
-          uv run --locked python release/publish.py --tag "$tag" --dry-run
+          uv run --locked python release/publish.py --tag "$tag" --dry-run --allow-unreleased-card
 
       - name: Secret scan of the staged folder
         run: gitleaks dir build/hf --redact --no-banner --log-level warn

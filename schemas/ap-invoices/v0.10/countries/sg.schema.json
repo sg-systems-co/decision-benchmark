@@ -1,0 +1,558 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sg-systems-co/decision-benchmark/blob/main/schemas/ap-invoices/v0.10/countries/sg.schema.json",
+  "title": "Decision Benchmark, ap-invoices, v0.10: Singapore part",
+  "description": "Everything in the output that is specific to Singapore: tax-treatment codes with their definitions and rule IDs (docs/tax-rules-v0.10.md), the worst-line order, rule IDs, buyer actions and line facts. output.schema.json refers here.",
+  "x-country": "SG",
+  "x-severity-order": [
+    "GST_WRONGLY_CHARGED",
+    "GST_UNDERCHARGED",
+    "NOT_CLAIMABLE_INVALID_INVOICE",
+    "NOT_CLAIMABLE_DISALLOWED",
+    "NOT_CLAIMABLE_EXEMPT_USE",
+    "RESIDUAL_APPORTIONED",
+    "CLAIMABLE",
+    "CUSTOMER_ACCOUNTING",
+    "REVERSE_CHARGE",
+    "NO_GST"
+  ],
+  "$defs": {
+    "tax_code": {
+      "oneOf": [
+        {
+          "const": "GST_WRONGLY_CHARGED",
+          "description": "GST charged when it should not be (supplier not registered, OVR vendor to a registered buyer, exempt or zero-rated supply, customer-accounting goods), or at a rate higher than the time-of-supply rules allow.",
+          "x-rules": ["SG-3", "SG-4", "SG-5", "SG-6", "SG-7"]
+        },
+        {
+          "const": "GST_UNDERCHARGED",
+          "description": "GST lower than it should be: a rate lower than the time-of-supply rules allow for the dates on the documents (SG-3), or GST left off a standard-rated supply by a GST-registered supplier where none of SG-5 to SG-8 applies (SG-12). The supplier must issue a corrected invoice.",
+          "x-rules": ["SG-3", "SG-12"]
+        },
+        {
+          "const": "NOT_CLAIMABLE_INVALID_INVOICE",
+          "description": "The document is not a valid tax invoice (a required item is missing), so no input tax can be claimed on it.",
+          "x-rules": ["SG-2"]
+        },
+        {
+          "const": "NOT_CLAIMABLE_DISALLOWED",
+          "description": "Input tax disallowed under Regulations 26/27 and related IRAS rules (club fees, staff medical, motor cars, family and director-only benefits, CSR for third parties), or not for the purpose of the business.",
+          "x-rules": ["SG-1", "SG-10"]
+        },
+        {
+          "const": "NOT_CLAIMABLE_EXEMPT_USE",
+          "description": "Partially exempt buyer that does not meet the de minimis rule; the line is directly attributable to its exempt supplies, so the input tax is not claimable.",
+          "x-rules": ["SG-9"]
+        },
+        {
+          "const": "RESIDUAL_APPORTIONED",
+          "description": "Partially exempt buyer; the line is residual (for both taxable and exempt supplies), so the input tax is claimable only by the buyer's apportionment.",
+          "x-rules": ["SG-9"]
+        },
+        {
+          "const": "CLAIMABLE",
+          "description": "All eight claim conditions hold; the input tax is claimable in full.",
+          "x-rules": ["SG-1"]
+        },
+        {
+          "const": "CUSTOMER_ACCOUNTING",
+          "description": "Prescribed goods (mobile phones, memory cards, off-the-shelf software) above S$10,000 excl. GST to a GST-registered buyer for business: the supplier correctly charges no GST on a customer accounting tax invoice, and the buyer accounts for it. Comes with the buyer action ACCOUNT_CUSTOMER_ACCOUNTING_GST.",
+          "x-rules": ["SG-7"]
+        },
+        {
+          "const": "REVERSE_CHARGE",
+          "description": "Imported service or low-value goods bought by a GST-registered buyer not entitled to full input tax: the buyer accounts for GST itself. Comes with the buyer action ACCOUNT_REVERSE_CHARGE_GST.",
+          "x-rules": ["SG-8"]
+        },
+        {
+          "const": "NO_GST",
+          "description": "No GST charged and none due: supplier not registered, exempt, zero-rated (0% shown) or out-of-scope supply, or an imported service to a fully taxable buyer.",
+          "x-rules": ["SG-4", "SG-5", "SG-6", "SG-8"]
+        }
+      ]
+    },
+    "rule_id": {
+      "enum": [
+        "SG-1",
+        "SG-2",
+        "SG-3",
+        "SG-4",
+        "SG-5",
+        "SG-6",
+        "SG-7",
+        "SG-8",
+        "SG-9",
+        "SG-10",
+        "SG-11",
+        "SG-12",
+        "WH-5"
+      ]
+    },
+    "tax_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line_no", "treatment", "basis"],
+      "properties": {
+        "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
+        "treatment": {"anyOf": [{"$ref": "#/$defs/tax_code"}, {"type": "null"}]},
+        "basis": {"$ref": "#/$defs/rule_id"}
+      }
+    },
+    "buyer_action": {
+      "oneOf": [
+        {
+          "$ref": "../output.schema.json#/$defs/simple_action",
+          "properties": {"action": {"enum": ["ACCOUNT_CUSTOMER_ACCOUNTING_GST", "ACCOUNT_REVERSE_CHARGE_GST"]}}
+        },
+        {"$ref": "../output.schema.json#/$defs/withhold_tax", "properties": {"basis": {"enum": ["WH-5"]}}}
+      ]
+    },
+    "line_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line_no"],
+      "minProperties": 2,
+      "properties": {
+        "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
+        "exempt_supply": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Exempt supply category of the line.",
+          "x-family": "classification",
+          "x-rules": ["SG-5"],
+          "properties": {
+            "value": {
+              "enum": [
+                "financial",
+                "digital_payment_token",
+                "residential_property",
+                "investment_precious_metal",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "zero_rating_provision": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "GST Act provision that zero-rates the line, e.g. s21(3)(a), s21(6). null: none.",
+          "x-family": "classification",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^s21\\((3\\)\\([a-y]|6A?)\\)$"}}
+        },
+        "prescribed_goods": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Customer-accounting goods category.",
+          "x-family": "classification",
+          "x-rules": ["SG-7"],
+          "properties": {"value": {"enum": ["mobile_phone", "memory_card", "off_the_shelf_software", "none", null]}}
+        },
+        "disallowed_category": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Regulation 26/27 or related IRAS class of the expense.",
+          "x-family": "classification",
+          "x-rules": ["SG-10"],
+          "properties": {
+            "value": {
+              "enum": [
+                "club_subscription",
+                "staff_medical",
+                "motor_car",
+                "family_benefit",
+                "medical_accident_insurance",
+                "betting",
+                "director_only_benefit",
+                "third_party_csr",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "vehicle_is_motor_car": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The vehicle is a motor car (not in the Regulation 25(1) exclusions).",
+          "x-family": "classification",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "delivery_date": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Date the goods were delivered or the service performed (last day).",
+          "x-family": "time_and_rate",
+          "x-rules": ["SG-3"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "amount_paid_before_change": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Payment received before the rate change.",
+          "x-family": "time_and_rate",
+          "x-rules": ["SG-3"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "value_delivered_before_change": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Value delivered or performed before the rate change.",
+          "x-family": "time_and_rate",
+          "x-rules": ["SG-3"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "contract_excludes_tax_change": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "A pre-change contract excludes tax changes (GST is then inside the fixed price).",
+          "x-family": "time_and_rate",
+          "x-rules": ["SG-3"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "goods_outside_singapore": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The goods or land the service concerns are outside Singapore.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "export_evidence": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The documents hold export evidence for the goods.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "international_transport": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The line is international transport, or its domestic leg by the same supplier.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "staff_medical_obligatory": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "An IRAS exception for staff medical expenses applies.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "insurance_obligatory": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The medical or accident insurance is obligatory (WICA or a collective agreement).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "chauffeured_pay_per_trip": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Pay-per-trip chauffeured private hire car service.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "car_used_by_third_party": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The motor car is used by a third party on the IRAS conditions.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "purchase_attribution": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "What the purchase is used for, for a partially exempt buyer.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["SG-9"],
+          "properties": {"value": {"enum": ["taxable", "exempt", "residual", null]}}
+        },
+        "business_purpose": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The purchase is for the purpose of the business.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["SG-1", "SG-10"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "payment_nature": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "What the payment to a non-resident is, for withholding.",
+          "x-family": "withholding",
+          "x-rules": ["WH-5"],
+          "properties": {
+            "value": {
+              "enum": [
+                "interest",
+                "royalty",
+                "knowledge_or_information",
+                "movable_property_rent",
+                "technical_or_management_fee",
+                "electronic_service",
+                "ship_charter",
+                "professional_fee",
+                "director_fee",
+                "copyrighted_article",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "place_of_performance": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Where the service is performed.",
+          "x-family": "withholding",
+          "x-rules": ["WH-5"],
+          "properties": {"value": {"enum": ["in_country", "outside", "mixed", null]}}
+        },
+        "certificate_of_residence": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The case holds the payee's certificate of residence.",
+          "x-family": "withholding",
+          "x-rules": ["WH-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        }
+      }
+    },
+    "case_summary": {
+      "$comment": "Derived by schemas/derive.py from x-severity-order. Do not edit by hand.",
+      "description": "A set tax_treatment is the worst treatment in tax_lines, by x-severity-order.",
+      "allOf": [
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "GST_WRONGLY_CHARGED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "GST_WRONGLY_CHARGED",
+                        "GST_UNDERCHARGED",
+                        "NOT_CLAIMABLE_INVALID_INVOICE",
+                        "NOT_CLAIMABLE_DISALLOWED",
+                        "NOT_CLAIMABLE_EXEMPT_USE",
+                        "RESIDUAL_APPORTIONED",
+                        "CLAIMABLE",
+                        "CUSTOMER_ACCOUNTING",
+                        "REVERSE_CHARGE",
+                        "NO_GST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "GST_WRONGLY_CHARGED"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "GST_UNDERCHARGED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "GST_UNDERCHARGED",
+                        "NOT_CLAIMABLE_INVALID_INVOICE",
+                        "NOT_CLAIMABLE_DISALLOWED",
+                        "NOT_CLAIMABLE_EXEMPT_USE",
+                        "RESIDUAL_APPORTIONED",
+                        "CLAIMABLE",
+                        "CUSTOMER_ACCOUNTING",
+                        "REVERSE_CHARGE",
+                        "NO_GST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "GST_UNDERCHARGED"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "NOT_CLAIMABLE_INVALID_INVOICE"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "NOT_CLAIMABLE_INVALID_INVOICE",
+                        "NOT_CLAIMABLE_DISALLOWED",
+                        "NOT_CLAIMABLE_EXEMPT_USE",
+                        "RESIDUAL_APPORTIONED",
+                        "CLAIMABLE",
+                        "CUSTOMER_ACCOUNTING",
+                        "REVERSE_CHARGE",
+                        "NO_GST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"const": "NOT_CLAIMABLE_INVALID_INVOICE"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "NOT_CLAIMABLE_DISALLOWED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "NOT_CLAIMABLE_DISALLOWED",
+                        "NOT_CLAIMABLE_EXEMPT_USE",
+                        "RESIDUAL_APPORTIONED",
+                        "CLAIMABLE",
+                        "CUSTOMER_ACCOUNTING",
+                        "REVERSE_CHARGE",
+                        "NO_GST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"const": "NOT_CLAIMABLE_DISALLOWED"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "NOT_CLAIMABLE_EXEMPT_USE"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": [
+                        "NOT_CLAIMABLE_EXEMPT_USE",
+                        "RESIDUAL_APPORTIONED",
+                        "CLAIMABLE",
+                        "CUSTOMER_ACCOUNTING",
+                        "REVERSE_CHARGE",
+                        "NO_GST"
+                      ]
+                    }
+                  }
+                },
+                "contains": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"const": "NOT_CLAIMABLE_EXEMPT_USE"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "RESIDUAL_APPORTIONED"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {
+                    "treatment": {
+                      "enum": ["RESIDUAL_APPORTIONED", "CLAIMABLE", "CUSTOMER_ACCOUNTING", "REVERSE_CHARGE", "NO_GST"]
+                    }
+                  }
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "RESIDUAL_APPORTIONED"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "CLAIMABLE"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["CLAIMABLE", "CUSTOMER_ACCOUNTING", "REVERSE_CHARGE", "NO_GST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "CLAIMABLE"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "CUSTOMER_ACCOUNTING"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["CUSTOMER_ACCOUNTING", "REVERSE_CHARGE", "NO_GST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "CUSTOMER_ACCOUNTING"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["tax_treatment", "tax_lines"],
+            "properties": {"tax_treatment": {"const": "REVERSE_CHARGE"}}
+          },
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {
+                  "required": ["treatment"],
+                  "properties": {"treatment": {"enum": ["REVERSE_CHARGE", "NO_GST"]}}
+                },
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "REVERSE_CHARGE"}}}
+              }
+            }
+          }
+        },
+        {
+          "if": {"required": ["tax_treatment", "tax_lines"], "properties": {"tax_treatment": {"const": "NO_GST"}}},
+          "then": {
+            "properties": {
+              "tax_lines": {
+                "items": {"required": ["treatment"], "properties": {"treatment": {"enum": ["NO_GST"]}}},
+                "contains": {"required": ["treatment"], "properties": {"treatment": {"const": "NO_GST"}}}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -7,12 +7,52 @@ Versioning rules:
 - Any change to a rule, the decision list, the tax-treatment codes, the scoring, or any answer key is a new spec version (for example v0.9 to v0.10). Scores are compared only within one spec version.
 - Patch releases (for example v0.9.1) are for card or doc changes only. Data must be byte-identical.
 - Clarifications without a version bump are allowed only while no scores exist for that version.
+- An engine change that alters any answer key is a new spec version. Every answer key records the engine version and the rule-sheet version that wrote it.
 
 ## [Unreleased]
 
-Spec: v0.9 (synthetic, rules-based). Scores comparable with: v0.9.*
+Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet). The engine still writes v0.9 keys until the engine plan (A12) lands.
 
-### Clarifications (no version bump; no scores exist yet)
+### Spec v0.10
+
+**Why.** On 16 Nov 2026 Sebastian set the scope to full coverage: every rule that can decide what happens to a supplier invoice received by a company in Malaysia or Singapore, with nothing left out because it is rare or awkward, and HAND_OVER wherever a case's documents don't settle a rule. Rule sheet v0.10 (approved 17 Nov 2026) writes those rules down. Mixed invoices, imported services, withholding and self-billing don't fit one tax treatment per case, so the answer format and the scoring grow with it.
+
+**Added**
+
+- Rule sheet v0.10, `docs/tax-rules-v0.10.md`, committed unchanged. It supersedes the v0.9 sheet, which stays in place for v0.9 scores. Answers cite its rule IDs (MS-x, K-x, L-x, P-x, MG-x, G-x, ME-x, SG-x, WH-x).
+- Spec v0.10, `docs/task-sets/ap-invoices/spec-v0.10.md`, and output schema v0.10, `schemas/ap-invoices/v0.10/`: a generic `output.schema.json`, the country parts `countries/my.schema.json` and `countries/sg.schema.json` (codes with definitions and rule IDs, worst-line order, rule IDs, buyer actions, line facts), and `results.schema.json`. `schemas/derive.py` generates the cross-field rules as plain JSON Schema.
+- Optional output fields:
+  - `tax_lines`: one entry per invoice line with `line_no`, `treatment` and `basis` (the rule ID).
+  - `buyer_actions`: `ACCOUNT_IMPORTED_SERVICE_TAX` (MS-8), `ACCOUNT_CUSTOMER_ACCOUNTING_GST` (SG-7), `ACCOUNT_REVERSE_CHARGE_GST` (SG-8), `ISSUE_SELF_BILLED_EINVOICE` (ME-3), and `WITHHOLD_TAX` with `rate`, `basis` (WH-1 to WH-5) and `base_amount`. Empty list when none apply.
+  - `facts`: per line, the facts the rules turn on, each with an evidence reference into the case documents.
+- Tax-treatment codes. Malaysia: `SST_BUYER_ACCOUNTS` (MS-8), `SST_UNDERCHARGED` (MS-9, MG-1), `SST_NOT_CHARGEABLE_BY_TRADER` (MG-1). Singapore: `CUSTOMER_ACCOUNTING` (SG-7), `REVERSE_CHARGE` (SG-8), `NOT_CLAIMABLE_EXEMPT_USE` (SG-9), `RESIDUAL_APPORTIONED` (SG-9), `GST_UNDERCHARGED` (SG-3, SG-12). No code is removed.
+- Extra columns, never in the main score: per-line tax accuracy, buyer-action accuracy (exact set; `WITHHOLD_TAX` also by rate and basis), facts score (per-field exact match, per field family). A column the entry didn't submit shows "not submitted", not 0.
+- Two leaderboards on the same cases with the same scorer: model lane (one model, one call per case, no tools, no engine) and system lane (tools, rules engine, pipeline or agent). Every submission and results file states its lane.
+- Agent-track variants, scored separately: (a) rules as documents in the policy folder; (b) the same plus a `check_rules` tool that takes the facts and returns the engine's per-line result.
+- Reference row "engine on perfect facts" on the system-lane board, labelled as a reference, not an entry. "Always approve" and "always hand over" stay as floors.
+- Hard-case share: at least half of the public test split are scans or PDFs only, cases with conflicting documents, or cases with missing information. The engine writes the keys, so on clean structured cases a program scores near-perfect; the hard cases make the score measure reading and judgement.
+
+**Changed**
+
+- `tax_treatment` stays the case-level value, defined as the worst line by a fixed order per country (spec, "Case level: the worst line").
+- Withholding tax on payments to non-residents moves into scope, as a buyer action; it never changes the decision.
+- Answer keys record `engine_version` and `rules_version`; each release pins an engine version and an as-of date.
+- Unchanged: the nine decisions, the main score (cost table and weightings), case-level tax accuracy, GL accuracy, the exception mix, the splits. A v0.9-style prediction still validates and scores on the main score.
+
+**Corrections found in the law (rule sheet §0.1)**
+
+- C1: group relief covers Group G items (a)–(i), (l) and (n) since 1 May 2024 (Service Tax (Amendment) (No. 2) Regulations 2024 [P.U. (A) 354/2024]), not only (a)–(i) and (l) as in Service Tax Policy 8/2020. Already applied in the catalog and engine (A11).
+- C2: courier services have no 30 kg limit; that limit sat in the old Group I item 6, deleted on 26 Feb 2024, and courier is now Group J item 1(d). Already applied (A11).
+- C3: "same service" for the logistics B2B exemption is the same item 1(a), 1(c), 1(d) or 2, per the Persons Exempted Order item 5 and the logistics guide. A11's item matching stays; both sources are cited.
+- C4: rental (Group K) is taxable since 1 Jul 2025 (6% since 1 Jan 2026); its B2B exemption (Order item 8) applies only to the sublet or subleased portion (MS-5). Engine: A12.
+- C5: group relief survives external supplies of up to 5% of the service in the month and the next 11 months (First Schedule para 8(2)); for item (i) the "same service" is its sub-items. Modelled as a supplier fact (MS-6). Engine: A12.
+- C6: the Minister's exemptions under Service Tax Act s34(3)(a), s34(4) and Sales Tax Act s35(3), published as Service Tax Policies and Sales Tax Policies, decide invoices too (MS-10, MG-6, K-x, L-x). Read in full on 17 Nov 2026 and archived. Engine: A12.
+
+**Additions to the sheet after the spec review (§0.1a, 17 Nov 2026).** MS-9 also covers sales tax left off by the registered manufacturer that made the goods (`SST_UNDERCHARGED`). MG-1 names `SST_NOT_CHARGEABLE_BY_TRADER` for sales tax on goods the supplier did not manufacture, including a registered manufacturer reselling goods it bought in. New rule SG-12: GST left off a standard-rated supply by a GST-registered supplier → `GST_UNDERCHARGED`. §0.3 gives the full worst-line order by group.
+
+**Sources manifest.** The sheet is no longer a pending citer. New entry for SG-12: the IRAS page on the responsibilities of a GST-registered business. The Service Tax Policy index page now also names MS-10. The two IRAS section roots the sheet names (GST, withholding tax) are treated as navigation, not sources; each IRAS page the rules use has its own entry.
+
+### v0.9 clarifications (no version bump; no scores exist yet; carried into v0.10)
 
 Decided by Sebastian on 13 Nov 2026 (step-11 plan, §16). The spec and the tax-rule sheet files stay unchanged.
 

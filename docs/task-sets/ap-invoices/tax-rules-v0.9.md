@@ -1,6 +1,6 @@
 # SG Systems Decision Benchmark — Task set 1 — tax-rule sheet v0.9
 
-Status: verified against the official sources on 13 Nov 2026. Accountant review after launch.
+Status: **superseded by [rule sheet v0.10](../../tax-rules-v0.10.md)** (approved 17 Nov 2026). The rules below are unchanged: they are the rules of spec v0.9, and v0.9 scores and answer keys refer to them. Verified against the official sources on 13 Nov 2026. Accountant review after launch.
 
 Rules the benchmark's tax checks use, taken only from official pages, verified against those pages on 13 November 2026, with accountant review after launch. Not tax advice.
 

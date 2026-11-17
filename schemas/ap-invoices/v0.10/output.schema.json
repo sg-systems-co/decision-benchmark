@@ -1,0 +1,1174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sg-systems-co/decision-benchmark/blob/main/schemas/ap-invoices/v0.10/output.schema.json",
+  "title": "Decision Benchmark, ap-invoices, v0.10: output for one case",
+  "description": "One JSON object per case (JSONL). Output that breaks this schema, or names two decisions, is scored as a wrong decision. Country codes, rule IDs, buyer actions and line facts are in countries/*.schema.json. See docs/task-sets/ap-invoices/spec-v0.10.md.",
+  "x-derive": {
+    "summary_field": "tax_treatment",
+    "lines_field": "tax_lines",
+    "line_value_field": "treatment",
+    "line_key_field": "line_no"
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "decision", "tax_treatment", "gl_account", "reason_codes"],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "decision": {
+      "type": "string",
+      "enum": [
+        "APPROVE",
+        "DISPUTE_PRICE",
+        "DISPUTE_QUANTITY",
+        "HOLD_NOT_RECEIVED",
+        "REJECT_DUPLICATE",
+        "REQUEST_CORRECTED_INVOICE",
+        "FRAUD_REVIEW",
+        "ROUTE_FOR_APPROVAL",
+        "HAND_OVER"
+      ]
+    },
+    "tax_treatment": {
+      "description": "Case-level tax treatment: the worst line, by the country part's x-severity-order. Singapore codes for SG cases, Malaysian codes for MY cases; a code from the other country is a wrong tax treatment, not a schema error. null only when decision is HAND_OVER.",
+      "anyOf": [
+        {"$ref": "countries/my.schema.json#/$defs/tax_code"},
+        {"$ref": "countries/sg.schema.json#/$defs/tax_code"},
+        {"type": "null"}
+      ]
+    },
+    "gl_account": {
+      "description": "One code from the company's chart of accounts. Scored as exact match. null only when decision is HAND_OVER.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "reason_codes": {
+      "description": "Short codes explaining the decision. A recommended list is in reason-codes.md; it is not enforced.",
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "confidence": {
+      "description": "Optional. Needed for the risk-coverage curve.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "explanation": {"description": "Optional free text. Never scored on the leaderboard.", "type": "string"},
+    "tax_lines": {
+      "description": "Optional. One entry per invoice line: its tax treatment (the country's code) and the rule ID that decides it. treatment is null only when decision is HAND_OVER. All lines of one output use one country's codes and rule IDs. Scored as an extra column, never in the main score.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "anyOf": [
+          {"$ref": "countries/my.schema.json#/$defs/tax_line"},
+          {"$ref": "countries/sg.schema.json#/$defs/tax_line"}
+        ]
+      },
+      "$ref": "#/$defs/unique_line_no"
+    },
+    "buyer_actions": {
+      "description": "Optional. Actions the buyer itself must take besides the decision. Empty list when none apply. Scored as an extra column, never in the main score.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          {"$ref": "countries/my.schema.json#/$defs/buyer_action"},
+          {"$ref": "countries/sg.schema.json#/$defs/buyer_action"}
+        ]
+      }
+    },
+    "facts": {
+      "description": "Optional. Per invoice line, the facts the rules turn on, each with its value and evidence in the case documents. Scored separately (facts score); leaving it out never lowers the main score.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lines"],
+      "properties": {
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "anyOf": [
+              {"$ref": "countries/my.schema.json#/$defs/line_facts"},
+              {"$ref": "countries/sg.schema.json#/$defs/line_facts"}
+            ]
+          },
+          "$ref": "#/$defs/unique_line_no"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "description": "Unless the decision is HAND_OVER, tax_treatment, gl_account and every line treatment are set.",
+      "if": {"properties": {"decision": {"not": {"const": "HAND_OVER"}}}},
+      "then": {
+        "properties": {
+          "tax_treatment": {"type": "string"},
+          "gl_account": {"type": "string"},
+          "tax_lines": {"items": {"properties": {"treatment": {"type": "string"}}}}
+        }
+      }
+    },
+    {"$ref": "countries/my.schema.json#/$defs/case_summary"},
+    {"$ref": "countries/sg.schema.json#/$defs/case_summary"}
+  ],
+  "$defs": {
+    "line_no": {
+      "description": "Invoice line number, as printed on the invoice.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+    },
+    "simple_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action"],
+      "properties": {"action": {"type": "string"}}
+    },
+    "withhold_tax": {
+      "description": "WITHHOLD_TAX: rate in percent, the WH rule ID, and the amount the rate applies to, in the invoice currency.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "rate", "basis", "base_amount"],
+      "properties": {
+        "action": {"const": "WITHHOLD_TAX"},
+        "rate": {"type": "number", "exclusiveMinimum": 0, "maximum": 100},
+        "basis": {"type": "string"},
+        "base_amount": {"type": "string", "pattern": "^\\d+(\\.\\d{1,2})?$"}
+      }
+    },
+    "evidence": {
+      "description": "Where a fact is shown: doc_id names a case document (invoice id, PO number, receipt id, email message id, supplier or company record id, policy-pack file name); then either path (a field path in its structured record, e.g. lines[2].description) or span (character offsets into its text, end exclusive).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["doc_id"],
+      "properties": {
+        "doc_id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "span": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end"],
+          "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}
+        },
+        "quote": {"type": "string", "description": "Optional. The text at the span or path, for readers."}
+      },
+      "oneOf": [{"required": ["path"]}, {"required": ["span"]}]
+    },
+    "fact": {
+      "description": "One fact: value, and evidence for it. value null means the documents don't show the fact; it then has no evidence. Any other value needs at least one evidence reference.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {"value": {}, "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}},
+      "if": {"properties": {"value": {"type": "null"}}},
+      "then": {"not": {"required": ["evidence"]}},
+      "else": {"required": ["evidence"]}
+    },
+    "unique_line_no": {
+      "$comment": "Derived by schemas/derive.py from $defs/line_no. Do not edit by hand.",
+      "description": "No line_no appears twice.",
+      "allOf": [
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 1}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 2}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 3}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 4}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 5}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 6}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 7}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 8}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 9}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 10}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 11}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 12}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 13}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 14}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 15}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 16}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 17}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 18}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 19}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 20}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 21}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 22}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 23}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 24}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 25}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 26}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 27}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 28}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 29}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 30}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 31}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 32}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 33}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 34}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 35}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 36}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 37}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 38}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 39}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 40}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 41}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 42}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 43}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 44}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 45}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 46}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 47}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 48}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 49}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 50}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 51}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 52}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 53}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 54}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 55}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 56}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 57}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 58}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 59}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 60}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 61}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 62}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 63}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 64}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 65}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 66}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 67}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 68}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 69}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 70}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 71}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 72}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 73}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 74}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 75}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 76}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 77}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 78}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 79}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 80}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 81}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 82}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 83}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 84}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 85}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 86}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 87}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 88}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 89}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 90}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 91}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 92}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 93}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 94}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 95}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 96}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 97}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 98}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 99}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 100}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 101}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 102}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 103}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 104}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 105}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 106}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 107}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 108}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 109}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 110}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 111}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 112}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 113}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 114}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 115}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 116}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 117}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 118}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 119}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 120}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 121}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 122}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 123}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 124}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 125}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 126}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 127}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 128}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 129}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 130}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 131}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 132}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 133}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 134}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 135}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 136}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 137}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 138}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 139}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 140}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 141}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 142}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 143}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 144}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 145}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 146}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 147}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 148}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 149}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 150}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 151}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 152}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 153}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 154}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 155}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 156}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 157}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 158}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 159}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 160}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 161}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 162}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 163}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 164}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 165}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 166}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 167}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 168}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 169}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 170}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 171}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 172}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 173}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 174}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 175}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 176}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 177}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 178}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 179}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 180}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 181}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 182}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 183}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 184}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 185}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 186}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 187}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 188}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 189}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 190}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 191}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 192}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 193}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 194}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 195}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 196}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 197}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 198}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 199}}},
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": {"required": ["line_no"], "properties": {"line_no": {"const": 200}}},
+          "minContains": 0,
+          "maxContains": 1
+        }
+      ]
+    }
+  }
+}

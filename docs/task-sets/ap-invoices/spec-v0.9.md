@@ -1,6 +1,6 @@
 # SG Systems Decision Benchmark — Task set 1 (supplier invoices, MY/SG) — spec v0.9
 
-Status: approved and frozen, 13 Nov 2026. Changes need a version bump.
+Status: approved and frozen, 13 Nov 2026. Changes need a version bump. **Superseded by [spec v0.10](spec-v0.10.md)**. The text below is unchanged and still applies to v0.9 scores.
 
 ## Scope and version
 

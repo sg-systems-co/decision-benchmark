@@ -1,7 +1,6 @@
 # Official sources cited by the benchmark. One entry per source. See README.md in this folder.
 # Copies are kept in a private archive at archive_path; this file holds metadata only.
-pending_citers:
-- docs/tax-rules-v0.10.md
+pending_citers: []
 sources:
 - id: irbm-e-invoice-guideline
   title: IRBM e-Invoice Guideline
@@ -222,6 +221,7 @@ sources:
   wayback_url: https://web.archive.org/web/20261117142902/https://mysst.customs.gov.my/service-tax-policy/
   cited_by:
   - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+  - docs/tax-rules-v0.10.md#MS-10
 - id: mysst-registering-a-business
   title: 'MySST: registering a business'
   authority: RMCD
@@ -4962,6 +4962,19 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
+- id: responsibilities-of-a-gst-registered-business
+  title: 'IRAS: responsibilities of a GST-registered business'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/responsibilities-of-a-gst-registered-business
+  retrieved: '2026-11-17'
+  sha256: a9d1197d0a50297ad3f06c2b7a7bf8ff036125e32d234ea747064b30f9e80b50
+  bytes: 282286
+  content_type: text/html
+  archive_path: sources/sg/iras/responsibilities-of-a-gst-registered-business/2026-11-17/responsibilities-of-a-gst-registered-business.html
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#SG-12
 - id: sso-gst-act-1993
   title: Goods and Services Tax Act 1993 (Singapore Statutes Online, current version)
   authority: AGC

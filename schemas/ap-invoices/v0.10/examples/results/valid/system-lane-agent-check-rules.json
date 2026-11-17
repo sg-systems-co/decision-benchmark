@@ -1,0 +1,23 @@
+{
+  "spec_version": "v0.10",
+  "task_set": "ap-invoices",
+  "split": "test",
+  "confidence_given": true,
+  "engine_version": "0.10.0",
+  "rules_version": "v0.10",
+  "run_date": "2026-12-01",
+  "name": "example-agent",
+  "version": "1.0",
+  "row_kind": "entry",
+  "lane": "system",
+  "track": "agent",
+  "agent_variant": "check_rules_tool",
+  "input": "structured",
+  "scores": {
+    "cost": 0.9,
+    "tax_accuracy": 0.9,
+    "line_tax_accuracy": 0.88,
+    "buyer_action_accuracy": 0.7,
+    "facts_score": {"all": 0.83, "classification": 0.91, "withholding": 0.6}
+  }
+}

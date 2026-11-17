@@ -1,0 +1,13 @@
+{
+  "case_id": "ap-my-01410",
+  "decision": "APPROVE",
+  "tax_treatment": "SST_BUYER_ACCOUNTS",
+  "gl_account": "6400-200",
+  "reason_codes": ["MATCHED_WITHIN_TOLERANCE"],
+  "tax_lines": [{"line_no": 1, "treatment": "SST_BUYER_ACCOUNTS", "basis": "MS-8"}],
+  "buyer_actions": [
+    {"action": "ACCOUNT_IMPORTED_SERVICE_TAX"},
+    {"action": "ISSUE_SELF_BILLED_EINVOICE"},
+    {"action": "WITHHOLD_TAX", "rate": 10, "basis": "WH-2", "base_amount": "18000.00"}
+  ]
+}

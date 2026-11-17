@@ -1,0 +1,15 @@
+{
+  "spec_version": "v0.10",
+  "task_set": "ap-invoices",
+  "split": "test",
+  "confidence_given": false,
+  "engine_version": "0.10.0",
+  "rules_version": "v0.10",
+  "run_date": "2026-12-01",
+  "name": "always hand over",
+  "version": "v0.10",
+  "row_kind": "floor",
+  "lane": "model",
+  "track": "decision",
+  "input": "structured"
+}
