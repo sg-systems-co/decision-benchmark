@@ -21,6 +21,14 @@ Status: approved by Sebastian, 17 Nov 2026 (second pass the same evening: sectio
 | C5 | Group relief: any external supply ends it | First Schedule para 8(2) (from 1 Jan 2020): relief continues if supplies of that service to outsiders in the month and the next 11 months are ≤ 5% of its total. For item (i), "same service" means its sub-items (i)–(x) only (STP 8/2020 para 5). | Model the 5% test as a supplier fact (MS-B6). |
 | C6 | Exemptions only from gazetted orders | The Minister also exempts under Service Tax Act s34(3)(a) (buyer need not pay) and s34(4) (supplier need not charge), and Sales Tax Act s35(3). These are published as Service Tax Policies (STP, 79 documents) and Sales Tax Policies (9). Many still apply in 2026 and decide invoices: SME tenants, rental group relief, construction contracts to 30 Jun 2027, financial-services B2B, imported services, MRO, JMB charges, healthcare consultation fees, education fee items, motorcycles. None were in v0.9 or the archive. | Read all current ones (done 17 Nov, listed under MS-10 and MG-6); archive them; the engine applies them like order items. |
 
+### 0.1a Additions after the spec review (17 Nov)
+
+Found while writing spec v0.10 (PR #10), which listed where the sheet was unclear:
+- **MS-9** now also covers sales tax left off by the registered manufacturer that made the goods.
+- **MG-1** names the code for sales tax charged on goods the supplier did not manufacture, including a registered manufacturer reselling goods it bought in (Sales Tax Act: sales tax is charged on taxable goods manufactured by a registered manufacturer).
+- **SG-12** (new): GST left off a standard-rated supply by a registered supplier → `GST_UNDERCHARGED`.
+- **§0.3** gives the full worst-line order; the order inside each group is set in the spec.
+
 ### 0.2 New areas
 
 Malaysian service tax groups A–M in full, sales tax beyond the 5/10/exempt split, imported services and digital services, designated and special areas, rate transitions; Singapore zero-rated and exempt supplies, customer accounting, reverse charge, partial exemption, director-only benefits, the remaining motor-car rules; invoices that mix tax treatments.
@@ -30,7 +38,7 @@ Malaysian service tax groups A–M in full, sales tax beyond the 5/10/exempt spl
 v0.9 gives one tax treatment per case. Mixed invoices need more:
 
 - `tax_lines`: one entry per invoice line — `line_no`, `treatment` (the country's code), `basis` (rule ID below).
-- `tax_treatment`: the case-level summary, kept for the leaderboard: the worst line by a fixed order (wrongly charged > invalid > disallowed/not claimable > claimable / correct).
+- `tax_treatment`: the case-level summary, kept for the leaderboard: the worst line by a fixed order (wrongly charged or undercharged > invalid > not claimable (disallowed, exempt use) > residual apportioned > claimable, correct, buyer accounts, no tax). The full order per country, including the order inside each group, is set in spec v0.10.
 - `buyer_actions` (decided 17 Nov, D1): actions the buyer itself must take besides the decision. Values: `ACCOUNT_IMPORTED_SERVICE_TAX` (MS-8), `ACCOUNT_CUSTOMER_ACCOUNTING_GST` (SG-7), `ACCOUNT_REVERSE_CHARGE_GST` (SG-8), `ISSUE_SELF_BILLED_EINVOICE` (ME-3), `WITHHOLD_TAX` with `rate` and `basis` (WH-1 to WH-4).
 
 Scoring: the decision and case-level treatment keep their cost table; per-line treatments are reported as an extra accuracy column (not in the main score), so v0.9-style entries still score.
@@ -191,7 +199,7 @@ A business in Malaysia that acquires a taxable service from a supplier outside M
 
 ### MS-9 Tax not charged when it should have been
 
-The supplier omitted service tax on a taxable line to a buyer with no exemption. The buyer owes only what is invoiced; the error is the supplier's, but the invoice is wrong.
+The supplier omitted service tax on a taxable line to a buyer with no exemption, or a registered manufacturer omitted sales tax on taxable goods it manufactured and sold (MG-1, MG-2). The buyer owes only what is invoiced; the error is the supplier's, but the invoice is wrong.
 - Answer: `SST_UNDERCHARGED` (new code), REQUEST_CORRECTED_INVOICE.
 
 ### MS-10 Other Ministerial exemptions still in force (Service Tax Policies)
@@ -235,7 +243,9 @@ Sources: Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] + amendmen
 Sales tax is single-stage: charged by a **registered manufacturer** on taxable goods it manufactured and sold, or at import (RMCD FAQ). A trader, distributor or retailer reselling goods does not charge sales tax on its invoice.
 
 - Deciding facts: supplier type and SST registration (supplier master: manufacturer or trader).
-- Sales tax on a trader's invoice → `SST_SUPPLIER_NOT_REGISTERED` (or a new `SST_NOT_CHARGEABLE_BY_TRADER`), REQUEST_CORRECTED_INVOICE.
+- Sales tax charged by a supplier not registered for sales tax → `SST_SUPPLIER_NOT_REGISTERED`, REQUEST_CORRECTED_INVOICE.
+- Sales tax charged on goods the supplier did not manufacture (a trader, distributor or retailer, or a registered manufacturer reselling goods it bought in) → `SST_NOT_CHARGEABLE_BY_TRADER` (new code), REQUEST_CORRECTED_INVOICE.
+- Sales tax left off taxable goods by the registered manufacturer that made them → `SST_UNDERCHARGED` (MS-9), REQUEST_CORRECTED_INVOICE.
 - Unknown supplier type with sales tax charged → HAND_OVER.
 
 ### MG-2 Rate by tariff code
@@ -367,6 +377,12 @@ Input tax directly attributable to exempt supplies is not claimable unless the d
 
 Claim in the period of the invoice date (or posting date if applied consistently); repay if the supplier isn't paid within 12 months of the due date. Duplicate claims are caught by the duplicate check.
 
+### SG-12 GST not charged when it should have been (added 17 Nov after the spec review)
+
+A GST-registered supplier must charge and account for GST on its standard-rated supplies and issue tax invoices for them (IRAS, responsibilities of a GST-registered business). A line from a registered supplier that shows no GST on a standard-rated supply, where none of SG-5 to SG-8 applies, is wrong in the same way as MS-9: the buyer has no GST to claim, and the invoice is wrong.
+- Answer: `GST_UNDERCHARGED`, REQUEST_CORRECTED_INVOICE. (SG-3 covers a rate lower than the time-of-supply rules allow; SG-12 covers GST left off entirely.)
+- Deciding facts: supplier GST registration on the invoice date; supply category (exempt, zero-rated, out of scope, customer accounting, reverse charge). Unknown → HAND_OVER.
+
 ---
 
 ## 4A. Withholding tax on payments to non-residents (decided 17 Nov, D3)
@@ -415,4 +431,4 @@ Rule behind all four: the benchmark covers everything an AP team must do in prac
 ## 8. Sources
 
 Malaysia — https://mysst.customs.gov.my/sst-regulations/ , /sst-orders/ , /industry-guides/ , /service-tax-policy/ (Service Tax Policies 1/2019–6/2026), /sales-tax-policy/ (Sales Tax Policies 1/2022–2/2026), /faq-services-tax/ , /faq-sales-tax/ ; MOF releases of 9 Jun 2025 and 5 Jan 2026; LHDN e-invoice timeline and MyInvois SDK; LHDN withholding tax page (https://www.hasil.gov.my/en/perundangan/cukai-pegangan/), Public Ruling 10/2019 (https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf), DTA withholding rates (https://www.hasil.gov.my/en/antarabangsa/perjanjian-pengelakan-pencukaian-dua-kali-pppdk/kadar-cukai-pegangan/).
-Singapore — https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/ (pages listed in §4), incl. GST rate change transitional rules and adjustments pages; GST Act 1993 s21 (https://sso.agc.gov.sg/Act/GSTA1993); IRAS withholding tax pages (https://www.iras.gov.sg/taxes/withholding-tax/).
+Singapore — https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/ (pages listed in §4), incl. GST rate change transitional rules and adjustments pages; GST Act 1993 s21 (https://sso.agc.gov.sg/Act/GSTA1993); IRAS, responsibilities of a GST-registered business (https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/responsibilities-of-a-gst-registered-business) for SG-12; IRAS withholding tax pages (https://www.iras.gov.sg/taxes/withholding-tax/).

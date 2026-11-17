@@ -4,5 +4,5 @@
   "tax_treatment": "GST_UNDERCHARGED",
   "gl_account": "6300-000",
   "reason_codes": [],
-  "tax_lines": [{"line_no": 1, "treatment": "GST_UNDERCHARGED", "basis": "SG-12"}]
+  "tax_lines": [{"line_no": 1, "treatment": "GST_UNDERCHARGED", "basis": "SG-13"}]
 }
