@@ -28,7 +28,7 @@ Some entries also have:
 
 A source we could not download keeps its entry, with `sha256: null`.
 
-`pending_citers` lists files that cite sources but are not in this repository yet. At present that is the v0.10 rule sheet, `docs/tax-rules-v0.10.md`. Once it is committed, the test checks that every rule ID named in `cited_by` appears in it.
+`pending_citers` lists files that cite sources but are not in this repository yet. At present there are none: the v0.10 rule sheet, `docs/tax-rules-v0.10.md`, is committed, and the test checks that every rule ID named in `cited_by` appears in it.
 
 ## Data tables
 

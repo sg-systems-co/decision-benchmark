@@ -4,12 +4,13 @@ Open benchmarks that test how well AI models and agents decide real-looking busi
 
 ## Task sets
 
-- Supplier-invoice decisions: Malaysia and Singapore (in progress). Spec: [v0.9](docs/task-sets/ap-invoices/spec-v0.9.md), tax rules: [v0.9](docs/task-sets/ap-invoices/tax-rules-v0.9.md)
+- Supplier-invoice decisions: Malaysia and Singapore (in progress). Spec: [v0.10](docs/task-sets/ap-invoices/spec-v0.10.md) (in review), rule sheet: [v0.10](docs/tax-rules-v0.10.md). Previous: [spec v0.9](docs/task-sets/ap-invoices/spec-v0.9.md), [tax rules v0.9](docs/task-sets/ap-invoices/tax-rules-v0.9.md)
 
 ## Tracks
 
 - Decision track: a model gets the full case file
 - Agent track: an agent starts with only the document and looks up the rest in a simulated company system
+- Two leaderboards on the same cases: the model lane (one model, one call per case, no tools) and the system lane (tools, rules engines, pipelines, agents)
 
 ## Data
 

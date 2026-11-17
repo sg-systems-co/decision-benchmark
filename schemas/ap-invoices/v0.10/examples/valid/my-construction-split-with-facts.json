@@ -1,0 +1,36 @@
+{
+  "case_id": "ap-my-01577",
+  "decision": "APPROVE",
+  "tax_treatment": "SST_CORRECT",
+  "gl_account": "1600-100",
+  "reason_codes": ["MATCHED_WITHIN_TOLERANCE"],
+  "tax_lines": [
+    {"line_no": 1, "treatment": "NO_SST", "basis": "L-8"},
+    {"line_no": 2, "treatment": "SST_CORRECT", "basis": "L-8"}
+  ],
+  "buyer_actions": [],
+  "facts": {
+    "lines": [
+      {
+        "line_no": 1,
+        "materials_works_separated": {"value": true, "evidence": [{"doc_id": "INV-MY-01577", "path": "lines[0].description"}]},
+        "service_item": {"value": null}
+      },
+      {
+        "line_no": 2,
+        "materials_works_separated": {"value": true, "evidence": [{"doc_id": "INV-MY-01577", "path": "lines[1].description"}]},
+        "service_item": {
+          "value": "L",
+          "evidence": [
+            {
+              "doc_id": "INV-MY-01577.pdf",
+              "span": {"start": 412, "end": 447},
+              "quote": "Construction works, Level 3 fit-out"
+            }
+          ]
+        },
+        "contract_signed": {"value": null}
+      }
+    ]
+  }
+}

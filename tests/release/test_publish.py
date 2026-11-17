@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+import re
 import string
 from types import SimpleNamespace
 
@@ -27,6 +28,11 @@ def fake_token() -> str:
 def staged(tmp_path):
     out = tmp_path / "hf"
     stage.stage(stage.REPO_ROOT, out)
+    # Between releases the repo card describes the next spec version (v0.10 while TAG is a v0.9
+    # tag). These tests check the publish mechanics for TAG, so the staged card carries TAG's label.
+    card = out / "README.md"
+    card.write_text(re.sub(r"\*\*Version v\d+\.\d+ —", "**Version v0.9 —", card.read_text(encoding="utf-8"), count=1),
+                    encoding="utf-8")
     return out
 
 

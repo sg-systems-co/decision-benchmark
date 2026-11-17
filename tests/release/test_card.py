@@ -29,7 +29,10 @@ def test_alpha_card_has_no_configs_and_viewer_off():
 
 def test_card_text():
     text = CARD_PATH.read_text()
-    assert "**Version v0.9 — synthetic, rules-based.**" in text
+    assert "**Version v0.10 — synthetic, rules-based.**" in text
+    assert "spec-v0.10.md" in text and "schemas/ap-invoices/v0.10/output.schema.json" in text
+    for field in ("`tax_lines`", "`buyer_actions`", "`facts`"):
+        assert field in text
     assert "Data not yet published." in text
     assert cp.PUBLIC_TEST_CANARY in text
     assert cp.HIDDEN_CANARY_GUID not in text
@@ -37,3 +40,12 @@ def test_card_text():
                     "## Limitations", "## How to submit results", "## Licence", "## Citation"]:
         assert heading in text
     assert re.search(r"author\s+=\s+\{\{SG Systems\}\}", text)
+
+
+def test_card_states_review_status_plainly():
+    text = CARD_PATH.read_text()
+    assert "No human has reviewed the rules or the answer keys yet." in text
+    assert "131 Singapore treaty-rate fields" in text and "HAND_OVER" in text
+    assert "a score measures agreement with the published rules, not accuracy on real invoices" in text
+    assert "Each release pins an engine version and an as-of date." in text
+    assert "accountant review comes after launch" in text

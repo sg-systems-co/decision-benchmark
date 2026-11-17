@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sg-systems-co/decision-benchmark/blob/main/schemas/ap-invoices/v0.10/results.schema.json",
+  "title": "Decision Benchmark, ap-invoices, v0.10: results file",
+  "description": "metadata.yaml of a results folder, and every scored results file, read as JSON. Every row says its lane. See docs/task-sets/ap-invoices/spec-v0.10.md, 'Leaderboards'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "task_set",
+    "split",
+    "name",
+    "version",
+    "row_kind",
+    "lane",
+    "track",
+    "input",
+    "confidence_given",
+    "engine_version",
+    "rules_version",
+    "run_date"
+  ],
+  "properties": {
+    "spec_version": {"const": "v0.10"},
+    "task_set": {"const": "ap-invoices"},
+    "split": {"enum": ["test", "hidden"]},
+    "name": {"type": "string", "minLength": 1, "description": "Model or system name."},
+    "version": {"type": "string", "minLength": 1},
+    "row_kind": {
+      "enum": ["entry", "baseline", "floor", "reference"],
+      "description": "entry: a submission. baseline: published by us and ranked. floor: always approve, always hand over. reference: engine on perfect facts, shown but never ranked."
+    },
+    "lane": {
+      "enum": ["model", "system"],
+      "description": "model: one model, one call per case, no tools, no engine. system: anything with tools, a rules engine, a pipeline or an agent."
+    },
+    "track": {"enum": ["decision", "agent"]},
+    "agent_variant": {
+      "enum": ["rules_as_documents", "check_rules_tool"],
+      "description": "Agent track only: (a) rules as documents in the policy folder; (b) the same plus the check_rules tool."
+    },
+    "input": {"enum": ["structured", "pdf", "gold_facts"], "description": "gold_facts only for the reference row."},
+    "confidence_given": {"type": "boolean"},
+    "engine_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Engine version that wrote the answer keys scored against."
+    },
+    "rules_version": {"const": "v0.10", "description": "Rule sheet version of those answer keys."},
+    "run_date": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "cost_usd": {"type": "number", "minimum": 0},
+    "median_latency_s": {"type": "number", "minimum": 0},
+    "contact": {"type": "string"},
+    "scores": {
+      "description": "Filled by the scorer. Extra columns show \"not submitted\" when the entry left the field out, never 0.",
+      "type": "object",
+      "properties": {
+        "cost": {"type": "number", "minimum": 0},
+        "tax_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "line_tax_accuracy": {"$ref": "#/$defs/extra_column"},
+        "buyer_action_accuracy": {"$ref": "#/$defs/extra_column"},
+        "facts_score": {
+          "anyOf": [
+            {"const": "not submitted"},
+            {
+              "type": "object",
+              "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1},
+              "description": "Per field family, plus 'all'."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "description": "The model lane takes no tools, so it has no agent track.",
+      "if": {"properties": {"lane": {"const": "model"}}},
+      "then": {"properties": {"track": {"const": "decision"}}}
+    },
+    {
+      "description": "Agent-track rows name their variant; other rows don't.",
+      "if": {"properties": {"track": {"const": "agent"}}},
+      "then": {"required": ["agent_variant"]},
+      "else": {"not": {"required": ["agent_variant"]}}
+    },
+    {
+      "description": "Only the reference row runs on gold facts, and it sits on the system lane.",
+      "if": {"properties": {"row_kind": {"const": "reference"}}},
+      "then": {"properties": {"lane": {"const": "system"}, "input": {"const": "gold_facts"}}},
+      "else": {"properties": {"input": {"not": {"const": "gold_facts"}}}}
+    }
+  ],
+  "$defs": {"extra_column": {"anyOf": [{"const": "not submitted"}, {"type": "number", "minimum": 0, "maximum": 1}]}}
+}

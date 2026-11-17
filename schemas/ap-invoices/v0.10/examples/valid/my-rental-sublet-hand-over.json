@@ -1,0 +1,18 @@
+{
+  "case_id": "ap-my-02044",
+  "decision": "HAND_OVER",
+  "tax_treatment": null,
+  "gl_account": "6200-300",
+  "reason_codes": ["CANNOT_SETTLE_FROM_RULES"],
+  "tax_lines": [{"line_no": 1, "treatment": null, "basis": "MS-5"}],
+  "facts": {
+    "lines": [
+      {
+        "line_no": 1,
+        "service_item": {"value": "K", "evidence": [{"doc_id": "INV-MY-02044", "path": "lines[0].description"}]},
+        "sublet": {"value": null},
+        "asset_in_malaysia": {"value": true, "evidence": [{"doc_id": "PO-MY-55120", "path": "delivery_address"}]}
+      }
+    ]
+  }
+}

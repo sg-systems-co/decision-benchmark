@@ -1,0 +1,11 @@
+{
+  "case_id": "ap-sg-01290",
+  "decision": "APPROVE",
+  "tax_treatment": "REVERSE_CHARGE",
+  "gl_account": "6600-100",
+  "reason_codes": [],
+  "buyer_actions": [
+    {"action": "ACCOUNT_REVERSE_CHARGE_GST"},
+    {"action": "WITHHOLD_TAX", "rate": 10, "basis": "WH-9", "base_amount": "25000.00"}
+  ]
+}

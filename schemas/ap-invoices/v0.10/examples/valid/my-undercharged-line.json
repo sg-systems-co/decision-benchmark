@@ -1,0 +1,12 @@
+{
+  "case_id": "ap-my-00733",
+  "decision": "REQUEST_CORRECTED_INVOICE",
+  "tax_treatment": "SST_UNDERCHARGED",
+  "gl_account": "6300-100",
+  "reason_codes": ["WRONG_TAX_RATE"],
+  "tax_lines": [
+    {"line_no": 1, "treatment": "SST_CORRECT", "basis": "MS-2"},
+    {"line_no": 2, "treatment": "SST_UNDERCHARGED", "basis": "MS-9"}
+  ],
+  "buyer_actions": []
+}

@@ -1,0 +1,15 @@
+{
+  "spec_version": "v0.10",
+  "task_set": "ap-invoices",
+  "split": "test",
+  "confidence_given": false,
+  "engine_version": "0.10.0",
+  "rules_version": "v0.10",
+  "run_date": "2026-12-01",
+  "name": "engine on perfect facts",
+  "version": "0.10.0",
+  "row_kind": "reference",
+  "lane": "system",
+  "track": "decision",
+  "input": "gold_facts"
+}

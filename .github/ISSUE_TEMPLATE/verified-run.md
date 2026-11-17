@@ -5,11 +5,13 @@ title: "Verified run: <model or system name>"
 labels: verified-run
 ---
 
-**Task set and spec version:** ap-invoices, v0.9
+**Task set and spec version:** ap-invoices, v0.10
 
 **Model or system** (name and version):
 
-**Track:** decision / agent
+**Lane:** model (one model, one call per case, no tools) / system (tools, rules engine, pipeline or agent)
+
+**Track:** decision / agent (variant: rules as documents / check_rules tool)
 
 **Input:** structured / pdf
 

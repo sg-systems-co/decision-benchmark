@@ -1,0 +1,27 @@
+{
+  "case_id": "ap-my-00912",
+  "decision": "REQUEST_CORRECTED_INVOICE",
+  "tax_treatment": "SST_NOT_CHARGEABLE_BY_TRADER",
+  "gl_account": "5100-200",
+  "reason_codes": ["SUPPLIER_NOT_TAX_REGISTERED"],
+  "tax_lines": [{"line_no": 1, "treatment": "SST_NOT_CHARGEABLE_BY_TRADER", "basis": "MG-1"}],
+  "buyer_actions": [],
+  "facts": {
+    "lines": [
+      {
+        "line_no": 1,
+        "tariff_code": {
+          "value": "8471.30.10 00",
+          "evidence": [
+            {
+              "doc_id": "INV-MY-00912",
+              "path": "lines[0].description",
+              "quote": "Laptop 14in (HS 8471.30.10 00)"
+            }
+          ]
+        },
+        "service_item": {"value": null}
+      }
+    ]
+  }
+}

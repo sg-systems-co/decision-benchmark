@@ -1,0 +1,11 @@
+{
+  "case_id": "ap-sg-00611",
+  "decision": "APPROVE",
+  "tax_treatment": "CLAIMABLE",
+  "gl_account": "6450-300",
+  "reason_codes": [],
+  "tax_lines": [
+    {"line_no": 1, "treatment": "CLAIMABLE", "basis": "SG-1"},
+    {"line_no": 2, "treatment": "NOT_CLAIMABLE_DISALLOWED", "basis": "SG-10"}
+  ]
+}

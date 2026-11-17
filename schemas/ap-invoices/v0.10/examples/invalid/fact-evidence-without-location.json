@@ -1,0 +1,10 @@
+{
+  "case_id": "ap-my-00912",
+  "decision": "REQUEST_CORRECTED_INVOICE",
+  "tax_treatment": "SST_NOT_CHARGEABLE_BY_TRADER",
+  "gl_account": "5100-200",
+  "reason_codes": [],
+  "facts": {
+    "lines": [{"line_no": 1, "tariff_code": {"value": "8471.30.10 00", "evidence": [{"doc_id": "INV-MY-00912"}]}}]
+  }
+}
