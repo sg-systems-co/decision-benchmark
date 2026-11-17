@@ -40,6 +40,7 @@ Decided by Sebastian on 13 Nov 2026 (step-11 plan, §16). The spec and the tax-r
 ### Docs
 
 - **Sources are now archived.** Every official source the benchmark cites is kept in a private archive; `docs/sources/manifest.yaml` lists each one with its URL, retrieval date, SHA-256 and Wayback snapshot.
+- **Sources for rule sheet v0.10 archived.** All 79 Service Tax Policies and 9 Sales Tax Policies, the LHDN and IRAS withholding tax sources, and GST Act s21. Manifest entries name the v0.10 rules that use them (`docs/tax-rules-v0.10.md#RULE`). New data tables in the country packs: DTA withholding rates (LHDN; IRAS treaty texts, machine-read and flagged for review) and the tariff codes in Sales Tax Policies 1/2025, 2/2025 and 1/2026. No change to rules or answer keys.
 
 ## [v0.9.0-alpha.1.1] - 2026-11-16
 
