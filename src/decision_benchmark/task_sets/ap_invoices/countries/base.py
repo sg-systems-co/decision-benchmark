@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, ClassVar
 from ..findings import TaxResult
 from ..models.common import CountryBlock, TaxProfile
 from ..models.evidence import LineFact, LineFacts
+from ..registry import RuleSpec
 
 if TYPE_CHECKING:
     from ..models import Catalog, Category, Company, Finding, Invoice, InvoiceLine
@@ -42,6 +43,10 @@ class CountryPack:
     line_facts_model: ClassVar[type[LineFacts]]
     """The line facts this country's rules read: exactly its schema part's $defs/line_facts."""
     constants: ClassVar[ModuleType]
+    severity_order: ClassVar[tuple[str, ...]]
+    """Tax codes worst first: the schema part's x-severity-order. The case-level treatment is the worst line."""
+    rules: ClassVar[dict[str, RuleSpec]]
+    """Every rule of this country in the rule sheet, with its validity dates."""
 
     # -- models ---------------------------------------------------------------
 

@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from ...findings import TaxResult
+from ...registry import RuleSpec, registry
 from ..base import CountryPack
 from . import constants, tax
 from .models import SgContractFacts, SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
@@ -28,6 +29,21 @@ class SingaporePack(CountryPack):
     supplier_facts = SgSupplierFacts
     line_facts_model = SgLineFacts
     constants = constants
+    # x-severity-order of schemas/ap-invoices/v0.10/countries/sg.schema.json (tests/rules/test_registry.py).
+    severity_order = (
+        "GST_WRONGLY_CHARGED",
+        "GST_UNDERCHARGED",
+        "NOT_CLAIMABLE_INVALID_INVOICE",
+        "NOT_CLAIMABLE_DISALLOWED",
+        "NOT_CLAIMABLE_EXEMPT_USE",
+        "RESIDUAL_APPORTIONED",
+        "CLAIMABLE",
+        "CUSTOMER_ACCOUNTING",
+        "REVERSE_CHARGE",
+        "NO_GST",
+    )
+    # Every rule ID of the schema part's $defs/rule_id. Validity dates come with each rule (A12 build PR 3).
+    rules = registry(*(RuleSpec(r) for r in (*(f"SG-{i}" for i in range(1, 13)), "WH-5")))
 
     def check_company(self, company: Company) -> None:
         super().check_company(company)

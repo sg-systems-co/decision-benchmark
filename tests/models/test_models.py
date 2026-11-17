@@ -170,7 +170,7 @@ def test_email_signals_are_typed():
 
 def test_answer_key_null_tax_only_on_hand_over():
     base = dict(case_id="ap-my-00001", gl_account="6100", reason_codes=["CANNOT_SETTLE_FROM_RULES"],
-                grader_truth={"supplier_id": "S"})
+                grader_truth={"supplier_id": "S"}, engine_version="0.10.0.dev1", rules_version="v0.9")
     with pytest.raises(ValidationError, match="only on HAND_OVER"):
         AnswerKey(decision="APPROVE", tax_treatment=None, answer_source="rules", **base)
     with pytest.raises(ValidationError, match="if and only if"):
@@ -180,7 +180,7 @@ def test_answer_key_null_tax_only_on_hand_over():
 
 def test_answer_key_codes_are_checked():
     base = dict(case_id="ap-my-00001", gl_account="6100", decision="APPROVE", answer_source="rules",
-                grader_truth={"supplier_id": "S"})
+                grader_truth={"supplier_id": "S"}, engine_version="0.10.0.dev1", rules_version="v0.9")
     with pytest.raises(ValidationError, match="unknown tax treatment"):
         AnswerKey(tax_treatment="VAT_OK", reason_codes=["MATCHED_WITHIN_TOLERANCE"], **base)
     with pytest.raises(ValidationError):

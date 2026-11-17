@@ -340,7 +340,9 @@ def test_mixed_lines_take_the_most_serious_tax_code():
     assert (a.decision, a.tax_treatment) == (D.REQUEST_CORRECTED_INVOICE, T.SST_WRONG_RATE)
 
 
-def test_lines_booking_to_two_gl_accounts_are_unsupported():
+def test_lines_booking_to_two_gl_accounts_each_keep_their_account():
+    """Spec v0.10 clarification (18 Nov 2026): each line books to its own GL account; the case-level account
+    is the account of the line with the largest amount excluding tax."""
     r, c = my_base()
     r["purchase_orders"][0]["lines"].append({
         "line_no": 2, "description": "Courier", "category": "logistics_haulage", "qty": 1, "uom": "trip",
@@ -351,8 +353,24 @@ def test_lines_booking_to_two_gl_accounts_are_unsupported():
         my_line(1, "it_services", 1, "3200.00", po_line_no=1),
         my_line(2, "logistics_haulage", 1, "200.00", rate="6", po_line_no=2),
     ])
-    with pytest.raises(UnsupportedCase, match="GL"):
-        answer(r, c)
+    a = answer(r, c)
+    assert [(t.line_no, t.gl_account) for t in a.tax_lines] == [(1, r["purchase_orders"][0]["lines"][0]["gl_account"]),
+                                                                (2, "5300-400")]
+    assert a.gl_account == r["purchase_orders"][0]["lines"][0]["gl_account"]  # line 1: 3,200.00 > 200.00
+
+
+def test_case_gl_account_ties_go_to_the_lowest_line():
+    r, c = my_base()
+    r["purchase_orders"][0]["lines"].append({
+        "line_no": 2, "description": "Courier", "category": "logistics_haulage", "qty": 1, "uom": "trip",
+        "unit_price": "3200.00", "gl_account": "5300-400",
+    })
+    r["goods_receipts"][0]["lines"].append({"po_line_no": 2, "qty_received": 1, "uom": "trip"})
+    set_lines(c, [
+        my_line(1, "logistics_haulage", 1, "3200.00", rate="6", po_line_no=2),
+        my_line(2, "it_services", 1, "3200.00", po_line_no=1),
+    ])
+    assert answer(r, c).gl_account == "5300-400"
 
 
 def test_sg_mixed_claimable_and_disallowed_lines_are_unsupported():

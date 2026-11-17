@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[2]
 PKG = ROOT / "src/decision_benchmark"
 TASK = PKG / "task_sets/ap_invoices"
 SHARED = sorted(
-    [*(TASK / "rules").glob("*.py"), *(TASK / "models").glob("*.py"), TASK / "findings.py", TASK / "envelope.py"]
+    [*(TASK / "rules").glob("*.py"), *(TASK / "models").glob("*.py"), TASK / "findings.py", TASK / "envelope.py",
+     TASK / "registry.py", TASK / "fact_reader.py"]
 )
 COUNTRY_WORDS = re.compile(
     r"\b(MY|SG|TH|MYR|SGD|THB)\b|GST|SST|Malaysia|Singapore|Thai|MyInvois|PINT|Peppol|IRAS|Schedule C|Group G",
