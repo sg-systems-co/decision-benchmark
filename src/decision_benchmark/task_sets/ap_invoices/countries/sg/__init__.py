@@ -6,9 +6,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from ...findings import TaxResult
-from ..base import CountryPack, LineFact
+from ..base import CountryPack
 from . import constants, tax
-from .models import PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
+from .models import SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
 
 if TYPE_CHECKING:
     from ...models import Catalog, Company, Finding, Invoice
@@ -25,11 +25,7 @@ class SingaporePack(CountryPack):
     einvoice = PintSg
     company_facts = SgCompanyFacts
     supplier_facts = SgSupplierFacts
-    line_facts = {
-        "vehicle_is_motor_car": LineFact(default=None, nullable=True),
-        "staff_medical_obligatory": LineFact(default=None, nullable=True),
-        "insurance_obligatory": LineFact(default=None, nullable=True),
-    }
+    line_facts_model = SgLineFacts
     constants = constants
 
     def check_company(self, company: Company) -> None:

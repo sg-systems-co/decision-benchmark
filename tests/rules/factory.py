@@ -155,8 +155,15 @@ def my_line(n, category, qty, price, rate="8", tax_type="02", po_line_no=None, *
         EXT: {"classification_code": "022", "tax_type": tax_type if Decimal(rate) > 0 else "06"},
     }
     if facts:
-        line["facts"] = facts
+        line["facts"] = line_facts(n, **facts)
     return line
+
+
+def line_facts(n: int, **values) -> dict:
+    """Line facts in the spec's format. A value gets evidence pointing at the line's description; None means
+    the documents don't show the fact."""
+    ref = [{"doc_id": "INV-CASE-1", "path": f"lines[{n - 1}].description"}]
+    return {k: ({"value": None} if v is None else {"value": v, "evidence": ref}) for k, v in values.items()}
 
 
 def sg_line(n, category, qty, price, rate="9", po_line_no=None, **facts) -> dict:

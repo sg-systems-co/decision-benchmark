@@ -10,6 +10,7 @@ from .factory import (
     answer,
     ein,
     ledger_copy,
+    line_facts,
     my_base,
     my_line,
     replace_lines,
@@ -312,7 +313,7 @@ def test_group_relief_unclear_is_a_hand_over_with_null_tax():
 
 def test_group_g_same_service_unclear_is_a_hand_over():
     r, c = my_base()
-    c["invoice"]["lines"][0]["facts"] = {"same_service_unclear": True}
+    c["invoice"]["lines"][0]["facts"] = line_facts(1, same_service_as_buyer=None)
     assert answer(r, c).decision is D.HAND_OVER
 
 

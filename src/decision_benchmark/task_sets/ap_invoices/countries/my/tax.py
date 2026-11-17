@@ -25,6 +25,13 @@ PRECEDENCE = (
 )
 
 
+def _fact(line, name: str):
+    """A recorded line fact, or None. Read only through here, so every name is a MyLineFacts field."""
+    from . import PACK
+
+    return PACK.fact(line, name)
+
+
 def _sst_registered_for(supplier: Supplier, kind: str, day: date) -> bool:
     return supplier.registration("MY_SST", on=day, types=(kind,)) is not None
 
@@ -93,11 +100,18 @@ def assess(
                 # 3. B2B exemption: both registered, the buyer provides a taxable service under the
                 # same First Schedule item, not for personal use.
                 buyer_registered = company.registration("MY_SST", on=day) is not None
-                if buyer_registered and not line.facts.get("personal_use", False):
-                    if line.facts.get("same_service_unclear", False):
+                personal = _fact(line, "personal_use")
+                if buyer_registered and personal is not None and personal.value is None:
+                    unsettled.append(Unsettled("b2b_personal_use_unclear", tax_related=True))
+                    continue
+                if buyer_registered and not (personal is not None and personal.value):
+                    same = _fact(line, "same_service_as_buyer")
+                    if same is not None and same.value is None:
                         unsettled.append(Unsettled("b2b_same_service_unclear", tax_related=True))
                         continue
-                    if profile.service_item in company_facts.services_provided:
+                    # Not recorded on the line: the company's own service items decide (v0.9).
+                    provides = same.value if same is not None else profile.service_item in company_facts.services_provided
+                    if provides:
                         codes.append(T.SST_SHOULD_BE_EXEMPT)
                         findings.append(finding(Code.TAX_SHOULD_BE_EXEMPT, line=n, basis="b2b"))
                         continue

@@ -2,7 +2,7 @@
 
 Country fields (the country's e-invoice standard and printed tax details) sit in
 the ``einvoice`` block, whose model comes from the invoice country's pack. Line
-facts are a map of fact name to value; the pack declares the allowed names.
+facts are the pack's line-facts model (spec v0.10 "Facts"), parsed by the invoice's country.
 """
 
 from __future__ import annotations
@@ -11,9 +11,12 @@ from datetime import date
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import model_validator
+from typing import Any
+
+from pydantic import SerializeAsAny, model_validator
 
 from .common import CountryCode, EInvoiceBlock, Model, Money, Num, country_pack, internal
+from .evidence import LineFacts
 
 
 class PartyBlock(Model):
@@ -48,8 +51,8 @@ class InvoiceLine(Model):
     tax_amount: Money = Decimal("0.00")
     po_line_no: int | None = None
     category: str = internal()
-    facts: dict[str, bool | None] = internal({})
-    """Facts the documents may or may not settle (None: they don't say). Names and defaults: the country pack."""
+    facts: SerializeAsAny[LineFacts] | None = internal(None)
+    """Generator truth: the line facts with their evidence, the invoice country's line-facts model. None: none recorded."""
 
 
 class Invoice(Model):
@@ -75,6 +78,22 @@ class Invoice(Model):
     languages: list[str] = ["en"]
     lines: list[InvoiceLine]
     einvoice: EInvoiceBlock
+
+    @model_validator(mode="before")
+    @classmethod
+    def _parse_line_facts(cls, data: Any) -> Any:
+        """Line facts come as dicts in the spec's format; the invoice country's pack gives their model."""
+        if not isinstance(data, dict) or not isinstance(data.get("lines"), list):
+            return data
+        block = data.get("einvoice")
+        if isinstance(block, dict) and block.get("country") != data.get("country"):
+            raise ValueError(f"einvoice block is for {block.get('country')}, invoice is {data.get('country')}")
+        lines = []
+        for line in data["lines"]:
+            if isinstance(line, dict) and isinstance(line.get("facts"), dict):
+                line = line | {"facts": country_pack(data.get("country", "")).line_facts_model.model_validate(line["facts"])}
+            lines.append(line)
+        return data | {"lines": lines}
 
     @model_validator(mode="after")
     def _country_fields(self) -> Invoice:

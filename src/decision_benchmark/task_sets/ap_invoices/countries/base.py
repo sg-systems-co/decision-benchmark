@@ -10,7 +10,6 @@ the registry.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from decimal import Decimal
 from enum import StrEnum
 from types import ModuleType
@@ -18,18 +17,11 @@ from typing import TYPE_CHECKING, ClassVar
 
 from ..findings import TaxResult
 from ..models.common import CountryBlock, TaxProfile
+from ..models.evidence import LineFact, LineFacts
 
 if TYPE_CHECKING:
     from ..models import Catalog, Category, Company, Finding, Invoice, InvoiceLine
     from ..rules.view import CaseView
-
-
-@dataclass(frozen=True)
-class LineFact:
-    """A line fact the pack reads. nullable: None is allowed and means "the documents don't say"."""
-
-    default: bool | None
-    nullable: bool
 
 
 class CountryPack:
@@ -46,7 +38,8 @@ class CountryPack:
     einvoice: ClassVar[type[CountryBlock]]
     company_facts: ClassVar[type[CountryBlock]]
     supplier_facts: ClassVar[type[CountryBlock]]
-    line_facts: ClassVar[dict[str, LineFact]]
+    line_facts_model: ClassVar[type[LineFacts]]
+    """The line facts this country's rules read: exactly its schema part's $defs/line_facts."""
     constants: ClassVar[ModuleType]
 
     # -- models ---------------------------------------------------------------
@@ -70,23 +63,22 @@ class CountryPack:
             raise ValueError(f"{category.category}: categories used in {self.country} need a tax profile")
 
     def check_invoice(self, invoice: Invoice) -> None:
-        """Raise ValueError for unknown line facts or e-invoice lines that don't exist."""
+        """Raise ValueError for e-invoice lines that don't exist or line facts of another country."""
         nos = {line.line_no for line in invoice.lines}
         ext = [line.line_no for line in getattr(invoice.einvoice, "lines", [])]
         if len(ext) != len(set(ext)) or not set(ext) <= nos:
             raise ValueError("einvoice lines must name existing invoice lines, once each")
         for line in invoice.lines:
-            for name, value in line.facts.items():
-                spec = self.line_facts.get(name)
-                if spec is None:
-                    raise ValueError(f"line {line.line_no}: {name!r} is not a {self.country} line fact")
-                if value is None and not spec.nullable:
-                    raise ValueError(f"line {line.line_no}: {name} can't be None")
+            if line.facts is not None and not isinstance(line.facts, self.line_facts_model):
+                raise ValueError(f"line {line.line_no}: line facts must be the {self.country} model")
 
     # -- reading --------------------------------------------------------------
 
-    def fact(self, line: InvoiceLine, name: str) -> bool | None:
-        return line.facts.get(name, self.line_facts[name].default)
+    def fact(self, line: InvoiceLine, name: str) -> LineFact | None:
+        """The recorded fact, or None when the line's facts don't record it."""
+        if name not in self.line_facts_model.model_fields:
+            raise KeyError(f"{name!r} is not a {self.country} line fact")
+        return getattr(line.facts, name) if line.facts is not None else None
 
     def profile(self, category: Category) -> TaxProfile:
         return category.tax.get(self.country) or self.tax_profile()

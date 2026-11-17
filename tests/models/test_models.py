@@ -36,7 +36,7 @@ MY_INVOICE = {
             "tax_rate": "8",
             "tax_amount": "8.00",
             "category": "it_services",
-            "facts": {"personal_use": False},
+            "facts": {"personal_use": {"value": False, "evidence": [{"doc_id": "INV-1", "path": "lines[0].description"}]}},
         }
     ],
     "einvoice": {"country": "MY", "is_einvoice": True, "lines": [{"line_no": 1, "tax_type": "02"}]},
@@ -96,15 +96,19 @@ def test_einvoice_block_errors(change, msg):
 
 
 def test_line_facts_are_declared_by_the_country_pack():
-    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"vehicle_is_motor_car": True}}]}
-    with pytest.raises(ValidationError, match="not a MY line fact"):
+    ev = [{"doc_id": "INV-1", "path": "lines[0].description"}]
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"vehicle_is_motor_car": {"value": True, "evidence": ev}}}]}
+    with pytest.raises(ValidationError, match="Extra inputs"):
         Invoice.model_validate(bad)
-    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": None}}]}
-    with pytest.raises(ValidationError, match="can't be None"):
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": {"value": True}}}]}
+    with pytest.raises(ValidationError, match="needs at least one evidence reference"):
+        Invoice.model_validate(bad)
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": {"value": None, "evidence": ev}}}]}
+    with pytest.raises(ValidationError, match="has no evidence"):
         Invoice.model_validate(bad)
     sg = _sg_invoice()
-    sg["lines"][0]["facts"] = {"vehicle_is_motor_car": None}
-    Invoice.model_validate(sg)
+    sg["lines"][0]["facts"] = {"vehicle_is_motor_car": {"value": None}}
+    assert Invoice.model_validate(sg).lines[0].facts.vehicle_is_motor_car.value is None
 
 
 def test_tax_registrations_are_checked_against_the_scheme():

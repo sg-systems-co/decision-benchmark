@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...findings import TaxResult
-from ..base import CountryPack, LineFact
+from ..base import CountryPack
 from . import constants, tax, validity
-from .models import MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
+from .models import MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
 
 if TYPE_CHECKING:
     from ...models import Catalog, Category, Company, Finding, Invoice
@@ -25,10 +25,7 @@ class MalaysiaPack(CountryPack):
     einvoice = MyInvois
     company_facts = MyCompanyFacts
     supplier_facts = MySupplierFacts
-    line_facts = {
-        "same_service_unclear": LineFact(default=False, nullable=False),
-        "personal_use": LineFact(default=False, nullable=False),
-    }
+    line_facts_model = MyLineFacts
     constants = constants
 
     def check_company(self, company: Company) -> None:

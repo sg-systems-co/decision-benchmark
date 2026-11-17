@@ -31,6 +31,14 @@ def _line_charged(line: InvoiceLine, tax_category: str | None) -> bool:
     return line.tax_amount > ZERO or line.tax_rate > ZERO or tax_category == "SR"
 
 
+def _value(line: InvoiceLine, name: str) -> bool | None:
+    """The value of a recorded line fact; None when it isn't recorded or the documents don't show it."""
+    from . import PACK
+
+    fact = PACK.fact(line, name)
+    return fact.value if fact is not None else None
+
+
 def assess(inv: Invoice, supplier: Supplier, catalog: Catalog) -> TaxResult:
     e = inv.einvoice
     assert isinstance(e, PintSg)
@@ -68,18 +76,18 @@ def assess(inv: Invoice, supplier: Supplier, catalog: Catalog) -> TaxResult:
         assert isinstance(profile, SgTaxProfile)
         cls = profile.disallowed
         if cls == "motor_car":
-            fact = line.facts.get("vehicle_is_motor_car")
+            fact = _value(line, "vehicle_is_motor_car")
             if fact is None:
                 unsettled.append(Unsettled("vehicle_regulation_25_1_unclear", tax_related=True))
             (disallowed if fact else claimable).append(line.line_no)
         elif cls == "staff_medical":
-            fact = line.facts.get("staff_medical_obligatory")
+            fact = _value(line, "staff_medical_obligatory")
             if fact is None:
                 unsettled.append(Unsettled("staff_medical_obligation_unclear", tax_related=True))
             (claimable if fact else disallowed).append(line.line_no)
         elif cls == "medical_accident_insurance":
             # Claimable when obligatory under the Work Injury Compensation Act or a collective agreement.
-            fact = line.facts.get("insurance_obligatory")
+            fact = _value(line, "insurance_obligatory")
             if fact is None:
                 unsettled.append(Unsettled("insurance_obligation_unclear", tax_related=True))
             (claimable if fact else disallowed).append(line.line_no)
