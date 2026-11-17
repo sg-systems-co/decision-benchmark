@@ -15,11 +15,24 @@ The answer keys follow the official rules of the Royal Malaysian Customs Departm
 | `sha256`, `bytes`, `content_type` | The fingerprint, size and type of the file exactly as downloaded. |
 | `archive_path` | Where our copy is kept (see below). |
 | `wayback_url` | A snapshot in the Internet Archive, or `null` if the capture failed. |
-| `cited_by` | The files in this repository that cite it. |
+| `cited_by` | Who uses it. A file path means the file cites the URL. `path#RULE` means rule RULE in that file (for example `docs/tax-rules-v0.10.md#K-1`) relies on it. |
 
-A source we could not download keeps its entry, with `sha256: null` and a `fetch_error` that gives the HTTP status.
+Some entries also have:
 
-Some sources are cited only by the v0.10 rule sheet, which is still a draft and not yet in this repository. Their `cited_by` says `v0.10 rule sheet draft`. When the rule sheet lands, it replaces that label with its file path.
+| Field | Meaning |
+|---|---|
+| `published` | The publication date the authority gives, for example in the MySST policy tables. |
+| `available: false` | The authority no longer serves the document. We keep the entry and our copy. |
+| `fetch_error`, `attempts` | Why a download failed and what we tried: a retry, an official alternative host, and a real browser. |
+| `note` | Anything a reader should know, such as a moved page or a site's labelling error. |
+
+A source we could not download keeps its entry, with `sha256: null`.
+
+`pending_citers` lists files that cite sources but are not in this repository yet. At present that is the v0.10 rule sheet, `docs/tax-rules-v0.10.md`. Once it is committed, the test checks that every rule ID named in `cited_by` appears in it.
+
+## Data tables
+
+Some sources are tables that the engine reads as data: tax-treaty withholding rates and tariff-code lists. They live in the country packs as `countries/<country>/data/*.yaml`. Each file names its manifest IDs in its header, and every row has a `source`. `tests/test_country_data_sources.py` checks both. The private archive's `scripts/extract_tables.py` generates these files from the archived documents.
 
 The copies themselves are not in this repository. Government documents are kept in a separate private archive under `archive_path`. This repository holds only the metadata. For an HTML page, the archive also has a PDF print of the page as we saw it.
 

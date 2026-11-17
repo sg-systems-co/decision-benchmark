@@ -1,5 +1,8 @@
 """Every official URL the benchmark cites has an entry in docs/sources/manifest.yaml, and every
-entry is cited by something. See docs/sources/README.md."""
+entry is cited by something. See docs/sources/README.md.
+
+A `cited_by` item is a file path ("the file cites this URL") or "path#RULE" ("rule RULE in that file
+uses this source"). Files listed under `pending_citers` are not in the repository yet."""
 
 import re
 from pathlib import Path
@@ -17,6 +20,7 @@ CITING_FILES = (
     f"{P}/countries/my/constants.py",
     f"{P}/countries/sg/constants.py",
     "CHANGELOG.md",
+    "docs/tax-rules-v0.10.md",
 )
 # URLs in those files that are not sources.
 NOT_SOURCES = {"https://keepachangelog.com/en/1.1.0/"}
@@ -39,6 +43,8 @@ def _clean(url: str) -> str:
 def _citations() -> dict[str, set[str]]:
     found: dict[str, set[str]] = {}
     for f in CITING_FILES:
+        if not (ROOT / f).exists():  # a pending citer, committed later
+            continue
         for m in URL.findall((ROOT / f).read_text(encoding="utf-8")):
             url = _clean(m)
             if url not in NOT_SOURCES:
@@ -59,9 +65,28 @@ def test_every_cited_url_has_an_entry():
 def test_every_entry_is_cited_and_cited_by_is_exact():
     cites = _citations()
     for s in SOURCES:
-        files = set(s["cited_by"]) - PENDING
         assert s["cited_by"], f"{s['id']} is cited by nothing"
-        assert files == cites.get(s["official_url"], set()), f"{s['id']}: cited_by {sorted(files)} != {sorted(cites.get(s['official_url'], set()))}"
+        citing = cites.get(s["official_url"], set())
+        named = set()
+        for c in s["cited_by"]:
+            path, _, rule = c.partition("#")
+            assert path in PENDING or (ROOT / path).exists(), f"{s['id']}: {path} does not exist and is not a pending citer"
+            if path in PENDING:
+                assert rule, f"{s['id']}: a pending citer is named with the rule that uses the source"
+                continue
+            named.add(path)
+            if rule:  # the rule ID must appear in that file
+                assert re.search(rf"\b{re.escape(rule)}\b", (ROOT / path).read_text(encoding="utf-8")), f"{s['id']}: {rule} not in {path}"
+            else:  # a plain path means the file cites the URL itself
+                assert path in citing, f"{s['id']}: {path} does not cite {s['official_url']}"
+        assert citing <= named, f"{s['id']}: cited by {sorted(citing - named)} but cited_by does not say so"
+
+
+def test_rule_ids_look_like_rule_ids():
+    for s in SOURCES:
+        for c in s["cited_by"]:
+            if "#" in c:
+                assert re.fullmatch(r"[A-Z]{1,2}-\d+", c.split("#", 1)[1]), (s["id"], c)
 
 
 def test_entries_are_well_formed():
@@ -71,7 +96,10 @@ def test_entries_are_well_formed():
     for s in SOURCES:
         assert tuple(k for k in FIELDS if k in s) == FIELDS, s["id"]
         assert re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", s["id"]), s["id"]
-        assert s["country"] in ("my", "sg") and s["authority"] in ("RMCD", "LHDN", "MOF", "IRAS"), s["id"]
+        assert s["country"] in ("my", "sg") and s["authority"] in ("RMCD", "LHDN", "MOF", "IRAS", "AGC"), s["id"]
+        assert s.get("available", True) in (True, False), s["id"]
+        if "published" in s:
+            assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(s["published"])), s["id"]
         if s["sha256"] is None:  # a failed download keeps its entry and says why
             assert s["fetch_error"] and s["archive_path"] is None, s["id"]
         else:
