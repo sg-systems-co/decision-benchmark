@@ -37,6 +37,10 @@ Decided by Sebastian on 13 Nov 2026 (step-11 plan, §16). The spec and the tax-r
 - **Source links (docs).** Two links in the tax-rule sheet and the spec died when mysst.customs.gov.my moved its files on to a new host: the RMCD guide on management services and Service Tax Policy 8/2020. They now point to the same documents as linked from https://mysst.customs.gov.my/industry-guides/ and /service-tax-policy/. No rule changed.
 - **Risk–coverage curve (scoring).** Drawn only when every prediction other than HAND_OVER gives a `confidence`. Cases the entry decided are ranked by confidence, highest first; tied confidences form one step. At each step, risk is the share of wrong decisions among the cases kept so far, and coverage is the share of all cases kept. HAND_OVER predictions are never kept. The area under the curve (AURC) is the mean risk over all steps.
 
+### Docs
+
+- **Sources are now archived.** Every official source the benchmark cites is kept in a private archive; `docs/sources/manifest.yaml` lists each one with its URL, retrieval date, SHA-256 and Wayback snapshot.
+
 ## [v0.9.0-alpha.1.1] - 2026-11-16
 
 Spec: v0.9 (synthetic, rules-based). Scores comparable with: v0.9.*
