@@ -45,7 +45,7 @@ def test_release_catalog_loads():
         (dict(my={"tax_class": "none", "b2b_exempt": True}), "need a service_item"),
         (dict(my={"tax_class": "none", "group_relief": True}), "need a service_item"),
         (dict(my={"tax_class": "service_8", "service_item": "I8", "group_relief": True}), "only for Group G"),
-        (dict(my={"tax_class": "service_8", "service_item": "G(n)", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(k)", "group_relief": True}), "only for Group G"),
         (dict(my={"tax_class": "service_8", "service_item": "G(j)", "group_relief": True}), "only for Group G"),
         (dict(my={"tax_class": "service_6", "service_item": "J1(a)", "group_relief": True}), "only for Group G"),
         (dict(kind="goods", my={"tax_class": "sales_10", "service_item": "G(a)"}), "only for service_6 and service_8"),

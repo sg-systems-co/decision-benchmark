@@ -77,7 +77,7 @@ def assess(
                 findings.append(finding(Code.SUPPLIER_NOT_TAX_REGISTERED, line=n, tax="service"))
                 continue
             if profile.group_relief:
-                # Group relief (Group G items (a) to (i) and (l) only). For other items the group
+                # Group relief (Group G items (a) to (i), (l) and (n) only). For other items the group
                 # relation is irrelevant. Every value of group_relation is handled here explicitly.
                 # A clear "same group" value must not be added without its rule (Service Tax
                 # Policy 8/2020) and tests in the same PR; test_group_relation_values_are_all_handled

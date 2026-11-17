@@ -54,7 +54,7 @@ class MalaysiaPack(CountryPack):
         if not cls.startswith("service_") and p.service_item is not None:
             raise ValueError(f"{name}: service_item is only for service_6 and service_8")
         if p.group_relief and p.service_item not in constants.GROUP_RELIEF_ITEMS:
-            raise ValueError(f"{name}: group_relief is only for Group G items (a) to (i) and (l)")
+            raise ValueError(f"{name}: group_relief is only for Group G items (a) to (i), (l) and (n)")
         if p.b2b_exempt and p.service_item in constants.NO_B2B_ITEMS:
             raise ValueError(f"{name}: {p.service_item} has no B2B exemption")
 

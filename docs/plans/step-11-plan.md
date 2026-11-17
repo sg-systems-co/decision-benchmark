@@ -162,7 +162,7 @@ A pack is a folder `countries/<cc>/` with one `CountryPack` subclass (`__init__.
 | Tax registration schemes and types | `MY_TIN` (`tin`), `MY_SST` (`sales`, `service`) | `SG_GST` (`local`, `ovr`) |
 | Exemption-certificate kinds | `schedule_c`, `b2b_declaration` | none |
 | Tax-treatment codes (StrEnum) | `SST_CORRECT`, `SST_WRONG_RATE`, `SST_SHOULD_BE_EXEMPT`, `SST_SUPPLIER_NOT_REGISTERED`, `NO_SST` | `CLAIMABLE`, `NOT_CLAIMABLE_DISALLOWED`, `NOT_CLAIMABLE_INVALID_INVOICE`, `GST_WRONGLY_CHARGED`, `NO_GST` |
-| Category tax profile | `MyTaxProfile` (required): `tax_class`, `schedule_c_eligible`, `service_item` (First Schedule item such as `G(h)`, `J1(a)`, `I8`, `L`; set exactly for `service_6`/`service_8`), `b2b_exempt` (item is in a B2B scheme: Group G except (j) and (k), Group J same item, Group I item 8, Group L), `group_relief` (Group G items (a) to (i) and (l) only, `GROUP_RELIEF_ITEMS`) | `SgTaxProfile`: `disallowed` (optional) |
+| Category tax profile | `MyTaxProfile` (required): `tax_class`, `schedule_c_eligible`, `service_item` (First Schedule item such as `G(h)`, `J1(a)`, `I8`, `L`; set exactly for `service_6`/`service_8`), `b2b_exempt` (item is in a B2B scheme: Group G except (j) and (k), Group J same item, Group I item 8, Group L), `group_relief` (Group G items (a) to (i), (l) and (n) only, `GROUP_RELIEF_ITEMS`) | `SgTaxProfile`: `disallowed` (optional) |
 | E-invoice block | `MyInvois`: MyInvois header fields, `tax_total_by_type`, per-line `classification_code`, `tax_type`, `tax_exemption_reason` | `PintSg`: PINT-SG fields, `document_title`, `supplier_gst_no`, SGD amounts, per-line `tax_category` |
 | Party tax facts | company: `is_registered_manufacturer`, `services_provided` (First Schedule service items, not categories), `group_companies`; supplier: `is_manufacturer`, `turnover_band`, `service_categories`, `msic_code`, `group_relation` (internal) | none |
 | Line facts | `same_service_unclear`, `personal_use` (bool, default false) | `vehicle_is_motor_car`, `staff_medical_obligatory`, `insurance_obligatory` (bool or null, default null) |
@@ -363,7 +363,7 @@ Vehicle cost where the documents don't say whether the vehicle is a motor car un
 **Tax, MY (`tax_my.py`), per line, then combined:**
 1. Service tax charged by a supplier without SST registration → `SST_SUPPLIER_NOT_REGISTERED`.
 2. Sales tax on a Schedule C category, buyer holds a valid Schedule C certificate → `SST_SHOULD_BE_EXEMPT`.
-3. Service tax on a category with `b2b_exempt` (Group G except (j) employment and (k) guards, Group J same item, Group I item 8, Group L), both parties registered, buyer provides the same service item (`service_item` in `services_provided`), not personal use → `SST_SHOULD_BE_EXEMPT`, finding basis `b2b`. Before this step, on `group_relief` items only (Group G (a) to (i) and (l)): group relation unclear → HAND_OVER (A11).
+3. Service tax on a category with `b2b_exempt` (Group G except (j) employment and (k) guards, Group J same item, Group I item 8, Group L), both parties registered, buyer provides the same service item (`service_item` in `services_provided`), not personal use → `SST_SHOULD_BE_EXEMPT`, finding basis `b2b`. Before this step, on `group_relief` items only (Group G (a) to (i), (l) and (n)): group relation unclear → HAND_OVER (A11).
 4. Service tax at 8% on logistics, F&B, telecoms or parking → `SST_WRONG_RATE`.
 5. SST charged at the right rate by a registered supplier → `SST_CORRECT`.
 6. No SST on any line and none due → `NO_SST`.

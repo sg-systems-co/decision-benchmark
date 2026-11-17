@@ -17,7 +17,7 @@ The file is drafted by Claude in the planning chat and approved by Sebastian (st
 | `service_6` | 7 (F&B, logistics ×3, telecoms, parking, construction) |
 | `service_8` | 16 (13 Group G, advertising, hotel, vehicle servicing) |
 | B2B exemption (`b2b_exempt`) | 16: Group G except (j) and (k), logistics J1(a) and J1(d), advertising I8, construction L |
-| Group relief (`group_relief`) | 10: the Group G items (a) to (i) |
+| Group relief (`group_relief`) | 11: the Group G items (a) to (i) and (n) |
 | `none` | 1 |
 
 Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one each of the other five).
@@ -33,9 +33,9 @@ Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one e
 ### Rules for the generator (B1)
 
 - **B2B exemption.** A company's `services_provided` lists First Schedule items (`service_item` values such as `G(h)`, `J1(a)`, `I8`, `L`), not categories. A line is exempt when its category has `b2b_exempt: true`, both parties are SST-registered, the buyer provides the same item and the line is not for personal use. Different categories can share an item: `it_services` and `software_development` are both `G(h)`, `logistics_haulage` and `warehousing` both `J1(a)`. Courier is `J1(d)`, a different item from `J1(a)`.
-- **Group relief** applies only to categories with `group_relief: true` (Group G items (a) to (i) and (l), Service Tax Policy 8/2020, amendment no. 1). Set `group_relation: unclear` only on invoices for those; for any other category the relation doesn't matter and the case is not a HAND_OVER.
+- **Group relief** applies only to categories with `group_relief: true` (Group G items (a) to (i), (l) and (n); see `GROUP_RELIEF_ITEMS`). Set `group_relation: unclear` only on invoices for those; for any other category the relation doesn't matter and the case is not a HAND_OVER.
 - **Construction:** contracts signed on or after 1 July 2025, commercial premises only.
-- **Courier:** a courier licensed under the Postal Services Act 2012 (item `J1(d)`), parcels up to 30 kg each. **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
+- **Courier:** a courier licensed under the Postal Services Act 2012 (item `J1(d)`). **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
 - **Singapore motor cars and staff medical:** `vehicle_servicing`, `company_car_tyres_parts` and `company_car_leasing` need the line fact `vehicle_is_motor_car`; `staff_medical` needs `staff_medical_obligatory`, true when any IRAS exception applies. Where the documents don't say, the case is HAND_OVER.
 - **`group_medical_insurance`** needs the line fact `insurance_obligatory`: true when the cover is obligatory under the Work Injury Compensation Act or a collective agreement (claimable), false when it is not (disallowed). Where the documents don't say, the case is HAND_OVER.
 - **`parking` in Singapore** is delivery-vehicle parking only.
@@ -71,7 +71,7 @@ categories:
 
 | Country | Required | Keys |
 | --- | --- | --- |
-| `MY` (`MyTaxProfile`) | yes, for every category used in MY | `tax_class`: `sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `none` (not taxable under SST in v0.9). `schedule_c_eligible` (goods under sales tax only). `service_item`: the First Schedule item, e.g. `G(a)`, `J1(a)`, `I8`, `L`; required for `service_6` and `service_8`, null otherwise. `b2b_exempt`: the item is in a B2B scheme (Group G except (j) and (k), Group J same item, Group I item 8, Group L). `group_relief`: Group G items (a) to (i) and (l) only. The flags default to `false`. |
+| `MY` (`MyTaxProfile`) | yes, for every category used in MY | `tax_class`: `sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `none` (not taxable under SST in v0.9). `schedule_c_eligible` (goods under sales tax only). `service_item`: the First Schedule item, e.g. `G(a)`, `J1(a)`, `I8`, `L`; required for `service_6` and `service_8`, null otherwise. `b2b_exempt`: the item is in a B2B scheme (Group G except (j) and (k), Group J same item, Group I item 8, Group L). `group_relief`: Group G items (a) to (i), (l) and (n) only. The flags default to `false`. |
 | `SG` (`SgTaxProfile`) | no; omit when nothing applies | `disallowed`: Regulation 26/27 class: `club_subscription`, `staff_medical`, `motor_car`, `family_benefit`, `medical_accident_insurance`, `betting`, or null (the default). |
 
 ### Checks the loader enforces

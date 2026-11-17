@@ -35,7 +35,7 @@ class MyTaxProfile(TaxProfile):
     Group I item 8, Group L): exempt when both parties are registered, the buyer provides the same
     item, and the service is not for personal use."""
     group_relief: bool = False
-    """Group G items (a) to (i) and (l) only (Service Tax Policy 8/2020 and amendment no. 1)."""
+    """Group G items (a) to (i), (l) and (n) only (constants.GROUP_RELIEF_ITEMS)."""
 
 
 class MyInvoisLine(Model):

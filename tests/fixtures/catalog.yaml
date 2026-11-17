@@ -64,7 +64,7 @@ categories:
   label: Maintenance and repair of plant
   countries: [MY]
   tax:
-    MY: {tax_class: service_8, service_item: G(n), b2b_exempt: true, group_relief: false}
+    MY: {tax_class: service_8, service_item: G(n), b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
 - category: recruitment_services

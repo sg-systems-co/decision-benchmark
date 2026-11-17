@@ -548,7 +548,7 @@ categories:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Courier%20Services.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J item 1(d): express delivery by a courier licensed under section 10 of the Postal Services Act 2012 (logistics guide, para 8 and B2B para IV(iii)); the generator uses licensed couriers only. B2B exemption for 1(d) to 1(d) only: a buyer providing 1(a) logistics does not qualify (guide example 52). Parcels up to 30 kg each."
+  note: "Group J item 1(d): express delivery by a courier licensed under section 10 of the Postal Services Act 2012 (logistics guide, para 8 and B2B para IV(iii)); the generator uses licensed couriers only. B2B exemption for 1(d) to 1(d) only: a buyer providing 1(a) logistics does not qualify (guide example 52)."
 
 - category: warehousing
   kind: service
@@ -769,12 +769,12 @@ categories:
   label: "Machinery and equipment maintenance and repair"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, service_item: "G(n)", b2b_exempt: true, group_relief: false}
+    MY: {tax_class: service_8, service_item: "G(n)", b2b_exempt: true, group_relief: true}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Group G item (n), taxable since 26 Feb 2024. Not covered by group relief (Service Tax Policy 8/2020 covers items (a) to (i) and (l)). The maintenance guide (para 32) confirms the Group G B2B exemption covers it, so an unclear group relation does not matter here."
+  note: "Group G item (n), taxable since 26 Feb 2024. Covered by group relief since 1 May 2024 (Service Tax (Amendment) (No. 2) Regulations 2024 [P.U. (A) 354/2024], First Schedule paras 3 and 3A). The maintenance guide (para 32) confirms the Group G B2B exemption covers it."
 
 - category: advertising
   kind: service

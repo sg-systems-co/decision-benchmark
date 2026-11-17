@@ -1,5 +1,5 @@
 """A11: the Malaysian B2B exemption by First Schedule service item, group relief for Group G
-items (a) to (i) and (l) only, and the Singapore medical and accident insurance exception.
+items (a) to (i), (l) and (n) only, and the Singapore medical and accident insurance exception.
 
 Malaysian B2B conditions in every scheme: supplier and buyer are both SST-registered, the buyer
 itself provides a taxable service under the same item, and the service is not for personal use.
@@ -81,14 +81,17 @@ def test_employment_and_guards_are_never_exempt(category, item):
     _correct(answer(*_my(category, "6160-000" if item == "G(j)" else "6170-000", "8", provides=[item])))
 
 
-def test_unclear_group_relation_on_maintenance_is_not_a_hand_over():
-    # G(n) is outside group relief, so the group relation is irrelevant.
-    r, c = _my("maintenance_repair", "6160-000", "8")
-    tax_facts(r["suppliers"][0], group_relation="unclear")
-    _correct(answer(r, c))
-    r, c = _my("maintenance_repair", "6160-000", "8", provides=["G(n)"])
-    tax_facts(r["suppliers"][0], group_relation="unclear")
-    _exempt(answer(r, c))
+def test_unclear_group_relation_on_maintenance_is_a_hand_over():
+    # G(n) is in group relief since 1 May 2024 (P.U. (A) 354/2024, First Schedule paras 3 and 3A).
+    for provides in ([], ["G(n)"]):
+        r, c = _my("maintenance_repair", "6160-000", "8", provides=provides)
+        tax_facts(r["suppliers"][0], group_relation="unclear")
+        a = answer(r, c)
+        assert a.decision is D.HAND_OVER and a.tax_treatment is None
+
+
+def test_maintenance_b2b_exemption():
+    _exempt(answer(*_my("maintenance_repair", "6160-000", "8", provides=["G(n)"])))
 
 
 def test_unclear_group_relation_on_g_a_is_still_a_hand_over():
