@@ -68,7 +68,7 @@ All cases are synthetic. The companies, suppliers and people are fictional. Answ
 
 Each split uses its own fictional companies and suppliers. Half the cases are Malaysian, half Singaporean.
 
-**Hard cases.** At least half of every split, including the public test split, are hard cases: the invoice is a scan or PDF only, two documents conflict on a fact a rule reads, or a fact a rule reads is missing. The reason: the engine writes the answer keys, so on clean cases with a structured record a program that feeds the record to a rules engine scores near-perfect. Hard cases make the score measure reading and judgement, not only rule lookup.
+**Hard cases.** At least half of every split, including the public test split, are hard cases: the invoice is a scan or PDF only (at most a third of the hard cases), two documents conflict on a fact a rule reads, or a fact a rule reads is missing. The reason: the engine writes the answer keys, so on clean cases with a structured record a program that feeds the record to a rules engine scores near-perfect. Hard cases make the score measure reading and judgement, not only rule lookup.
 
 ## Tracks, lanes and configs
 
@@ -96,7 +96,7 @@ Each case belongs to one fictional buying company. All cases of a company share 
 
 Documents are mostly in English. Some line descriptions and emails are in Bahasa Malaysia or Chinese. A few Malaysian invoices from Thai suppliers carry Thai text.
 
-Each case comes as a structured record and as a rendered PDF or image, except the scan- or PDF-only cases. Say which input you used. Results are reported separately for each.
+Each case comes as a structured record and as a rendered PDF or image, except the scan- or PDF-only cases, which are at most a third of the hard cases. Say which input you used. Results are reported separately for each.
 
 **Case mix:** 40% clean (should be approved), 10% tax problems, 10% price mismatch, 8% quantity mismatch, 8% invalid invoice or missing mandatory fields, 7% duplicates (including near-duplicates), 5% not received, 5% no PO or above the approval limit, 4% changed bank details, 3% ambiguous (handing over is right). About 15% of cases have two problems at once. The decision then follows a fixed priority: fraud, duplicate, invalid invoice, mismatch, routing.
 

@@ -47,7 +47,7 @@ Each case belongs to one fictional buying company. A company's records are share
 
 - **Document ids.** Every case document has an id: the invoice id, a PO number, a receipt id, an email message id, a supplier or company record id, a contract id, or a policy-pack file name. The evidence references in `facts` use them.
 - **Languages:** documents are mostly English. Some line descriptions and emails are in Bahasa Malaysia or Chinese, and a few Malaysian invoices from Thai suppliers carry Thai text.
-- **Modality:** both the structured record and the rendered PDF are shipped where a case has both. Entrants say which they used, and results are reported separately for each. Cases whose invoice is a scan, photo or PDF only are the same in both modes.
+- **Modality:** every case ships both the structured record and the rendered PDF, as v0.9 decided, except the scan-only cases (see "Hard-case share"), whose invoice is a scan, photo or PDF only and is the same in both modes. Entrants say which they used, and results are reported separately for each.
 
 ## Decisions
 
@@ -204,6 +204,8 @@ About 15% of cases carry two problems at once. The decision follows the fixed pr
 - **conflicting documents:** two case documents disagree on a fact a rule reads (for example the invoice description and the PO, or an email that corrects the service period);
 - **missing information:** a fact a rule reads is in no case document (the answer is then HAND\_OVER, or in the agent track the fact must be looked up or asked for).
 
+**Limit on scan-only cases.** In each split, scan-only cases are at most one third of the hard cases. So at least two thirds of the hard cases also ship a structured record, and the structured-format score keeps enough hard cases. Every other case ships both formats, as v0.9 decided.
+
 The hard-case share is independent of the exception mix: a clean case can be a scan. Train and hidden splits have the same share.
 
 Why: the engine writes the answer keys. On a clean case with a structured record, a program that maps the record's fields to the engine's inputs reproduces the key, so it scores near-perfect. A test made of such cases would measure rule lookup only. Hard cases make the score measure reading and judgement as well.
@@ -326,7 +328,7 @@ Each split uses its own fictional companies and suppliers, so nothing leaks betw
 3. **`base_amount` of `WITHHOLD_TAX` is not compared** in buyer-action accuracy, as asked; the field is still required.
 4. **Facts are line facts only.** Party facts stay out of `facts` in v0.10.
 5. **Evidence location is not scored**; only that a cited document exists in the case.
-6. **"Scans/PDFs" for the hard-case share** means cases whose invoice comes with no structured record. This narrows the v0.9 decision to ship both formats for every case.
+6. **"Scans/PDFs" for the hard-case share** means cases whose invoice comes with no structured record. Accepted (review of PR #10) with a limit: scan-only cases are at most one third of the hard cases in each split; every other case ships both formats.
 7. **Extra columns use the decided cases**, like v0.9's tax and GL accuracy; the facts score uses all cases.
 8. **Line numbers run 1–200**, so the unique-line rule can be written in plain JSON Schema.
 9. **An invalid Singapore tax invoice (SG-2)** is a fact about the whole document. Every line on which GST is charged takes `NOT_CLAIMABLE_INVALID_INVOICE` unless a worse code applies to it; lines with no GST keep `NO_GST`.
