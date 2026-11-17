@@ -2733,10 +2733,10 @@ sources:
   country: my
   official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
   retrieved: '2026-11-17'
-  sha256: null
-  bytes: null
-  content_type: null
-  archive_path: null
+  sha256: 4b2e47d10b71e86b0c2f62eff25ffa5e835b8920f346e1816f90b6f5969cdb67
+  bytes: 247755
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/stp-2-2025-amendment-5/2026-11-17/STP 2-2025 (Rental or Leasing) (Amnd No.5) 220726.pdf
   wayback_url: null
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
@@ -2749,12 +2749,7 @@ sources:
   - docs/tax-rules-v0.10.md#MS-6
   - docs/tax-rules-v0.10.md#P-8
   published: '2026-07-22'
-  fetch_error: HTTP 403
-  attempts:
-  - 'http https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf: HTTP 403'
-  - 'retry https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf: HTTP 403'
-  - 'browser https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf: HTTP 403'
-  note: RMCD's English file returns HTTP 403 to every client (plain, retry, browser). The Malay text of the same amendment is archived as dcp-2-2025-pindaan-5.
+  note: Downloaded from the official URL on 2026-11-17 at 18:32 +04:00 (HTTP 200, application/pdf, 247,755 bytes) during the v0.10 rule research; the same URL returned HTTP 403 from about 19:30 that day while RMCD's policy page still linked it. The archived file is that 18:32 download. The Malay text of the same amendment is archived as dcp-2-2025-pindaan-5.
 - id: dcp-2-2025-pindaan-5
   title: Dasar Cukai Perkhidmatan Bil. 2/2025 (Pindaan No. 5) — Malay text of Service Tax Policy No. 2/2025 (Amendment No. 5)
   authority: RMCD
