@@ -56,3 +56,10 @@ def test_actions_pinned_by_sha():
             if "uses:" in line:
                 ref = line.split("uses:")[1].split("#")[0].strip()
                 assert len(ref.split("@")[1]) == 40, line
+
+
+def test_only_the_pr_dry_run_allows_an_unreleased_card():
+    jobs = load("hf-publish.yml")["jobs"]
+    dry = [s.get("run", "") for s in jobs["dry-run"]["steps"]]
+    assert any("--allow-unreleased-card" in r for r in dry)
+    assert "--allow-unreleased-card" not in yaml.safe_dump(jobs["publish"])

@@ -4,6 +4,10 @@
   publish.py --tag v0.9.0-alpha.1 --dry-run   checks only, no network calls
   publish.py --tag v0.9.0-alpha.1             uploads (needs HF_TOKEN in the environment)
   publish.py --print-changelog-tag            prints the newest tag in CHANGELOG.md
+  publish.py --tag T --dry-run --allow-unreleased-card
+                                              pull-request dry run between releases: the card
+                                              may also carry the spec version that CHANGELOG's
+                                              [Unreleased] section names ("Spec: vX.Y ...")
 
 Real runs do the Hugging Face setup themselves:
   1. check the token (whoami)
@@ -76,8 +80,20 @@ def newest_changelog_tag(root: Path = REPO_ROOT) -> str:
     return m.group(1)
 
 
-def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT) -> list[str]:
-    """Offline checks. Returns the staged file list. Raises ReleaseError."""
+def unreleased_spec_version(root: Path = REPO_ROOT) -> str | None:
+    """The spec version named by CHANGELOG's [Unreleased] section ("Spec: vX.Y ..."), if any."""
+    changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+    m = re.search(r"^## \[Unreleased\]\s*\n(.*?)(?=^## \[)", changelog, re.MULTILINE | re.DOTALL)
+    spec = re.search(r"^Spec: (v\d+\.\d+)\b", m.group(1), re.MULTILINE) if m else None
+    return spec.group(1) if spec else None
+
+
+def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT, allow_unreleased_card: bool = False) -> list[str]:
+    """Offline checks. Returns the staged file list. Raises ReleaseError.
+
+    allow_unreleased_card (pull-request dry runs only): between releases the card in the repo
+    describes the next spec version, so its label may also be the [Unreleased] spec version.
+    Every other check stays the same. A real publish never sets it."""
     m = TAG_RE.match(tag)
     if not m:
         raise ReleaseError(f"tag {tag!r} is not of the form vX.Y.Z or vX.Y.Z-suffix")
@@ -88,8 +104,11 @@ def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT) -> list[str]:
     if not staged.is_dir():
         raise ReleaseError(f"staged folder {staged} does not exist (run release/stage.py first)")
     card = (staged / "README.md").read_text(encoding="utf-8") if (staged / "README.md").exists() else ""
-    if f"**Version {spec_version} —" not in card:
-        raise ReleaseError(f"dataset card has no version label for {spec_version}")
+    labels = [spec_version]
+    if allow_unreleased_card and (nxt := unreleased_spec_version(root)) and nxt != spec_version:
+        labels.append(nxt)
+    if not any(f"**Version {v} —" in card for v in labels):
+        raise ReleaseError(f"dataset card has no version label for {' or '.join(labels)}")
     if not (staged / "docs" / f"spec-{spec_version}.md").exists():
         raise ReleaseError(f"staged folder has no docs/spec-{spec_version}.md")
     findings = check_public.check(staged, "staged")
@@ -190,6 +209,8 @@ def main(argv: list[str] | None = None, api_factory: Callable = _default_api_fac
     parser.add_argument("--staged", type=Path, default=stage.DEFAULT_OUT)
     parser.add_argument("--dry-run", action="store_true", help="run all offline checks, make no network calls")
     parser.add_argument("--print-changelog-tag", action="store_true")
+    parser.add_argument("--allow-unreleased-card", action="store_true",
+                        help="dry runs only: the card may carry CHANGELOG's [Unreleased] spec version")
     args = parser.parse_args(argv)
     try:
         if args.print_changelog_tag:
@@ -197,8 +218,10 @@ def main(argv: list[str] | None = None, api_factory: Callable = _default_api_fac
             return 0
         if not args.tag:
             parser.error("--tag is required")
+        if args.allow_unreleased_card and not args.dry_run:
+            parser.error("--allow-unreleased-card only works with --dry-run")
         check_target(REPO_ID)
-        files = verify_release(args.tag, args.staged.resolve())
+        files = verify_release(args.tag, args.staged.resolve(), allow_unreleased_card=args.allow_unreleased_card)
         print(f"publish: release {args.tag} -> https://huggingface.co/datasets/{REPO_ID}")
         print(f"publish: collection '{COLLECTION_TITLE}' in {HF_NAMESPACE}")
         print(f"publish: {len(files)} files:")

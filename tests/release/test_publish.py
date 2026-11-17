@@ -243,3 +243,32 @@ def test_move_failure_stops_before_any_write(staged, token_env, capsys):
     code, out = run(staged, capsys, api=api)
     assert code == 1 and "HF_TOKEN lacks the rights to move" in out
     assert api.written == []
+
+
+def _unlabelled_stage(staged, label):
+    card = staged / "README.md"
+    card.write_text(re.sub(r"\*\*Version v\d+\.\d+ —", f"**Version {label} —", card.read_text(encoding="utf-8"), count=1),
+                    encoding="utf-8")
+
+
+def test_unreleased_spec_version_is_read_from_the_changelog():
+    assert publish.unreleased_spec_version() == "v0.10"
+
+
+def test_unreleased_card_passes_the_pr_dry_run_only(staged, capsys):
+    _unlabelled_stage(staged, "v0.10")
+    code, out = run(staged, capsys, extra=["--dry-run"])
+    assert code == 1 and "no version label for v0.9" in out
+    code, out = run(staged, capsys, extra=["--dry-run", "--allow-unreleased-card"])
+    assert code == 0 and "dry run, nothing uploaded" in out
+
+
+def test_unreleased_card_flag_needs_dry_run(staged, token_env, capsys):
+    with pytest.raises(SystemExit):
+        run(staged, capsys, api=FakeApi(), extra=["--allow-unreleased-card"])
+
+
+def test_any_other_card_label_still_fails(staged, capsys):
+    _unlabelled_stage(staged, "v0.11")
+    code, out = run(staged, capsys, extra=["--dry-run", "--allow-unreleased-card"])
+    assert code == 1 and "no version label for v0.9 or v0.10" in out
