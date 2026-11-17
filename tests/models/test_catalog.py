@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from decision_benchmark.task_sets.ap_invoices.countries.my.constants import GROUP_RELIEF_ITEMS
 from decision_benchmark.task_sets.ap_invoices.models import Catalog, load_catalog
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "catalog.yaml"
@@ -40,9 +41,19 @@ def test_release_catalog_loads():
         (dict(my={}), "tax_class"),
         (dict(kind="goods"), "service-tax class"),
         (dict(my={"tax_class": "sales_5"}), "sales-tax class"),
-        (dict(my={"tax_class": "service_6", "group_g": True}), "Group G"),
-        (dict(my={"tax_class": "service_8", "group_g_excluded": True}), "needs group_g"),
-        (dict(my={"tax_class": "service_8", "schedule_c_eligible": True}), "Schedule C"),
+        (dict(my={"tax_class": "service_8"}), "needs its service_item"),
+        (dict(my={"tax_class": "none", "b2b_exempt": True}), "need a service_item"),
+        (dict(my={"tax_class": "none", "group_relief": True}), "need a service_item"),
+        (dict(my={"tax_class": "service_8", "service_item": "I8", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(k)", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(j)", "group_relief": True}), "only for Group G"),
+        (dict(my={"tax_class": "service_6", "service_item": "J1(a)", "group_relief": True}), "only for Group G"),
+        (dict(kind="goods", my={"tax_class": "sales_10", "service_item": "G(a)"}), "only for service_6 and service_8"),
+        (dict(kind="goods", my={"tax_class": "none", "service_item": "G(a)"}), "only for service_6 and service_8"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(j)", "b2b_exempt": True}), "no B2B exemption"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(k)", "b2b_exempt": True}), "no B2B exemption"),
+        (dict(my={"tax_class": "service_8", "service_item": "Group G"}), "pattern"),
+        (dict(my={"tax_class": "service_8", "service_item": "G(a)", "schedule_c_eligible": True}), "Schedule C"),
         (dict(my={"tax_class": "service_8", "disallowed": "betting"}), "Extra inputs"),
         (dict(tax={"MY": {"tax_class": "service_8"}, "SG": {"disallowed": "betting"}}), "where the category is not used"),
         (dict(countries=["TH"], tax={}), "no country pack"),
@@ -63,8 +74,13 @@ def test_release_catalog_covers_every_rule_sheet_situation():
     sg = [c.tax["SG"].disallowed for c in cat.categories if "SG" in c.tax]
     six = {c.category for c in my if c.tax["MY"].tax_class == "service_6"}
     assert {"catering", "logistics_haulage", "telecoms", "parking"} <= six
-    assert any(c.tax["MY"].group_g and not c.tax["MY"].group_g_excluded for c in my)
-    assert sum(c.tax["MY"].group_g_excluded for c in my) >= 2  # employment and guards
+    services = [c.tax["MY"] for c in my if c.tax["MY"].tax_class.startswith("service_")]
+    b2b_groups = {p.service_item[0] for p in services if p.b2b_exempt}
+    assert b2b_groups == {"G", "J", "I", "L"}  # the four B2B schemes
+    assert {p.service_item for p in services if p.b2b_exempt and p.service_item.startswith("I")} == {"I8"}
+    assert {"G(j)", "G(k)"} <= {p.service_item for p in services if not p.b2b_exempt}  # employment and guards
+    assert any(p.group_relief for p in services)
+    assert all(p.service_item in GROUP_RELIEF_ITEMS for p in services if p.group_relief)
     assert any(c.tax["MY"].schedule_c_eligible for c in my)
     assert set(sg) == {"club_subscription", "staff_medical", "motor_car", "family_benefit",
                        "medical_accident_insurance", "betting"}

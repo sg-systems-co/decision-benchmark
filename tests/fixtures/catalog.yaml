@@ -8,7 +8,7 @@ categories:
   label: IT support and consultancy
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: G(h), b2b_exempt: true, group_relief: true}
   gl_role: it_services
   sources: ['https://mysst.customs.gov.my/faq-services-tax/']
 - category: management_services
@@ -16,7 +16,7 @@ categories:
   label: Management services
   countries: [MY]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: G(i), b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
 - category: guard_services
@@ -24,7 +24,7 @@ categories:
   label: Security guard services
   countries: [MY]
   tax:
-    MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
+    MY: {tax_class: service_8, service_item: G(k), b2b_exempt: false, group_relief: false}
   gl_role: security
   sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
 - category: logistics_haulage
@@ -32,7 +32,7 @@ categories:
   label: Lorry haulage
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: J1(a), b2b_exempt: true}
   gl_role: freight_inward
   sources: ['https://mysst.customs.gov.my/faq-services-tax/']
 - category: telecoms
@@ -40,9 +40,73 @@ categories:
   label: Telecommunication services
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: I2}
   gl_role: telecoms
   sources: ['https://mysst.customs.gov.my/faq-services-tax/']
+- category: legal_services
+  kind: service
+  label: Legal services
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: G(a), b2b_exempt: true, group_relief: true}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+- category: software_development
+  kind: service
+  label: Custom software development
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: G(h), b2b_exempt: true, group_relief: true}
+  gl_role: it_services
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+- category: maintenance_repair
+  kind: service
+  label: Maintenance and repair of plant
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: G(n), b2b_exempt: true, group_relief: true}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+- category: recruitment_services
+  kind: service
+  label: Recruitment agency
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: G(j), b2b_exempt: false, group_relief: false}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+- category: courier_services
+  kind: service
+  label: Licensed courier
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_6, service_item: J1(d), b2b_exempt: true}
+  gl_role: freight_inward
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf']
+- category: advertising
+  kind: service
+  label: Advertising
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: I8, b2b_exempt: true}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Advertising%20V4_20220119.pdf']
+- category: construction_works
+  kind: service
+  label: Construction works
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_6, service_item: L, b2b_exempt: true}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDE%20ON%20CONSTRUCTION%20WORK%20SERVICES%20DATED%2017.03.2026%20%5BAMENDMENT%5D%20%5BBI%5D_2.11.26%20(1).pdf']
+- category: group_medical_insurance
+  kind: service
+  label: Group medical and accident insurance for staff
+  countries: [SG]
+  tax:
+    SG: {disallowed: medical_accident_insurance}
+  gl_role: staff_welfare_medical
+  sources: ['https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax']
 - category: test_raw_resin
   kind: goods
   label: Test raw material (sales tax 10% in this fixture)

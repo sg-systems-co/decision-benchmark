@@ -188,8 +188,10 @@ def test_row07_negative_six_percent_is_correct():
 
 def test_row08_positive():
     r, c = _my_with("management_services", "6160-000", rate="8")
-    tax_facts(r["company"], services_provided=["management_services"])
-    _check(answer(r, c), D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
+    tax_facts(r["company"], services_provided=["G(i)"])
+    a = answer(r, c)
+    _check(a, D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
+    assert [f.evidence for f in a.findings if f.code == "TAX_SHOULD_BE_EXEMPT"] == [{"line": 1, "basis": "b2b"}]
 
 
 def test_row08_negative_buyer_does_not_provide_the_service():
@@ -199,13 +201,13 @@ def test_row08_negative_buyer_does_not_provide_the_service():
 
 def test_row08_negative_guard_services_are_excluded():
     r, c = _my_with("guard_services", "6170-000", rate="8")
-    tax_facts(r["company"], services_provided=["guard_services"])
+    tax_facts(r["company"], services_provided=["G(k)"])
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 
 
 def test_row08_negative_buyer_not_registered():
     r, c = _my_with("management_services", "6160-000", rate="8")
-    tax_facts(r["company"], services_provided=["management_services"])
+    tax_facts(r["company"], services_provided=["G(i)"])
     r["company"]["tax_registrations"] = [x for x in r["company"]["tax_registrations"] if x["scheme"] != "MY_SST"]
     ein(c)["buyer_sst_no"] = None
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)

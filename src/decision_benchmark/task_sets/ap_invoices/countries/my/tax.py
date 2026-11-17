@@ -76,8 +76,9 @@ def assess(
                 codes.append(T.SST_SUPPLIER_NOT_REGISTERED)
                 findings.append(finding(Code.SUPPLIER_NOT_TAX_REGISTERED, line=n, tax="service"))
                 continue
-            if profile.group_g and not profile.group_g_excluded:
-                # Group relief: every value of group_relation is handled here explicitly.
+            if profile.group_relief:
+                # Group relief (Group G items (a) to (i), (l) and (n) only). For other items the group
+                # relation is irrelevant. Every value of group_relation is handled here explicitly.
                 # A clear "same group" value must not be added without its rule (Service Tax
                 # Policy 8/2020) and tests in the same PR; test_group_relation_values_are_all_handled
                 # fails if the Literal gains a value that is not in GROUP_RELATIONS_HANDLED.
@@ -88,15 +89,17 @@ def assess(
                     continue
                 if relation != "unrelated":
                     raise UnsupportedCase(f"group relation {relation!r} has no rule in v0.9")
-                # 3. B2B exemption for Group G services between registered persons.
+            if profile.b2b_exempt:
+                # 3. B2B exemption: both registered, the buyer provides a taxable service under the
+                # same First Schedule item, not for personal use.
                 buyer_registered = company.registration("MY_SST", on=day) is not None
                 if buyer_registered and not line.facts.get("personal_use", False):
                     if line.facts.get("same_service_unclear", False):
-                        unsettled.append(Unsettled("group_g_same_service_unclear", tax_related=True))
+                        unsettled.append(Unsettled("b2b_same_service_unclear", tax_related=True))
                         continue
-                    if cat.category in company_facts.services_provided:
+                    if profile.service_item in company_facts.services_provided:
                         codes.append(T.SST_SHOULD_BE_EXEMPT)
-                        findings.append(finding(Code.TAX_SHOULD_BE_EXEMPT, line=n, basis="group_g_b2b"))
+                        findings.append(finding(Code.TAX_SHOULD_BE_EXEMPT, line=n, basis="b2b"))
                         continue
         elif tax_type == TAX_TYPE_SALES:
             if not cls.startswith("sales_") or cls == "sales_exempt":

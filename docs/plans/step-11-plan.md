@@ -160,12 +160,12 @@ A pack is a folder `countries/<cc>/` with one `CountryPack` subclass (`__init__.
 | --- | --- | --- |
 | Currency | `MYR` | `SGD` |
 | Tax registration schemes and types | `MY_TIN` (`tin`), `MY_SST` (`sales`, `service`) | `SG_GST` (`local`, `ovr`) |
-| Exemption-certificate kinds | `schedule_c`, `group_g_b2b_declaration` | none |
+| Exemption-certificate kinds | `schedule_c`, `b2b_declaration` | none |
 | Tax-treatment codes (StrEnum) | `SST_CORRECT`, `SST_WRONG_RATE`, `SST_SHOULD_BE_EXEMPT`, `SST_SUPPLIER_NOT_REGISTERED`, `NO_SST` | `CLAIMABLE`, `NOT_CLAIMABLE_DISALLOWED`, `NOT_CLAIMABLE_INVALID_INVOICE`, `GST_WRONGLY_CHARGED`, `NO_GST` |
-| Category tax profile | `MyTaxProfile`: `tax_class`, `schedule_c_eligible`, `group_g`, `group_g_excluded` (required) | `SgTaxProfile`: `disallowed` (optional) |
+| Category tax profile | `MyTaxProfile` (required): `tax_class`, `schedule_c_eligible`, `service_item` (First Schedule item such as `G(h)`, `J1(a)`, `I8`, `L`; set exactly for `service_6`/`service_8`), `b2b_exempt` (item is in a B2B scheme: Group G except (j) and (k), Group J same item, Group I item 8, Group L), `group_relief` (Group G items (a) to (i), (l) and (n) only, `GROUP_RELIEF_ITEMS`) | `SgTaxProfile`: `disallowed` (optional) |
 | E-invoice block | `MyInvois`: MyInvois header fields, `tax_total_by_type`, per-line `classification_code`, `tax_type`, `tax_exemption_reason` | `PintSg`: PINT-SG fields, `document_title`, `supplier_gst_no`, SGD amounts, per-line `tax_category` |
-| Party tax facts | company: `is_registered_manufacturer`, `services_provided`, `group_companies`; supplier: `is_manufacturer`, `turnover_band`, `service_categories`, `msic_code`, `group_relation` (internal) | none |
-| Line facts | `same_service_unclear`, `personal_use` (bool, default false) | `vehicle_is_motor_car`, `staff_medical_obligatory` (bool or null, default null) |
+| Party tax facts | company: `is_registered_manufacturer`, `services_provided` (First Schedule service items, not categories), `group_companies`; supplier: `is_manufacturer`, `turnover_band`, `service_categories`, `msic_code`, `group_relation` (internal) | none |
+| Line facts | `same_service_unclear`, `personal_use` (bool, default false) | `vehicle_is_motor_car`, `staff_medical_obligatory`, `insurance_obligatory` (bool or null, default null) |
 | Validity check | MyInvois mandatory fields | none on its own: tax-invoice validity only matters for an input-tax claim, so the tax assessment reports it |
 | Tax assessment | per line, invoice code by precedence (Q4) | registration, OVR, tax invoice, Regulations 26/27 |
 | Constants with sources | `countries/my/constants.py` | `countries/sg/constants.py` |
@@ -184,7 +184,7 @@ Pydantic v2 models, `extra="forbid"`, frozen. Money is `Decimal`, serialised as 
 
 - `company_id` (`my-c-007`), `split`, `country` (a country with a pack), `legal_name`, `trading_name`, `registration_no` (MY SSM number / SG UEN), `address`, `base_currency` (the pack's currency), `industry`
 - `tax_registrations`: list of `{scheme, number, type, valid_from, valid_to}`, each scheme and type checked against its country pack (§3.2). MY needs `MY_TIN`; every SG company holds an `SG_GST` registration with `valid_from` (Q5).
-- `tax_facts`: the country pack's company-facts block (MY: `is_registered_manufacturer`, `services_provided` for the Group G B2B test, `group_companies`), or null.
+- `tax_facts`: the country pack's company-facts block (MY: `is_registered_manufacturer`, `services_provided`: the First Schedule service items the company provides, for the B2B exemption test, `group_companies`), or null.
 - `people`: list of Person
 - `policy_pack`: PolicyPack
 
@@ -196,7 +196,7 @@ Pydantic v2 models, `extra="forbid"`, frozen. Money is `Decimal`, serialised as 
 - `approval_matrix`: list of `{approval_role, limit, currency}` (currency: three-letter code)
 - `non_po_policy`: `allowed_categories` (for example utilities, telecoms), `max_amount`
 - `chart_of_accounts`: list of `{code, name, type (expense/asset/liability/tax), description, active}`
-- `exemption_certificates`: list of `{kind, number, valid_from, valid_to, categories}`; the company's pack lists the allowed kinds (MY: `schedule_c`, `group_g_b2b_declaration`)
+- `exemption_certificates`: list of `{kind, number, valid_from, valid_to, categories}`; the company's pack lists the allowed kinds (MY: `schedule_c`, `b2b_declaration`)
 - The policy folder shows the company's `tax_registrations` (A10 dropped the separate `tax_registration` copy with its untyped numbers map)
 - `price_change_rule`: "price changes count only through an approved PO amendment in the ERP" (flag + text)
 - `bank_change_rule`: "supplier bank changes count only through the verified change process in the supplier master" (flag + text)
@@ -358,12 +358,12 @@ All checks run on `CaseView`. Each check returns findings with evidence.
 5. Category is on the Regulation 26/27 list (club subscription, staff medical not obligatory, motor car costs, family benefits, medical and accident insurance, betting) → `NOT_CLAIMABLE_DISALLOWED`.
 6. Otherwise → `CLAIMABLE`.
 
-Vehicle cost where the documents don't say whether the vehicle is a motor car under Regulation 25(1), or staff medical where it's unclear whether WICA or a collective agreement makes it obligatory → no tax code; case is HAND_OVER by construction.
+Vehicle cost where the documents don't say whether the vehicle is a motor car under Regulation 25(1), or staff medical or medical/accident insurance where it's unclear whether WICA or a collective agreement makes it obligatory → no tax code; case is HAND_OVER by construction.
 
 **Tax, MY (`tax_my.py`), per line, then combined:**
 1. Service tax charged by a supplier without SST registration → `SST_SUPPLIER_NOT_REGISTERED`.
 2. Sales tax on a Schedule C category, buyer holds a valid Schedule C certificate → `SST_SHOULD_BE_EXEMPT`.
-3. Service tax on a Group G service, both parties registered, buyer provides the same service, not personal use, not employment or guard services → `SST_SHOULD_BE_EXEMPT`.
+3. Service tax on a category with `b2b_exempt` (Group G except (j) employment and (k) guards, Group J same item, Group I item 8, Group L), both parties registered, buyer provides the same service item (`service_item` in `services_provided`), not personal use → `SST_SHOULD_BE_EXEMPT`, finding basis `b2b`. Before this step, on `group_relief` items only (Group G (a) to (i), (l) and (n)): group relation unclear → HAND_OVER (A11).
 4. Service tax at 8% on logistics, F&B, telecoms or parking → `SST_WRONG_RATE`.
 5. SST charged at the right rate by a registered supplier → `SST_CORRECT`.
 6. No SST on any line and none due → `NO_SST`.
@@ -397,7 +397,7 @@ Every answer key is also validated against `output.schema.json` as if it were a 
 | 5 | SG OVR vendor charges registered buyer | `tax_sg` step 2 | `sg_ovr_charged` |
 | 6 | SG club, staff medical, motor car, family benefit → APPROVE, NOT_CLAIMABLE_DISALLOWED | `tax_sg` step 5 | `sg_disallowed_expense` |
 | 7 | MY service tax 8% on logistics, F&B, telecoms, parking | `tax_my` step 4 | `my_service_wrong_rate` |
-| 8 | MY Group G B2B exemption | `tax_my` step 3 | `my_group_g_b2b` |
+| 8 | MY B2B exemption (Groups G, J, I8, L, by service item) | `tax_my` step 3 | `my_b2b_exemption` |
 | 9 | MY Schedule C raw materials | `tax_my` step 2 | `my_schedule_c` |
 | 10 | MY service tax by unregistered supplier | `tax_my` step 1 | `my_supplier_not_registered` |
 | 11 | MY correct rate, registered → SST_CORRECT / APPROVE | `tax_my` step 5 | clean MY |
@@ -520,7 +520,7 @@ Agent-track step 4 expects the variance 5.08% (±0.5) and the price flagged, her
 
 ### 7.1 Catalog (`content/.../catalog/`)
 
-About 60 categories (30 goods, 30 services). Each entry: `category`, `kind` (goods/service), `countries`, MY tax class (`sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `group_g`, `none`), Schedule C eligible (bool), SG Regulation 26/27 class (or none), GL role (the CoA template key), `source` (URL from the rule sheet). Categories whose rate the rule sheet does not settle are left out (Q9, Q10).
+About 60 categories (30 goods, 30 services). Each entry: `category`, `kind` (goods/service), `countries`, MY tax class (`sales_5`, `sales_10`, `sales_exempt`, `service_8`, `service_6`, `none`), Schedule C eligible (bool), service item, B2B exempt and group relief (A11), SG Regulation 26/27 class (or none), GL role (the CoA template key), `source` (URL from the rule sheet). Categories whose rate the rule sheet does not settle are left out (Q9, Q10).
 
 ### 7.2 Hard-case template format (`content/.../hardcases/*.yaml`)
 

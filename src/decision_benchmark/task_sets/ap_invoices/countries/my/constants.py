@@ -16,6 +16,16 @@ GROUP_G_SOURCE = (
     "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
 )
 
+GROUP_RELIEF_ITEMS = ("G(a)", "G(b)", "G(c)", "G(d)", "G(e)", "G(f)", "G(g)", "G(h)", "G(i)", "G(l)", "G(n)")
+"""Group G items covered by group relief: Service Tax Policy 8/2020 and amendment no. 1
+(https://mysst.customs.gov.my/service-tax-policy/); item (n) since 1 May 2024, Service Tax
+(Amendment) Regulations 2024 and Service Tax (Amendment) (No. 2) Regulations 2024
+[P.U. (A) 354/2024], First Schedule paras 3 and 3A."""
+
+NO_B2B_ITEMS = ("G(j)", "G(k)")
+"""Group G items without the B2B exemption: employment services, private agencies (guards).
+RMCD Guide on Management Services, para 24."""
+
 TAX_TYPE_SALES = "01"
 TAX_TYPE_SERVICE = "02"
 

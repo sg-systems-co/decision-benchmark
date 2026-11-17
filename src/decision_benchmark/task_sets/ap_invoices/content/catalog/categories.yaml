@@ -530,48 +530,49 @@ categories:
   label: "Lorry haulage and freight transport"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false}
   gl_role: freight_inward
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J. Logistics has a B2B exemption that v0.9 does not model: the buyer must not provide logistics services. Domestic haulage only (door-to-door, transit and transshipment have their own exemptions)."
+  note: "Group J item 1(a). B2B exemption for the same item only (1(a) to 1(a)): logistics guide, Pengecualian B2B, para I-II. Domestic haulage only (door-to-door, transit and transshipment have their own exemptions)."
 
 - category: courier_services
   kind: service
   label: "Courier and express delivery"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "J1(d)", b2b_exempt: true, group_relief: false}
   gl_role: postage_courier
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Courier%20Services.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J (logistics). Parcels up to 30 kg each (heavier parcels are outside the courier item). Same B2B caveat as logistics_haulage."
+  note: "Group J item 1(d): express delivery by a courier licensed under section 10 of the Postal Services Act 2012 (logistics guide, para 8 and B2B para IV(iii)); the generator uses licensed couriers only. B2B exemption for 1(d) to 1(d) only: a buyer providing 1(a) logistics does not qualify (guide example 52)."
 
 - category: warehousing
   kind: service
   label: "Warehousing and storage"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false}
   gl_role: warehousing
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group J (logistics). Same B2B caveat as logistics_haulage."
+  note: "Group J item 1(a): warehousing and warehouse management are listed under 1(a) (logistics guide, B2B para IV(i)). B2B exemption for 1(a) to 1(a) only."
 
 - category: telecoms
   kind: service
   label: "Mobile, fixed-line and broadband services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "I2", b2b_exempt: false, group_relief: false}
   gl_role: telecoms
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Telekomunikasi%2027022024.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
+  note: "Group I item 2 (telecoms guide, para 5). Not in a B2B exemption scheme."
 
 
 - category: parking
@@ -579,19 +580,19 @@ categories:
   label: "Season parking"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "I4", b2b_exempt: false, group_relief: false}
   gl_role: parking
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20RUANG%20LETAK%20KENDERAAN%20V4%204.6.2026.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Singapore cases use it for delivery-vehicle parking only, so the motor-car rule never comes into play."
+  note: "Group I item 4 (parking guide, para 7). Not in a B2B exemption scheme. Singapore cases use it for delivery-vehicle parking only, so the motor-car rule never comes into play."
 
 - category: catering
   kind: service
   label: "Catering for staff meetings and events"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "B", b2b_exempt: false, group_relief: false}
   gl_role: staff_welfare
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Makanan%20%26%20Minuman_V7%2019042024.pdf"
@@ -603,14 +604,14 @@ categories:
   label: "Renovation and construction works on commercial premises"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6}
+    MY: {tax_class: service_6, service_item: "L", b2b_exempt: true, group_relief: false}
   gl_role: building_works
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDE%20ON%20CONSTRUCTION%20WORK%20SERVICES%20DATED%2017.03.2026%20%5BAMENDMENT%5D%20%5BBI%5D_2.11.26%20(1).pdf"
     - "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf"
     - "https://www.mof.gov.my/portal/en/news/press-release/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025"
     - "https://www.mof.gov.my/portal/images/2026/01/05/Siaran-Media-Pemakluman-Dasar-Dikemaskini-Berhubung-Cukai-Jualan-Dan-Cukai-Perkhidmatan-SST.pdf"
-  note: "Group L. Commercial premises only (residential is excluded). Contracts signed before 1 July 2025 can be exempt to 30 June 2027, so the generator uses contracts signed after that date. Construction also has a B2B exemption v0.9 does not model: the buyer must not provide construction works."
+  note: "Group L. Commercial premises only (residential is excluded). Contracts signed before 1 July 2025 can be exempt to 30 June 2027, so the generator uses contracts signed after that date. B2B exemption when the buyer also provides Group L construction works: RMCD Guide on Construction Work Services (17 Mar 2026), para 36."
 
 # ---------------------------------------------------------------- services: 8%, Group G
 
@@ -619,7 +620,7 @@ categories:
   label: "Legal services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(a)", b2b_exempt: true, group_relief: true}
   gl_role: legal_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
@@ -631,7 +632,7 @@ categories:
   label: "Audit, accounting and bookkeeping"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(c)", b2b_exempt: true, group_relief: true}
   gl_role: audit_accounting_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
@@ -643,7 +644,7 @@ categories:
   label: "Engineering consultancy"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(e)", b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
@@ -655,7 +656,7 @@ categories:
   label: "Architectural services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(f)", b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
@@ -667,7 +668,7 @@ categories:
   label: "Surveying and property valuation"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(d)", b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
@@ -679,7 +680,7 @@ categories:
   label: "IT support and managed IT services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(h)", b2b_exempt: true, group_relief: true}
   gl_role: it_services
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf"
@@ -692,7 +693,7 @@ categories:
   label: "Software development and system integration"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(h)", b2b_exempt: true, group_relief: true}
   gl_role: it_services
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf"
@@ -705,7 +706,7 @@ categories:
   label: "Business and management consultancy"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(g)", b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Perundingan_Latihan_TunjukAjar_290224.pdf"
@@ -718,7 +719,7 @@ categories:
   label: "Staff training and coaching"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(g)", b2b_exempt: true, group_relief: true}
   gl_role: training
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Perundingan_Latihan_TunjukAjar_290224.pdf"
@@ -731,7 +732,7 @@ categories:
   label: "Management services (project and administrative management)"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(i)", b2b_exempt: true, group_relief: true}
   gl_role: management_fees
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
@@ -742,24 +743,24 @@ categories:
   label: "Recruitment and staffing services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
+    MY: {tax_class: service_8, service_item: "G(j)", b2b_exempt: false, group_relief: false}
   gl_role: recruitment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pekerjaan%20V3%2014052024.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Group G item (j). Employment services: no B2B exemption."
+  note: "Group G item (j). Employment services: no B2B exemption (management services guide, para 24)."
 
 - category: security_guards
   kind: service
   label: "Security guard services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true, group_g_excluded: true}
+    MY: {tax_class: service_8, service_item: "G(k)", b2b_exempt: false, group_relief: false}
   gl_role: security
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Group G item (k). Guard services: no B2B exemption."
+  note: "Group G item (k). Guard services: no B2B exemption (management services guide, para 24)."
 
 # ---------------------------------------------------------------- services: 8%, outside the Group G B2B test
 
@@ -768,31 +769,31 @@ categories:
   label: "Machinery and equipment maintenance and repair"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, group_g: true}
+    MY: {tax_class: service_8, service_item: "G(n)", b2b_exempt: true, group_relief: true}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf"
-  note: "Group G item (n), taxable since 26 Feb 2024. Not covered by group relief (Service Tax Policy 8/2020 covers items (a) to (i) and (l)). The maintenance guide (para 32) confirms the Group G B2B exemption covers it."
+  note: "Group G item (n), taxable since 26 Feb 2024. Covered by group relief since 1 May 2024 (Service Tax (Amendment) (No. 2) Regulations 2024 [P.U. (A) 354/2024], First Schedule paras 3 and 3A). The maintenance guide (para 32) confirms the Group G B2B exemption covers it."
 
 - category: advertising
   kind: service
   label: "Advertising and digital advertising"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8}
+    MY: {tax_class: service_8, service_item: "I8", b2b_exempt: true, group_relief: false}
   gl_role: marketing_advertising
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Advertising%20V4_20220119.pdf"
     - "https://mysst.customs.gov.my/faq-services-tax/"
-  note: "Group I item 8, at 8% since 1 March 2024. Advertising has its own B2B exemption that v0.9 does not model: the buyer must not provide advertising services."
+  note: "Group I item 8, at 8% since 1 March 2024. B2B exemption when the buyer also provides Group I item 8 advertising: RMCD Guide on Advertising Services V4, paras 12-14."
 
 - category: hotel_accommodation
   kind: service
   label: "Hotel rooms for business travel"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8}
+    MY: {tax_class: service_8, service_item: "A", b2b_exempt: false, group_relief: false}
   gl_role: travel
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PENGINAPAN%20V4_26022024.pdf"
@@ -804,7 +805,7 @@ categories:
   label: "Vehicle servicing and repair"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8}
+    MY: {tax_class: service_8, service_item: "I5", b2b_exempt: false, group_relief: false}
     SG: {disallowed: motor_car}
   gl_role: motor_vehicle_running
   sources:
@@ -867,7 +868,7 @@ categories:
   gl_role: staff_welfare_medical
   sources:
     - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
-  note: "IRAS allows the claim when the insurance is obligatory under the Work Injury Compensation Act or a collective agreement. The engine does not model that exception yet (fix requested), so until it does the generator only uses this for voluntary cover stated in the documents."
+  note: "Needs the line fact insurance_obligatory: true when the cover is obligatory under the Work Injury Compensation Act or a collective agreement (claimable), false when it is not (disallowed). Unknown: HAND_OVER."
 
 - category: company_car_leasing
   kind: service

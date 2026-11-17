@@ -28,6 +28,7 @@ class SingaporePack(CountryPack):
     line_facts = {
         "vehicle_is_motor_car": LineFact(default=None, nullable=True),
         "staff_medical_obligatory": LineFact(default=None, nullable=True),
+        "insurance_obligatory": LineFact(default=None, nullable=True),
     }
     constants = constants
 
