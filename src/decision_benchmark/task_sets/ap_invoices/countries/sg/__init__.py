@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ...findings import TaxResult
 from ..base import CountryPack
 from . import constants, tax
-from .models import SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
+from .models import SgContractFacts, SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
 
 if TYPE_CHECKING:
     from ...models import Catalog, Company, Finding, Invoice
@@ -24,6 +24,7 @@ class SingaporePack(CountryPack):
     profile_required = False
     einvoice = PintSg
     company_facts = SgCompanyFacts
+    contract_facts = SgContractFacts
     supplier_facts = SgSupplierFacts
     line_facts_model = SgLineFacts
     constants = constants

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ...findings import TaxResult
 from ..base import CountryPack
 from . import constants, tax, validity
-from .models import MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
+from .models import MyContractFacts, MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
 
 if TYPE_CHECKING:
     from ...models import Catalog, Category, Company, Finding, Invoice
@@ -24,6 +24,7 @@ class MalaysiaPack(CountryPack):
     profile_required = True
     einvoice = MyInvois
     company_facts = MyCompanyFacts
+    contract_facts = MyContractFacts
     supplier_facts = MySupplierFacts
     line_facts_model = MyLineFacts
     constants = constants

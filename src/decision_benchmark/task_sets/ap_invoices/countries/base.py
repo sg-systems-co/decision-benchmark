@@ -38,6 +38,7 @@ class CountryPack:
     einvoice: ClassVar[type[CountryBlock]]
     company_facts: ClassVar[type[CountryBlock]]
     supplier_facts: ClassVar[type[CountryBlock]]
+    contract_facts: ClassVar[type[CountryBlock]]
     line_facts_model: ClassVar[type[LineFacts]]
     """The line facts this country's rules read: exactly its schema part's $defs/line_facts."""
     constants: ClassVar[ModuleType]

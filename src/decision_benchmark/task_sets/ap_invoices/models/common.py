@@ -78,6 +78,9 @@ CompanyTaxFacts = Annotated[SerializeAsAny[CountryBlock], _parse_block("company_
 SupplierTaxFacts = Annotated[SerializeAsAny[CountryBlock], _parse_block("supplier_facts")]
 """Tax facts about a supplier that only the buyer country's rules use: the pack's ``supplier_facts`` model."""
 
+ContractTaxFacts = Annotated[SerializeAsAny[CountryBlock], _parse_block("contract_facts")]
+"""Facts about a contract that only one country's rules use: the pack's ``contract_facts`` model."""
+
 
 class TaxProfile(Model):
     """Base of a category's tax profile in one country (the pack's ``tax_profile`` model)."""

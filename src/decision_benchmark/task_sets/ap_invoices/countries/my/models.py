@@ -6,9 +6,9 @@ from datetime import date
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import Field, StringConstraints
+from pydantic import Field, StringConstraints, model_validator
 
-from ...models.common import CountryBlock, Model, Money, TaxProfile, internal
+from ...models.common import CountryBlock, Model, Money, Num, TaxProfile, internal
 from ...models.evidence import LineFact, LineFacts, Share, fact_field
 
 
@@ -67,12 +67,81 @@ class MyInvois(CountryBlock):
     lines: list[MyInvoisLine] = []
 
 
+MyZone = Literal["labuan", "langkawi", "tioman", "pangkor", "free_zone", "licensed_warehouse",
+                 "licensed_manufacturing_warehouse", "jda"]
+"""Designated areas (Labuan, Langkawi, Tioman, Pangkor) and special areas (MS-7, MG-5). None: principal customs area."""
+
+SalesBand = Literal["below_1m", "1m_to_1_5m", "above_1_5m"]
+"""Annual sales declared to LHDN for the latest year of assessment, in RM (K-1)."""
+
+
+class MsmeStatus(Model):
+    """The company as a tenant under the SME rental exemptions (K-1, K-2). None: the records don't show it."""
+
+    mypmk_registered_on: date | None = None
+    """When the company registered and declared MSME status in RMCD's MyPMK system; None: not registered or not shown."""
+    mypmk_status_known: bool = True
+    declared_sales_band: SalesBand | None = None
+    year_of_assessment: int | None = Field(default=None, ge=2000, le=2100)
+    paid_up_capital: Money | None = None
+    group_holding_pct: Num | None = Field(default=None, ge=0, le=100)
+    """If set up by a company in a group: that company's holding, in percent."""
+    ssm_registered_on: date | None = None
+
+
+class Shareholding(Model):
+    holder_id: str = Field(min_length=1)
+    held_id: str = Field(min_length=1)
+    pct: Num = Field(ge=0, le=100)
+    board_control: bool | None = None
+    """Power over the board (counts with a 20-50% holding, First Schedule paras 4-7). None: not shown."""
+    nominee: bool = False
+    """Held as nominee or fiduciary: does not count."""
+
+    @model_validator(mode="after")
+    def _distinct(self) -> Shareholding:
+        if self.holder_id == self.held_id:
+            raise ValueError("a company does not hold itself")
+        return self
+
+
+class GroupStructure(Model):
+    """Shareholdings among the buying company and its group (MS-6, K-6). Company and supplier ids."""
+
+    shareholdings: list[Shareholding] = []
+
+    @model_validator(mode="after")
+    def _unique(self) -> GroupStructure:
+        pairs = [(s.holder_id, s.held_id) for s in self.shareholdings]
+        if len(pairs) != len(set(pairs)):
+            raise ValueError("one shareholding per holder and held company")
+        return self
+
+
+BuyerKind = Literal["aoc_airline", "registered_ship_owner", "government_department", "foreign_company"]
+"""Buyer kinds that P-9 (MRO of aircraft and ships) names."""
+
+
 class MyCompanyFacts(CountryBlock):
     country: Literal["MY"] = "MY"
     is_registered_manufacturer: bool = False
     services_provided: list[ServiceItem] = []
     """First Schedule service items the company itself provides (B2B exemption test), e.g. "G(h)"."""
     group_companies: list[str] = []
+    msme: MsmeStatus | None = None
+    group: GroupStructure | None = None
+    zone: MyZone | None = None
+    zone_known: bool = True
+    einvoice_phase_start: date | None = None
+    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not shown."""
+    industrial_undertaking: bool = False
+    """An enterprise in an industrial undertaking (LHDN DTA note iv on 15/10 interest rows)."""
+    labuan_fsa_regulated: bool = False
+    buyer_kinds: list[BuyerKind] = []
+
+
+SupplierKind = Literal["company", "federal_state_government", "local_authority", "developer_jmb_mc",
+                       "approved_rnd_company", "research_institute"]
 
 
 class MySupplierFacts(CountryBlock):
@@ -81,12 +150,37 @@ class MySupplierFacts(CountryBlock):
     turnover_band: str | None = None
     service_categories: list[str] = []
     msic_code: str | None = None
+    registration_known: bool = True
+    """False: the case can't show whether the supplier is registered for SST (MS-1, MG-1)."""
+    supplier_kind: SupplierKind = "company"
+    group_company_id: str | None = None
+    """The supplier's id in the buyer's group structure, if it is a group company."""
+    external_share_within_5pct: bool | None = None
+    """The supplier's supplies of the service to outsiders stay within 5% (First Schedule para 8(2)). None: not shown."""
+    is_foreign_registered_person: bool = False
+    frp_supplies_outsiders_in_my: bool | None = None
+    pe_in_country: bool | None = None
+    """A permanent establishment or business presence in Malaysia (WH-3). None: not shown."""
+    einvoice_phase_start: date | None = None
+    approvals: list[Literal["caam_amo", "mida_shipyard", "dgta_amo"]] = []
+    recognised_training_centre: bool = False
+    zone: MyZone | None = None
+    zone_known: bool = True
     # Generator truth.
     # Do not add a clear "same group" value without its rule (Service Tax Policy 8/2020, group
     # relief) in tax.py and tests in the same PR. tax.py handles every value explicitly;
     # tests/rules/test_tax_my_scope.py fails if this Literal gains a value it doesn't handle.
     group_relation: Literal["unrelated", "unclear"] = internal("unrelated")
     """unclear: the documents don't show whether the supplier is in the buyer's group (group relief)."""
+
+
+class MyContractFacts(CountryBlock):
+    """Contract facts only Malaysian rules read (L-2, L-3)."""
+
+    country: Literal["MY"] = "MY"
+    mixed_development_stated: bool | None = None
+    design_and_build: bool | None = None
+    planning_permission_no: str | None = None
 
 
 class MyLineFacts(LineFacts):

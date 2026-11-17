@@ -18,6 +18,7 @@ from .common import (
     internal,
 )
 from .company import Address, Company, Person
+from .contract import ContractChange, ContractRecord, ResidenceCertificate
 from .email import BankChangeRequest, Email, EmailAddress, InstructionInjection, LookalikeSender, PriceChange, Signal
 from .facts import Fact, FactSheet
 from .invoice import BankBlock, Invoice, InvoiceLine, PartyBlock, Totals
@@ -50,6 +51,8 @@ __all__ = [
     "Catalog",
     "Category",
     "Company",
+    "ContractChange",
+    "ContractRecord",
     "CompanyRecords",
     "Contact",
     "CountryBlock",
@@ -83,6 +86,7 @@ __all__ = [
     "PriceChange",
     "Provenance",
     "PurchaseOrder",
+    "ResidenceCertificate",
     "RuleText",
     "Signal",
     "Supplier",

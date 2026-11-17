@@ -54,14 +54,28 @@ class PintSg(CountryBlock):
     tax_total_sgd: Money | None = None
     gross_sgd: Money | None = None
     price_includes_gst_statement: bool = False
+    customer_accounting_statement: bool = False
+    """The invoice states that the customer must account for the GST (customer accounting tax invoice, SG-7)."""
     lines: list[PintSgLine] = []
+
+
+InputTaxStatus = Literal["fully_taxable", "de_minimis_met", "partially_exempt"]
 
 
 class SgCompanyFacts(CountryBlock):
     country: Literal["SG"] = "SG"
+    input_tax_status: InputTaxStatus | None = "fully_taxable"
+    """SG-8, SG-9. None: the records don't show it."""
 
 
 class SgSupplierFacts(CountryBlock):
+    country: Literal["SG"] = "SG"
+    has_branch_receiving: bool | None = None
+    """A non-resident payee with a Singapore branch that receives the payment (WH-5). None: not shown."""
+    pe_in_country: bool | None = None
+
+
+class SgContractFacts(CountryBlock):
     country: Literal["SG"] = "SG"
 
 
