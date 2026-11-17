@@ -52,6 +52,14 @@ Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.*
 
 **Sources manifest.** The sheet is no longer a pending citer. New entry for SG-12: the IRAS page on the responsibilities of a GST-registered business. The Service Tax Policy index page now also names MS-10. The two IRAS section roots the sheet names (GST, withholding tax) are treated as navigation, not sources; each IRAS page the rules use has its own entry.
 
+### v0.10 clarifications (no version bump; no v0.10 scores exist yet)
+
+Decided by Sebastian in the review of the A12 engine plan (PR #11), 18 Nov 2026.
+
+- **Line facts (schema, spec "Facts").** 26 optional line-fact fields the rules read but the country parts lacked are added, each with its type, family and the rules that read it: Malaysia `manufactured_by_supplier`, `export_related`, `insurance_cover`, `premises_use`, `service_sub_item`, `own_use`, `variation_signed`, `variation_stamped`, `variation_changes_value`, `mixed_development_stated`, `ship_platform_election`, `annual_fee_per_student`, `financial_use`, `patient_category`, `medical_aid`, `referral_walk_in`, `fully_sponsored`, `student_category`, `digital_content_type`, `pallet_returnable`, `drop_shipment_export`, `self_billing_type`, `staff_secondment`, `excluded_management_kind`; Singapore `beneficiary_outside_singapore`, `low_value_goods`. `financial_charge` gains the charge types of P-2, P-3, P-4, P-5 and P-7.
+- **GL account per line (schema, spec `tax_lines`).** Each `tax_lines` entry may carry its own `gl_account`. The case-level `gl_account` is the GL account of the line with the largest amount excluding tax (ties: the lowest `line_no`). Line GL accuracy is reported in the per-line column, next to per-line tax accuracy; the main score and case-level GL accuracy are unchanged. The results schema gains `line_gl_accuracy`.
+- **Buyer actions are obligations only (spec `buyer_actions`).** An optional later claim is not a buyer action: where an exemption works by refund (G-3, the JDA refund route in P-20), the line is `SST_CORRECT` with no buyer action.
+
 ### v0.9 clarifications (no version bump; no scores exist yet; carried into v0.10)
 
 Decided by Sebastian on 13 Nov 2026 (step-11 plan, §16). The spec and the tax-rule sheet files stay unchanged.

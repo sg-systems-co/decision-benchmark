@@ -258,6 +258,27 @@ def test_line_facts_have_family_and_rules(country):
         assert {"tariff_code", "sublet", "itemised_consultation_fee", "materials_works_separated", "place_of_performance"} <= set(facts)
 
 
+@pytest.mark.parametrize("country, column", [("MY", 1), ("SG", 2)])
+def test_spec_family_table_matches_the_country_part(country, column):
+    facts = {k: v for k, v in PARTS[country]["$defs"]["line_facts"]["properties"].items() if k != "line_no"}
+    for family in {v["x-family"] for v in facts.values()}:
+        row = next(x for x in SPEC.splitlines() if x.startswith("| " + family.replace("_", "\\_") + " |"))
+        assert set(re.findall(r"`([a-z_0-9]+)`", row.split(" | ")[column])) == {
+            k for k, v in facts.items() if v["x-family"] == family}, family
+
+
+def test_clarification_facts_and_line_gl():
+    my = PARTS["MY"]["$defs"]["line_facts"]["properties"]
+    sg = PARTS["SG"]["$defs"]["line_facts"]["properties"]
+    assert {"manufactured_by_supplier", "own_use", "ship_platform_election", "self_billing_type", "variation_changes_value"} <= set(my)
+    assert {"beneficiary_outside_singapore", "low_value_goods"} <= set(sg)
+    for part in PARTS.values():
+        assert part["$defs"]["tax_line"]["properties"]["gl_account"]["type"] == "string"
+        assert "gl_account" not in part["$defs"]["tax_line"]["required"]
+    out = _load(EX / "valid/sg-mixed-lines-two-gl-accounts.json")
+    assert len({x["gl_account"] for x in out["tax_lines"]}) == 2
+
+
 @pytest.mark.parametrize("country", ["MY", "SG"])
 def test_buyer_actions_per_country(country):
     simple, withhold = PARTS[country]["$defs"]["buyer_action"]["oneOf"]
