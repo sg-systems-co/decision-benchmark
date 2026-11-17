@@ -1,0 +1,1750 @@
+# Official sources cited by the benchmark. One entry per source. See README.md in this folder.
+# Copies are kept in a private archive at archive_path; this file holds metadata only.
+pending_citers:
+- v0.10 rule sheet draft
+sources:
+- id: irbm-e-invoice-guideline
+  title: IRBM e-Invoice Guideline
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/media/fzagbaj2/irbm-e-invoice-guideline.pdf
+  retrieved: '2026-11-17'
+  sha256: 111e501369b4d47ed524a47cc0624d8593fb7954844372ffd2b32846647a5a86
+  bytes: 1241733
+  content_type: application/pdf
+  archive_path: sources/my/lhdn/irbm-e-invoice-guideline/2026-11-17/irbm-e-invoice-guideline.pdf
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - v0.10 rule sheet draft
+- id: irbm-e-invoice-specific-guideline
+  title: IRBM e-Invoice Specific Guideline
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/wp-content/uploads/IRBM-e-Invoice-Specific-Guideline.pdf
+  retrieved: '2026-11-17'
+  sha256: 068441cf4e3eff64ed6c61fda2952c41f2c6afdc88b4dde087af4dcb62a067e0
+  bytes: 1553245
+  content_type: application/pdf
+  archive_path: sources/my/lhdn/irbm-e-invoice-specific-guideline/2026-11-17/IRBM-e-Invoice-Specific-Guideline.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: lhdn-e-invoice-implementation-timeline
+  title: LHDN e-Invoice implementation timeline
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/en/e-invois/pelaksanaan-e-invois-di-malaysia/garis-masa-pelaksanaan-e-invois/
+  retrieved: '2026-11-17'
+  sha256: 1151a1c4f3a0387f55d826d3ae7e944f663bb3fd3703fa357c02e04234b9fb07
+  bytes: 269300
+  content_type: text/html
+  archive_path: sources/my/lhdn/lhdn-e-invoice-implementation-timeline/2026-11-17/garis-masa-pelaksanaan-e-invois.html
+  wayback_url: https://web.archive.org/web/20261117141233/https://www.hasil.gov.my/en/e-invois/pelaksanaan-e-invois-di-malaysia/garis-masa-pelaksanaan-e-invois/
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - v0.10 rule sheet draft
+- id: myinvois-sdk-invoice-v1-0-document
+  title: 'MyInvois SDK: invoice v1.0 document'
+  authority: LHDN
+  country: my
+  official_url: https://sdk.myinvois.hasil.gov.my/documents/invoice-v1-0/
+  retrieved: '2026-11-17'
+  sha256: 3e75be3d2e50c49aa6c1de0099816b2e222c99ce43b75c70001cd0916b5cbc20
+  bytes: 60488
+  content_type: text/html
+  archive_path: sources/my/lhdn/myinvois-sdk-invoice-v1-0-document/2026-11-17/invoice-v1-0.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+- id: myinvois-sdk-tax-types-code-list
+  title: 'MyInvois SDK: tax types code list'
+  authority: LHDN
+  country: my
+  official_url: https://sdk.myinvois.hasil.gov.my/codes/tax-types/
+  retrieved: '2026-11-17'
+  sha256: 92fdec26b7d23411993b22cea3d30cf3a2aeafb7788a1aeadfd80e1af4393bbd
+  bytes: 8664
+  content_type: text/html
+  archive_path: sources/my/lhdn/myinvois-sdk-tax-types-code-list/2026-11-17/tax-types.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+- id: budget-2026-revenue-estimates-section-2
+  title: Budget 2026 revenue estimates, section 2
+  authority: MOF
+  country: my
+  official_url: https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf
+  retrieved: '2026-11-17'
+  sha256: 645770023a80b6f1cb61ff75dfe3225585a9d926e32a15bb9e0b070076d4e39b
+  bytes: 3121984
+  content_type: application/pdf
+  archive_path: sources/my/mof/budget-2026-revenue-estimates-section-2/2026-11-17/section2.pdf
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: mof-media-release-5-jan-2026-updated-sst-policy
+  title: 'MOF media release 5 Jan 2026: updated SST policy'
+  authority: MOF
+  country: my
+  official_url: https://www.mof.gov.my/portal/images/2026/01/05/Siaran-Media-Pemakluman-Dasar-Dikemaskini-Berhubung-Cukai-Jualan-Dan-Cukai-Perkhidmatan-SST.pdf
+  retrieved: '2026-11-17'
+  sha256: 7bd00eac2f6e37e9c9bcc24db5921269c7d12615a6e55a40e97e85257b625922
+  bytes: 41875
+  content_type: application/pdf
+  archive_path: sources/my/mof/mof-media-release-5-jan-2026-updated-sst-policy/2026-11-17/Siaran-Media-Pemakluman-Dasar-Dikemaskini-Berhubung-Cukai-Jualan-Dan-Cukai-Perkhidmatan-SST.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: mof-media-release-expansion-of-sst-scope
+  title: 'MOF media release: expansion of SST scope'
+  authority: MOF
+  country: my
+  official_url: https://www.mof.gov.my/portal/pdf/siaran-media/expansion-sst-scope.pdf
+  retrieved: '2026-11-17'
+  sha256: 7b7095e21b712418aa45382837ca08a17b76b0991d7d664fabb276d1ae300a88
+  bytes: 100881
+  content_type: application/pdf
+  archive_path: sources/my/mof/mof-media-release-expansion-of-sst-scope/2026-11-17/expansion-sst-scope.pdf
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+- id: mof-press-release-9-jun-2025-targeted-revision-of-sales-tax-rate-and-expansion-o
+  title: 'MOF press release 9 Jun 2025: targeted revision of sales tax rate and expansion of service tax scope'
+  authority: MOF
+  country: my
+  official_url: https://www.mof.gov.my/portal/en/news/press-release/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025
+  retrieved: '2026-11-17'
+  sha256: 40fd8702129fd8743b4239f13e09f44d2352789d37a8c99a37bfdbfe2372ce85
+  bytes: 130274
+  content_type: text/html
+  archive_path: sources/my/mof/mof-press-release-9-jun-2025-targeted-revision-of-sales-tax-rate-and-expansion-o/2026-11-17/targeted-revision-of-sales-tax-rate-and-expansion-of-service-tax-scope-effective-1-july-2025.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: mysst-faq-sales-tax
+  title: 'MySST FAQ: sales tax'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/faq-sales-tax/
+  retrieved: '2026-11-17'
+  sha256: 62eca0f0b6e0c6bd53b16870d03a9bc743c51806ff17816f521bdde82fe435ee
+  bytes: 566558
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-faq-sales-tax/2026-11-17/faq-sales-tax.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/spec-v0.9.md
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+- id: mysst-faq-service-tax
+  title: 'MySST FAQ: service tax'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/faq-services-tax/
+  retrieved: '2026-11-17'
+  sha256: cd2c4f96ec05cbbc8fa8c3169346a5bf1ed444125361db35b89de94b73bacd55
+  bytes: 555536
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-faq-service-tax/2026-11-17/faq-services-tax.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/spec-v0.9.md
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+- id: mysst-sst-orders-index-page
+  title: MySST SST orders (index page)
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/sst-orders/
+  retrieved: '2026-11-17'
+  sha256: 7d0aefba9d11a74584a7ac1b0520c0436b334a661b3f99e950d8b2569ca95b46
+  bytes: 771059
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-sst-orders-index-page/2026-11-17/sst-orders.html
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - v0.10 rule sheet draft
+- id: mysst-sst-regulations-index-page
+  title: MySST SST regulations (index page)
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/sst-regulations/
+  retrieved: '2026-11-17'
+  sha256: 02cb442eabecae75ed6cb0eeb11ffbc15ca9a14935cb2e6bc6aa120b2c21a61c
+  bytes: 625050
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-sst-regulations-index-page/2026-11-17/sst-regulations.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: mysst-industry-guides-index-page
+  title: MySST industry guides (index page)
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/industry-guides/
+  retrieved: '2026-11-17'
+  sha256: b82ea27052600851ca2119665bcc3811ac7916df2c0852b87c7a6b746607ad25
+  bytes: 597497
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-industry-guides-index-page/2026-11-17/industry-guides.html
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - v0.10 rule sheet draft
+- id: mysst-service-tax-policies-index-page
+  title: MySST service tax policies (index page)
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/service-tax-policy/
+  retrieved: '2026-11-17'
+  sha256: 90d8f36c8bc72540f299641e02f811997310491817e84fb6253b7ae9796e1f71
+  bytes: 708602
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-service-tax-policies-index-page/2026-11-17/service-tax-policy.html
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+- id: mysst-registering-a-business
+  title: 'MySST: registering a business'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/registering-business/
+  retrieved: '2026-11-17'
+  sha256: 3842c1e1e9f6d7b45620323df814befcb54eaa0f0b14b9574bebe98f47382e24
+  bytes: 546101
+  content_type: text/html
+  archive_path: sources/my/rmcd/mysst-registering-a-business/2026-11-17/registering-business.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+- id: guide-a-manufacturing-and-b-import-export
+  title: 'RMCD industry guide: A. Manufacturing and B. Import/Export'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Manufacturing_01Jan2021.pdf
+  retrieved: '2026-11-17'
+  sha256: 04c099cada7dc3e41b16dd1437138bd304c27f5b5166c08c4dfa588cdeb0e703
+  bytes: 697425
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-a-manufacturing-and-b-import-export/2026-11-17/Guide on Manufacturing_01Jan2021.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-a-manufacturing-and-b-import-export-malay
+  title: 'RMCD industry guide: A. Manufacturing and B. Import/Export (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Pengilangan_01Jan2021.pdf
+  retrieved: '2026-11-17'
+  sha256: b4f7e4e84468dccb6dc07898f0fe86c48828f598dca2a93933b9999cbc1f436d
+  bytes: 831579
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-a-manufacturing-and-b-import-export-malay/2026-11-17/Panduan Pengilangan_01Jan2021.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-accommodation-ms
+  title: 'RMCD industry guide: Accommodation (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PENGINAPAN%20V4_26022024.pdf
+  retrieved: '2026-11-17'
+  sha256: 2560770bbaa1ed08097638165e1e6fdd91bd3e60154f0e6e9f6f1fbcaa27100d
+  bytes: 329783
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-accommodation-ms/2026-11-17/PANDUAN PENGINAPAN V4_26022024.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-advertising-services
+  title: 'RMCD industry guide: Advertising Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Advertising%20V4_20220119.pdf
+  retrieved: '2026-11-17'
+  sha256: 9968bf998fbabcb58ca07c8e31a26a52cf53331e78a34ceba778a5840c820aa7
+  bytes: 456114
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-advertising-services/2026-11-17/Guide on Advertising V4_20220119.pdf
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-advertising-services-malay
+  title: 'RMCD industry guide: Advertising Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Cukai%20Perkhidmatan%20Pengiklanan%20V3_20220119.pdf
+  retrieved: '2026-11-17'
+  sha256: 1367e712eb7641eb4c503e46cf6ea6de1c13750adcc06741cb8e46910e751e93
+  bytes: 358235
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-advertising-services-malay/2026-11-17/Panduan Cukai Perkhidmatan Pengiklanan V3_20220119.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-amusement-park-ms
+  title: 'RMCD industry guide: Amusement Park (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Taman%20Hiburan_amd1.pdf
+  retrieved: '2026-11-17'
+  sha256: 46eabbda5a219d85bdbe35a2333d56d31879e3c955db6e9d2d6b1b26d0932e4b
+  bytes: 594989
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-amusement-park-ms/2026-11-17/Panduan Taman Hiburan_amd1.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-betting-and-gaming
+  title: 'RMCD industry guide: Betting And Gaming'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide_on_Betting%20n%20Gaming.pdf
+  retrieved: '2026-11-17'
+  sha256: 77bf0a736ebdd4fdea8782cf42187048ba67b3a03404aa58fbc8ec381188a518
+  bytes: 503807
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-betting-and-gaming/2026-11-17/Guide_on_Betting n Gaming.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-betting-and-gaming-malay
+  title: 'RMCD industry guide: Betting And Gaming (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan_Pertaruhan%20n%20Perjudian.pdf
+  retrieved: '2026-11-17'
+  sha256: 53968e7798e36349e07cf53b13eb18797cf7e3feded62cdfa233a7a6c3141fe8
+  bytes: 457863
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-betting-and-gaming-malay/2026-11-17/Panduan_Pertaruhan n Perjudian.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-brokerage-and-underwriting-services-ms
+  title: 'RMCD industry guide: Brokerage and Underwriting Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Pembrokeran%2029.12.2025.pdf
+  retrieved: '2026-11-17'
+  sha256: b2bd5f52de0eb19a45fef06b2f04e70636de22f7d03e0e07918870cf6ef60d6a
+  bytes: 474661
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-brokerage-and-underwriting-services-ms/2026-11-17/Panduan Pembrokeran 29.12.2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-cleaning-services-ms
+  title: 'RMCD industry guide: Cleaning Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pembersihan.pdf
+  retrieved: '2026-11-17'
+  sha256: 30fd2fd054ecb16a8bce4831656584f6fc2d70092bc939dde113a6ecd6579e85
+  bytes: 528697
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-cleaning-services-ms/2026-11-17/Panduan Perkhidmatan Pembersihan.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-construction-work-services-amendment
+  title: 'RMCD industry guide: Construction Work Services (Amendment)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDE%20ON%20CONSTRUCTION%20WORK%20SERVICES%20DATED%2017.03.2026%20%5BAMENDMENT%5D%20%5BBI%5D_2.11.26%20(1).pdf
+  retrieved: '2026-11-17'
+  sha256: 70e42aefe35009c62aa6451edb13a8caf1db04319f77ad5c585e2e1086958735
+  bytes: 1644703
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-construction-work-services-amendment/2026-11-17/GUIDE ON CONSTRUCTION WORK SERVICES DATED 17.03.2026 [AMENDMENT] [BI]_2.11.26 (1).pdf
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-construction-work-services-amendment-malay
+  title: 'RMCD industry guide: Construction Work Services (Amendment) (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20KERJA%20PEMBINAAN%20BERTARIKH%2017.03.2026%20%5BPINDAAN%5D%20%5BBM%5D_%204.11.26%20(1).pdf
+  retrieved: '2026-11-17'
+  sha256: 10efeb90c863bdcb619550ce9fc02ef27e69516bda051187fae2441b93471922
+  bytes: 1567909
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-construction-work-services-amendment-malay/2026-11-17/PANDUAN PERKHIDMATAN KERJA PEMBINAAN BERTARIKH 17.03.2026 [PINDAAN] [BM]_ 4.11.26 (1).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-consultancy-training-and-mentoring-services-ms
+  title: 'RMCD industry guide: Consultancy, Training, and Mentoring Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Perundingan_Latihan_TunjukAjar_290224.pdf
+  retrieved: '2026-11-17'
+  sha256: 15c59dda6b27c3ecb2015272531e51abad6661052a5a011f0d1cb5252cd1949f
+  bytes: 494795
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-consultancy-training-and-mentoring-services-ms/2026-11-17/Panduan Perkhidmatan Perundingan_Latihan_TunjukAjar_290224.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-courier-services
+  title: 'RMCD industry guide: Courier Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Courier%20Services.pdf
+  retrieved: '2026-11-17'
+  sha256: 65fe4c66459c2b49ff9fe0a9d5e96228e474939c03d0e7db5aefde3ca33b84fc
+  bytes: 273253
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-courier-services/2026-11-17/Guide on Courier Services.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-courier-services-malay
+  title: 'RMCD industry guide: Courier Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Kurier.pdf
+  retrieved: '2026-11-17'
+  sha256: 27758e56cb49f78fa9fb0047a8003f9334c57bf4139d26793e80eb59f7dd4726
+  bytes: 266569
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-courier-services-malay/2026-11-17/Panduan Perkhidmatan Kurier.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-customs-agent-services-ms
+  title: 'RMCD industry guide: Customs Agent Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Ejen%20Kastam%2030.5.2024.pdf
+  retrieved: '2026-11-17'
+  sha256: d29226cae1cc43a7e9a607af37714ceaaa2875ab3c031f39728bcf8c2057c889
+  bytes: 348428
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-customs-agent-services-ms/2026-11-17/Panduan Perkhidmatan Ejen Kastam 30.5.2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-digital-service-by-foreign-service-provider-fsp
+  title: 'RMCD industry guide: Digital Service By Foreign Service Provider (FSP)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Digital%20Service%20by%20FSP_V2_01022021.pdf
+  retrieved: '2026-11-17'
+  sha256: e659975d1e8094a4b2f70e932daa06fe0ab3cc4e1410f083be2041208557645f
+  bytes: 585743
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-digital-service-by-foreign-service-provider-fsp/2026-11-17/Guide on Digital Service by FSP_V2_01022021.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-domestic-flight-ms
+  title: 'RMCD industry guide: Domestic Flight (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Penerbangan%20Domestik-%2031.5.2024.pdf
+  retrieved: '2026-11-17'
+  sha256: 37f2412b3d4774e29dfd92b76dcb4ce9896535e845b0f3aabb67c6c6826cc9a6
+  bytes: 346406
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-domestic-flight-ms/2026-11-17/Panduan Penerbangan Domestik- 31.5.2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-education-services-ms
+  title: 'RMCD industry guide: Education Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/3.%20PANDUAN%20%20-%20PERKHIDMATAN%20PENDIDIKAN.pdf
+  retrieved: '2026-11-17'
+  sha256: 3a7f075dc283e558a63544a69c1d4c45b827687da2e235e7fa0432e38016364a
+  bytes: 519409
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-education-services-ms/2026-11-17/3. PANDUAN  - PERKHIDMATAN PENDIDIKAN.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-electricity-transmission-and-distribution-services-ms
+  title: 'RMCD industry guide: Electricity Transmission and Distribution Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PERKHIDMATAN%20PENGHANTARAN%20DAN%20PENGAGIHAN%20ELEKTRIK%20V4%2016.04.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: 9b24810eaecb06b25a8a81316ce94ac2fc45f08f419bf88536e708cf385a5898
+  bytes: 466931
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-electricity-transmission-and-distribution-services-ms/2026-11-17/PERKHIDMATAN PENGHANTARAN DAN PENGAGIHAN ELEKTRIK V4 16.04.2026.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-employment-services-ms
+  title: 'RMCD industry guide: Employment Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pekerjaan%20V3%2014052024.pdf
+  retrieved: '2026-11-17'
+  sha256: 1502023b538a1810c8fbd1207dc4e589c546f26a4345472b264c1031cefa123d
+  bytes: 271871
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-employment-services-ms/2026-11-17/Panduan Perkhidmatan Pekerjaan V3 14052024.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-financial-services
+  title: 'RMCD industry guide: Financial Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20On%20Financial%20Service%20%20-%20%20Version%202.pdf
+  retrieved: '2026-11-17'
+  sha256: ddebac265aaea1dfd3755ec8426a99598f6f340f6bbec509c47e7b8941e6b394
+  bytes: 903058
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-financial-services/2026-11-17/Guide On Financial Service  -  Version 2.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-financial-services-malay
+  title: 'RMCD industry guide: Financial Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Kewangan%20-%20Versi%202.pdf
+  retrieved: '2026-11-17'
+  sha256: 51d82132614a6ea5383e82125cbf0d55e3880c42e2a404b6e3b5e1389d9c2162
+  bytes: 1203030
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-financial-services-malay/2026-11-17/Panduan Perkhidmatan Kewangan - Versi 2.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-food-and-beverages-ms
+  title: 'RMCD industry guide: Food and Beverages (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Makanan%20%26%20Minuman_V7%2019042024.pdf
+  retrieved: '2026-11-17'
+  sha256: 7033cde031faeb335a51b3817508879c0077fb77ff8e3689e0dfe0cc373b55fe
+  bytes: 389267
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-food-and-beverages-ms/2026-11-17/Panduan Makanan & Minuman_V7 19042024.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-freight-courier-service-ms
+  title: 'RMCD industry guide: Freight Courier Service (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Penghantar%20Fret_040319_20210929.pdf
+  retrieved: '2026-11-17'
+  sha256: 25bb1140401d0cc41839e3615635f3d627cda3b5152b826d276040ec041bbecc
+  bytes: 440742
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-freight-courier-service-ms/2026-11-17/Panduan Perkhidmatan Penghantar Fret_040319_20210929.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-general-service-or-motor-vehicle-repair-ms
+  title: 'RMCD industry guide: General Service or Motor Vehicle Repair (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20SERVIS%20AM%20ATAU%20PEMBAIKAN%20KENDERAAN%20BERMOTOR%20V3%2010.6.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: 910cbd0110ead7462c916c388a5591955b23ffb5684d3f15ae62a29bc8ed89d1
+  bytes: 328835
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-general-service-or-motor-vehicle-repair-ms/2026-11-17/PANDUAN PERKHIDMATAN SERVIS AM ATAU PEMBAIKAN KENDERAAN BERMOTOR V3 10.6.2026.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-group-c-d-and-e-services-ms
+  title: 'RMCD industry guide: Group C, D and E Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
+  retrieved: '2026-11-17'
+  sha256: 222ddaed7f32b4b24585234a054067c2049df6e4147b8045db225ca58cc7eda0
+  bytes: 505642
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-group-c-d-and-e-services-ms/2026-11-17/Panduan Kumpulan CDE_4.9.25.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-sales-tax-exemption-under-item-33a-33b-55-63-64-65-schedule-a-sales-tax-pe
+  title: 'RMCD industry guide: Guide on Sales Tax Exemption Under Item 33A, 33B, 55, 63, 64, 65, Schedule A, Sales Tax (Persons Exempted From Payment of Tax) Order 2018'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/7.%20Guide%20on%20Sales%20Tax%20Exemption%20Under%20Item%20Schedule%20A%20(33A%2C33B%2C55%2C63%2C64%2C%20and%2065).pdf
+  retrieved: '2026-11-17'
+  sha256: c66f9b5ea140f08a60bce351ca5ba371d9ad100735384202b598f4e74abf5eff
+  bytes: 823109
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-sales-tax-exemption-under-item-33a-33b-55-63-64-65-schedule-a-sales-tax-pe/2026-11-17/7. Guide on Sales Tax Exemption Under Item Schedule A (33A,33B,55,63,64, and 65).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-shariah-credit-card-financing-ms
+  title: 'RMCD industry guide: Guide to Shariah Compliant Line of Credit or Financing Services Through Credit Card or Charge Card Activation (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/2.%20Panduan%20Perkhidmatan%20Baris%20Kredit%20atau%20Pembiayaan%20Patuh%20Syariah.pdf
+  retrieved: '2026-11-17'
+  sha256: ea0b0543286d2c25405a5343f8d7be96ed386cfd738c67d138120c2fde416552
+  bytes: 259382
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-shariah-credit-card-financing-ms/2026-11-17/2. Panduan Perkhidmatan Baris Kredit atau Pembiayaan Patuh Syariah.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-transition-of-sales-tax-rate-changes
+  title: 'RMCD industry guide: Guidelines For The Transition Of Sales Tax Rate Changes'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDELINES%20FOR%20THE%20TRANSITION%20OF%20SALES%20TAX%20RATE%20CHANGES.pdf
+  retrieved: '2026-11-17'
+  sha256: 5ce1ba19b482e5bb0eae7b96475d644dabcb064b4aaf0f12aafab3f9f75f13cc
+  bytes: 364560
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-transition-of-sales-tax-rate-changes/2026-11-17/GUIDELINES FOR THE TRANSITION OF SALES TAX RATE CHANGES.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-transition-of-sales-tax-rate-changes-malay
+  title: 'RMCD industry guide: Guidelines For The Transition Of Sales Tax Rate Changes (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/1.%20PANDUAN%20PERALIHAN%20PERUBAHAN%20KADAR%20CUKAI%20JUALAN.pdf
+  retrieved: '2026-11-17'
+  sha256: 15acc63c1ace09201f03aff4f5296929bc7104c25234a94bdcaa4a629a10a351
+  bytes: 408405
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-transition-of-sales-tax-rate-changes-malay/2026-11-17/1. PANDUAN PERALIHAN PERUBAHAN KADAR CUKAI JUALAN.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-implementation-of-sales-tax-on-low-value-goods-lvg
+  title: 'RMCD industry guide: Guidelines for the Implementation of Sales Tax on Low Value Goods (LVG)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guidelines%20for%20The%20Implementation%20of%20Sales%20Tax%20On%20Low%20Value%20Goods%20(LVG).pdf
+  retrieved: '2026-11-17'
+  sha256: 0eb224288dc1edbe55cb5407d8cb443af1a581ab65569cd4d516a316a5a5b3d9
+  bytes: 8973412
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-implementation-of-sales-tax-on-low-value-goods-lvg/2026-11-17/Guidelines for The Implementation of Sales Tax On Low Value Goods (LVG).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-imported-taxable-services-ms
+  title: 'RMCD industry guide: Imported Taxable Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Bercukai%20Diimport.pdf
+  retrieved: '2026-11-17'
+  sha256: 2245e42790335a3958b45e623dd0ab7c1dd19999cc8bb0d609cfee270cdcac86
+  bytes: 260023
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-imported-taxable-services-ms/2026-11-17/Panduan Perkhidmatan Bercukai Diimport.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-information-technology-services-ms
+  title: 'RMCD industry guide: Information Technology Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: 04f3a9038d0377291a5e976ae10064114fa274b63abdc632af7975add018fbe8
+  bytes: 623856
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-information-technology-services-ms/2026-11-17/Panduan Perkhidmatan Teknologi Maklumat - V7 26.02.2026.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-insurance-or-takaful-services-ms
+  title: 'RMCD industry guide: Insurance or Takaful Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20perkhidmatan%20insurans%20atau%20takaful%20Jun%202025%20V4%2019%20Jun%202025.pdf
+  retrieved: '2026-11-17'
+  sha256: 085d92f9feea679b14b24c0bd174c359868ef44be9abebbe3d65c5891e0a7b33
+  bytes: 298476
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-insurance-or-takaful-services-ms/2026-11-17/Panduan perkhidmatan insurans atau takaful Jun 2025 V4 19 Jun 2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-logistic-services-ms
+  title: 'RMCD industry guide: Logistic Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf
+  retrieved: '2026-11-17'
+  sha256: 8b3949ef539d973747e26e4d999707f83a41956b7aaf995bceb04e74dbcfdadd
+  bytes: 822174
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-logistic-services-ms/2026-11-17/Panduan Perkhidmatan Logistik 06062025.pdf
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-maintenance-or-repair-services-ms
+  title: 'RMCD industry guide: Maintenance or Repair Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf
+  retrieved: '2026-11-17'
+  sha256: f9963a6c5b0975d61efa4d84f00f592598b00e1eb6515ffb3156a38c761bf9a1
+  bytes: 298423
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-maintenance-or-repair-services-ms/2026-11-17/PANDUAN PERKHIDMATAN PENYENGGARAAN 290324.pdf
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-management-services
+  title: 'RMCD industry guide: Management Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: c5c7091e8ea5d9daa0fa01f4926102a0570f1d7b13bc54ecee88955261d612b1
+  bytes: 287529
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-management-services/2026-11-17/Guide on Management Services  V5 6.5.2026.pdf
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - docs/task-sets/ap-invoices/spec-v0.9.md
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/constants.py
+  - v0.10 rule sheet draft
+- id: guide-management-services-malay
+  title: 'RMCD industry guide: Management Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Pengurusan%20V5%206.5.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: 504e1aa9abaa0f905a51bb05238da4f80c5120282c6d7a2ee0bc4c88989dc805
+  bytes: 289077
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-management-services-malay/2026-11-17/Panduan Pengurusan V5 6.5.2026.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-paid-television-broadcasting-services
+  title: 'RMCD industry guide: Paid Television Broadcasting Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Subscription.pdf
+  retrieved: '2026-11-17'
+  sha256: c9117eaf470943da39f74cddd3f0b89c5afa2f5f078ee6fbf929393e59d8a1b1
+  bytes: 283000
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-paid-television-broadcasting-services/2026-11-17/Guide on Subscription.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-paid-television-broadcasting-services-malay
+  title: 'RMCD industry guide: Paid Television Broadcasting Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Penyiaran%20Langganan.pdf
+  retrieved: '2026-11-17'
+  sha256: 188ac2130c9139a6b51bb5acbf3bed1f36ee1dc4ac43040d177187258262d765
+  bytes: 288491
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-paid-television-broadcasting-services-malay/2026-11-17/Panduan Perkhidmatan Penyiaran Langganan.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-passenger-vehicle-rental-service-ms
+  title: 'RMCD industry guide: Passenger Vehicle Rental Service (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Sewa%20Kenderaan%20Penumpang%203.9.2025.pdf
+  retrieved: '2026-11-17'
+  sha256: d929ac776abba42dd494b239537f5477c94b54c0f4bd2ab913e18f6d2ee79b36
+  bytes: 281455
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-passenger-vehicle-rental-service-ms/2026-11-17/Panduan Perkhidmatan Sewa Kenderaan Penumpang 3.9.2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-private-education-services
+  title: 'RMCD industry guide: Private Education Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/3.%20GUIDE%20ON%20PRIVATE%20EDUCATION%20SERVICES.pdf
+  retrieved: '2026-11-17'
+  sha256: b64db339b6bf62f275203637b1b841f823c81ab5bdb21e02464d53148b6bf9b7
+  bytes: 531823
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-private-education-services/2026-11-17/3. GUIDE ON PRIVATE EDUCATION SERVICES.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-private-healthcare-services-ms
+  title: 'RMCD industry guide: Private Healthcare Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/09032026_Final%20PANDUAN%20PERKHIDMATAN%20KESIHATAN%20KUMPULAN%20I.pdf
+  retrieved: '2026-11-17'
+  sha256: da2af882bb653ebfec4256615e2437909511c5b824f717af61cd76711c745e7c
+  bytes: 664564
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-private-healthcare-services-ms/2026-11-17/09032026_Final PANDUAN PERKHIDMATAN KESIHATAN KUMPULAN I.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-professional-services
+  title: 'RMCD industry guide: Professional Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf
+  retrieved: '2026-11-17'
+  sha256: dc8034452fcc60142bc3ea589e44ad331304e1d0c70f324c28148933d7d67b52
+  bytes: 494715
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-professional-services/2026-11-17/Guide on Professional Services 20210921.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-professional-services-malay
+  title: 'RMCD industry guide: Professional Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Professional_20211031.pdf
+  retrieved: '2026-11-17'
+  sha256: 75744f1bb38a281155aa8861d755b7bf0c336f9ffd6b65bfea68145b72edd650
+  bytes: 620180
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-professional-services-malay/2026-11-17/Panduan Perkhidmatan Professional_20211031.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-rental-or-leasing-services
+  title: 'RMCD industry guide: Rental or Leasing Services'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  retrieved: '2026-11-17'
+  sha256: 0b13fd8c1beacaf2949b181358ac3a1217b9dc9c13ade6ff0b8b72f9beba8070
+  bytes: 561774
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-rental-or-leasing-services/2026-11-17/5. GUIDE ON RENTAL OR LEASING SERVICES.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-rental-or-leasing-services-malay
+  title: 'RMCD industry guide: Rental or Leasing Services (Malay)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20SEWAAN%20ATAU%20PAJAKAN_VERSI%202%401452026.pdf
+  retrieved: '2026-11-17'
+  sha256: 994a9c95a96b2ad38b80400ac7a1fdb7d4e607f26182112648b6d09b1139afc2
+  bytes: 1000725
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-rental-or-leasing-services-malay/2026-11-17/PANDUAN PERKHIDMATAN SEWAAN ATAU PAJAKAN_VERSI 2@1452026.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: guide-telecommunication-services-ms
+  title: 'RMCD industry guide: Telecommunication Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Telekomunikasi%2027022024.pdf
+  retrieved: '2026-11-17'
+  sha256: 6b2f355fc79bc7cb50a641b9dbf2166c3a5fce84cf59189c51f90a5f9b03b4ab
+  bytes: 555425
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-telecommunication-services-ms/2026-11-17/Perkhidmatan Telekomunikasi 27022024.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-vehicle-parking-services-ms
+  title: 'RMCD industry guide: Vehicle Parking Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20RUANG%20LETAK%20KENDERAAN%20V4%204.6.2026.pdf
+  retrieved: '2026-11-17'
+  sha256: 41d3e04c55943ca53d324d599cfc44f3e7a19ac18bfca887711d5611d04a3135
+  bytes: 348447
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-vehicle-parking-services-ms/2026-11-17/PANDUAN PERKHIDMATAN RUANG LETAK KENDERAAN V4 4.6.2026.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: guide-warehouse-management-services-ms
+  title: 'RMCD industry guide: Warehouse Management Services (Malay version only)'
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Pengurusan%20Penggudangan.pdf
+  retrieved: '2026-11-17'
+  sha256: 9914d4c1c734e4893d9a0e5e92b4086c2ee1f617a1b9bbe316743ab7d0172122
+  bytes: 221557
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/guide-warehouse-management-services-ms/2026-11-17/Perkhidmatan Pengurusan Penggudangan.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-goods-exempted-amendment-order-2026
+  title: Sales Tax (Goods Exempted From Sales Tax) (Amendment) Order 2026
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20276%20PERINTAH%20CUKAI%20JUALAN%20(ORANG%20YANG%20DIKECUALIKAN).pdf
+  retrieved: '2026-11-17'
+  sha256: 981fae65cf07f4dee3ad86ac8950ad340e4a0c745a3626906ef7935b21e5305b
+  bytes: 330661
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-amendment-order-2026/2026-11-17/PUA 276 PERINTAH CUKAI JUALAN (ORANG YANG DIKECUALIKAN).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+  note: MySST lists this link under the Goods Exempted amendment 2026, but the file name is the Persons Exempted order (P.U. (A) 276).
+- id: sales-tax-goods-exempted-order-2025-amendment-1-2025
+  title: Sales Tax (Goods Exempted From Sales Tax) Order 2025 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/4-PUA%20200_2025.pdf
+  retrieved: '2026-11-17'
+  sha256: 9e55cf067ffc5ba400a0eadfe9c7acd18ef967f64aa1aad67ede72ae76dda95e
+  bytes: 285513
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-order-2025-amendment-1-2025/2026-11-17/4-PUA 200_2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-goods-exempted-order-2025-amendment-2-2025
+  title: Sales Tax (Goods Exempted From Sales Tax) Order 2025 — Amendment 2/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20400%20(2025).pdf
+  retrieved: '2026-11-17'
+  sha256: e949e8ff5419530b16fd6f81ea0d3781e8e553460393256f42da41a5c11c66d8
+  bytes: 240473
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-order-2025-amendment-2-2025/2026-11-17/PUA 400 (2025).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-goods-exempted-order-2025
+  title: Sales Tax (Goods Exempted From Sales Tax) Order 2025 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  retrieved: '2026-11-17'
+  sha256: 9a12a9b334253bfa135f4342bb10fececdbe78ee1af70be723b43a942f488e2c
+  bytes: 4511395
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-order-2025/2026-11-17/3-PUA 171 (2025).pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: sales-tax-persons-exempted-order-2018
+  title: Sales Tax (Persons Exempted From Payment Of Tax) Order 2018 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Sales%20Tax%20(Person%20Exempted%20From%20Payment%20Of%20Tax)%20Order%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: d810e4ce86684a8b57775b93185059c3538276273b2c46f48c56b436ef5f84a5
+  bytes: 840061
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-persons-exempted-order-2018/2026-11-17/Sales Tax (Person Exempted From Payment Of Tax) Order 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-rate-of-sales-tax-amendment-order-2026
+  title: Sales Tax (Rate Of Sales Tax) (Amendment) Order 2026
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20281%20PERINTAH%20CUKAI%20JUALAN%20(KADAR%20CUKAI%20JUALAN)%20(PINDAAN)%202026.pdf
+  retrieved: '2026-11-17'
+  sha256: 801b30b96ecd64615e4cc13df2645561f02a162275aec188f9967855fe429f90
+  bytes: 216205
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rate-of-sales-tax-amendment-order-2026/2026-11-17/PUA 281 PERINTAH CUKAI JUALAN (KADAR CUKAI JUALAN) (PINDAAN) 2026.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-rate-of-sales-tax-order-2025-amendment-1-2025
+  title: Sales Tax (Rate Of Sales Tax) Order 2025 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/2-PUA%20199.2025.pdf
+  retrieved: '2026-11-17'
+  sha256: 775ec6126e62d7e090f7f6ef1e2f41d500b51905d89cd2d51a3c59f011515fc0
+  bytes: 295141
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rate-of-sales-tax-order-2025-amendment-1-2025/2026-11-17/2-PUA 199.2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-rate-of-sales-tax-order-2025-amendment-2-2025
+  title: Sales Tax (Rate Of Sales Tax) Order 2025 — Amendment 2/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20399%20(2025)%20(1).pdf
+  retrieved: '2026-11-17'
+  sha256: 811cd22f6294b32ae7be6920af46bd3f3a25e687b0a3fa313b8e71c6aa412bd4
+  bytes: 221232
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rate-of-sales-tax-order-2025-amendment-2-2025/2026-11-17/PUA 399 (2025) (1).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: sales-tax-rate-of-sales-tax-order-2025
+  title: Sales Tax (Rate Of Sales Tax) Order 2025 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  retrieved: '2026-11-17'
+  sha256: 4f32cc4707be6eac278d1337ce248e2107e2a79cf83cce539afc8c79ae340fac
+  bytes: 4762834
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rate-of-sales-tax-order-2025/2026-11-17/1-PUA 170_2025.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-1-2018
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 1/2018
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Imposition%20Of%20Tax%20For%20Taxable%20Service%20In%20Respect%20Of%20DA%20And%20SA)%20Order%202018%20Amd%201.pdf
+  retrieved: '2026-11-17'
+  sha256: 8a24bdd33fa89eafb6d759b21f2d17cd726bc905065c00562764777060e37bec
+  bytes: 665601
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-1-2018/2026-11-17/Service Tax (Imposition Of Tax For Taxable Service In Respect Of DA And SA) Order 2018 Amd 1.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-1-2019
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 1/2019
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Imposition%20Of%20Tax%20For%20Taxable%20Service%20In%20Respect%20Of%20DA%20And%20SA)%20Amd%20Order%202019.pdf
+  retrieved: '2026-11-17'
+  sha256: b1c190d1e69987a989991db083c15d1ec77cb1442cc34d119dd4937a2d489a85
+  bytes: 499860
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-1-2019/2026-11-17/Service Tax (Imposition Of Tax For Taxable Service In Respect Of DA And SA) Amd Order 2019.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-1-2024
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 1/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20PERKHIDMATAN%20(KAWASAN%20DITETAPKAN%20DAN%20KAWASAN%20KHAS)%20(PINDAAN)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: 9978704766daa243bdc4f3c29a075905b2b6b004f2bfe9d8a5ae4816afe87171
+  bytes: 237859
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-1-2024/2026-11-17/PERINTAH CUKAI PERKHIDMATAN (KAWASAN DITETAPKAN DAN KAWASAN KHAS) (PINDAAN) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-1-2025
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20165_2025.pdf
+  retrieved: '2026-11-17'
+  sha256: a5ee803fe4162ff2ff6b65388436fe9cc97d3f0001ff744e677adf2e1ac735a1
+  bytes: 208550
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-1-2025/2026-11-17/PUA 165_2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-2-2019
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 2/2019
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Imposition%20Of%20Tax%20For%20Taxable%20Service%20In%20Respect%20Of%20DA%20And%20SA)%20Amd2%20Order%202019.pdf
+  retrieved: '2026-11-17'
+  sha256: e1c0a71e7d10b74f88d3e1e1ee733ce5d45fefd4197b1bbeed646caf364f4b84
+  bytes: 429550
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-2-2019/2026-11-17/Service Tax (Imposition Of Tax For Taxable Service In Respect Of DA And SA) Amd2 Order 2019.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018-amendment-2-2024
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Amendment 2/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20PERKHIDMATAN%20(KAWASAN%20DITETAPKAN%20DAN%20KAWASAN%20KHAS)%20(PINDAAN)%20(NO.%202)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: 68db87f2a81977dc76daac2593a6302fb185f2b30db4fddee11446b901ae1d59
+  bytes: 181015
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018-amendment-2-2024/2026-11-17/PERINTAH CUKAI PERKHIDMATAN (KAWASAN DITETAPKAN DAN KAWASAN KHAS) (PINDAAN) (NO. 2) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-and-sa-order-2018
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas And Special Areas) Order 2018 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Imposition%20Of%20Tax%20For%20Taxable%20Service%20In%20Respect%20Of%20DA%20And%20SA)%20Order%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: 16a38accc9cea743236b200479fe3a7605c9449e1fa40715a4cfed45c1d3658d
+  bytes: 602024
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-and-sa-order-2018/2026-11-17/Service Tax (Imposition Of Tax For Taxable Service In Respect Of DA And SA) Order 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-excluding-pulau-1-and-sa-amendment-order-2026
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas Excluding Pulau 1 And Special Areas) (Amendment) Order 2026
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20337%20(2026).pdf
+  retrieved: '2026-11-17'
+  sha256: 568dac510c006bf26c079af351ddc95b7f07884163daa4c518dae992658cc3e7
+  bytes: 204014
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-excluding-pulau-1-and-sa-amendment-order-2026/2026-11-17/PUA 337 (2026).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-da-pulau-1-and-sa-order-2024
+  title: Service Tax (Imposition Of Tax For Taxable Service In Respect Of Designated Areas Relating To Pulau 1 And Special Areas) Order 2024 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20PERKHIDMATAN%20(KAWASAN%20DITETAPKAN%20YANG%20BERHUBUNGAN%20DENGAN%20PULAU%201%20DAN%20KAWASAN%20KHAS)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: 88a44887db6353dced2382301d4a6ee9e8368cead614a138690da87c2a836b45
+  bytes: 200105
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-da-pulau-1-and-sa-order-2024/2026-11-17/PERINTAH CUKAI PERKHIDMATAN (KAWASAN DITETAPKAN YANG BERHUBUNGAN DENGAN PULAU 1 DAN KAWASAN KHAS) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-persons-exempted-order-2018-amendment-1-2019
+  title: Service Tax (Person Exempted From Payment Of Tax) Order 2018 — Amendment 1/2019
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Person%20Exempted%20From%20Payment%20Of%20Tax)%20Amendment%20Order%202019.pdf
+  retrieved: '2026-11-17'
+  sha256: cab117e7a336cce1d1182cbf176e7ae8d810c034ac61743e583f14e0a6c70663
+  bytes: 522276
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018-amendment-1-2019/2026-11-17/Service Tax (Person Exempted From Payment Of Tax) Amendment Order 2019.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-persons-exempted-order-2018-amendment-1-2020
+  title: Service Tax (Person Exempted From Payment Of Tax) Order 2018 — Amendment 1/2020
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Person%20Exempted%20From%20Payment%20Of%20Tax)%20Amendment%20order%202020.pdf
+  retrieved: '2026-11-17'
+  sha256: 9384a5bdfb87b863fe301873969dce6a15cff0f767ee837d20738360c78733c8
+  bytes: 511170
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018-amendment-1-2020/2026-11-17/Service Tax (Person Exempted From Payment Of Tax) Amendment order 2020.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-persons-exempted-order-2018-amendment-1-2024
+  title: Service Tax (Person Exempted From Payment Of Tax) Order 2018 — Amendment 1/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20PERKHIDMATAN%20(ORANG%20YANG%20DIKECUALIKAN%20DARIPADA%20PEMBAYARAN%20CUKAI)%20(PINDAAN)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: f7502f21f054c27a022ed8fd31d2a25ad340333eaef989f27feb3788dd98dd92
+  bytes: 214798
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018-amendment-1-2024/2026-11-17/PERINTAH CUKAI PERKHIDMATAN (ORANG YANG DIKECUALIKAN DARIPADA PEMBAYARAN CUKAI) (PINDAAN) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-persons-exempted-order-2018-amendment-1-2025
+  title: Service Tax (Person Exempted From Payment Of Tax) Order 2018 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah-CP-Orang-yang-Dikecualikan-daripada-Pembayaran-CukaiPindaan-2025.pdf
+  retrieved: '2026-11-17'
+  sha256: ce7b196957af9a9ccc179a36d6c0a15829d0e3a176701bf00582bd142762e3c5
+  bytes: 321970
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018-amendment-1-2025/2026-11-17/Perintah-CP-Orang-yang-Dikecualikan-daripada-Pembayaran-CukaiPindaan-2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-persons-exempted-order-2018
+  title: Service Tax (Person Exempted From Payment Of Tax) Order 2018 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Person%20Exempted%20From%20Payment%20Of%20Tax)%20Order%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: 348e7641734f9b3ada3724d7a977bd522a2ba36db3180fe5a6d10a11538e113f
+  bytes: 577037
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018/2026-11-17/Service Tax (Person Exempted From Payment Of Tax) Order 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-rate-of-tax-order-2018-amendment-1-2024
+  title: Service Tax (Rate Of Tax) Order 2018 — Amendment 1/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20PERKHIDMATAN%20(KADAR%20CUKAI)%20(PINDAAN)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: 67fd61a903874948c4bb879f851836c1e78a828685b47f21d2129e57a31f6744
+  bytes: 215139
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018-amendment-1-2024/2026-11-17/PERINTAH CUKAI PERKHIDMATAN (KADAR CUKAI) (PINDAAN) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-rate-of-tax-order-2018-amendment-1-2025
+  title: Service Tax (Rate Of Tax) Order 2018 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah-CP-Kadar-CukaiPindaan-2025.pdf
+  retrieved: '2026-11-17'
+  sha256: 70b19012639b2ddebec0561744a0381db2797f95f6d6557a9cfecdf19162a234
+  bytes: 280304
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018-amendment-1-2025/2026-11-17/Perintah-CP-Kadar-CukaiPindaan-2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-rate-of-tax-order-2018-amendment-1-2026
+  title: Service Tax (Rate Of Tax) Order 2018 — Amendment 1/2026
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  retrieved: '2026-11-17'
+  sha256: eaeadc9e639995c07c4325d9c96f96cf52dbb0e52a66d9cd30f32c21a60e6c07
+  bytes: 245277
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018-amendment-1-2026/2026-11-17/Perintah Cukai Perkhidmatan (Kadar Cukai)(Pindaan) 2026.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-rate-of-tax-order-2018
+  title: Service Tax (Rate Of Tax) Order 2018 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Rate%20Of%20Tax)%20Order%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: c64a46c6857b6892401e20826978a4cd31b032b7fa2c03c573e51cab83c4b7d7
+  bytes: 576905
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018/2026-11-17/Service Tax (Rate Of Tax) Order 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-policy-no-8-2020
+  title: Service Tax Policy No. 8/2020
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%208_2020.pdf
+  retrieved: '2026-11-17'
+  sha256: fd880cbf4cbe2caaeb78ec53d0761b66c71608c209089ff72c70a0b85f4c0477
+  bytes: 313643
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-policy-no-8-2020/2026-11-17/STP 8_2020.pdf
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - v0.10 rule sheet draft
+- id: service-tax-policy-no-8-2020-amendment-no-1
+  title: Service Tax Policy No. 8/2020 (Amendment No. 1)
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%208-2020%20(Amendment%20No%201).pdf
+  retrieved: '2026-11-17'
+  sha256: 32d052167f27f4aefea427177ccd7b66ce1dde589122da98972b00d0a8201263
+  bytes: 162280
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-amendment-no-1/2026-11-17/STP 8-2020 (Amendment No 1).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-policy-no-8-2020-amendment-no-1-malay
+  title: Service Tax Policy No. 8/2020 (Amendment No. 1) (Malay)
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%20%208-2020%20(Pindaan%20No%201).pdf
+  retrieved: '2026-11-17'
+  sha256: 8524a6c9bd5166521e3a46a17dd62023dae2c4371729cbf67c5c27e4ac1a2444
+  bytes: 156507
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-amendment-no-1-malay/2026-11-17/DCP  8-2020 (Pindaan No 1).pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-policy-no-8-2020-malay
+  title: Service Tax Policy No. 8/2020 (Malay)
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%208_2020.pdf
+  retrieved: '2026-11-17'
+  sha256: efc08743b7b3f7ad6f714007301320705c981cf3ed22ad77fa150e2b8d07a49c
+  bytes: 320296
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-malay/2026-11-17/DCP 8_2020.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2018
+  title: Service Tax Regulations 2018 — Amendment 1/2018
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: 619f275bd5fd72ed1485184108662151d3c6eae91d1a0d2ac134614f0b857b6c
+  bytes: 454376
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2018/2026-11-17/Service Tax Regulations (Amendment) 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2019
+  title: Service Tax Regulations 2018 — Amendment 1/2019
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20(Amendment)%20Regulations%202019.pdf
+  retrieved: '2026-11-17'
+  sha256: d501fd8deef8574710b898331259c15d8adb5cd26165910d50833355d5413688
+  bytes: 3069902
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2019/2026-11-17/Service Tax (Amendment) Regulations 2019.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2020
+  title: Service Tax Regulations 2018 — Amendment 1/2020
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%202020.pdf
+  retrieved: '2026-11-17'
+  sha256: a2d2cd8324827c41af4a0e898645a702b2231ad65d6e701d370b197f8ea8b5b5
+  bytes: 513338
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2020/2026-11-17/Service Tax Regulations (Amendment) 2020.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2023
+  title: Service Tax Regulations 2018 — Amendment 1/2023
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20(Amendment)%20Regulations_PUA150.pdf
+  retrieved: '2026-11-17'
+  sha256: a4bd2e51c2a8ebe14e718aa40d8c4f7c9075702f730429ea152f85ef06939777
+  bytes: 478729
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2023/2026-11-17/Service Tax (Amendment) Regulations_PUA150.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2024
+  title: Service Tax Regulations 2018 — Amendment 1/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/PERATURAN-PERATURAN%20CUKAI%20PERKHIDMATAN%20(PINDAAN)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: eddfbea3d11db0cd76a29eca5029c4f795a6783840977f7b01a22aa363a1c40d
+  bytes: 716860
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2024/2026-11-17/PERATURAN-PERATURAN CUKAI PERKHIDMATAN (PINDAAN) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-1-2025
+  title: Service Tax Regulations 2018 — Amendment 1/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Peraturan-Peraturan%20CP%20(Pindaan)%202025.pdf
+  retrieved: '2026-11-17'
+  sha256: 755dce7505f3af3c0b3cebccd698ed4cba8838e41735552a1e3dcd9c0310aa65
+  bytes: 427748
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2025/2026-11-17/Peraturan-Peraturan CP (Pindaan) 2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2018
+  title: Service Tax Regulations 2018 — Amendment 2/2018
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment%202)%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: bd069d80cc347d5f917c0eeb39c3d7c34d532511815bf3dca60b96d31d10d0aa
+  bytes: 661420
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2018/2026-11-17/Service Tax Regulations (Amendment 2) 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2019
+  title: Service Tax Regulations 2018 — Amendment 2/2019
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment%202)%202019.pdf
+  retrieved: '2026-11-17'
+  sha256: 6d7d8a280f4931f4ab76579fc8d9a4bcdaf61e93bcb2ee2c3d9a093a5905a37b
+  bytes: 448574
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2019/2026-11-17/Service Tax Regulations (Amendment 2) 2019.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2020
+  title: Service Tax Regulations 2018 — Amendment 2/2020
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%20No2%202020.pdf
+  retrieved: '2026-11-17'
+  sha256: b135df68d257c9764ed829ba6651059795f6a13afa250583217a4ddc0ec90414
+  bytes: 419566
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2020/2026-11-17/Service Tax Regulations (Amendment) No2 2020.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2023
+  title: Service Tax Regulations 2018 — Amendment 2/2023
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/PUA%20413%20Peraturan2%20CP%20(Pindaan)(No.2)%202023.pdf
+  retrieved: '2026-11-17'
+  sha256: fb5c16668fec12b76e36874323a5c9ef56f7066cdea8d69dae12ccfaa7cd7398
+  bytes: 625124
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2023/2026-11-17/PUA 413 Peraturan2 CP (Pindaan)(No.2) 2023.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2024
+  title: Service Tax Regulations 2018 — Amendment 2/2024
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/P.U.(A)%20354%20-%20PERATURAN-PERATURAN%20CUKAI%20PERKHIDMATAN%20(PINDAAN)%202024.pdf
+  retrieved: '2026-11-17'
+  sha256: 81a71a7a06ce9476ae84a7d52ae66b2bee3b025d71accb9fea3af30009917342
+  bytes: 181391
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2024/2026-11-17/P.U.(A) 354 - PERATURAN-PERATURAN CUKAI PERKHIDMATAN (PINDAAN) 2024.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018-amendment-2-2025
+  title: Service Tax Regulations 2018 — Amendment 2/2025
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/5-PUA%20201.2025.pdf
+  retrieved: '2026-11-17'
+  sha256: 07019fc89c1dfe29134d06ecc618861a905aa4531172f096c1a386ffc5a5872a
+  bytes: 260156
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2025/2026-11-17/5-PUA 201.2025.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+  note: MySST labels this tab "Amendment 1/2025" twice; this file is P.U. (A) 201/2025.
+- id: service-tax-regulations-2018-amendment-3-2018
+  title: Service Tax Regulations 2018 — Amendment 3/2018
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment%203)%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: 15807bb497d144190c13c193fe97c00cba19ed23928a6b912990dbb9b8cfcfa9
+  bytes: 1799239
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-3-2018/2026-11-17/Service Tax Regulations (Amendment 3) 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: service-tax-regulations-2018
+  title: Service Tax Regulations 2018 — Principal
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%202018.pdf
+  retrieved: '2026-11-17'
+  sha256: 3f9da7c9b4d2cecf079609ea7789dbe9b7e350866a9f736e71bf1ababa578d49
+  bytes: 2335079
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-regulations-2018/2026-11-17/Service Tax Regulations 2018.pdf
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: iras-e-tax-guide-gst-general-guide-for-businesses-archive
+  title: 'IRAS e-Tax Guide: GST General Guide for Businesses (archive)'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/docs/default-source/archive/etaxguide_gst_gst-general-guide-for-businesses(1).pdf?sfvrsn=4307f059_4
+  retrieved: '2026-11-17'
+  sha256: null
+  bytes: null
+  content_type: null
+  archive_path: null
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  fetch_error: HTTP 403 (the URL now redirects with 302 to the IRAS Sitefinity login page)
+- id: iras-e-tax-guide-gst-guide-on-reimbursement-and-disbursement-of-expenses
+  title: 'IRAS e-Tax Guide: GST Guide on Reimbursement and Disbursement of Expenses'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/docs/default-source/e-tax/etax-guide_guide-on-reimbursement-and-disbursement-of-expenses_2019-12-30.pdf?sfvrsn=3254880e_32
+  retrieved: '2026-11-17'
+  sha256: 5cdcf43eebcab311535f2fb1bfcaa6c60ed603cb6316c3e780dd405bee1f46f2
+  bytes: 672899
+  content_type: application/pdf
+  archive_path: sources/sg/iras/iras-e-tax-guide-gst-guide-on-reimbursement-and-disbursement-of-expenses/2026-11-17/etax-guide_guide-on-reimbursement-and-disbursement-of-expenses_2019-12-30.pdf
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: gst-and-digital-economy-local-businesses
+  title: 'IRAS: GST and digital economy, local businesses'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/gst-and-digital-economy/local-businesses
+  retrieved: '2026-11-17'
+  sha256: 489ae0f591ff624508c94112b106b7b3254429ecc98766f0c93b31c56114746a
+  bytes: 297210
+  content_type: text/html
+  archive_path: sources/sg/iras/gst-and-digital-economy-local-businesses/2026-11-17/local-businesses.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: basics-of-gst
+  title: 'IRAS: basics of GST'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/
+  retrieved: '2026-11-17'
+  sha256: eabbca3a2bccb79cc6122117a38c2e31f5c73eecb4885f96b329da51410d7168
+  bytes: 252702
+  content_type: text/html
+  archive_path: sources/sg/iras/basics-of-gst/2026-11-17/basics-of-gst.html
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/countries/sg/constants.py
+- id: claim-input-tax-in-the-correct-accounting-period
+  title: 'IRAS: claim input tax in the correct accounting period'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/claim-input-tax-in-the-correct-accounting-period
+  retrieved: '2026-11-17'
+  sha256: de1880c62ab350b404744b683fdc5a4a67a27bdf6a841706c9492b2fc0e19cfd
+  bytes: 268801
+  content_type: text/html
+  archive_path: sources/sg/iras/claim-input-tax-in-the-correct-accounting-period/2026-11-17/claim-input-tax-in-the-correct-accounting-period.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - v0.10 rule sheet draft
+- id: claiming-input-tax-incurred-to-make-exempt-supplies
+  title: 'IRAS: claiming input tax incurred to make exempt supplies'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/claiming-input-tax-incurred-to-make-exempt-supplies
+  retrieved: '2026-11-17'
+  sha256: 4116904a5fd7ba6261b4eba817e9233ebb7af26beaed954b329d31f9addba41e
+  bytes: 270230
+  content_type: text/html
+  archive_path: sources/sg/iras/claiming-input-tax-incurred-to-make-exempt-supplies/2026-11-17/claiming-input-tax-incurred-to-make-exempt-supplies.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: conditions-for-claiming-input-tax
+  title: 'IRAS: conditions for claiming input tax'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax
+  retrieved: '2026-11-17'
+  sha256: 826db41f0de9053514601a75dd5ee9598bc66ac5d3a8ca2317ea67a20bc97e59
+  bytes: 284382
+  content_type: text/html
+  archive_path: sources/sg/iras/conditions-for-claiming-input-tax/2026-11-17/conditions-for-claiming-input-tax.html
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - docs/task-sets/ap-invoices/spec-v0.9.md
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  - src/decision_benchmark/task_sets/ap_invoices/countries/sg/constants.py
+  - v0.10 rule sheet draft
+- id: current-gst-rates
+  title: 'IRAS: current GST rates'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/current-gst-rates
+  retrieved: '2026-11-17'
+  sha256: c96bc890f47bbd89dfa9c0894ccd84bc2df46fcbcba78c99353174a68004193e
+  bytes: 263563
+  content_type: text/html
+  archive_path: sources/sg/iras/current-gst-rates/2026-11-17/current-gst-rates.html
+  wayback_url: null
+  cited_by:
+  - CHANGELOG.md
+  - src/decision_benchmark/task_sets/ap_invoices/countries/sg/constants.py
+  - v0.10 rule sheet draft
+- id: customer-accounting-for-prescribed-goods
+  title: 'IRAS: customer accounting for prescribed goods'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-goods-and-services-tax-(gst)/customer-accounting-for-prescribed-goods
+  retrieved: '2026-11-17'
+  sha256: 956f52a03b6827b5261b8611c4048554c5e33cbb77f50b83126686ef35de1ff9
+  bytes: 272184
+  content_type: text/html
+  archive_path: sources/sg/iras/customer-accounting-for-prescribed-goods/2026-11-17/customer-accounting-for-prescribed-goods.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: employee-benefits-claiming-gst
+  title: 'IRAS: employee benefits (claiming GST)'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
+  retrieved: '2026-11-17'
+  sha256: 2b1db853293a75722a68a153a7659743175ea7845d10d058920c51be011da9b9
+  bytes: 272635
+  content_type: text/html
+  archive_path: sources/sg/iras/employee-benefits-claiming-gst/2026-11-17/employee-benefits.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: foreign-currency-transactions
+  title: 'IRAS: foreign currency transactions'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/foreign-currency-transactions
+  retrieved: '2026-11-17'
+  sha256: 3b33df065c71b1caac60cb2553d558fbc5874be2858e7cdd617ca19f34dba108
+  bytes: 276301
+  content_type: text/html
+  archive_path: sources/sg/iras/foreign-currency-transactions/2026-11-17/foreign-currency-transactions.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: invoicing-customers
+  title: 'IRAS: invoicing customers'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/invoicing-price-display-and-record-keeping/invoicing-customers
+  retrieved: '2026-11-17'
+  sha256: 78dd8cdf002eebc2d2e4b241cff0cba0331db3e358f3140a16a52228f0388026
+  bytes: 312823
+  content_type: text/html
+  archive_path: sources/sg/iras/invoicing-customers/2026-11-17/invoicing-customers.html
+  wayback_url: null
+  cited_by:
+  - docs/task-sets/ap-invoices/tax-rules-v0.9.md
+  - v0.10 rule sheet draft
+- id: motor-vehicle-expenses-claiming-gst
+  title: 'IRAS: motor vehicle expenses (claiming GST)'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/Motor-Vehicles-Expenses
+  retrieved: '2026-11-17'
+  sha256: 367823e109a8f63812cc2404f3b0b928ea963d744004c80324365eb023136602
+  bytes: 269308
+  content_type: text/html
+  archive_path: sources/sg/iras/motor-vehicle-expenses-claiming-gst/2026-11-17/Motor-Vehicles-Expenses.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: overview-of-withholding-tax
+  title: 'IRAS: overview of withholding tax'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/withholding-tax/basics-of-withholding-tax/overview-of-withholding-tax-(WHT)
+  retrieved: '2026-11-17'
+  sha256: 17941ffe10e07f978e12b7eee780302e34e45f24298c9995614dd32f8ac323ea
+  bytes: 263584
+  content_type: text/html
+  archive_path: sources/sg/iras/overview-of-withholding-tax/2026-11-17/overview-of-withholding-tax-(WHT).html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: paying-suppliers-after-claiming-gst
+  title: 'IRAS: paying suppliers after claiming GST'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/paying-suppliers-after-claiming-gst
+  retrieved: '2026-11-17'
+  sha256: d86bc177a10fa345a49a12fdaa0963dbd0ea65c6391ac2a330a9af2f3bca2a56
+  bytes: 264093
+  content_type: text/html
+  archive_path: sources/sg/iras/paying-suppliers-after-claiming-gst/2026-11-17/paying-suppliers-after-claiming-gst.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: providing-international-services
+  title: 'IRAS: providing international services'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-0-gst-(zero-rate)/providing-international-services
+  retrieved: '2026-11-17'
+  sha256: 5b5d745a433ad0197dbdf088370d73a1bdfa24f7f0b4dbc71c2e8e0d55e90d0a
+  bytes: 331475
+  content_type: text/html
+  archive_path: sources/sg/iras/providing-international-services/2026-11-17/providing-international-services.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: supplies-exempt-from-gst
+  title: 'IRAS: supplies exempt from GST'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-is-gst-not-charged/supplies-exempt-from-gst
+  retrieved: '2026-11-17'
+  sha256: 254a6412907ed3919f68878e3a5b057ee1a9bf331e3ffa6d8871cbe7abc6375c
+  bytes: 302029
+  content_type: text/html
+  archive_path: sources/sg/iras/supplies-exempt-from-gst/2026-11-17/supplies-exempt-from-gst.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
+- id: wrongful-collection-of-gst-by-gst-registered-persons
+  title: 'IRAS: wrongful collection of GST by GST-registered persons'
+  authority: IRAS
+  country: sg
+  official_url: https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/getting-it-right/wrongful-collection-of-gst-by-gst-registered-persons
+  retrieved: '2026-11-17'
+  sha256: 0f1d6f249bfee59909491456b5b3f169b9a105d7c495183c25d8a587a9a96942
+  bytes: 263181
+  content_type: text/html
+  archive_path: sources/sg/iras/wrongful-collection-of-gst-by-gst-registered-persons/2026-11-17/wrongful-collection-of-gst-by-gst-registered-persons.html
+  wayback_url: null
+  cited_by:
+  - v0.10 rule sheet draft
