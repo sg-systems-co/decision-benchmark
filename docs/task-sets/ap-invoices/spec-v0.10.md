@@ -83,10 +83,10 @@ New codes in v0.10 are marked **new**. Each code's definition and rule IDs are a
 | Code | Meaning | Rules | Decision effect |
 | --- | --- | --- | --- |
 | `SST_SUPPLIER_NOT_REGISTERED` | Service tax or sales tax charged by a supplier that is not registered for it (and not liable to be) on the invoice date | MS-1, MG-1 | REQUEST\_CORRECTED\_INVOICE |
-| `SST_NOT_CHARGEABLE_BY_TRADER` **new** | Sales tax charged by a trader, distributor or retailer reselling goods it did not manufacture. Only a registered manufacturer charges sales tax, on taxable goods it manufactured and sold | MG-1 | REQUEST\_CORRECTED\_INVOICE |
+| `SST_NOT_CHARGEABLE_BY_TRADER` **new** | Sales tax charged on goods the supplier did not manufacture: by a trader, distributor or retailer, or by a registered manufacturer reselling goods it bought in. Only a registered manufacturer charges sales tax, on taxable goods it manufactured and sold | MG-1 | REQUEST\_CORRECTED\_INVOICE |
 | `SST_SHOULD_BE_EXEMPT` | Tax charged where an exclusion, exemption, relief or area rule means none is due: item exclusions, B2B exemptions, group relief, designated and special areas, Ministerial exemptions (K-x, L-x, P-x, G-x), exempt goods, Schedules A, B, C | MS-1, MS-4, MS-5, MS-6, MS-7, MS-10, MG-2, MG-4, MG-5, MG-6 | REQUEST\_CORRECTED\_INVOICE |
 | `SST_WRONG_RATE` | Tax charged at a rate other than the one for the service or tariff code and the dates on the documents, higher or lower | MS-2, MS-3, MG-2, MG-3 | REQUEST\_CORRECTED\_INVOICE |
-| `SST_UNDERCHARGED` **new** | Service tax left off a taxable line to a buyer with no exemption. The buyer owes only what is invoiced, but the invoice is wrong | MS-9 | REQUEST\_CORRECTED\_INVOICE |
+| `SST_UNDERCHARGED` **new** | Service tax or sales tax left off a taxable line: service tax on a taxable service to a buyer with no exemption, or sales tax on taxable goods by the registered manufacturer that made them. The buyer owes only what is invoiced, but the invoice is wrong | MS-9, MG-1 | REQUEST\_CORRECTED\_INVOICE |
 | `SST_CORRECT` | Tax due and charged at the right rate by a supplier entitled to charge it | MS-1, MS-2, MG-1, MG-2 | none |
 | `SST_BUYER_ACCOUNTS` **new** | Imported taxable service: the overseas supplier correctly shows no SST, and the buyer accounts for service tax itself (Service Tax Act s26, s26A). Comes with the buyer action `ACCOUNT_IMPORTED_SERVICE_TAX` | MS-8 | none |
 | `NO_SST` | No SST due and none charged | MS-1, MS-8, MG-2 | none |
@@ -96,7 +96,7 @@ New codes in v0.10 are marked **new**. Each code's definition and rule IDs are a
 | Code | Meaning | Rules | Decision effect |
 | --- | --- | --- | --- |
 | `GST_WRONGLY_CHARGED` | GST charged when it should not be (supplier not registered, OVR vendor to a registered buyer, exempt or zero-rated supply, customer-accounting goods), or at a rate higher than the time-of-supply rules allow | SG-3, SG-4, SG-5, SG-6, SG-7 | REQUEST\_CORRECTED\_INVOICE |
-| `GST_UNDERCHARGED` **new** | GST charged at a rate lower than the time-of-supply rules allow for the dates on the documents | SG-3 | REQUEST\_CORRECTED\_INVOICE |
+| `GST_UNDERCHARGED` **new** | GST lower than it should be: a rate lower than the time-of-supply rules allow for the dates on the documents (SG-3), or GST left off a standard-rated supply by a GST-registered supplier where none of SG-5 to SG-8 applies (SG-12). The supplier must issue a corrected invoice | SG-3, SG-12 | REQUEST\_CORRECTED\_INVOICE |
 | `NOT_CLAIMABLE_INVALID_INVOICE` | Not a valid tax invoice (a required item is missing), so no input tax can be claimed on it | SG-2 | REQUEST\_CORRECTED\_INVOICE |
 | `NOT_CLAIMABLE_DISALLOWED` | Input tax disallowed under Regulations 26/27 and related IRAS rules (club fees, staff medical, motor cars, family and director-only benefits, CSR for third parties), or not for the purpose of the business | SG-1, SG-10 | none (booked without input tax) |
 | `NOT_CLAIMABLE_EXEMPT_USE` **new** | Partially exempt buyer that does not meet the de minimis rule; the line is directly attributable to its exempt supplies, so the input tax is not claimable | SG-9 | none (booked without input tax) |
@@ -121,7 +121,7 @@ Inside each group the order is fixed too, so every set of lines has exactly one 
 - **Malaysia:** `SST_SUPPLIER_NOT_REGISTERED` > `SST_NOT_CHARGEABLE_BY_TRADER` > `SST_SHOULD_BE_EXEMPT` > `SST_WRONG_RATE` > `SST_UNDERCHARGED` > `SST_CORRECT` > `SST_BUYER_ACCOUNTS` > `NO_SST`
 - **Singapore:** `GST_WRONGLY_CHARGED` > `GST_UNDERCHARGED` > `NOT_CLAIMABLE_INVALID_INVOICE` > `NOT_CLAIMABLE_DISALLOWED` > `NOT_CLAIMABLE_EXEMPT_USE` > `RESIDUAL_APPORTIONED` > `CLAIMABLE` > `CUSTOMER_ACCOUNTING` > `REVERSE_CHARGE` > `NO_GST`
 
-Malaysia has no invalid-invoice, not-claimable or residual codes: an invalid Malaysian invoice (ME-2, ME-4) is a decision (REQUEST\_CORRECTED\_INVOICE), not a tax treatment. Inside the first group the Malaysian codes follow the v0.9 engine's finding order (not registered, should be exempt, wrong rate), with the trader code next to not registered (both mean "not entitled to charge") and undercharged last (the buyer is not overcharged).
+Malaysia has no invalid-invoice, not-claimable or residual codes: an invalid Malaysian invoice (ME-2, ME-4) is a decision (REQUEST\_CORRECTED\_INVOICE), not a tax treatment. Inside the first group the Malaysian codes follow the v0.9 engine's finding order (not registered, should be exempt, wrong rate), with the trader code next to not registered (both mean "not entitled to charge", MG-1) and undercharged last (the buyer is not overcharged).
 
 When an output has both `tax_lines` and a non-null `tax_treatment`, `tax_treatment` must equal the worst line treatment; the schema rejects anything else. A null line treatment (allowed on HAND\_OVER only) means the worst line is unknown, so `tax_treatment` must then be null too.
 

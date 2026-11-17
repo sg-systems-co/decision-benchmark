@@ -108,6 +108,16 @@ def test_required_invalid_examples_exist(name):
     assert (EX / "invalid" / f"{name}.json").exists()
 
 
+@pytest.mark.parametrize("name, code, basis", [
+    ("my-sales-tax-left-off-by-manufacturer", "SST_UNDERCHARGED", "MS-9"),
+    ("sg-gst-left-off-standard-rated", "GST_UNDERCHARGED", "SG-12"),
+])
+def test_tax_left_off_examples(name, code, basis):
+    out = _load(EX / "valid" / f"{name}.json")
+    assert {"treatment": code, "basis": basis} in [{k: x[k] for k in ("treatment", "basis")} for x in out["tax_lines"]]
+    assert out["tax_treatment"] == code and out["decision"] == "REQUEST_CORRECTED_INVOICE"
+
+
 def test_results_file_without_lane_is_invalid():
     entry = _load(EX / "results/invalid/no-lane.json")
     assert "lane" not in entry and errors(RESULTS_VALIDATOR, entry)

@@ -26,8 +26,8 @@
         },
         {
           "const": "GST_UNDERCHARGED",
-          "description": "GST charged at a rate lower than the time-of-supply rules allow for the dates on the documents. The supplier must issue a corrected invoice.",
-          "x-rules": ["SG-3"]
+          "description": "GST lower than it should be: a rate lower than the time-of-supply rules allow for the dates on the documents (SG-3), or GST left off a standard-rated supply by a GST-registered supplier where none of SG-5 to SG-8 applies (SG-12). The supplier must issue a corrected invoice.",
+          "x-rules": ["SG-3", "SG-12"]
         },
         {
           "const": "NOT_CLAIMABLE_INVALID_INVOICE",

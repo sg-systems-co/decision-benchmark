@@ -24,7 +24,7 @@
         },
         {
           "const": "SST_NOT_CHARGEABLE_BY_TRADER",
-          "description": "Sales tax charged by a trader, distributor or retailer reselling goods it did not manufacture. Sales tax is single-stage: only a registered manufacturer charges it, on taxable goods it manufactured and sold.",
+          "description": "Sales tax charged on goods the supplier did not manufacture: by a trader, distributor or retailer, or by a registered manufacturer reselling goods it bought in. Only a registered manufacturer charges sales tax, on taxable goods it manufactured and sold.",
           "x-rules": ["MG-1"]
         },
         {
@@ -39,8 +39,8 @@
         },
         {
           "const": "SST_UNDERCHARGED",
-          "description": "Service tax left off a taxable line to a buyer with no exemption. The buyer owes only what is invoiced, but the invoice is wrong.",
-          "x-rules": ["MS-9"]
+          "description": "Service tax or sales tax left off a taxable line: service tax on a taxable service to a buyer with no exemption, or sales tax on taxable goods by the registered manufacturer that made them. The buyer owes only what is invoiced, but the invoice is wrong.",
+          "x-rules": ["MS-9", "MG-1"]
         },
         {
           "const": "SST_CORRECT",

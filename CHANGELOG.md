@@ -25,7 +25,7 @@ Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.*
   - `tax_lines`: one entry per invoice line with `line_no`, `treatment` and `basis` (the rule ID).
   - `buyer_actions`: `ACCOUNT_IMPORTED_SERVICE_TAX` (MS-8), `ACCOUNT_CUSTOMER_ACCOUNTING_GST` (SG-7), `ACCOUNT_REVERSE_CHARGE_GST` (SG-8), `ISSUE_SELF_BILLED_EINVOICE` (ME-3), and `WITHHOLD_TAX` with `rate`, `basis` (WH-1 to WH-5) and `base_amount`. Empty list when none apply.
   - `facts`: per line, the facts the rules turn on, each with an evidence reference into the case documents.
-- Tax-treatment codes. Malaysia: `SST_BUYER_ACCOUNTS` (MS-8), `SST_UNDERCHARGED` (MS-9), `SST_NOT_CHARGEABLE_BY_TRADER` (MG-1). Singapore: `CUSTOMER_ACCOUNTING` (SG-7), `REVERSE_CHARGE` (SG-8), `NOT_CLAIMABLE_EXEMPT_USE` (SG-9), `RESIDUAL_APPORTIONED` (SG-9), `GST_UNDERCHARGED` (SG-3). No code is removed.
+- Tax-treatment codes. Malaysia: `SST_BUYER_ACCOUNTS` (MS-8), `SST_UNDERCHARGED` (MS-9, MG-1), `SST_NOT_CHARGEABLE_BY_TRADER` (MG-1). Singapore: `CUSTOMER_ACCOUNTING` (SG-7), `REVERSE_CHARGE` (SG-8), `NOT_CLAIMABLE_EXEMPT_USE` (SG-9), `RESIDUAL_APPORTIONED` (SG-9), `GST_UNDERCHARGED` (SG-3, SG-12). No code is removed.
 - Extra columns, never in the main score: per-line tax accuracy, buyer-action accuracy (exact set; `WITHHOLD_TAX` also by rate and basis), facts score (per-field exact match, per field family). A column the entry didn't submit shows "not submitted", not 0.
 - Two leaderboards on the same cases with the same scorer: model lane (one model, one call per case, no tools, no engine) and system lane (tools, rules engine, pipeline or agent). Every submission and results file states its lane.
 - Agent-track variants, scored separately: (a) rules as documents in the policy folder; (b) the same plus a `check_rules` tool that takes the facts and returns the engine's per-line result.
@@ -48,7 +48,9 @@ Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.*
 - C5: group relief survives external supplies of up to 5% of the service in the month and the next 11 months (First Schedule para 8(2)); for item (i) the "same service" is its sub-items. Modelled as a supplier fact (MS-6). Engine: A12.
 - C6: the Minister's exemptions under Service Tax Act s34(3)(a), s34(4) and Sales Tax Act s35(3), published as Service Tax Policies and Sales Tax Policies, decide invoices too (MS-10, MG-6, K-x, L-x). Read in full on 17 Nov 2026 and archived. Engine: A12.
 
-**Sources manifest.** The sheet is no longer a pending citer. The Service Tax Policy index page now also names MS-10. The two IRAS section roots the sheet names (GST, withholding tax) are treated as navigation, not sources; each IRAS page the rules use has its own entry.
+**Additions to the sheet after the spec review (§0.1a, 17 Nov 2026).** MS-9 also covers sales tax left off by the registered manufacturer that made the goods (`SST_UNDERCHARGED`). MG-1 names `SST_NOT_CHARGEABLE_BY_TRADER` for sales tax on goods the supplier did not manufacture, including a registered manufacturer reselling goods it bought in. New rule SG-12: GST left off a standard-rated supply by a GST-registered supplier → `GST_UNDERCHARGED`. §0.3 gives the full worst-line order by group.
+
+**Sources manifest.** The sheet is no longer a pending citer. New entry for SG-12: the IRAS page on the responsibilities of a GST-registered business. The Service Tax Policy index page now also names MS-10. The two IRAS section roots the sheet names (GST, withholding tax) are treated as navigation, not sources; each IRAS page the rules use has its own entry.
 
 ### v0.9 clarifications (no version bump; no scores exist yet; carried into v0.10)
 
