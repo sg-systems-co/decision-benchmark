@@ -8,7 +8,7 @@ HAND_OVER the same way.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
@@ -17,6 +17,7 @@ from ....fact_reader import FactReader
 from ....findings import finding
 from ....models import BuyerAction, Catalog, Company, Finding, Invoice, InvoiceLine, Supplier
 from ....models.common import ZERO
+from ....models.contract import ResidenceCertificate
 from ....models.tax import TaxRegistration
 from ..models import PintSgLine, SgCompanyFacts, SgSupplierFacts, SgTaxProfile
 from ..models import SgTaxTreatment as T
@@ -50,6 +51,9 @@ class LineCtx:
     day: date
     processing_date: date
     catalog: Catalog
+    residence_certificates: list[ResidenceCertificate] = field(default_factory=list)
+    """The supplier's certificates of residence in the case records (treaty withholding rates)."""
+
 
     def fact(self, name: str, default, basis: str):
         return self.reader.value_or(name, default, basis)

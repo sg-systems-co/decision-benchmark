@@ -24,6 +24,7 @@ S = "test_my_sales_tax::"
 E = "test_my_einvoice::"
 G = "test_sg_gst::"
 Q = "test_sg_claims::"
+W = "test_withholding::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -201,6 +202,17 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
               "near_miss": [G + "test_sg11_near_miss_another_invoice_is_not_a_duplicate"]},
     "SG-12": {"positive": [G + "test_sg12_registered_supplier_leaves_gst_off_a_standard_rated_supply"],
               "near_miss": [G + "test_sg12_near_miss_unregistered_supplier_charges_none"]},
+    "WH-1": {"positive": [W + "test_wh1_interest_and_royalties", W + "test_wh1_industrial_undertaking_row_15_10"],
+             "near_miss": [W + "test_wh1_near_miss_resident_supplier_or_no_nature"]},
+    "WH-2": {"positive": [W + "test_wh2_technical_services_in_malaysia", W + "test_wh2_mixed_contract_on_the_malaysian_part_without_hotels",
+                          W + "test_wh2_movable_property_rent_wherever_used"],
+             "near_miss": [W + "test_wh2_near_miss_services_outside_malaysia_or_freight_alone"]},
+    "WH-3": {"positive": [W + "test_wh3_contract_payment_with_a_pe_two_withholdings"],
+             "near_miss": [W + "test_wh3_near_miss_unknown_pe_is_a_hand_over"]},
+    "WH-4": {"positive": [W + "test_wh4_other_gains_and_entertainers"],
+             "near_miss": [W + "test_wh4_near_miss_resident_entertainer"]},
+    "WH-5": {"positive": [W + "test_wh5_withholding_rates"],
+             "near_miss": [W + "test_wh5_near_miss_not_subject"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -221,6 +233,5 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
 }
 
 PENDING: set[str] = {
-    *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }

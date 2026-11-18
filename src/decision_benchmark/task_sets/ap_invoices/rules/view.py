@@ -20,6 +20,7 @@ from ..models import (
     CompanyRecords,
     ContractRecord,
     Email,
+    ResidenceCertificate,
     GoodsReceipt,
     Invoice,
     LedgerInvoice,
@@ -47,6 +48,8 @@ class CaseView(Model):
     """The supplier's last 10 ledger items on or before as_of_date, newest first."""
     emails: list[Email]
     """The case's own threads, oldest first."""
+    residence_certificates: list[ResidenceCertificate] = []
+    """The supplier's certificates of residence held in the case records (treaty withholding rates)."""
     contracts: list[ContractRecord] = []
     """The written contracts with the supplier (as supplier or supplier-side party) signed on or before
     as_of_date, or undated."""
@@ -140,4 +143,5 @@ def build_case_view(records: CompanyRecords, envelope: ApCaseEnvelope) -> CaseVi
         history=history,
         emails=emails,
         contracts=contracts,
+        residence_certificates=[x for x in records.residence_certificates if x.supplier_id == case.supplier_id],
     )

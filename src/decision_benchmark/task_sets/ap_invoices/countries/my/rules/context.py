@@ -22,7 +22,7 @@ from ....fact_reader import FactReader
 from ....findings import NotSettled, finding
 from ....models import BuyerAction, Catalog, Company, Finding, Invoice, InvoiceLine, Supplier
 from ....models.common import ZERO
-from ....models.contract import ContractRecord
+from ....models.contract import ContractRecord, ResidenceCertificate
 from ..constants import TAX_TYPE_SALES, TAX_TYPE_SERVICE
 from ..models import MyCompanyFacts, MyInvoisLine, MySupplierFacts, MyTaxProfile
 from ..models import MyTaxTreatment as T
@@ -81,6 +81,9 @@ class LineCtx:
     """The case's contracts with this supplier."""
     invoice: Invoice | None = None
     """The invoice the line is on (rules that read its printed parties, e.g. L-5)."""
+    residence_certificates: list[ResidenceCertificate] = field(default_factory=list)
+    """The supplier's certificates of residence in the case records (treaty withholding rates)."""
+
 
     # -- facts ----------------------------------------------------------------
 

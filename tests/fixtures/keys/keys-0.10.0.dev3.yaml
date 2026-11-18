@@ -17838,6 +17838,1252 @@ keys:
 - call: 0
   key:
     answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_industrial_undertaking_row_15_10
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '15'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_industrial_undertaking_row_15_10
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '15'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_interest_and_royalties[interest-False-15]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_interest_and_royalties[interest-True-10]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: royalty
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_interest_and_royalties[royalty-False-10]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-1
+      rate: '8'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: royalty
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_interest_and_royalties[royalty-True-8]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_withholding.py::test_wh1_near_miss_resident_supplier_or_no_nature
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh1_near_miss_resident_supplier_or_no_nature
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '1200.00'
+      basis: WH-2
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - hotel_reimbursement:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '200.00'
+      in_country_share:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 0.4
+      line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_advice
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mixed
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_mixed_contract_on_the_malaysian_part_without_hotels
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-2
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: movable_property_rent
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_movable_property_rent_wherever_used
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: freight
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_near_miss_services_outside_malaysia_or_freight_alone[freight-facts1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_advice
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: outside
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_near_miss_services_outside_malaysia_or_freight_alone[technical_advice-facts0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-2
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_advice
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_technical_services_in_malaysia
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-2
+      rate: '5'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_advice
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_technical_services_in_malaysia
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_advice
+      place_of_performance:
+        value: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_unknown_place_is_a_hand_over_with_the_tax_set
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-3
+      rate: '10'
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-3
+      rate: '3'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: contract_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh3_contract_payment_with_a_pe_two_withholdings
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: contract_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh3_near_miss_unknown_pe_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_withholding.py::test_wh4_near_miss_resident_entertainer
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-4
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: other_gain
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh4_other_gains_and_entertainers[other_gain-10]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-4
+      rate: '15'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: public_entertainer
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh4_other_gains_and_entertainers[public_entertainer-15]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: copyrighted_article
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_not_subject[copyrighted_article-kw3]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: electronic_service
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_not_subject[electronic_service-kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_not_subject[interest-kw4]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: ship_charter
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_not_subject[ship_charter-kw2]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: outside
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_not_subject[technical_or_management_fee-kw0]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_unconfirmed_treaty_row_or_unknown_branch_is_a_hand_over[interest-kw0]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_unconfirmed_treaty_row_or_unknown_branch_is_a_hand_over[interest-kw2]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_unconfirmed_treaty_row_or_unknown_branch_is_a_hand_over[technical_or_management_fee-kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '24'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: director_fee
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[director_fee-False-facts4-24]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '15'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[interest-False-facts0-15]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '15'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: professional_fee
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[professional_fee-False-facts5-15]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '8'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: royalty
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[royalty-True-facts1-8]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '17'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[technical_or_management_fee-False-facts2-17]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '1500.00'
+      basis: WH-5
+      rate: '5'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_withholding_rates[technical_or_management_fee-True-facts3-5]
+- call: 0
+  key:
+    answer_source: rules
     buyer_actions: []
     case_id: ap-my-01206
     decision: REQUEST_CORRECTED_INVOICE

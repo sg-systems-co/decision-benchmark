@@ -22,7 +22,7 @@ from ....models.evidence import LineFacts
 from .. import validity
 from ..models import PintSg, SgTaxProfile
 from ..models import SgTaxTreatment as T
-from . import claim, customer_accounting, gst, reverse_charge
+from . import claim, customer_accounting, gst, reverse_charge, withholding
 from .context import LineCtx, Outcome
 
 if TYPE_CHECKING:
@@ -88,7 +88,7 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
         ctx = LineCtx(line=line, ext=ext.get(line.line_no), reader=reader, profile=profile, invoice=inv,
                       supplier=view.supplier, sf=sf, company=view.company, cf=cf, registration=reg,
                       charged=line.line_no in charged, day=inv.issue_date, processing_date=view.as_of_date,
-                      catalog=catalog)
+                      catalog=catalog, residence_certificates=view.residence_certificates)
         try:
             out = assess_line(ctx, invalid)
         except NotSettled as ns:
@@ -96,8 +96,13 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
             lines.append(LineResult(line.line_no, None, ns.basis, read=tuple(reader.recorded_reads()),
                                     missing=tuple(reader.missing())))
             continue
+        actions = out.actions
+        try:
+            actions += withholding.actions(ctx)
+        except NotSettled as ns:
+            unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
         findings += out.findings
-        lines.append(LineResult(line.line_no, out.code, out.basis, out.actions, read=tuple(reader.recorded_reads()),
+        lines.append(LineResult(line.line_no, out.code, out.basis, actions, read=tuple(reader.recorded_reads()),
                                 missing=tuple(reader.missing())))
     treatment = worst_line(lines, PACK.severity_order)
     if unsettled:
