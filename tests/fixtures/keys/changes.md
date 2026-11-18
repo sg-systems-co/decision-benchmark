@@ -49,3 +49,4 @@ A12 build PR 3 (Singapore, withholding, mixed invoices). One version for the PR,
   - `test_row05_negative_ovr_vendor_charges_no_gst` (SG-4): an OVR vendor charging a GST-registered buyer no GST stays `NO_GST`; its basis is now SG-4 (the vendor is not entitled to charge) in place of SG-12.
   - New key: `test_gst_rate_below_the_time_of_supply_rate_is_undercharged` (formerly `UnsupportedCase` "GST rate"; SG-3: 8% in 2026 is `GST_UNDERCHARGED`).
   - New keys from `tests/rules/test_sg_gst.py`.
+- **Commit 14 (SG-7 to SG-10).** Changed key: `test_row05_negative_ovr_vendor_charges_no_gst` (SG-8): stays `NO_GST`; its basis is now SG-8 (an imported service to a fully taxable buyer, which does nothing; for a partially exempt buyer the same invoice is `REVERSE_CHARGE`), in place of SG-4 from commit 13 (SG-12 in 0.10.0.dev2). No other existing key changes. New keys from `tests/rules/test_sg_claims.py`.

@@ -14918,6 +14918,855 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - disallowed_category:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: director_only_benefit
+      line_no: 1
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_sg_claims.py::test_sg10_director_only_benefits_and_csr_are_disallowed[director_only_benefit]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - disallowed_category:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: third_party_csr
+      line_no: 1
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_sg_claims.py::test_sg10_director_only_benefits_and_csr_are_disallowed[third_party_csr]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - chauffeured_pay_per_trip:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+    findings: []
+    gl_account: 6610-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6610-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg10_motor_car_exceptions_from_their_dates
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - car_used_by_third_party:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+    findings: []
+    gl_account: 6610-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6610-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg10_motor_car_exceptions_from_their_dates
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      vehicle_is_motor_car:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6610-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6610-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_sg_claims.py::test_sg10_near_miss_motor_car_exception_before_its_date[facts0-2022-03-10-7]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      vehicle_is_motor_car:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6610-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-10
+      gl_account: 6610-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_sg_claims.py::test_sg10_near_miss_motor_car_exception_before_its_date[facts1-2022-12-10-7]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - disallowed_category:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+      line_no: 1
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg10_near_miss_no_disallowed_category
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_CUSTOMER_ACCOUNTING_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mobile_phone
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-7
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CUSTOMER_ACCOUNTING
+    tax_treatment: CUSTOMER_ACCOUNTING
+  test: tests/rules/test_sg_claims.py::test_sg7_customer_accounting_invoice_the_buyer_accounts
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mobile_phone
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: SG-7
+        line: 1
+      tier: 3
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-7
+      gl_account: 6400-000
+      line_no: 1
+      treatment: GST_WRONGLY_CHARGED
+    tax_treatment: GST_WRONGLY_CHARGED
+  test: tests/rules/test_sg_claims.py::test_sg7_gst_charged_on_prescribed_goods_is_wrongly_charged
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mobile_phone
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg7_near_miss_below_threshold_not_prescribed_or_not_for_business[kw0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg7_near_miss_below_threshold_not_prescribed_or_not_for_business[kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - business_purpose:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+      line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mobile_phone
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_sg_claims.py::test_sg7_near_miss_below_threshold_not_prescribed_or_not_for_business[kw2]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        value: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-7
+      gl_account: 6400-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg7_unknown_goods_type_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      prescribed_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mobile_phone
+    findings:
+    - code: INVALID_TAX_INVOICE
+      evidence:
+        missing:
+        - customer_accounting_statement
+      tier: 3
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - INVALID_TAX_INVOICE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-7
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_INVALID_INVOICE
+    tax_treatment: NOT_CLAIMABLE_INVALID_INVOICE
+  test: tests/rules/test_sg_claims.py::test_sg7_without_the_statement_it_is_not_a_customer_accounting_invoice
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_buyer_does_nothing[it_services-de_minimis_met-None-facts1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_buyer_does_nothing[it_services-fully_taxable-None-facts0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_buyer_does_nothing[it_services-partially_exempt-2019-11-10-facts3]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      low_value_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_buyer_does_nothing[machine_parts-partially_exempt-2022-11-10-facts4]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      low_value_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_buyer_does_nothing[machine_parts-partially_exempt-None-facts2]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_REVERSE_CHARGE_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: REVERSE_CHARGE
+    tax_treatment: REVERSE_CHARGE
+  test: tests/rules/test_sg_claims.py::test_sg8_partially_exempt_buyer_reverse_charges_an_imported_service
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_REVERSE_CHARGE_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      low_value_goods:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6400-000
+      line_no: 1
+      treatment: REVERSE_CHARGE
+    tax_treatment: REVERSE_CHARGE
+  test: tests/rules/test_sg_claims.py::test_sg8_partially_exempt_buyer_reverse_charges_an_imported_service
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg8_unknown_input_tax_status_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg9_near_miss_de_minimis_met_claims_in_full
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      purchase_attribution:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: exempt
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-9
+      gl_account: 6400-000
+      line_no: 1
+      treatment: NOT_CLAIMABLE_EXEMPT_USE
+    tax_treatment: NOT_CLAIMABLE_EXEMPT_USE
+  test: tests/rules/test_sg_claims.py::test_sg9_partially_exempt_buyer_by_attribution[exempt-NOT_CLAIMABLE_EXEMPT_USE]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      purchase_attribution:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: residual
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-9
+      gl_account: 6400-000
+      line_no: 1
+      treatment: RESIDUAL_APPORTIONED
+    tax_treatment: RESIDUAL_APPORTIONED
+  test: tests/rules/test_sg_claims.py::test_sg9_partially_exempt_buyer_by_attribution[residual-RESIDUAL_APPORTIONED]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      purchase_attribution:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: taxable
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-9
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_sg_claims.py::test_sg9_partially_exempt_buyer_by_attribution[taxable-CLAIMABLE]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-9
+      gl_account: 6400-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg9_unknown_attribution_or_status_is_a_hand_over[None-facts1]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-9
+      gl_account: 6400-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg9_unknown_attribution_or_status_is_a_hand_over[partially_exempt-facts0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
     decision: REJECT_DUPLICATE
     engine_version: 0.10.0.dev3
     facts: null
@@ -16196,7 +17045,7 @@ keys:
     - MATCHED_WITHIN_TOLERANCE
     rules_version: v0.9
     tax_lines:
-    - basis: SG-4
+    - basis: SG-8
       gl_account: 6400-000
       line_no: 1
       treatment: NO_GST

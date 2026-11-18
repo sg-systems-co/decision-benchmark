@@ -23,6 +23,7 @@ P = "test_my_policies::"
 S = "test_my_sales_tax::"
 E = "test_my_einvoice::"
 G = "test_sg_gst::"
+Q = "test_sg_claims::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -184,6 +185,18 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
              "near_miss": [G + "test_sg5_near_miss_advisory_fee_is_not_exempt_and_exempt_line_without_gst"]},
     "SG-6": {"positive": [G + "test_sg6_gst_on_a_zero_rated_service_is_wrongly_charged", G + "test_sg6_zero_rated_line_shows_0_percent"],
              "near_miss": [G + "test_sg6_near_miss_provision_doesnt_apply_so_gst_was_left_off"]},
+    "SG-7": {"positive": [Q + "test_sg7_customer_accounting_invoice_the_buyer_accounts",
+                          Q + "test_sg7_gst_charged_on_prescribed_goods_is_wrongly_charged"],
+             "near_miss": [Q + "test_sg7_near_miss_below_threshold_not_prescribed_or_not_for_business"]},
+    "SG-8": {"positive": [Q + "test_sg8_partially_exempt_buyer_reverse_charges_an_imported_service"],
+             "near_miss": [Q + "test_sg8_near_miss_buyer_does_nothing", T + "test_row05_negative_ovr_vendor_charges_no_gst"]},
+    "SG-9": {"positive": [Q + "test_sg9_partially_exempt_buyer_by_attribution"],
+             "near_miss": [Q + "test_sg9_near_miss_de_minimis_met_claims_in_full"]},
+    "SG-10": {"positive": [Q + "test_sg10_director_only_benefits_and_csr_are_disallowed",
+                           Q + "test_sg10_motor_car_exceptions_from_their_dates", T + "test_row06_positive_each_class"],
+              "near_miss": [Q + "test_sg10_near_miss_motor_car_exception_before_its_date",
+                            Q + "test_sg10_near_miss_no_disallowed_category",
+                            T + "test_row06_negative_obligatory_staff_medical_is_claimable"]},
     "SG-11": {"positive": [G + "test_sg11_duplicate_claim_is_caught_by_the_duplicate_check"],
               "near_miss": [G + "test_sg11_near_miss_another_invoice_is_not_a_duplicate"]},
     "SG-12": {"positive": [G + "test_sg12_registered_supplier_leaves_gst_off_a_standard_rated_supply"],
@@ -208,6 +221,6 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
 }
 
 PENDING: set[str] = {
-    "SG-7", "SG-8", "SG-9", "SG-10", *(f"WH-{i}" for i in range(1, 6)),
+    *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }

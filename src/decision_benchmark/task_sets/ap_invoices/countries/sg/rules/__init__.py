@@ -1,9 +1,10 @@
 """Singapore GST rules, line by line (rule sheet v0.10 section 4; A12 plan §4.5).
 
 Invoice-level first: a supplier not entitled to charge GST (SG-4) makes every line that carries GST wrongly
-charged. Then each line: GST that shouldn't be there or at a rate the rules don't allow (SG-5, SG-6, SG-3);
-an invalid tax invoice (SG-2) for every other line that carries GST; the claim rules (SG-10, SG-1). A line
-without GST is right (SG-4, SG-5, SG-6) or undercharged (SG-12). A rule the documents don't settle raises
+charged. Then each line: GST that shouldn't be there or at a rate the rules don't allow (SG-5, SG-6, SG-7, SG-3);
+an invalid tax invoice (SG-2) for every other line that carries GST; the claim rules (SG-10, SG-1, SG-9). A
+line without GST is right (SG-4, SG-5, SG-6), the buyer's to account for (SG-7 customer accounting, SG-8
+reverse charge), or undercharged (SG-12). A rule the documents don't settle raises
 NotSettled: the line is null with that rule as basis.
 """
 
@@ -21,7 +22,7 @@ from ....models.evidence import LineFacts
 from .. import validity
 from ..models import PintSg, SgTaxProfile
 from ..models import SgTaxTreatment as T
-from . import claim, gst
+from . import claim, customer_accounting, gst, reverse_charge
 from .context import LineCtx, Outcome
 
 if TYPE_CHECKING:
@@ -112,8 +113,9 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
 
 def assess_line(ctx: LineCtx, invalid: list[Finding]) -> Outcome:
     if not ctx.charged:
-        return gst.uncharged_line(ctx)
-    wrong = gst.charged_line(ctx)
+        return (reverse_charge.uncharged(ctx) or customer_accounting.uncharged(ctx)
+                or gst.uncharged_line(ctx))
+    wrong = gst.charged_line(ctx) or customer_accounting.charged(ctx)
     if wrong is not None:
         return wrong
     rate = gst.check_rate(ctx)
