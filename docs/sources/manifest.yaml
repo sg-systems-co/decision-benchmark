@@ -1931,7 +1931,7 @@ sources:
   bytes: 100747
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2020/2026-11-17/STP-2-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117153918/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-2-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -1946,7 +1946,7 @@ sources:
   bytes: 156181
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2020/2026-11-17/STP-3-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154154/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-3-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -1961,7 +1961,7 @@ sources:
   bytes: 142472
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2020-amendment-1/2026-11-17/STP-3-2020-Amendment-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154215/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-3-2020-Amendment-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -1976,7 +1976,7 @@ sources:
   bytes: 81634
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2020/2026-11-17/STP-4-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154239/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-4-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-19
@@ -1991,7 +1991,7 @@ sources:
   bytes: 143262
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2020-amendment-1/2026-11-17/STP-4-2020-Amendment-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154306/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-4-2020-Amendment-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-19
@@ -2006,7 +2006,7 @@ sources:
   bytes: 303284
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2020/2026-11-17/STP-5-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154332/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-5-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-19
@@ -2021,7 +2021,7 @@ sources:
   bytes: 143990
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2020-amendment-1/2026-11-17/STP-5-2020-Amendment-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154355/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-5-2020-Amendment-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-19
@@ -2036,7 +2036,7 @@ sources:
   bytes: 84162
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2020/2026-11-17/STP-6-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154541/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-6-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-17
@@ -2051,7 +2051,7 @@ sources:
   bytes: 130080
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-7-2020/2026-11-17/STP-07_2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154609/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-07_2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2020-02-28'
@@ -2081,7 +2081,7 @@ sources:
   bytes: 162280
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-8-2020-amendment-1/2026-11-17/STP-8-2020-Amendment-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154906/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-8-2020-Amendment-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-6
@@ -2097,7 +2097,7 @@ sources:
   bytes: 178880
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-9-2020/2026-11-17/STP-09-2020-amendment-6-3-2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117154931/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-09-2020-amendment-6-3-2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2020-04-17'
@@ -2111,7 +2111,7 @@ sources:
   bytes: 151441
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-9-2020-amendment-1/2026-11-17/STP-No9-of-2020-Amendment-No_1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117155205/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-No9-of-2020-Amendment-No_1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2020-06-17'
@@ -2169,7 +2169,7 @@ sources:
   bytes: 132868
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-10-2020-amendment-2/2026-11-17/DCP-10-2020-Pindaan-No2-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117160007/https://mysst.customs.gov.my/wp-content/uploads/2025/07/DCP-10-2020-Pindaan-No2-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-20
@@ -2198,7 +2198,7 @@ sources:
   bytes: 161642
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2021/2026-11-17/STP-2-2021-30062021.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117160512/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-2-2021-30062021.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2021-07-01'
@@ -2226,7 +2226,7 @@ sources:
   bytes: 478804
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2021/2026-11-17/Dasar-CP-2021-3-20211231-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117160833/https://mysst.customs.gov.my/wp-content/uploads/2025/07/Dasar-CP-2021-3-20211231-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2021-12-31'
@@ -2240,7 +2240,7 @@ sources:
   bytes: 143832
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2021-amendment-1/2026-11-17/DCP-3-2021-Pindaan-3-20220301-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161105/https://mysst.customs.gov.my/wp-content/uploads/2025/07/DCP-3-2021-Pindaan-3-20220301-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2022-03-01'
@@ -2254,7 +2254,7 @@ sources:
   bytes: 215809
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2022/2026-11-17/DCP-1-2022-20220801-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161130/https://mysst.customs.gov.my/wp-content/uploads/2025/07/DCP-1-2022-20220801-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-20
@@ -2269,7 +2269,7 @@ sources:
   bytes: 162498
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2022-amendment-1/2026-11-17/DCP-1-2022-P1-20220801-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161152/https://mysst.customs.gov.my/wp-content/uploads/2025/07/DCP-1-2022-P1-20220801-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-20
@@ -2284,7 +2284,7 @@ sources:
   bytes: 145379
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2022/2026-11-17/STP-Bil-2-2022-20220908.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161216/https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-Bil-2-2022-20220908.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-20
@@ -2299,7 +2299,7 @@ sources:
   bytes: 165748
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2024/2026-11-17/Dasar-Cukai-Perkhidmatan-Bil-1-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161239/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Dasar-Cukai-Perkhidmatan-Bil-1-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2024-02-28'
@@ -2313,7 +2313,7 @@ sources:
   bytes: 187238
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2024/2026-11-17/Dasar-Cukai-Perkhidmatan-Bil-2-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161401/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Dasar-Cukai-Perkhidmatan-Bil-2-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2024-02-28'
@@ -2327,7 +2327,7 @@ sources:
   bytes: 236716
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2024/2026-11-17/Dasar-Cukai-Perkhidmatan-Bil-3-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161524/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Dasar-Cukai-Perkhidmatan-Bil-3-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-2
@@ -2342,7 +2342,7 @@ sources:
   bytes: 214081
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2024-amendment-1/2026-11-17/DCP-Bil-3-2024-Pindaan-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161544/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-3-2024-Pindaan-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-2
@@ -2357,7 +2357,7 @@ sources:
   bytes: 234538
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2024/2026-11-17/DCP-Bil-4-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161608/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-4-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-18
@@ -2372,7 +2372,7 @@ sources:
   bytes: 179758
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2024-amendment-1/2026-11-17/DCP-Bil-4-2024-Pindaan-No-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161632/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-4-2024-Pindaan-No-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-18
@@ -2387,7 +2387,7 @@ sources:
   bytes: 203501
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2024/2026-11-17/DCP-Bil-5-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161657/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-5-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-11
@@ -2402,7 +2402,7 @@ sources:
   bytes: 199140
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2024/2026-11-17/DCP-Bil-6-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161816/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-6-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-9
@@ -2417,7 +2417,7 @@ sources:
   bytes: 244177
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2024-amendment-1/2026-11-17/Pindaan-No1-DCP-6_2024-Final.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161840/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Pindaan-No1-DCP-6_2024-Final.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-9
@@ -2432,7 +2432,7 @@ sources:
   bytes: 220354
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2024-amendment-2/2026-11-17/DCP-Bil.6-2024-Pindaan-No.2-PENYENGGARAAN-ATAU-PEMBAIKAN.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161907/https://mysst.customs.gov.my/wp-content/uploads/2025/12/DCP-Bil.6-2024-Pindaan-No.2-PENYENGGARAAN-ATAU-PEMBAIKAN.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-9
@@ -2447,7 +2447,7 @@ sources:
   bytes: 146013
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-7-2024/2026-11-17/DCP-Bil-7-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161931/https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-7-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2024-07-26'
@@ -2461,7 +2461,7 @@ sources:
   bytes: 145545
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-7-2024-amendment-1/2026-11-17/Dasar-Cukai-Perkhidmatan-Bil.-7-2024-Pindaan-no-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117161956/https://mysst.customs.gov.my/wp-content/uploads/2025/07/Dasar-Cukai-Perkhidmatan-Bil.-7-2024-Pindaan-no-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2025-03-17'
@@ -2475,7 +2475,7 @@ sources:
   bytes: 151527
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-8-2024/2026-11-17/Dasar-Cukai-Perkhidmatan-Bil.-8-2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117162020/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Dasar-Cukai-Perkhidmatan-Bil.-8-2024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   published: '2024-12-26'
@@ -2489,7 +2489,7 @@ sources:
   bytes: 206778
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2025/2026-11-17/STP-1-2025-Financial.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117162044/https://mysst.customs.gov.my/wp-content/uploads/2025/07/STP-1-2025-Financial.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -2535,7 +2535,7 @@ sources:
   bytes: 286416
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2025-amendment-2/2026-11-17/STP-1-2025-Financial-Amendment-No.-2-11.9.2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117162244/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-1-2025-Financial-Amendment-No.-2-11.9.2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -2558,7 +2558,7 @@ sources:
   bytes: 252262
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2025-amendment-3/2026-11-17/STP-1-2025-Financial-Amendment-No.-3.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261102120929/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-1-2025-Financial-Amendment-No.-3.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-8
@@ -2671,7 +2671,7 @@ sources:
   bytes: 143759
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2025-amendment-2/2026-11-17/STP-2-2025-Rental-or-Leasing-Amendment-No.-2.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117164057/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-2-2025-Rental-or-Leasing-Amendment-No.-2.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#K-1
@@ -2693,7 +2693,7 @@ sources:
   bytes: 265515
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2025-amendment-3/2026-11-17/DCP-2-2025-Sewaan-atau-Pajakan-Pindaan-No.3.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261031234958/https://mysst.customs.gov.my/wp-content/uploads/2026/04/DCP-2-2025-Sewaan-atau-Pajakan-Pindaan-No.3.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#K-1
@@ -2715,7 +2715,7 @@ sources:
   bytes: 282470
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2025-amendment-4/2026-11-17/DCP-2-2025-Sewaan-atau-Pajakan-Pindaan-No.4.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261031234958/https://mysst.customs.gov.my/wp-content/uploads/2026/04/DCP-2-2025-Sewaan-atau-Pajakan-Pindaan-No.4.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#K-1
@@ -2783,7 +2783,7 @@ sources:
   bytes: 136155
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2025/2026-11-17/STP-3-2025-Construction-Works.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117170526/https://mysst.customs.gov.my/wp-content/uploads/2025/07/STP-3-2025-Construction-Works.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#L-1
@@ -2805,7 +2805,7 @@ sources:
   bytes: 155003
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2025-amendment-1/2026-11-17/STP-3-2025-Construction-Works-Amendment-No.-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117170553/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-3-2025-Construction-Works-Amendment-No.-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#L-1
@@ -2827,7 +2827,7 @@ sources:
   bytes: 274541
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2025-amendment-2/2026-11-17/DCP-3-2025-Kerja-Pembinaan-Pindaan-No.-2-31122025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117171910/https://mysst.customs.gov.my/wp-content/uploads/2026/03/DCP-3-2025-Kerja-Pembinaan-Pindaan-No.-2-31122025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#L-1
@@ -2901,7 +2901,7 @@ sources:
   bytes: 135936
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2025-amendment-2/2026-11-17/STP-4-2025-Education-Amendment-No.-2.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117172738/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-4-2025-Education-Amendment-No.-2.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-16
@@ -2916,7 +2916,7 @@ sources:
   bytes: 117654
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2025/2026-11-17/STP-5-2025-Private-Healthcare.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117172802/https://mysst.customs.gov.my/wp-content/uploads/2025/07/STP-5-2025-Private-Healthcare.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-12
@@ -2932,7 +2932,7 @@ sources:
   bytes: 127890
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2025-amendment-1/2026-11-17/STP-5-2025-Private-Healthcare-Amendment-No.-1.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117172828/https://mysst.customs.gov.my/wp-content/uploads/2025/07/STP-5-2025-Private-Healthcare-Amendment-No.-1.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-12
@@ -2948,7 +2948,7 @@ sources:
   bytes: 136775
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2025-amendment-2/2026-11-17/STP-5-2025-Private-Healthcare-Amendment-No.-2.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117172853/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-5-2025-Private-Healthcare-Amendment-No.-2.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-12
@@ -2964,7 +2964,7 @@ sources:
   bytes: 188632
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2025-amendment-3/2026-11-17/STP 5-2025 (Private Healthcare) (Amendment No. 3) ENG.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261010232855/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%205-2025%20(Private%20Healthcare)%20(Amendment%20No.%203)%20ENG.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-12
@@ -2980,7 +2980,7 @@ sources:
   bytes: 116728
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2025/2026-11-17/STP-6-2025-Private-Healthcare.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117173156/https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-6-2025-Private-Healthcare.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-14
@@ -3025,7 +3025,7 @@ sources:
   bytes: 121410
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-1-2026/2026-11-17/STP No.1.2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261010232856/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%20No.1.2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-15
@@ -3040,7 +3040,7 @@ sources:
   bytes: 156019
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-2-2026/2026-11-17/SERVICE TAX POLICY NO. 2_2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261010232856/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/SERVICE%20TAX%20POLICY%20NO.%202_2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#L-5
@@ -3055,7 +3055,7 @@ sources:
   bytes: 82621
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-3-2026/2026-11-17/STP 3__2026 MF & SF-BI.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261010232856/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%203__2026%20MF%20%26%20SF-BI.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-10
@@ -3070,7 +3070,7 @@ sources:
   bytes: 130766
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-4-2026/2026-11-17/STP No.4-2026 (Rental or Leasing) 220726.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261010232856/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%20No.4-2026%20(Rental%20or%20Leasing)%20220726.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#K-8
@@ -3085,7 +3085,7 @@ sources:
   bytes: 185482
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2025-amendment-4/2026-11-17/STP 5-2025 (Private Healthcare) (Amendment No. 4) ENG.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142913/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%205-2025%20(Private%20Healthcare)%20(Amendment%20No.%204)%20ENG.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-12
@@ -3101,7 +3101,7 @@ sources:
   bytes: 184398
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-5-2026/2026-11-17/2. SERVICE TAX POLICY NO.5_2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142913/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/2.%20SERVICE%20TAX%20POLICY%20NO.5_2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#L-6
@@ -3116,7 +3116,7 @@ sources:
   bytes: 218359
   content_type: application/pdf
   archive_path: sources/my/rmcd/stp-6-2026/2026-11-17/DCP Bil.6-2026 (Penghantaran dan Pengagihan Elektrik) 01102026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142913/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%20Bil.6-2026%20(Penghantaran%20dan%20Pengagihan%20Elektrik)%2001102026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#P-21
@@ -3206,7 +3206,7 @@ sources:
   bytes: 154042
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-policy-1-2025/2026-11-17/EN-PENGECUALIAN-MOTOSIKAL-makluman-26.9.2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117180038/https://mysst.customs.gov.my/wp-content/uploads/2025/12/EN-PENGECUALIAN-MOTOSIKAL-makluman-26.9.2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-1
@@ -3236,7 +3236,7 @@ sources:
   bytes: 156721
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-policy-2-2025/2026-11-17/EN-PENGECUALIAN-SOYA-makluman-27.9.2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117180335/https://mysst.customs.gov.my/wp-content/uploads/2025/12/EN-PENGECUALIAN-SOYA-makluman-27.9.2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-2
@@ -3266,7 +3266,7 @@ sources:
   bytes: 53342
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-policy-4-2025/2026-11-17/EN-Sales-Tax-Policy-No.4-2025-FINAL.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117180708/https://mysst.customs.gov.my/wp-content/uploads/2025/12/EN-Sales-Tax-Policy-No.4-2025-FINAL.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-7
@@ -3281,7 +3281,7 @@ sources:
   bytes: 87814
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-policy-1-2026/2026-11-17/EN-Sales-Tax-Policy-No.1-2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117180941/https://mysst.customs.gov.my/wp-content/uploads/2026/03/EN-Sales-Tax-Policy-No.1-2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-3
@@ -3296,7 +3296,7 @@ sources:
   bytes: 112986
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-policy-2-2026/2026-11-17/DASAR CUKAI JUALAN BIL.2_2026 FINAL.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260905174026/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Sales%20Tax%20Policy/MS/DASAR%20CUKAI%20JUALAN%20BIL.2_2026%20FINAL.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-6
@@ -3311,7 +3311,7 @@ sources:
   bytes: 316919
   content_type: text/html
   archive_path: sources/my/lhdn/lhdn-withholding-tax/2026-11-17/cukai-pegangan.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117181252/https://www.hasil.gov.my/en/perundangan/cukai-pegangan/
   cited_by:
   - docs/tax-rules-v0.10.md#WH-1
   - docs/tax-rules-v0.10.md#WH-2
@@ -3328,7 +3328,7 @@ sources:
   bytes: 432112
   content_type: application/pdf
   archive_path: sources/my/lhdn/lhdn-public-ruling-10-2019/2026-11-17/PR_10_2019.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261101084049/https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#WH-2
 - id: lhdn-dta-withholding-tax-rates
@@ -3341,7 +3341,7 @@ sources:
   bytes: 299151
   content_type: text/html
   archive_path: sources/my/lhdn/lhdn-dta-withholding-tax-rates/2026-11-17/kadar-cukai-pegangan.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117181409/https://www.hasil.gov.my/en/antarabangsa/perjanjian-pengelakan-pencukaian-dua-kali-pppdk/kadar-cukai-pegangan/
   cited_by:
   - docs/tax-rules-v0.10.md#WH-1
   - docs/tax-rules-v0.10.md#WH-2
@@ -3356,7 +3356,7 @@ sources:
   bytes: 458911
   content_type: application/pdf
   archive_path: sources/my/agc/income-tax-exemption-no-9-order-2017/2026-11-17/pua_20171024_P.U. (A) 323.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117181744/https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/pua_20171024_P.U.%20(A)%20323.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#WH-2
   note: Federal Gazette copy from the Attorney General's Chambers (lom.agc.gov.my), gazetted 24 Oct 2017.
@@ -3383,7 +3383,7 @@ sources:
   bytes: 335944
   content_type: text/html
   archive_path: sources/sg/iras/iras-payments-that-are-subject-to-withholding-tax/2026-11-17/payments-that-are-subject-to-withholding-tax.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182348/https://www.iras.gov.sg/taxes/withholding-tax/payments-to-non-resident-company/payments-that-are-subject-to-withholding-tax
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
 - id: iras-payments-that-are-not-subject-to-withholding-tax
@@ -3396,7 +3396,7 @@ sources:
   bytes: 272683
   content_type: text/html
   archive_path: sources/sg/iras/iras-payments-that-are-not-subject-to-withholding-tax/2026-11-17/payments-that-are-not-subject-to-withholding-tax.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182725/https://www.iras.gov.sg/taxes/withholding-tax/payments-to-non-resident-company/payments-that-are-not-subject-to-withholding-tax
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
 - id: iras-withholding-tax-filing-and-payment-due-date
@@ -3409,7 +3409,7 @@ sources:
   bytes: 265952
   content_type: text/html
   archive_path: sources/sg/iras/iras-withholding-tax-filing-and-payment-due-date/2026-11-17/withholding-tax-filing-and-payment-due-date.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182859/https://www.iras.gov.sg/taxes/withholding-tax/withholding-tax-filing/withholding-tax-filing-and-payment-due-date
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
 - id: iras-transitional-rules-for-gst-rate-change
@@ -3422,7 +3422,7 @@ sources:
   bytes: 296702
   content_type: text/html
   archive_path: sources/sg/iras/iras-transitional-rules-for-gst-rate-change/2026-11-17/transitional-rules-for-gst-rate-change.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182938/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/gst-rate-change/gst-rate-change-for-business/transitional-rules-for-gst-rate-change
   cited_by:
   - docs/tax-rules-v0.10.md#SG-3
 - id: iras-adjustments-and-concessions-for-gst-rate-change
@@ -3435,7 +3435,7 @@ sources:
   bytes: 275359
   content_type: text/html
   archive_path: sources/sg/iras/iras-adjustments-and-concessions-for-gst-rate-change/2026-11-17/adjustments-and-concessions-for-gst-rate-change.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117183021/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/gst-rate-change/gst-rate-change-for-business/adjustments-and-concessions-for-gst-rate-change
   cited_by:
   - docs/tax-rules-v0.10.md#SG-3
 - id: iras-list-of-dtas-limited-dtas-and-eoi-arrangements
@@ -3448,7 +3448,7 @@ sources:
   bytes: 262752
   content_type: text/html
   archive_path: sources/sg/iras/iras-list-of-dtas-limited-dtas-and-eoi-arrangements/2026-11-17/list-of-dtas-limited-dtas-and-eoi-arrangements.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117183314/https://www.iras.gov.sg/taxes/international-tax/international-tax-agreements-concluded-by-singapore/list-of-dtas-limited-dtas-and-eoi-arrangements
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
 - id: iras-etax-guide-avoidance-of-double-taxation-agreements-4th-edition
@@ -3474,7 +3474,7 @@ sources:
   bytes: 135255
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-albania-dta/2026-11-17/singapore-albania-dta-(ratified)(mli)(1-jan-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117183831/https://www.iras.gov.sg/docs/default-source/dtas/singapore-albania-dta-(ratified)(mli)(1-jan-2021).pdf?sfvrsn=f0a623ed_11
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3488,7 +3488,7 @@ sources:
   bytes: 219791
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-armenia-dta/2026-11-17/singapore-armenia-dta-(ratified)-(23-dec-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117184104/https://www.iras.gov.sg/docs/default-source/dtas/singapore-armenia-dta-(ratified)-(23-dec-2021).pdf?sfvrsn=fb03031b_10
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3502,7 +3502,7 @@ sources:
   bytes: 284750
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-australia-dta/2026-11-17/singapore-australia-dta(ratified)(mli)(19-jul-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260714194748/https://www.iras.gov.sg/docs/default-source/dtas/singapore-australia-dta(ratified)(mli)(19-jul-2021).pdf?sfvrsn=5500c5d2_12
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3516,7 +3516,7 @@ sources:
   bytes: 201433
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-austria-dta/2026-11-17/singapore-austria-dta-(ratified)(mli)(19-july)-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117184154/https://www.iras.gov.sg/docs/default-source/dtas/singapore-austria-dta-(ratified)(mli)(19-july)-2021).pdf?sfvrsn=12bab3f8_10
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3530,7 +3530,7 @@ sources:
   bytes: 128140
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-bahrain-limited-dta/2026-11-17/singaporebahrainlimiteddta.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117184427/https://www.iras.gov.sg/docs/default-source/dtas/singaporebahrainlimiteddta.pdf?sfvrsn=7ac2cd65_11
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3544,7 +3544,7 @@ sources:
   bytes: 154138
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-bahrain-dta/2026-11-17/singapore-bahrain-dta-(mli)-(1-jun-2022-upload).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117184701/https://www.iras.gov.sg/docs/default-source/dtas/singapore-bahrain-dta-(mli)-(1-jun-2022-upload).pdf?sfvrsn=6a4fbda8_7
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3558,7 +3558,7 @@ sources:
   bytes: 230359
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-bangladesh-dta/2026-11-17/singaporebangladeshdta.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117184937/https://www.iras.gov.sg/docs/default-source/dtas/singaporebangladeshdta.pdf?sfvrsn=9b6bb552_7
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3586,7 +3586,7 @@ sources:
   bytes: 111950
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-belarus-dta/2026-11-17/singapore-belarus-dta-(ratified)-(27-dec-2013)29366a90-22f9-4685-8fec-5292368ae360.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117185235/https://www.iras.gov.sg/docs/default-source/dtas/singapore-belarus-dta-(ratified)-(27-dec-2013)29366a90-22f9-4685-8fec-5292368ae360.pdf?sfvrsn=1a872470_11
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3600,7 +3600,7 @@ sources:
   bytes: 1000093
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-belgium-dta/2026-11-17/singapore-belgium-dta-(ratified)(mli)(19-jul-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117185509/https://www.iras.gov.sg/docs/default-source/dtas/singapore-belgium-dta-(ratified)(mli)(19-jul-2021).pdf?sfvrsn=805d0650_15
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3670,7 +3670,7 @@ sources:
   bytes: 166565
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-bulgaria-dta/2026-11-17/singapore-bulgaria-dta-(ratified)(mli)-(1-jan-2023).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117190930/https://www.iras.gov.sg/docs/default-source/dtas/singapore-bulgaria-dta-(ratified)(mli)-(1-jan-2023).pdf?sfvrsn=4b73d905_7
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3684,7 +3684,7 @@ sources:
   bytes: 155675
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-cabo-verde-dta/2026-11-17/dta.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117190955/https://www.iras.gov.sg/docs/default-source/dtas/dta.pdf?sfvrsn=a2b23f6b_18
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: No; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3712,7 +3712,7 @@ sources:
   bytes: 259992
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-canada-dta/2026-11-17/protocol-amending-singapore-canada-dta-(ratified)(mli)(19-jul-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117191252/https://www.iras.gov.sg/docs/default-source/dtas/protocol-amending-singapore-canada-dta-(ratified)(mli)(19-jul-2021).pdf?sfvrsn=2460a91e_12
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3768,7 +3768,7 @@ sources:
   bytes: 246038
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-czech-republic-dta/2026-11-17/singapore-czech-republic-dta-(ratified)(mli)(1-sep-2020).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117192323/https://www.iras.gov.sg/docs/default-source/dtas/singapore-czech-republic-dta-(ratified)(mli)(1-sep-2020).pdf?sfvrsn=8b48a465_9
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -3894,7 +3894,7 @@ sources:
   bytes: 398478
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-gabon-dta/2026-11-17/singapore-gabon-dta-(not-in-force)-(28-aug-2018).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117194528/https://www.iras.gov.sg/docs/default-source/dtas/singapore-gabon-dta-(not-in-force)-(28-aug-2018).pdf?sfvrsn=a81833a5_9
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: No; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -3950,7 +3950,7 @@ sources:
   bytes: 224011
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-greece-dta/2026-11-17/singapore-greece-dta-(ratified)(14-mar-2022)2a72a6af-b03d-44a9-9e07-2fa3138f1757.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117195330/https://www.iras.gov.sg/docs/default-source/dtas/singapore-greece-dta-(ratified)(14-mar-2022)2a72a6af-b03d-44a9-9e07-2fa3138f1757.pdf?sfvrsn=3bddd592_10
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -4034,7 +4034,7 @@ sources:
   bytes: 174099
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-ireland-dta/2026-11-17/singapore-ireland-dta-(ratified)(mli)(19-jul-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117200729/https://www.iras.gov.sg/docs/default-source/dtas/singapore-ireland-dta-(ratified)(mli)(19-jul-2021).pdf?sfvrsn=d3232977_12
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4048,7 +4048,7 @@ sources:
   bytes: 248437
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-isle-of-man-dta/2026-11-17/singapore-isle-of-man-dta-(ratified)(mli)(1-apr-2019).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117201004/https://www.iras.gov.sg/docs/default-source/dtas/singapore-isle-of-man-dta-(ratified)(mli)(1-apr-2019).pdf?sfvrsn=80825815_12
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4090,7 +4090,7 @@ sources:
   bytes: 533256
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-japan-dta/2026-11-17/protocol-amending-singapore-japan-dta-(ratified)(mli)(arbitration)(16-jun-2022).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117201537/https://www.iras.gov.sg/docs/default-source/dtas/protocol-amending-singapore-japan-dta-(ratified)(mli)(arbitration)(16-jun-2022).pdf?sfvrsn=34da76dc_6
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4104,7 +4104,7 @@ sources:
   bytes: 515043
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-jersey-dta/2026-11-17/singapore-jersey-dta-(ratified)(mli)(1-apr-2019).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117201601/https://www.iras.gov.sg/docs/default-source/dtas/singapore-jersey-dta-(ratified)(mli)(1-apr-2019).pdf?sfvrsn=d61b17d0_11
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4118,7 +4118,7 @@ sources:
   bytes: 289391
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-jordan-dta/2026-11-17/singapore-jordan-dta-(ratified)(30-dec-2021).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117201626/https://www.iras.gov.sg/docs/default-source/dtas/singapore-jordan-dta-(ratified)(30-dec-2021).pdf?sfvrsn=62066227_10
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -4188,7 +4188,7 @@ sources:
   bytes: 750130
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-kyrgyzstan-dta/2026-11-17/singapore-kyrgyzstan-dta-(notinforce)-(12102026).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117211203/https://www.iras.gov.sg/docs/default-source/dtas/singapore-kyrgyzstan-dta-(notinforce)-(12102026).pdf?sfvrsn=adfde2aa_7
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: No; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -4216,7 +4216,7 @@ sources:
   bytes: 792222
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-latvia-dta/2026-11-17/singapore-latvia-dta-(ratified)(mli)-(1-feb-2020).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117211623/https://www.iras.gov.sg/docs/default-source/dtas/singapore-latvia-dta-(ratified)(mli)-(1-feb-2020).pdf?sfvrsn=9ed0bf8b_7
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4706,7 +4706,7 @@ sources:
   bytes: 341119
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-south-africa-dta/2026-11-17/south-africa-dta-(ratified)(16-december-2016)(mli)(f).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261118040803/https://www.iras.gov.sg/docs/default-source/dtas/south-africa-dta-(ratified)(16-december-2016)(mli)(f).pdf?sfvrsn=af4a2a1f_6
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: Yes. Listed on the IRAS DTA page.'
@@ -4790,7 +4790,7 @@ sources:
   bytes: 306340
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-tanzania-dta/2026-11-17/singapore-tanzania-dta-(not-in-force)(09062026).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260717090428/https://www.iras.gov.sg/docs/default-source/dtas/singapore-tanzania-dta-(not-in-force)(09062026).pdf?sfvrsn=9e8bc07e_6
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: No; modified by MLI: No. Listed on the IRAS DTA page.'
@@ -4832,7 +4832,7 @@ sources:
   bytes: 211614
   content_type: application/pdf
   archive_path: sources/sg/iras/iras-singapore-t-rkiye-dta/2026-11-17/protocol-amending-singapore-turkey-dta-(ratified)-(8-jul-2013).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261118041739/https://www.iras.gov.sg/docs/default-source/dtas/protocol-amending-singapore-turkey-dta-(ratified)-(8-jul-2013).pdf?sfvrsn=aa13488b_10
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
   note: 'In force: Yes; modified by MLI: No. Listed on the IRAS DTA page.'
