@@ -20,6 +20,7 @@ B = "test_b2b_and_insurance::"
 K = "test_my_rental::"
 C = "test_my_construction::"
 P = "test_my_policies::"
+S = "test_my_sales_tax::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
     "MS-1": {"positive": [M + "test_ms1_unregistered_supplier_charging_service_tax",
@@ -119,6 +120,26 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [P + "test_p19_near_miss_other_digital_content"]},
     "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", "test_my_exemptions::test_ms7_near_miss_principal_customs_area_and_jda"],
             "near_miss": [P + "test_p20_near_miss_labuan_imported_services_from_2022"]},
+    "MG-1": {"positive": [S + "test_mg1_manufacturer_reselling_bought_in_goods", S + "test_mg1_unregistered_supplier_charging_sales_tax", "test_tax_my_scope::test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader"],
+            "near_miss": [S + "test_mg1_near_miss_registered_manufacturer_selling_its_own_goods", S + "test_mg1_near_miss_trader_charges_nothing"]},
+    "MG-2": {"positive": [S + "test_mg2_wrong_rate_and_exempt_goods"],
+            "near_miss": [S + "test_mg2_near_miss_right_rate"]},
+    "MG-3": {"positive": [S + "test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed"],
+            "near_miss": [S + "test_g1_motorcycles_exempt_from_july_2025"]},
+    "MG-4": {"positive": [S + "test_mg4_buyer_holds_a_certificate_for_the_goods"],
+            "near_miss": [S + "test_mg4_near_miss_certificate_expired_or_other_goods"]},
+    "MG-5": {"positive": [S + "test_mg5_goods_within_a_designated_area"],
+            "near_miss": [S + "test_mg5_near_miss_principal_customs_area"]},
+    "MG-6": {"positive": [S + "test_mg6_a_policy_exemption_by_tariff_code"],
+            "near_miss": [S + "test_mg6_near_miss_a_code_in_no_policy"]},
+    "G-1": {"positive": [S + "test_g1_motorcycles_exempt_from_july_2025"],
+            "near_miss": [S + "test_g1_near_miss_other_motorcycle_code"]},
+    "G-3": {"positive": [S + "test_g3_feed_raw_materials_are_taxed_on_the_invoice_refund_route"],
+            "near_miss": [S + "test_g3_near_miss_before_january_2026"]},
+    "G-4": {"positive": [S + "test_g4_one_way_pallets_are_schedule_c_packaging"],
+            "near_miss": [S + "test_g4_near_miss_returnable_pallets_are_taxable"]},
+    "G-5": {"positive": [S + "test_g5_drop_shipment_export_is_invoiced_without_sales_tax"],
+            "near_miss": [S + "test_g5_near_miss_not_a_drop_shipment"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -133,11 +154,13 @@ NOT_ENGINE: dict[str, str] = {
 
 NOT_ENGINE_GUARDS: dict[str, list[str]] = {
     "P-21": [P + "test_p21_guard_domestic_electricity_is_not_a_company_purchase_rule"],
+    "G-2": [S + "test_g2_guard_soya_beans_on_a_supplier_invoice_are_ordinary_goods", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
+    "G-6": [S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
+    "G-7": [S + "test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
 }
 
 PENDING: set[str] = {
     "L-5", "P-15",
-    *(f"MG-{i}" for i in range(1, 7)), *(f"G-{i}" for i in range(1, 8)),
     *(f"ME-{i}" for i in range(1, 5)), *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }

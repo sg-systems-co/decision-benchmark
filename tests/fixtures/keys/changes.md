@@ -27,3 +27,4 @@ A12 build PR 2 (Malaysia). One version for the whole PR: its golden file is rewr
 - **Commit 8 (K-1 to K-8).** No existing key changes. New keys from `tests/rules/test_my_rental.py`.
 - **Commit 9 (L-1 to L-4, L-6 to L-8).** No existing key changes. New keys from `tests/rules/test_my_construction.py`.
 - **Commit 10 (MS-10, P-1 to P-14, P-16 to P-20; P-21 guard).** No existing key changes. New keys from `tests/rules/test_my_policies.py`.
+- **Commit 11 (MG-1 to MG-6, G-1, G-3 to G-5; G-2, G-6, G-7 guards).** No existing key changes. New key: `test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader` (formerly `UnsupportedCase`; MG-1: sales tax charged by a registered non-manufacturer is `SST_NOT_CHARGEABLE_BY_TRADER`). New keys from `tests/rules/test_my_sales_tax.py`.

@@ -19,7 +19,7 @@ class MalaysiaPack(CountryPack):
     country = "MY"
     currency = "MYR"
     registration_types = {"MY_TIN": ("tin",), "MY_SST": ("sales", "service")}
-    certificate_kinds = ("schedule_c", "b2b_declaration")
+    certificate_kinds = ("schedule_a", "schedule_b", "schedule_c", "b2b_declaration")
     tax_codes = MyTaxTreatment
     tax_profile = MyTaxProfile
     profile_required = True

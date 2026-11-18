@@ -1,14 +1,11 @@
-"""Malaysian SST cases outside the v0.9 rule sheet: the engine refuses them instead of guessing."""
+"""Malaysian sales tax by supplier kind (MG-1) and the group-relation guard."""
 
 from typing import get_args
-
-import pytest
 
 from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from decision_benchmark.task_sets.ap_invoices.countries.my.constants import GROUP_RELATIONS_HANDLED
 from decision_benchmark.task_sets.ap_invoices.countries.my.models import MySupplierFacts
 from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
-from decision_benchmark.task_sets.ap_invoices.rules import UnsupportedCase
 
 from .factory import answer, ein, my_base, my_line, my_supplier_sst, set_lines, set_po_line, tax_facts
 
@@ -24,10 +21,13 @@ def _sales_tax_invoice(*sst_types: str, is_manufacturer: bool):
     return r, c
 
 
-def test_sales_tax_by_registered_non_manufacturer_is_unsupported():
+def test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader():
+    # MG-1 (v0.10): formerly UnsupportedCase. Only a registered manufacturer charges sales tax, on goods it made.
     r, c = _sales_tax_invoice("sales", is_manufacturer=False)
-    with pytest.raises(UnsupportedCase, match="registered non-manufacturer, outside the v0.9 rule sheet"):
-        answer(r, c)
+    a = answer(r, c)
+    assert (a.decision, a.tax_treatment, a.tax_lines[0].basis) == (
+        D.REQUEST_CORRECTED_INVOICE, T.SST_NOT_CHARGEABLE_BY_TRADER, "MG-1")
+    assert a.reason_codes == ["SALES_TAX_CHARGED_BY_TRADER"]
 
 
 def test_sales_tax_by_supplier_without_sales_tax_registration_is_not_registered():

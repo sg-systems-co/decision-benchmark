@@ -7190,6 +7190,1144 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 8711.20.96 00
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: G-1
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_g1_motorcycles_exempt_from_july_2025
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 8711.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g1_near_miss_other_motorcycle_code
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 1201.10.00 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g2_guard_soya_beans_on_a_supplier_invoice_are_ordinary_goods
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g3_feed_raw_materials_are_taxed_on_the_invoice_refund_route
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g3_near_miss_before_january_2026
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      pallet_returnable:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g4_near_miss_returnable_pallets_are_taxable
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      pallet_returnable:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: G-4
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_g4_one_way_pallets_are_schedule_c_packaging
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      pallet_returnable:
+        value: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_sales_tax.py::test_g4_unknown_returnable_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - drop_shipment_export:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: G-5
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-5
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_g5_drop_shipment_export_is_invoiced_without_sales_tax
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - drop_shipment_export:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-5
+      gl_account: 5100-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_sales_tax.py::test_g5_drop_shipment_export_is_invoiced_without_sales_tax
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - drop_shipment_export:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+      line_no: 1
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g5_near_miss_not_a_drop_shipment
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_sales_tax.py::test_mg1_imported_goods_bear_sales_tax_at_import
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: SUPPLIER_NOT_TAX_REGISTERED
+      evidence:
+        line: 1
+        tax: sales
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - SUPPLIER_NOT_TAX_REGISTERED
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SUPPLIER_NOT_REGISTERED
+    tax_treatment: SST_SUPPLIER_NOT_REGISTERED
+  test: tests/rules/test_my_sales_tax.py::test_mg1_imported_goods_bear_sales_tax_at_import
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      manufactured_by_supplier:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings:
+    - code: SALES_TAX_CHARGED_BY_TRADER
+      evidence:
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - SALES_TAX_CHARGED_BY_TRADER
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_NOT_CHARGEABLE_BY_TRADER
+    tax_treatment: SST_NOT_CHARGEABLE_BY_TRADER
+  test: tests/rules/test_my_sales_tax.py::test_mg1_manufacturer_reselling_bought_in_goods
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      manufactured_by_supplier:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg1_near_miss_registered_manufacturer_selling_its_own_goods
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_sales_tax.py::test_mg1_near_miss_trader_charges_nothing
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      manufactured_by_supplier:
+        value: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_sales_tax.py::test_mg1_unknown_supplier_type_with_tax_charged_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: SUPPLIER_NOT_TAX_REGISTERED
+      evidence:
+        line: 1
+        tax: sales
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - SUPPLIER_NOT_TAX_REGISTERED
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SUPPLIER_NOT_REGISTERED
+    tax_treatment: SST_SUPPLIER_NOT_REGISTERED
+  test: tests/rules/test_my_sales_tax.py::test_mg1_unregistered_supplier_charging_sales_tax
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-300
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-300
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg2_near_miss_right_rate
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_sales_tax.py::test_mg2_near_miss_right_rate
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '5'
+        expected: '10'
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - WRONG_TAX_RATE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
+  test: tests/rules/test_my_sales_tax.py::test_mg2_wrong_rate_and_exempt_goods
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '10'
+        expected: '5'
+        line: 1
+      tier: 3
+    gl_account: 5100-300
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - WRONG_TAX_RATE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-300
+      line_no: 1
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
+  test: tests/rules/test_my_sales_tax.py::test_mg2_wrong_rate_and_exempt_goods
+- call: 2
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MG-2
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg2_wrong_rate_and_exempt_goods
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 8711.20.96 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: schedule_c
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg4_buyer_holds_a_certificate_for_the_goods[schedule_a]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: schedule_c
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg4_buyer_holds_a_certificate_for_the_goods[schedule_b]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: schedule_c
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg4_buyer_holds_a_certificate_for_the_goods[schedule_c]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg4_near_miss_certificate_expired_or_other_goods[over0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg4_near_miss_certificate_expired_or_other_goods[over1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MG-5
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-5
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg5_goods_within_a_designated_area
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg5_near_miss_principal_customs_area
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-5
+      gl_account: 5100-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_sales_tax.py::test_mg5_unknown_zone_status_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 8711.20.99 00
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: G-1
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: G-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_mg6_a_policy_exemption_by_tariff_code
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 3901.10.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_mg6_near_miss_a_code_in_no_policy
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_UNDERCHARGED
+      evidence:
+        line: 1
+        tax: sales
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_UNDERCHARGED
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-9
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_UNDERCHARGED
+    tax_treatment: SST_UNDERCHARGED
+  test: tests/rules/test_my_sales_tax.py::test_ms9_manufacturer_leaves_sales_tax_off_its_goods
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: not_taxable
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_service_tax_on_goods_is_not_a_taxable_service
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      materials_works_separated:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: not_taxable
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: L-8
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_service_tax_on_goods_is_not_a_taxable_service
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts:
@@ -12927,6 +14065,35 @@ keys:
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
   test: tests/rules/test_tax_my_scope.py::test_sales_tax_by_registered_manufacturer_is_correct
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: SALES_TAX_CHARGED_BY_TRADER
+      evidence:
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - SALES_TAX_CHARGED_BY_TRADER
+    rules_version: v0.9
+    tax_lines:
+    - basis: MG-1
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_NOT_CHARGEABLE_BY_TRADER
+    tax_treatment: SST_NOT_CHARGEABLE_BY_TRADER
+  test: tests/rules/test_tax_my_scope.py::test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader
 - call: 0
   key:
     answer_source: rules
