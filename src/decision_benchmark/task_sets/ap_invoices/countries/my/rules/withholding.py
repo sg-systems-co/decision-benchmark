@@ -12,7 +12,7 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from ....findings import NotSettled, UnsupportedCase
+from ....findings import NotSettled
 from ....models import BuyerAction
 from ....models.answer import WITHHOLD_TAX
 from ....models.common import CENT, ZERO
@@ -51,6 +51,23 @@ def _rate(ctx: LineCtx, basis: str, domestic: Decimal, column: str) -> Decimal:
     return min(domestic, getattr(row, column).for_payer(ctx.cf.industrial_undertaking))
 
 
+def _special_services(ctx: LineCtx, domestic: Decimal, gross: Decimal) -> tuple[BuyerAction, ...]:
+    """WH-2 (i), (ii): 10% of the Malaysian part (services performed outside Malaysia exempt from 6 Sep 2017; mixed
+    contracts apportioned; hotel accommodation left out of the reimbursed gross)."""
+    try:
+        place = ctx.need("place_of_performance", "WH-2")
+        share = WHOLE_SHARE
+        if place == "outside":
+            return () if ctx.day >= OUTSIDE_EXEMPT_FROM else (
+                _withhold(_rate(ctx, "WH-2", domestic, "technical_fees"), "WH-2", gross),)
+        if place == "mixed":
+            share = ctx.need("in_country_share", "WH-2")
+    except NotSettled as ns:
+        raise _not_settled(ns.basis, ns.reason) from None
+    hotel = ctx.fact("hotel_reimbursement", ZERO, "WH-2")
+    return (_withhold(_rate(ctx, "WH-2", domestic, "technical_fees"), "WH-2", (gross - hotel) * share),)
+
+
 def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
     if not ctx.foreign_supplier:
         return ()
@@ -64,28 +81,21 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
     if nature == "royalty":
         return (_withhold(_rate(ctx, "WH-1", domestic.royalties, "royalties"), "WH-1", gross),)
     if nature in ("services_on_property", "technical_advice"):
-        try:
-            place = ctx.need("place_of_performance", "WH-2")
-            share = WHOLE_SHARE
-            if place == "outside":
-                return () if ctx.day >= OUTSIDE_EXEMPT_FROM else (
-                    _withhold(_rate(ctx, "WH-2", domestic.technical_fees, "technical_fees"), "WH-2", gross),)
-            if place == "mixed":
-                share = ctx.need("in_country_share", "WH-2")
-        except NotSettled as ns:
-            raise _not_settled(ns.basis, ns.reason) from None
-        hotel = ctx.fact("hotel_reimbursement", ZERO, "WH-2")
-        base = (gross - hotel) * share
-        return (_withhold(_rate(ctx, "WH-2", domestic.technical_fees, "technical_fees"), "WH-2", base),)
+        return _special_services(ctx, domestic.technical_fees, gross)
     if nature == "movable_property_rent":
-        # s4A (iii) applies wherever the property is used; LHDN's table has no column for it: the domestic rate.
-        return (_withhold(SPECIAL_CLASSES_RATE, "WH-2", gross - ctx.fact("hotel_reimbursement", ZERO, "WH-2")),)
+        # s4A (iii) applies wherever the property is used. Many treaties put the use of industrial, commercial or
+        # scientific equipment inside the royalty definition (LHDN note v): with a certificate, HAND_OVER until the
+        # treaty's royalty definition is read and confirmed; without one, the domestic rate.
+        if _certified(ctx, "WH-2") and treaties.row(ctx.supplier.country) is not None:
+            raise _not_settled("WH-2", "treaty royalty definition for rent of movable property not read")
+        return (_withhold(SPECIAL_CLASSES_RATE, "WH-2", gross),)
     if nature == "contract_payment":
         pe = ctx.sf.pe_in_country
         if pe is None:
             raise _not_settled("WH-3", "permanent establishment in Malaysia not shown")
         if not pe:
-            raise UnsupportedCase("contract payment to a non-resident without a PE in Malaysia: not in the rule sheet")
+            # s107A applies "instead of s109B" only with a PE or business presence; without one, s109B (WH-2).
+            return _special_services(ctx, domestic.technical_fees, gross)
         return (_withhold(CONTRACTOR_RATE, "WH-3", gross), _withhold(EMPLOYEES_RATE, "WH-3", gross))
     if nature == "other_gain":
         return (_withhold(OTHER_GAIN_RATE, "WH-4", gross),)

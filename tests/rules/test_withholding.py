@@ -178,3 +178,22 @@ def test_wh5_work_partly_in_singapore_withholds_on_the_singapore_part():
 def test_wh5_near_miss_work_partly_in_singapore_without_the_split_is_a_hand_over():
     a = answer(*sg_payee("technical_or_management_fee", place_of_performance="mixed"))
     assert (a.decision, a.tax_treatment) == (HO, "NO_GST")
+
+
+
+def test_wh2_rent_of_movable_property_with_a_certificate_is_a_hand_over():
+    # LHDN note (v): many treaties put equipment rental inside royalties (e.g. Singapore 8%); not read yet.
+    a = answer(*my_payee("movable_property_rent", certificate=True))
+    assert (a.decision, a.tax_treatment) == (HO, "SST_BUYER_ACCOUNTS")
+
+
+def test_wh3_contract_payment_without_a_pe_falls_back_to_wh2():
+    r, c = my_payee("contract_payment", place_of_performance="in_country")
+    supplier_facts(r, pe_in_country=False)
+    assert withheld(answer(r, c)) == [(Decimal(10), "WH-2", Decimal("3200.00"))]
+
+
+def test_wh3_near_miss_contract_payment_without_a_pe_for_work_outside_malaysia():
+    r, c = my_payee("contract_payment", place_of_performance="outside")
+    supplier_facts(r, pe_in_country=False)
+    assert withheld(answer(r, c)) == []

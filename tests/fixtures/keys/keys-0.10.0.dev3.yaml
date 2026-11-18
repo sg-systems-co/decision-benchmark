@@ -18600,6 +18600,41 @@ keys:
   test: tests/rules/test_withholding.py::test_wh2_near_miss_services_outside_malaysia_or_freight_alone[technical_advice-facts0]
 - call: 0
   key:
+    answer_source: handover_by_construction
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: movable_property_rent
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh2_rent_of_movable_property_with_a_certificate_is_a_hand_over
+- call: 0
+  key:
     answer_source: rules
     buyer_actions:
     - action: ACCOUNT_IMPORTED_SERVICE_TAX
@@ -18766,6 +18801,90 @@ keys:
       treatment: SST_BUYER_ACCOUNTS
     tax_treatment: SST_BUYER_ACCOUNTS
   test: tests/rules/test_withholding.py::test_wh3_contract_payment_with_a_pe_two_withholdings
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: WITHHOLD_TAX
+      base_amount: '3200.00'
+      basis: WH-2
+      rate: '10'
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: contract_payment
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: in_country
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh3_contract_payment_without_a_pe_falls_back_to_wh2
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: contract_payment
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: outside
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_withholding.py::test_wh3_near_miss_contract_payment_without_a_pe_for_work_outside_malaysia
 - call: 0
   key:
     answer_source: handover_by_construction
