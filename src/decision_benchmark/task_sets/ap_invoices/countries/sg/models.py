@@ -113,3 +113,4 @@ class SgLineFacts(LineFacts):
     certificate_of_residence: LineFact[bool] | None = fact_field("withholding", "WH-5")
     beneficiary_outside_singapore: LineFact[bool] | None = fact_field("scope_and_exemption", "SG-6")
     low_value_goods: LineFact[bool] | None = fact_field("classification", "SG-8")
+    value_performed_in_singapore: LineFact[Money] | None = fact_field("split", "WH-5")

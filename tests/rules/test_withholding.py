@@ -167,3 +167,14 @@ def test_wh5_near_miss_not_subject(nature, kw):
 def test_wh5_unconfirmed_treaty_row_or_unknown_branch_is_a_hand_over(nature, kw):
     a = answer(*sg_payee(nature, **kw))
     assert (a.decision, a.tax_treatment) == (HO, "NO_GST")
+
+
+def test_wh5_work_partly_in_singapore_withholds_on_the_singapore_part():
+    a = answer(*sg_payee("technical_or_management_fee", place_of_performance="mixed",
+                         value_performed_in_singapore="600.00"))
+    assert withheld(a) == [(Decimal(17), "WH-5", Decimal("600.00"))]
+
+
+def test_wh5_near_miss_work_partly_in_singapore_without_the_split_is_a_hand_over():
+    a = answer(*sg_payee("technical_or_management_fee", place_of_performance="mixed"))
+    assert (a.decision, a.tax_treatment) == (HO, "NO_GST")

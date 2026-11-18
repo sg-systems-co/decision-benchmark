@@ -322,6 +322,13 @@
           "x-family": "classification",
           "x-rules": ["SG-8"],
           "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "value_performed_in_singapore": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a technical, service or management fee for work done partly in Singapore: the value of the work performed in Singapore, where the documents show it (WH-5).",
+          "x-family": "split",
+          "x-rules": ["WH-5"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
         }
       }
     },

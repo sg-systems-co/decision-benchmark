@@ -54,3 +54,7 @@ A12 build PR 3 (Singapore, withholding, mixed invoices). One version for the PR,
 - **Commit 16 (§5-a, §5-b).** No existing key changes. New key: `test_sg_mixed_claimable_and_disallowed_lines_are_approved` (formerly `UnsupportedCase`, plan Q4; §5-a: `APPROVE`, case `NOT_CLAIMABLE_DISALLOWED`, lines `CLAIMABLE` SG-1 and `NOT_CLAIMABLE_DISALLOWED` SG-10). New keys from `tests/rules/test_mixed_invoices.py`. `PENDING` in `tests/rules/rule_coverage.py` is now empty.
 
 Against 0.10.0.dev2 after PR 3: one existing key changed, `test_row05_negative_ovr_vendor_charges_no_gst` (basis SG-12 -> SG-8, treatment `NO_GST` unchanged); every other key unchanged apart from `engine_version`.
+
+Review of PR #15 (18 Nov 2026), pushed to the same PR under 0.10.0.dev3:
+
+- **WH-5, work partly done in Singapore.** New line fact `value_performed_in_singapore` (spec clarification): withholding on that part only; not shown, HAND_OVER as before. No existing key changes. New keys: `test_wh5_work_partly_in_singapore_withholds_on_the_singapore_part`, `test_wh5_near_miss_work_partly_in_singapore_without_the_split_is_a_hand_over`.

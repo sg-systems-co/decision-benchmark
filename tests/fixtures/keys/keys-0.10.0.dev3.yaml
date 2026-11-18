@@ -18915,6 +18915,42 @@ keys:
         evidence:
         - doc_id: INV-CASE-1
           path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mixed
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_near_miss_work_partly_in_singapore_without_the_split_is_a_hand_over
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
         value: interest
     findings: []
     gl_account: 6150-000
@@ -19220,6 +19256,51 @@ keys:
       treatment: NO_GST
     tax_treatment: NO_GST
   test: tests/rules/test_withholding.py::test_wh5_withholding_rates[technical_or_management_fee-True-facts3-5]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: WITHHOLD_TAX
+      base_amount: '600.00'
+      basis: WH-5
+      rate: '17'
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 1
+      payment_nature:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: technical_or_management_fee
+      place_of_performance:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: mixed
+      value_performed_in_singapore:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '600.00'
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_withholding.py::test_wh5_work_partly_in_singapore_withholds_on_the_singapore_part
 - call: 0
   key:
     answer_source: rules

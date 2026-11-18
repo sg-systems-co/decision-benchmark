@@ -70,6 +70,7 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
     if branch:
         return ()
     rate = DOMESTIC[nature]
+    base = ctx.net
     certified = _certified(ctx)
     if nature in TREATY_COLUMN:
         if certified:
@@ -82,7 +83,13 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
         if place == "outside":
             return ()
         if place == "mixed":
-            raise _not_settled("work done in Singapore not split from work outside")
+            # Only the work done in Singapore is subject, where the documents show its value.
+            try:
+                base = ctx.fact("value_performed_in_singapore", None, "WH-5")
+            except NotSettled as ns:
+                raise _not_settled(ns.reason) from None
+            if base is None:
+                raise _not_settled("work done in Singapore not split from work outside")
         if certified:
             row = treaties.treaty(ctx.supplier.country)
             article = row.technical_fees if row is not None else None
@@ -90,4 +97,4 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
                 rate = min(rate, article.rate)
             elif row is not None:
                 raise _not_settled(f"treaty technical-fees article for {ctx.supplier.country} not confirmed")
-    return (BuyerAction(action=WITHHOLD_TAX, rate=rate, basis="WH-5", base_amount=ctx.net.quantize(CENT)),)
+    return (BuyerAction(action=WITHHOLD_TAX, rate=rate, basis="WH-5", base_amount=base.quantize(CENT)),)
