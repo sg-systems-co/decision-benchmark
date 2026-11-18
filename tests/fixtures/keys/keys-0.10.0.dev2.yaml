@@ -10055,6 +10055,164 @@ keys:
   test: tests/rules/test_my_service_tax.py::test_ms3_near_miss_period_after_the_change_takes_the_new_rate
 - call: 0
   key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - amount_paid_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '1200.00'
+      asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2025-12-01'
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-3
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_service_tax.py::test_ms3_payment_alone_is_not_the_split_of_the_rest
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - amount_paid_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '3200.00'
+      asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2025-12-01'
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-3
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_service_tax.py::test_ms3_payment_before_the_change_keeps_the_old_rate
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - amount_paid_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '1200.00'
+      asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2025-12-01'
+      value_provided_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2000.00'
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-3
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_service_tax.py::test_ms3_payment_before_the_change_keeps_the_old_rate
+- call: 0
+  key:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
@@ -10159,12 +10317,7 @@ keys:
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts:
-    - amount_paid_before_change:
-        evidence:
-        - doc_id: INV-CASE-1
-          path: lines[0].description
-        value: '1200.00'
-      asset_type:
+    - asset_type:
         evidence:
         - doc_id: INV-CASE-1
           path: lines[0].description
@@ -10185,6 +10338,11 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: '2025-12-01'
+      value_provided_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '1200.00'
     findings: []
     gl_account: 6150-100
     grader_truth:
@@ -10210,12 +10368,7 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
-    - amount_paid_before_change:
-        evidence:
-        - doc_id: INV-CASE-1
-          path: lines[0].description
-        value: '1200.00'
-      asset_type:
+    - asset_type:
         evidence:
         - doc_id: INV-CASE-1
           path: lines[0].description
@@ -10236,6 +10389,11 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: '2025-12-01'
+      value_provided_before_change:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '1200.00'
     findings:
     - code: WRONG_TAX_RATE
       evidence:

@@ -104,6 +104,7 @@ def test_ms2_the_catalog_classes_agree_with_the_rate_order():
 
 
 RENTAL = {"service_item": "K", "asset_type": "machinery"}
+SPANNING = RENTAL | {"service_period_start": "2025-12-01", "service_period_end": "2026-01-31"}
 
 
 def test_ms3_period_before_the_change_keeps_the_old_rate():
@@ -122,13 +123,29 @@ def test_ms3_spanning_period_without_a_split_is_a_hand_over():
 
 
 def test_ms3_spanning_period_with_the_split_shown_checks_each_part():
-    # 3200.00: 1200.00 paid before 1 Jan 2026 at 8% (96.00), 2000.00 at 6% (120.00) = 216.00 = 6.75%.
-    facts = RENTAL | {"service_period_start": "2025-12-01", "service_period_end": "2026-01-31",
-                      "amount_paid_before_change": "1200.00"}
+    # 3200.00 for Dec 2025-Jan 2026: 1200.00 provided before 1 Jan 2026 at 8% (96.00), 2000.00 at 6% (120.00) = 6.75%.
+    facts = SPANNING | {"value_provided_before_change": "1200.00"}
     r, c = one_line(rate="6.75", day="2026-02-02", **facts)
     assert result(r, c) == (OK, "SST_CORRECT", "MS-3")
     r, c = one_line(rate="6", day="2026-02-02", **facts)
     assert result(r, c) == (RCI, "SST_WRONG_RATE", "MS-3")
+
+
+def test_ms3_payment_before_the_change_keeps_the_old_rate():
+    # Paid in full before 1 Jan 2026: all at 8%.
+    r, c = one_line(rate="8", day="2026-02-02", **(SPANNING | {"amount_paid_before_change": "3200.00"}))
+    assert result(r, c) == (OK, "SST_CORRECT", "MS-3")
+    # 1200.00 paid before; 2000.00 provided before (1200.00 of it already paid): 2000.00 at 8% (160.00),
+    # 1200.00 at 6% (72.00) = 232.00 = 7.25%.
+    facts = SPANNING | {"amount_paid_before_change": "1200.00", "value_provided_before_change": "2000.00"}
+    r, c = one_line(rate="7.25", day="2026-02-02", **facts)
+    assert result(r, c) == (OK, "SST_CORRECT", "MS-3")
+
+
+def test_ms3_payment_alone_is_not_the_split_of_the_rest():
+    # Review of PR #14, C: the payment amount is not a split of what was provided; the rest needs the provision split.
+    r, c = one_line(rate="6.75", day="2026-02-02", **(SPANNING | {"amount_paid_before_change": "1200.00"}))
+    assert result(r, c) == (HO, None, "MS-3")
 
 
 def test_ms3_near_miss_period_after_the_change_takes_the_new_rate():

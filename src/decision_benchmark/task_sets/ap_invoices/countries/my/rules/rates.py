@@ -80,6 +80,21 @@ def period(ctx: LineCtx) -> tuple[date, date] | None:
     return start, end
 
 
+def _spanning_tax(ctx: LineCtx, taxable: Decimal, old: Decimal, new: Decimal) -> Decimal:
+    """MS-3 for a service period spanning a rate change (A12 decision 4; review of PR #14, C): payments received
+    before the change keep the old rate; the rest is taxed by the part provided on each side of the date, where the
+    documents show it (value_provided_before_change, the value provided before the change, of which a payment
+    received before the change already covers its amount). No pro-rata split by days: not shown -> HAND_OVER."""
+    paid = min(ctx.fact("amount_paid_before_change", ZERO, "MS-3"), taxable)
+    if paid >= taxable:
+        return _tax(taxable, old)
+    provided = ctx.fact("value_provided_before_change", None, "MS-3")
+    if provided is None:
+        raise NotSettled("MS-3", "service period spans a rate change and the value provided on each side is not shown")
+    at_old = min(max(paid, provided), taxable)
+    return _tax(at_old, old) + _tax(taxable - at_old, new)
+
+
 def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
     """Tax charged on a taxable line: right rate (and amount, where only part is taxable)?"""
     line = ctx.line
@@ -94,12 +109,7 @@ def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
         start, end = span
         old, new = line_rate(ctx, start), line_rate(ctx, end)
         if old != new:
-            # Spans a rate change: each side's part at its own rate, where the documents show the split
-            # (A12 decision 4: no pro-rata split; no split shown -> HAND_OVER, basis MS-3).
-            paid = ctx.fact("amount_paid_before_change", None, "MS-3")
-            if paid is None:
-                raise NotSettled("MS-3", "service period spans a rate change and no split is shown")
-            expected = _tax(paid, old) + _tax(taxable - paid, new)
+            expected = _spanning_tax(ctx, taxable, old, new)
             if _close(line.tax_amount, expected):
                 return Outcome(T.SST_CORRECT, "MS-3")
             return ctx.wrong_rate("MS-3", new)
