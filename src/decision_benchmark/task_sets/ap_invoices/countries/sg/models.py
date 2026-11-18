@@ -13,11 +13,18 @@ from ...models.evidence import LineFact, LineFacts, Share, fact_field
 
 
 class SgTaxTreatment(StrEnum):
+    """The codes of $defs/tax_code in schemas/ap-invoices/v0.10/countries/sg.schema.json."""
+
     CLAIMABLE = "CLAIMABLE"
     NOT_CLAIMABLE_DISALLOWED = "NOT_CLAIMABLE_DISALLOWED"
     NOT_CLAIMABLE_INVALID_INVOICE = "NOT_CLAIMABLE_INVALID_INVOICE"
     GST_WRONGLY_CHARGED = "GST_WRONGLY_CHARGED"
     NO_GST = "NO_GST"
+    GST_UNDERCHARGED = "GST_UNDERCHARGED"
+    NOT_CLAIMABLE_EXEMPT_USE = "NOT_CLAIMABLE_EXEMPT_USE"
+    RESIDUAL_APPORTIONED = "RESIDUAL_APPORTIONED"
+    CUSTOMER_ACCOUNTING = "CUSTOMER_ACCOUNTING"
+    REVERSE_CHARGE = "REVERSE_CHARGE"
 
 
 SgDisallowed = Literal[
@@ -66,6 +73,14 @@ class SgCompanyFacts(CountryBlock):
     country: Literal["SG"] = "SG"
     input_tax_status: InputTaxStatus | None = "fully_taxable"
     """SG-8, SG-9. None: the records don't show it."""
+    non_business_receipts: bool | None = False
+    """The company has non-business receipts, so it is not entitled to full input tax whatever its de minimis
+    status (SG-8). None: the records don't show it."""
+    in_gst_group: bool = False
+    """The company belongs to a GST group (SG-8)."""
+    gst_group_full_credit: bool | None = None
+    """For a company in a GST group: the group is entitled to full input tax credit (SG-8; IRAS e-Tax guide on
+    overseas vendor registration, footnote 4). None: not shown (HAND_OVER when the company is in a group)."""
 
 
 class SgSupplierFacts(CountryBlock):
@@ -106,3 +121,4 @@ class SgLineFacts(LineFacts):
     certificate_of_residence: LineFact[bool] | None = fact_field("withholding", "WH-5")
     beneficiary_outside_singapore: LineFact[bool] | None = fact_field("scope_and_exemption", "SG-6")
     low_value_goods: LineFact[bool] | None = fact_field("classification", "SG-8")
+    value_performed_in_singapore: LineFact[Money] | None = fact_field("split", "WH-5")

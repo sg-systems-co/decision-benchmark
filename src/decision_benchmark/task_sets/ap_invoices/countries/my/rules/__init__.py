@@ -15,7 +15,7 @@ from ....findings import LineResult, NotSettled, TaxResult, Unsettled, worst_lin
 from ....models import Catalog, Finding
 from ....models.evidence import LineFacts
 from ..models import MyInvois, MyTaxProfile
-from . import einvoice, imported, sales_tax, service_tax
+from . import einvoice, imported, sales_tax, service_tax, withholding
 from .context import LineCtx, Outcome
 
 if TYPE_CHECKING:
@@ -40,7 +40,8 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
         assert isinstance(profile, MyTaxProfile)
         ctx = LineCtx(line=line, ext=ext.get(line.line_no), reader=reader, profile=profile, supplier=view.supplier,
                       sf=sf, company=view.company, cf=cf, day=inv.issue_date, processing_date=view.as_of_date,
-                      catalog=catalog, contracts=view.contracts, invoice=inv)
+                      catalog=catalog, contracts=view.contracts, invoice=inv,
+                      residence_certificates=view.residence_certificates)
         try:
             out = assess_line(ctx)
         except NotSettled as ns:
@@ -49,10 +50,11 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
                                     missing=tuple(reader.missing())))
             continue
         actions = out.actions
-        try:
-            actions += einvoice.self_billing(ctx)
-        except NotSettled as ns:
-            unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
+        for rule in (einvoice.self_billing, withholding.actions):
+            try:
+                actions += rule(ctx)
+            except NotSettled as ns:
+                unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
         findings += out.findings
         lines.append(LineResult(line.line_no, out.code, out.basis, actions, read=tuple(reader.recorded_reads()),
                                 missing=tuple(reader.missing())))

@@ -69,3 +69,40 @@ def company_sst(r, *types: str) -> None:
     regs = [x for x in r["company"]["tax_registrations"] if x["scheme"] != "MY_SST"]
     r["company"]["tax_registrations"] = regs + [
         {"scheme": "MY_SST", "number": f"W10-0000-0000000{i}", "type": t} for i, t in enumerate(types, 1)]
+
+
+SG_ACCOUNT = {
+    "machine_parts": "6400-000", "it_services": "6150-000", "logistics_haulage": "5300-000", "office_supplies": "6300-000",
+    "club_subscription": "6420-000", "staff_medical": "6510-000", "group_medical_insurance": "6510-000",
+    "motor_car_running": "6610-000", "family_benefit": "6520-000", "telecoms": "6400-000", "utilities_electricity": "6220-000",
+}
+
+
+def sg_one_line(category: str = "machine_parts", rate: str = "9", price: str = "150.00", qty: int = 10,
+                day: str | None = None, supplier_country: str | None = None, **facts):
+    """(records, case) for Singapore with one invoice line; as one_line for Malaysia."""
+    from .factory import sg_base, sg_line
+
+    r, c = sg_base()
+    po = r["purchase_orders"][0]
+    po["lines"][0].update(category=category, gl_account=SG_ACCOUNT[category], qty=qty, unit_price=price)
+    po["total_net"] = f"{qty * float(price):.2f}"
+    r["goods_receipts"][0]["lines"][0]["qty_received"] = qty
+    if day is not None:
+        d = dt.date.fromisoformat(day)
+        c["invoice"]["issue_date"] = day
+        c["as_of_date"] = str(max(d + dt.timedelta(days=3), dt.date.fromisoformat(c["as_of_date"])))
+        po["po_date"] = str(d - dt.timedelta(days=40))
+        r["goods_receipts"][0]["gr_date"] = str(d - dt.timedelta(days=2))
+    if supplier_country is not None:
+        r["suppliers"][0]["country"] = supplier_country
+    set_lines(c, [sg_line(1, category, qty, price, rate=rate, po_line_no=1, **facts)])
+    return r, c
+
+
+def sg_company_facts(r, **changes) -> None:
+    r["company"].setdefault("tax_facts", {"country": "SG"}).update(changes)
+
+
+def sg_supplier_facts(r, **changes) -> None:
+    r["suppliers"][0].setdefault("tax_facts", {"country": "SG"}).update(changes)

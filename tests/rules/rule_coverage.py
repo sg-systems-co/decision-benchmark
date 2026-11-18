@@ -22,6 +22,11 @@ C = "test_my_construction::"
 P = "test_my_policies::"
 S = "test_my_sales_tax::"
 E = "test_my_einvoice::"
+G = "test_sg_gst::"
+Q = "test_sg_claims::"
+W = "test_withholding::"
+X5 = "test_mixed_invoices::"
+T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
     "MS-1": {"positive": [M + "test_ms1_unregistered_supplier_charging_service_tax",
@@ -165,6 +170,66 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
                           E + "test_me4_b2b_exempt_invoice_must_show_the_buyer_and_the_exemption"],
              "near_miss": [E + "test_me4_near_miss_b2b_invoice_with_the_particulars",
                            E + "test_me4_near_miss_unregistered_supplier_issues_no_sst_invoice"]},
+    # A12 build PR 3: Singapore.
+    "SG-1": {"positive": [G + "test_sg1_not_for_the_purpose_of_the_business_is_disallowed"],
+             "near_miss": [G + "test_sg1_near_miss_business_purchase_is_claimable"]},
+    "SG-2": {"positive": [T + "test_row02_positive_no_customer_name", T + "test_row03_positive"],
+             "near_miss": [T + "test_row02_negative_at_or_below_threshold_simplified_invoice_ok",
+                           T + "test_row03_negative_sgd_amounts_shown"]},
+    "SG-3": {"positive": [G + "test_sg3_rate_the_rules_dont_allow", G + "test_sg3_invoice_before_the_change_takes_the_old_rate",
+                          "test_rules_misc::test_gst_rate_below_the_time_of_supply_rate_is_undercharged"],
+             "near_miss": [G + "test_sg3_invoice_after_the_change_either_rate_by_election",
+                           G + "test_sg3_near_miss_supply_wholly_on_one_side"]},
+    "SG-4": {"positive": [T + "test_row04_positive_supplier_not_registered", T + "test_row05_positive"],
+             "near_miss": [T + "test_row04_negative_unregistered_supplier_charges_no_gst",
+                           T + "test_row05_negative_ovr_vendor_charges_no_gst"]},
+    "SG-5": {"positive": [G + "test_sg5_gst_on_an_exempt_supply_is_wrongly_charged"],
+             "near_miss": [G + "test_sg5_near_miss_advisory_fee_is_not_exempt_and_exempt_line_without_gst"]},
+    "SG-6": {"positive": [G + "test_sg6_gst_on_a_zero_rated_service_is_wrongly_charged", G + "test_sg6_zero_rated_line_shows_0_percent"],
+             "near_miss": [G + "test_sg6_near_miss_provision_doesnt_apply_so_gst_was_left_off"]},
+    "SG-7": {"positive": [Q + "test_sg7_customer_accounting_invoice_the_buyer_accounts",
+                          Q + "test_sg7_gst_charged_on_prescribed_goods_is_wrongly_charged"],
+             "near_miss": [Q + "test_sg7_near_miss_below_threshold_not_prescribed_or_not_for_business"]},
+    "SG-8": {"positive": [Q + "test_sg8_partially_exempt_buyer_reverse_charges_an_imported_service",
+                          Q + "test_sg8_non_business_receipts_or_a_group_without_full_credit_reverse_charge"],
+             "near_miss": [Q + "test_sg8_near_miss_buyer_does_nothing", T + "test_row05_negative_ovr_vendor_charges_no_gst",
+                           Q + "test_sg8_near_miss_group_entitled_to_full_credit"]},
+    "SG-9": {"positive": [Q + "test_sg9_partially_exempt_buyer_by_attribution"],
+             "near_miss": [Q + "test_sg9_near_miss_de_minimis_met_claims_in_full"]},
+    "SG-10": {"positive": [Q + "test_sg10_director_only_benefits_and_csr_are_disallowed",
+                           Q + "test_sg10_motor_car_exceptions_from_their_dates", T + "test_row06_positive_each_class"],
+              "near_miss": [Q + "test_sg10_near_miss_motor_car_exception_before_its_date",
+                            Q + "test_sg10_near_miss_no_disallowed_category",
+                            T + "test_row06_negative_obligatory_staff_medical_is_claimable"]},
+    "SG-11": {"positive": [G + "test_sg11_duplicate_claim_is_caught_by_the_duplicate_check"],
+              "near_miss": [G + "test_sg11_near_miss_another_invoice_is_not_a_duplicate"]},
+    "SG-12": {"positive": [G + "test_sg12_registered_supplier_leaves_gst_off_a_standard_rated_supply"],
+              "near_miss": [G + "test_sg12_near_miss_unregistered_supplier_charges_none"]},
+    "WH-1": {"positive": [W + "test_wh1_interest_and_royalties", W + "test_wh1_industrial_undertaking_row_15_10"],
+             "near_miss": [W + "test_wh1_near_miss_resident_supplier_or_no_nature"]},
+    "WH-2": {"positive": [W + "test_wh2_technical_services_in_malaysia", W + "test_wh2_mixed_contract_on_the_malaysian_part_without_hotels",
+                          W + "test_wh2_movable_property_rent_wherever_used"],
+             "near_miss": [W + "test_wh2_near_miss_services_outside_malaysia_or_freight_alone",
+                           W + "test_wh2_rent_of_movable_property_with_a_certificate_is_a_hand_over"]},
+    "WH-3": {"positive": [W + "test_wh3_contract_payment_with_a_pe_two_withholdings",
+                          W + "test_wh3_contract_payment_without_a_pe_falls_back_to_wh2"],
+             "near_miss": [W + "test_wh3_near_miss_unknown_pe_is_a_hand_over",
+                           W + "test_wh3_near_miss_contract_payment_without_a_pe_for_work_outside_malaysia"]},
+    "WH-4": {"positive": [W + "test_wh4_other_gains_and_entertainers"],
+             "near_miss": [W + "test_wh4_near_miss_resident_entertainer"]},
+    "WH-5": {"positive": [W + "test_wh5_withholding_rates", W + "test_wh5_work_partly_in_singapore_withholds_on_the_singapore_part"],
+             "near_miss": [W + "test_wh5_near_miss_not_subject",
+                           W + "test_wh5_near_miss_work_partly_in_singapore_without_the_split_is_a_hand_over"]},
+    "§5-a": {"positive": [X5 + "test_5a_my_wrongly_charged_line_makes_the_whole_invoice_corrected",
+                          X5 + "test_5a_sg_exempt_line_charged_with_gst_and_a_claimable_line",
+                          "test_rules_misc::test_sg_mixed_claimable_and_disallowed_lines_are_approved",
+                          "test_rules_misc::test_mixed_lines_take_the_most_serious_tax_code"],
+             "near_miss": [X5 + "test_5a_near_miss_lines_with_the_same_treatment"]},
+    "§5-b": {"positive": [C + "test_l8_materials_not_separated_tax_the_whole_invoice",
+                          P + "test_p12_near_miss_not_itemised_the_whole_invoice_is_taxed",
+                          M + "test_ms2_near_miss_right_rate"],
+             "near_miss": [P + "test_p12_itemised_consultation_fee_is_exempt",
+                           P + "test_p16_education_fee_items_sponsored_and_diplomats"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -184,7 +249,4 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
     "G-7": [S + "test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
 }
 
-PENDING: set[str] = {
-    *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
-    *SECTION_5,
-}
+PENDING: set[str] = set()

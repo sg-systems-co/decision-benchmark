@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from ...findings import TaxResult
 from ...registry import RuleSpec, registry
 from ..base import CountryPack
-from . import constants, tax
+from . import constants, rules as line_rules
 from .models import SgContractFacts, SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class SingaporePack(CountryPack):
         return invoice.einvoice.gross_sgd
 
     def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
-        return tax.assess(view.invoice, view.supplier, catalog)
+        return line_rules.assess(view, catalog)
 
 
 PACK = SingaporePack()
