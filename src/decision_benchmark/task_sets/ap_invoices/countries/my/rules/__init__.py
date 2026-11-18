@@ -40,7 +40,7 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
         assert isinstance(profile, MyTaxProfile)
         ctx = LineCtx(line=line, ext=ext.get(line.line_no), reader=reader, profile=profile, supplier=view.supplier,
                       sf=sf, company=view.company, cf=cf, day=inv.issue_date, processing_date=view.as_of_date,
-                      catalog=catalog)
+                      catalog=catalog, contracts=view.contracts)
         try:
             out = assess_line(ctx)
         except NotSettled as ns:

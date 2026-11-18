@@ -28,6 +28,7 @@ from ..models import MyCompanyFacts, MyInvoisLine, MySupplierFacts, MyTaxProfile
 from ..models import MyTaxTreatment as T
 
 HOME = "MY"
+LOCAL_AUTHORITY_TO = date(2025, 9, 30)
 
 
 @dataclass(frozen=True)
@@ -118,6 +119,27 @@ class LineCtx:
             return True
         if not self.sf.registration_known:
             raise NotSettled(basis, "supplier SST registration not shown")
+        return False
+
+    def contract(self, basis: str) -> ContractRecord | None:
+        """The contract behind the line: the only one with the supplier, or the only one in force on the invoice
+        date. None: no written contract in the case. Several and none singled out: HAND_OVER."""
+        if len(self.contracts) <= 1:
+            return self.contracts[0] if self.contracts else None
+        live = [k for k in self.contracts
+                if (k.start is None or k.start <= self.day) and (k.end is None or self.day <= k.end)]
+        if len(live) == 1:
+            return live[0]
+        raise NotSettled(basis, "which contract the line falls under is not shown")
+
+    def government_supplier(self, basis: str, new_scope_from: date) -> bool:
+        """Federal and State Governments neither charge nor pay on new-scope services from 1 Jul 2025; local
+        authorities are exempt only 1 Jul-30 Sep 2025 (STP 1/2025 items 2-3, 2/2025, 3/2025: K-5, L-7, P-8)."""
+        kind = self.sf.supplier_kind
+        if kind == "federal_state_government":
+            return self.day >= new_scope_from
+        if kind == "local_authority":
+            return new_scope_from <= self.day <= LOCAL_AUTHORITY_TO
         return False
 
     def buyer_registered(self) -> bool:

@@ -11,12 +11,12 @@ from ....findings import UnsupportedCase
 from ....models.common import ZERO
 from ..constants import TAX_TYPE_SALES
 from ..models import MyTaxTreatment as T
-from . import areas, b2b, group_relief, rates, scope
+from . import areas, b2b, group_relief, rates, rental, scope
 from .context import Exempt, LineCtx, Outcome, Partial
 
 LABELS = {"MS-5": "b2b"}
 """The finding label v0.9 keys use for an exemption (others use the rule ID)."""
-EXEMPTIONS = (scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), group_relief.check, b2b.check)
+EXEMPTIONS = (scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), rental.check, group_relief.check, b2b.check)
 """The exclusion and exemption rules, in the order they are tried."""
 
 
@@ -24,7 +24,7 @@ def assess(ctx: LineCtx) -> Outcome:
     if ctx.charged and ctx.tax_type == TAX_TYPE_SALES:
         raise UnsupportedCase(f"sales tax on {ctx.line.category}, outside the planted v0.9 situations")
     if ctx.charged and not ctx.supplier_registered("service", "MS-1"):
-        return ctx.not_registered("service", "MS-1")
+        return ctx.not_registered("service", rental.registration_basis(ctx))
     if not scope.in_schedule(ctx.item, ctx.day):
         return ctx.exempt(Exempt("MS-1"), "not_taxable")
     partials: list[Partial] = []
