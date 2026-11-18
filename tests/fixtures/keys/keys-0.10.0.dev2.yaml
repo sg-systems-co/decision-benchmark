@@ -892,6 +892,1333 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: b2b
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms5_construction_and_finance_items
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - financial_charge:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: fee_or_commission
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: H3
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: b2b
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms5_construction_and_finance_items
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      sublet:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_condition_fails[facts0-provides0-False]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_condition_fails[facts1-provides1-False]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      own_use:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_condition_fails[facts2-provides2-False]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - financial_charge:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: fee_or_commission
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: H3
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_condition_fails[facts3-provides3-False]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      sublet:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: b2b
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms5_rental_sublet_in_full_is_exempt
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      sublet:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      sublet_share:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 0.4
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_rental_sublet_in_part_exempts_the_sublet_part
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      sublet:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      sublet_share:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 0.4
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-5
+        line: 1
+        part: true
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms5_rental_sublet_in_part_exempts_the_sublet_part
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      personal_use:
+        value: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms5_unknown_purpose_or_same_service_is_a_hand_over[personal_use]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      same_service_as_buyer:
+        value: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms5_unknown_purpose_or_same_service_is_a_hand_over[same_service_as_buyer]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      sublet:
+        value: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms5_unknown_sublet_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-6
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms6_group_company_supply_is_relieved[kw0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-6
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms6_group_company_supply_is_relieved[kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-6
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms6_group_company_supply_is_relieved[kw2]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms6_group_company_without_a_group_structure_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_maintenance_is_relieved_from_1_may_2024
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-6
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms6_maintenance_is_relieved_from_1_may_2024
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_near_miss_item_outside_group_relief
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_near_miss_no_control_or_above_5pct[kw0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_near_miss_no_control_or_above_5pct[kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_near_miss_no_control_or_above_5pct[kw2]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms6_near_miss_no_control_or_above_5pct[kw3]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms6_relieved_supply_without_tax_is_no_sst
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms6_unknown_control_or_5pct_is_a_hand_over[kw0]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms6_unknown_control_or_5pct_is_a_hand_over[kw1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms7_near_miss_principal_customs_area_and_jda
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms7_near_miss_principal_customs_area_and_jda
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-7
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-7
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms7_service_within_a_designated_area_is_not_taxed
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-7
+      gl_account: 6150-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms7_service_within_a_designated_area_is_not_taxed
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-7
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms7_unknown_zone_status_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_my_exemptions.py::test_ms8_buyer_accounts_for_imported_service_tax
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-6
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms8_exceptions_buyer_accounts_for_nothing
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms8_exceptions_buyer_accounts_for_nothing
+- call: 2
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      supplier_paid:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms8_exceptions_buyer_accounts_for_nothing
+- call: 3
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - financial_charge:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: fee_or_commission
+      financial_use:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: offshore_financial_services
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: H3
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms8_exceptions_buyer_accounts_for_nothing
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms8_foreign_registered_person
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_my_exemptions.py::test_ms8_foreign_registered_person
+- call: 2
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings:
+    - code: TAX_UNDERCHARGED
+      evidence:
+        line: 1
+        tax: service
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_UNDERCHARGED
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-9
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_UNDERCHARGED
+    tax_treatment: SST_UNDERCHARGED
+  test: tests/rules/test_my_exemptions.py::test_ms8_foreign_registered_person
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: SUPPLIER_NOT_TAX_REGISTERED
+      evidence:
+        line: 1
+        tax: service
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - SUPPLIER_NOT_TAX_REGISTERED
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-1
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SUPPLIER_NOT_REGISTERED
+    tax_treatment: SST_SUPPLIER_NOT_REGISTERED
+  test: tests/rules/test_my_exemptions.py::test_ms8_foreign_supplier_charging_sst_is_not_registered
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      subject_outside_malaysia:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_exemptions.py::test_ms8_near_miss_excluded_service_is_not_imported_taxable
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      supplier_paid:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_my_exemptions.py::test_ms8_near_miss_supplier_not_yet_paid
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_exemptions.py::test_ms8_unregistered_buyer_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts:

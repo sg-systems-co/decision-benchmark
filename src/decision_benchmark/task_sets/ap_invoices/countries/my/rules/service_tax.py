@@ -11,12 +11,12 @@ from ....findings import UnsupportedCase
 from ....models.common import ZERO
 from ..constants import TAX_TYPE_SALES
 from ..models import MyTaxTreatment as T
-from . import b2b, group_relief, rates, scope
+from . import areas, b2b, group_relief, rates, scope
 from .context import Exempt, LineCtx, Outcome, Partial
 
 LABELS = {"MS-5": "b2b"}
 """The finding label v0.9 keys use for an exemption (others use the rule ID)."""
-EXEMPTIONS = (scope.exclusion, group_relief.check, b2b.check)
+EXEMPTIONS = (scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), group_relief.check, b2b.check)
 """The exclusion and exemption rules, in the order they are tried."""
 
 

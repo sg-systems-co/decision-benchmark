@@ -15,6 +15,8 @@ SECTION_5 = ("§5-a", "§5-b")
 """§5-a: each line on its own, decision by the most severe line; §5-b: the split as the deciding fact."""
 
 M = "test_my_service_tax::"
+X = "test_my_exemptions::"
+B = "test_b2b_and_insurance::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
     "MS-1": {"positive": [M + "test_ms1_unregistered_supplier_charging_service_tax",
@@ -29,6 +31,21 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
              "near_miss": [M + "test_ms3_near_miss_period_after_the_change_takes_the_new_rate"]},
     "MS-4": {"positive": [M + "test_ms4_exclusion_charged_should_be_exempt"],
              "near_miss": [M + "test_ms4_near_miss_ordinary_fact_is_taxable"]},
+    "MS-5": {"positive": [X + "test_ms5_rental_sublet_in_full_is_exempt",
+                          X + "test_ms5_rental_sublet_in_part_exempts_the_sublet_part",
+                          X + "test_ms5_construction_and_finance_items", B + "test_b2b_positive"],
+             "near_miss": [X + "test_ms5_near_miss_condition_fails", B + "test_b2b_near_miss_personal_use",
+                           B + "test_b2b_near_miss_buyer_provides_a_different_item"]},
+    "MS-6": {"positive": [X + "test_ms6_group_company_supply_is_relieved",
+                          X + "test_ms6_maintenance_is_relieved_from_1_may_2024"],
+             "near_miss": [X + "test_ms6_near_miss_no_control_or_above_5pct",
+                           X + "test_ms6_near_miss_item_outside_group_relief"]},
+    "MS-7": {"positive": [X + "test_ms7_service_within_a_designated_area_is_not_taxed"],
+             "near_miss": [X + "test_ms7_near_miss_principal_customs_area_and_jda"]},
+    "MS-8": {"positive": [X + "test_ms8_buyer_accounts_for_imported_service_tax",
+                          X + "test_ms8_foreign_registered_person"],
+             "near_miss": [X + "test_ms8_exceptions_buyer_accounts_for_nothing",
+                           X + "test_ms8_near_miss_excluded_service_is_not_imported_taxable"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -44,7 +61,7 @@ NOT_ENGINE: dict[str, str] = {
 NOT_ENGINE_GUARDS: dict[str, list[str]] = {}
 
 PENDING: set[str] = {
-    *(f"MS-{i}" for i in (5, 6, 7, 8, 10)), *(f"K-{i}" for i in range(1, 9)), *(f"L-{i}" for i in range(1, 9)),
+    "MS-10", *(f"K-{i}" for i in range(1, 9)), *(f"L-{i}" for i in range(1, 9)),
     *(f"P-{i}" for i in range(1, 22)), *(f"MG-{i}" for i in range(1, 7)), *(f"G-{i}" for i in range(1, 8)),
     *(f"ME-{i}" for i in range(1, 5)), *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,

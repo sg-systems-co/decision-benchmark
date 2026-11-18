@@ -15,7 +15,7 @@ from ....findings import LineResult, NotSettled, TaxResult, Unsettled, worst_lin
 from ....models import Catalog, Finding
 from ....models.evidence import LineFacts
 from ..models import MyInvois, MyTaxProfile
-from . import sales_tax, service_tax
+from . import imported, sales_tax, service_tax
 from .context import LineCtx, Outcome
 
 if TYPE_CHECKING:
@@ -59,4 +59,6 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
 def assess_line(ctx: LineCtx) -> Outcome:
     if ctx.is_goods:
         return sales_tax.assess(ctx)
+    if ctx.foreign_supplier:
+        return imported.assess(ctx)
     return service_tax.assess(ctx)

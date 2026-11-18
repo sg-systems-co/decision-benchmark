@@ -103,11 +103,20 @@ def _lines_out(view: CaseView, tax_result, accounts: dict[int, str]) -> dict:
     return {
         "tax_lines": [TaxLine(line_no=r.line_no, treatment=r.treatment, basis=r.basis, gl_account=accounts[r.line_no])
                       for r in tax_result.lines],
-        "buyer_actions": [a for r in tax_result.lines for a in r.buyer_actions],
+        "buyer_actions": _unique([a for r in tax_result.lines for a in r.buyer_actions]),
         "facts": facts or None,
         "engine_version": ENGINE_VERSION,
         "rules_version": RULES_VERSION,
     }
+
+
+def _unique(actions: list) -> list:
+    """Each buyer action once (the schema's uniqueItems), in line order."""
+    out: list = []
+    for a in actions:
+        if a not in out:
+            out.append(a)
+    return out
 
 
 def _truth(view: CaseView, po_res: matching.PoResolution, variance, contact: bool) -> GraderTruth:
