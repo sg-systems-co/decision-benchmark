@@ -26,3 +26,4 @@ A12 build PR 2 (Malaysia). One version for the whole PR: its golden file is rewr
 - **Commit 7 (MS-5 to MS-8).** No existing key changes. 43 new keys from `tests/rules/test_my_exemptions.py`. Buyer actions are now listed once per case (the schema's `uniqueItems`).
 - **Commit 8 (K-1 to K-8).** No existing key changes. New keys from `tests/rules/test_my_rental.py`.
 - **Commit 9 (L-1 to L-4, L-6 to L-8).** No existing key changes. New keys from `tests/rules/test_my_construction.py`.
+- **Commit 10 (MS-10, P-1 to P-14, P-16 to P-20; P-21 guard).** No existing key changes. New keys from `tests/rules/test_my_policies.py`.

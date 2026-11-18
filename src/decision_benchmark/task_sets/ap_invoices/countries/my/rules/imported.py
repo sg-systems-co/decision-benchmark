@@ -13,7 +13,7 @@ from ....findings import NotSettled
 from ....models import BuyerAction
 from ..constants import NO_B2B_ITEMS
 from ..models import MyTaxTreatment as T
-from . import group_relief, rates, scope
+from . import group_relief, policies, rates, scope
 from .context import Exempt, LineCtx, Outcome
 
 ACCOUNT_IMPORTED = "ACCOUNT_IMPORTED_SERVICE_TAX"
@@ -36,8 +36,14 @@ def assess(ctx: LineCtx) -> Outcome:
         return ctx.not_registered("service", "MS-1")
     if not scope.in_schedule(item, ctx.day):
         return Outcome(T.NO_SST, "MS-1")
+    # Group H policies are for financial services bought in Malaysia; imported ones follow STP 1/2025 item 6 below.
+    found = policies.check(ctx) if ctx.group != "H" else None
+    if isinstance(found, Exempt):
+        return Outcome(T.NO_SST, found.basis)
     if isinstance(scope.exclusion(ctx), Exempt):
         return Outcome(T.NO_SST, "MS-4")
+    if policies.labuan_imported(ctx):
+        return Outcome(T.NO_SST, "P-20")
     registered = ctx.buyer_registered()
     if frp:
         # Digital services from an FRP: to a group company not taxed unless the FRP also supplies outsiders

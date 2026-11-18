@@ -11,12 +11,12 @@ from ....findings import UnsupportedCase
 from ....models.common import ZERO
 from ..constants import TAX_TYPE_SALES
 from ..models import MyTaxTreatment as T
-from . import areas, b2b, construction, group_relief, rates, rental, scope
-from .context import Exempt, LineCtx, Outcome, Partial
+from . import areas, b2b, construction, group_relief, policies, rates, rental, scope
+from .context import Exempt, LineCtx, Outcome, Partial, Taxable
 
 LABELS = {"MS-5": "b2b"}
 """The finding label v0.9 keys use for an exemption (others use the rule ID)."""
-EXEMPTIONS = (scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), rental.check,
+EXEMPTIONS = (policies.check, scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), rental.check,
               construction.check, group_relief.check, b2b.check)
 """The exclusion and exemption rules, in the order they are tried."""
 
@@ -39,12 +39,15 @@ def assess(ctx: LineCtx) -> Outcome:
     if not scope.in_schedule(ctx.item, ctx.day):
         return ctx.exempt(Exempt("MS-1"), "not_taxable")
     partials: list[Partial] = []
+    taxable_by: str | None = None
     for rule in EXEMPTIONS:
         result = rule(ctx)
         if isinstance(result, Exempt):
             return ctx.exempt(result, LABELS.get(result.basis))
         if isinstance(result, Partial):
             partials.append(result)
+        if isinstance(result, Taxable):
+            taxable_by = result.basis
     if not ctx.charged:
         if any(p.taxable <= ZERO for p in partials):
             return Outcome(T.NO_SST, partials[0].basis)
@@ -52,6 +55,8 @@ def assess(ctx: LineCtx) -> Outcome:
             return Outcome(T.NO_SST, "MS-1")
         return ctx.undercharged("MS-9", "service")
     out = rates.check_rate(ctx, partials)
+    if out.code == T.SST_CORRECT and taxable_by is not None and out.basis == "MS-2":
+        return Outcome(out.code, taxable_by)
     if out.code == T.SST_CORRECT and ctx.group == "L" and ctx.fact("materials_works_separated", None, "L-8") is False:
         # L-8: materials and work not shown separately, so the whole invoice is taxed.
         return Outcome(out.code, "L-8")

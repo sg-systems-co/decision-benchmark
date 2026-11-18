@@ -47,6 +47,14 @@ class Partial:
 
 
 @dataclass(frozen=True)
+class Taxable:
+    """The line stays taxable by the rule in basis (e.g. a consultation fee not itemised, P-12): a correct line
+    names this rule as its basis."""
+
+    basis: str
+
+
+@dataclass(frozen=True)
 class Outcome:
     code: str
     basis: str

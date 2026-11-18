@@ -17,6 +17,7 @@ ACCOUNT = {
     "courier_services": "5300-400", "telecoms": "6210-000", "advertising": "6160-000",
     "construction_works": "6160-000", "maintenance_repair": "6160-000", "software_development": "6150-100",
     "test_raw_resin": "5100-100", "test_finished_goods": "5100-300", "office_supplies": "6300-000",
+    "utilities_electricity": "6220-000",
 }
 
 

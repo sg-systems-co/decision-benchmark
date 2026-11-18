@@ -19,6 +19,7 @@ X = "test_my_exemptions::"
 B = "test_b2b_and_insurance::"
 K = "test_my_rental::"
 C = "test_my_construction::"
+P = "test_my_policies::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
     "MS-1": {"positive": [M + "test_ms1_unregistered_supplier_charging_service_tax",
@@ -78,6 +79,46 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [C + "test_l7_near_miss_local_authority_after_september_2025"]},
     "L-8": {"positive": [C + "test_l8_materials_not_separated_tax_the_whole_invoice", C + "test_l8_installation_not_separated_by_a_manufacturer_bears_sales_tax", C + "test_l8_ship_or_platform_follows_the_election"],
             "near_miss": [C + "test_l8_near_miss_installation_by_a_non_manufacturer_bears_service_tax"]},
+    "MS-10": {"positive": [P + "test_ms10_a_policy_exemption_with_tax_charged_is_should_be_exempt"],
+            "near_miss": [P + "test_ms10_near_miss_a_policy_exemption_without_tax_is_no_sst"]},
+    "P-1": {"positive": [P + "test_p1_financial_services_bought_by_a_group_h_provider"],
+            "near_miss": [P + "test_p1_near_miss_other_use"]},
+    "P-2": {"positive": [P + "test_p2_to_p7_exempt_financial_charges"],
+            "near_miss": [P + "test_p2_to_p7_near_miss_ordinary_fee"]},
+    "P-3": {"positive": [P + "test_p2_to_p7_exempt_financial_charges"],
+            "near_miss": [P + "test_p2_to_p7_near_miss_ordinary_fee"]},
+    "P-4": {"positive": [P + "test_p2_to_p7_exempt_financial_charges"],
+            "near_miss": [P + "test_p2_to_p7_near_miss_ordinary_fee"]},
+    "P-5": {"positive": [P + "test_p2_to_p7_exempt_financial_charges"],
+            "near_miss": [P + "test_p2_to_p7_near_miss_ordinary_fee"]},
+    "P-6": {"positive": [P + "test_p6_reinsurance_for_medical_life_or_family_cover"],
+            "near_miss": [P + "test_p6_reinsurance_for_medical_life_or_family_cover"]},
+    "P-7": {"positive": [P + "test_p2_to_p7_exempt_financial_charges", P + "test_p7_tia_i_account_fees_from_june_2026"],
+            "near_miss": [P + "test_p7_tia_i_account_fees_from_june_2026"]},
+    "P-8": {"positive": [P + "test_p8_government_supplier_of_new_scope_services"],
+            "near_miss": [P + "test_p8_near_miss_local_authority_after_september_2025"]},
+    "P-9": {"positive": [P + "test_p9_mro_by_an_approved_amo_for_an_airline"],
+            "near_miss": [P + "test_p9_near_miss_condition_fails"]},
+    "P-10": {"positive": [P + "test_p10_non_residential_maintenance_charges_by_a_jmb"],
+            "near_miss": [P + "test_p10_near_miss_before_july_2026_or_not_a_jmb"]},
+    "P-11": {"positive": [P + "test_p11_residential_sinking_fund_and_warranty"],
+            "near_miss": [P + "test_p11_near_miss_non_residential_warranty_repair"]},
+    "P-12": {"positive": [P + "test_p12_itemised_consultation_fee_is_exempt"],
+            "near_miss": [P + "test_p12_near_miss_not_itemised_the_whole_invoice_is_taxed"]},
+    "P-13": {"positive": [P + "test_p13_screening_diplomats_and_newborns"],
+            "near_miss": [P + "test_p13_near_miss_non_citizen_patient"]},
+    "P-14": {"positive": [P + "test_p14_referral_not_walked_in_is_not_taxed"],
+            "near_miss": [P + "test_p14_near_miss_walk_in_or_medical_aids_are_taxed"]},
+    "P-16": {"positive": [P + "test_p16_education_fee_items_sponsored_and_diplomats"],
+            "near_miss": [P + "test_p16_near_miss_tuition_for_a_non_citizen"]},
+    "P-17": {"positive": [P + "test_p17_training_for_oku_holders_by_a_recognised_centre"],
+            "near_miss": [P + "test_p17_near_miss_centre_not_recognised"]},
+    "P-18": {"positive": [P + "test_p18_international_door_to_door_and_east_malaysia_freight"],
+            "near_miss": [P + "test_p18_near_miss_domestic_carriage"]},
+    "P-19": {"positive": [P + "test_p19_distance_learning_and_e_newspapers_are_not_digital_services"],
+            "near_miss": [P + "test_p19_near_miss_other_digital_content"]},
+    "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", "test_my_exemptions::test_ms7_near_miss_principal_customs_area_and_jda"],
+            "near_miss": [P + "test_p20_near_miss_labuan_imported_services_from_2022"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -90,11 +131,13 @@ NOT_ENGINE: dict[str, str] = {
     "G-7": 'the sheet: "refund-only windows (no invoice effect)"',
 }
 
-NOT_ENGINE_GUARDS: dict[str, list[str]] = {}
+NOT_ENGINE_GUARDS: dict[str, list[str]] = {
+    "P-21": [P + "test_p21_guard_domestic_electricity_is_not_a_company_purchase_rule"],
+}
 
 PENDING: set[str] = {
-    "MS-10", "L-5",
-    *(f"P-{i}" for i in range(1, 22)), *(f"MG-{i}" for i in range(1, 7)), *(f"G-{i}" for i in range(1, 8)),
+    "L-5", "P-15",
+    *(f"MG-{i}" for i in range(1, 7)), *(f"G-{i}" for i in range(1, 8)),
     *(f"ME-{i}" for i in range(1, 5)), *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }
