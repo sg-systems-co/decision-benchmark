@@ -768,11 +768,44 @@
         },
         "self_billing_type": {
           "$ref": "../output.schema.json#/$defs/fact",
-          "description": "The self-billed e-invoice transaction type in section 8.3 of the LHDN e-Invoice Specific Guideline.",
+          "description": "The self-billed e-invoice transaction type in section 8.3 of the LHDN e-Invoice Specific Guideline v4.9: (a) agents_dealers_distributors, (b) foreign_supplier, (c) profit_distribution, (d) ecommerce, (e) betting_gaming_payout, (f) individual_not_in_business, (g) interest_payment, (h) insurance_claim_payment, (i) capital_return_or_liquidation; none: not a self-billed transaction.",
           "x-family": "classification",
           "x-rules": ["ME-3"],
           "properties": {
-            "value": {"enum": ["foreign_supplier", "agent_dealer_distributor", "other_section_8_3", "none", null]}
+            "value": {
+              "enum": [
+                "agents_dealers_distributors",
+                "foreign_supplier",
+                "profit_distribution",
+                "ecommerce",
+                "betting_gaming_payout",
+                "individual_not_in_business",
+                "interest_payment",
+                "insurance_claim_payment",
+                "capital_return_or_liquidation",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "interest_exception": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For section 8.3 item (g), interest: the exception that applies, where the supplier issues the e-invoice and the buyer does not self-bill. none: no exception applies.",
+          "x-family": "classification",
+          "x-rules": ["ME-3"],
+          "properties": {
+            "value": {
+              "enum": [
+                "public_lender",
+                "employee_to_employer",
+                "foreign_payor",
+                "related_company_treasury",
+                "late_payment_charge",
+                "none",
+                null
+              ]
+            }
           }
         },
         "staff_secondment": {

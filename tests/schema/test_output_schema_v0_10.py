@@ -306,3 +306,18 @@ def test_wrong_country_case_level_code_is_not_a_schema_error():
     # As in v0.9: a Malaysian code on a Singapore case is a wrong tax treatment, not a schema break.
     VALIDATOR.validate({"case_id": "ap-sg-00001", "decision": "APPROVE", "tax_treatment": "SST_CORRECT",
                         "gl_account": "6100-000", "reason_codes": []})
+
+
+def test_me3_self_billing_types_are_the_nine_items_of_section_8_3():
+    """Review of PR #12 (18 Nov 2026): ME-3 lists the nine items (a)-(i) of section 8.3 of the LHDN e-Invoice
+    Specific Guideline v4.9; item (g) has its own exceptions, where the supplier issues the e-invoice."""
+    my = PARTS["MY"]["$defs"]["line_facts"]["properties"]
+    assert my["self_billing_type"]["properties"]["value"]["enum"] == [
+        "agents_dealers_distributors", "foreign_supplier", "profit_distribution", "ecommerce", "betting_gaming_payout",
+        "individual_not_in_business", "interest_payment", "insurance_claim_payment", "capital_return_or_liquidation",
+        "none", None]
+    exc = my["interest_exception"]
+    assert exc["properties"]["value"]["enum"] == [
+        "public_lender", "employee_to_employer", "foreign_payor", "related_company_treasury", "late_payment_charge",
+        "none", None]
+    assert exc["x-rules"] == ["ME-3"] and list(my).index("interest_exception") == list(my).index("self_billing_type") + 1

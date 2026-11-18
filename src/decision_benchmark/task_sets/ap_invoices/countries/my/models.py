@@ -252,6 +252,12 @@ class MyLineFacts(LineFacts):
     digital_content_type: LineFact[Literal["online_distance_learning", "e_newspaper_journal_periodical", "other"]] | None = fact_field("classification", "P-19")
     pallet_returnable: LineFact[bool] | None = fact_field("classification", "G-4")
     drop_shipment_export: LineFact[bool] | None = fact_field("scope_and_exemption", "G-5")
-    self_billing_type: LineFact[Literal["foreign_supplier", "agent_dealer_distributor", "other_section_8_3", "none"]] | None = fact_field("classification", "ME-3")
+    self_billing_type: LineFact[Literal[
+        "agents_dealers_distributors", "foreign_supplier", "profit_distribution", "ecommerce", "betting_gaming_payout",
+        "individual_not_in_business", "interest_payment", "insurance_claim_payment", "capital_return_or_liquidation", "none",
+    ]] | None = fact_field("classification", "ME-3")
+    interest_exception: LineFact[Literal[
+        "public_lender", "employee_to_employer", "foreign_payor", "related_company_treasury", "late_payment_charge", "none",
+    ]] | None = fact_field("classification", "ME-3")
     staff_secondment: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-4")
     excluded_management_kind: LineFact[Literal["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "none"]] | None = fact_field("scope_and_exemption", "MS-4")

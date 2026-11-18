@@ -40,6 +40,7 @@ Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one e
 - **`group_medical_insurance`** needs the line fact `insurance_obligatory`: true when the cover is obligatory under the Work Injury Compensation Act or a collective agreement (claimable), false when it is not (disallowed). Where the documents don't say, the case is HAND_OVER.
 - **`parking` in Singapore** is delivery-vehicle parking only.
 - `sales_exempt` and `none` categories appear in clean cases only; the generator never charges tax on them.
+- **Self-billed e-invoices (ME-3).** Of the nine `self_billing_type` values (section 8.3 (a) to (i) of the LHDN e-Invoice Specific Guideline v4.9), only four arise on supplier invoices, so B1 plants only these: `agents_dealers_distributors` (a), `foreign_supplier` (b), `individual_not_in_business` (f) and `interest_payment` (g). On (g), `interest_exception` may be planted; where an exception applies, the supplier issues the e-invoice and there is no buyer action. Decided in the review of build PR 1 (PR #12), 18 Nov 2026.
 
 ### GL roles
 
