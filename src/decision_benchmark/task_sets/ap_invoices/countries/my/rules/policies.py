@@ -2,9 +2,8 @@
 
 Service Tax Policies under Service Tax Act s34(3)(a) and s34(4), latest version of each read 17 Nov 2026.
 Each is a line rule: when its facts hold, no service tax is due (Exempt). A few say a line stays taxable
-(Taxable): the correct line then names that rule as its basis. Not built: P-15 (no line fact identifies a
-health-examination management service) and the two digital-payment parts of P-20 (no line fact identifies
-them); P-21 is not an engine rule (not a company purchase).
+(Taxable): the correct line then names that rule as its basis. P-21 is not an engine rule (not a company
+purchase).
 """
 
 from __future__ import annotations
@@ -35,6 +34,12 @@ DIGITAL_ITEMS = ("G(l)", "I2")
 EXEMPT_CARRIAGE = ("door_to_door_international", "ocean_peninsula_east_malaysia")
 """P-18 (STP 4/2024 and Amdt 1)."""
 LABUAN_IMPORTED_TO = date(2021, 12, 31)
+HEALTH_EXAM_TAXABLE_FROM = date(2026, 5, 1)
+"""P-15 (STP 1/2026): health-examination management services are taxable as management services from 1 May 2026."""
+BANK_DIGITAL_TO = date(2025, 7, 31)
+"""P-20: banking digital services exempt to 31 Jul 2025 (STP 10/2020 Amdt 2)."""
+NON_BANK_DIGITAL = (date(2022, 8, 1), date(2025, 7, 31))
+"""P-20: non-bank digital payment services exempt 1 Aug 2022-31 Jul 2025 (STP 1/2022)."""
 """P-20: imported services to Labuan, exempt to 31 Dec 2021 (STP 2/2019)."""
 
 
@@ -140,6 +145,14 @@ def check(ctx: LineCtx) -> Exempt | Taxable | None:
         return Exempt("P-18")
     if item in DIGITAL_ITEMS and ctx.fact("digital_content_type", "other", "P-19") in NOT_DIGITAL:
         return Exempt("P-19")
+    if item in DIGITAL_ITEMS:
+        provider = ctx.fact("digital_payment_provider", "none", "P-20")
+        if provider == "bank" and ctx.day <= BANK_DIGITAL_TO:
+            return Exempt("P-20")
+        if provider == "non_bank" and NON_BANK_DIGITAL[0] <= ctx.day <= NON_BANK_DIGITAL[1]:
+            return Exempt("P-20")
+    if item == "G(i)" and ctx.fact("excluded_management_kind", "none", "P-15") == "health_examination_management":
+        return Taxable("P-15") if ctx.day >= HEALTH_EXAM_TAXABLE_FROM else Exempt("P-15")
     return None
 
 

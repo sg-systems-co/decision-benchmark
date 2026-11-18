@@ -2,8 +2,7 @@
 
 Ministerial exemptions in STP 3/2025 (Amendment No. 3), 30 Jan 2026, STP 7/2025, 2/2026 and 5/2026. The
 Regulations' exclusion of residential buildings is in scope.py (MS-4); the B2B exemption (order item 9) in
-b2b.py. L-5 (completed residential buildings, STP 2/2026) is not built: no line fact tells a completed
-home from a residential building the Regulations exclude (A12 build PR 2 report).
+b2b.py.
 """
 
 from __future__ import annotations
@@ -15,11 +14,12 @@ from ....findings import NotSettled
 from ..constants import TAX_TYPE_SALES, TAX_TYPE_SERVICE
 from ..models import MyContractFacts
 from .b2b import WHOLE
-from .context import Exempt, LineCtx, Partial
+from .context import Exempt, LineCtx, Partial, Taxable
 from .scope import NEW_SCOPE_FROM
 
 CONTRACT_EXEMPT_TO = date(2027, 6, 30)
 """L-1: work under non-reviewable contracts is exempt to 30 Jun 2027."""
+COMPLETED_HOMES_FROM = date(2025, 7, 1)
 SIGNED_BEFORE = date(2025, 7, 1)
 STAMPED_BEFORE = date(2025, 12, 31)
 DESIGN_AND_BUILD_ITEMS = ("G(a)", "G(c)", "G(d)", "G(e)", "G(f)", "G(g)", "G(i)", "G(n)")
@@ -97,13 +97,27 @@ def design_and_build(ctx: LineCtx) -> Exempt | None:
     return Exempt("L-3") if ctx.fact("exemption_statement_on_invoice", False, "L-3") else None
 
 
-def check(ctx: LineCtx) -> Exempt | Partial | None:
+def completed_home(ctx: LineCtx) -> Exempt | Taxable | None:
+    """L-5 (STP 2/2026, from 1 Jul 2025): construction work on a completed residential building is exempt when the
+    invoice names the recipient and shows the residential address; without them it stays taxable."""
+    if not (ctx.fact("residential", False, "L-5") and ctx.fact("completed_building", False, "L-5")):
+        return None
+    if ctx.day < COMPLETED_HOMES_FROM:
+        return None
+    named = bool(ctx.invoice.buyer_block.name and ctx.invoice.buyer_block.address)
+    return Exempt("L-5") if named else Taxable("L-5")
+
+
+def check(ctx: LineCtx) -> Exempt | Partial | Taxable | None:
     if ctx.group != "L" or ctx.foreign_supplier:
         return design_and_build(ctx)
     if ctx.government_supplier("L-7", NEW_SCOPE_FROM):
         return Exempt("L-7")
     if ctx.fact("place_of_worship", False, "L-4"):
         return Exempt("L-4")
+    completed = completed_home(ctx)
+    if completed is not None:
+        return completed
     if not ctx.fact("client_established_in_malaysia", True, "L-6"):
         # STP 5/2026: offshore and onshore facilities for a client not established in Malaysia, with the statement.
         if ctx.fact("exemption_statement_on_invoice", False, "L-6"):

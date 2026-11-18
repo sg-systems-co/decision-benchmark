@@ -34,6 +34,9 @@ EXCLUDED_INSURANCE = ("international_transport", "export_credit", "risk_outside_
                       "educational_or_religious_insured")
 SCHOOL_FEE_LIMIT = Decimal("60000")
 """Group M: private school fees are taxable above RM60,000 per student per year."""
+EXCLUDED_MANAGEMENT = ("strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body")
+"""Group G (i) exclusions: strata management to owners, CMSA fund management, religious/welfare/health/public-transport
+bodies. Health-examination management is P-15 (policies.py)."""
 EXCLUDED_SUPPLIER_KINDS = ("approved_rnd_company", "research_institute")
 """Group G (g): approved R&D companies, contract R&D companies and research institutes are excluded as persons."""
 
@@ -71,7 +74,7 @@ def exclusion(ctx: LineCtx) -> Exempt | Partial | None:
             if ctx.fact("oku_holder", False, "MS-4"):
                 return out
         elif letter == "i":
-            if _outside(ctx) or ctx.fact("excluded_management_kind", "none", "MS-4") != "none":
+            if _outside(ctx) or ctx.fact("excluded_management_kind", "none", "MS-4") in EXCLUDED_MANAGEMENT:
                 return out
         elif letter == "j":
             if ctx.fact("staff_secondment", False, "MS-4") or _outside(ctx):
@@ -110,7 +113,10 @@ def exclusion(ctx: LineCtx) -> Exempt | Partial | None:
         if ctx.fact("financial_lease", False, "MS-4"):
             return out
     elif group == "L":
-        if ctx.fact("residential", False, "MS-4") and ctx.fact("residential_share", None, "L-2") is None:
+        # The Regulations exclude residential buildings (not an approved mixed development, L-2); work on a completed
+        # residential building is L-5 (construction.py).
+        if (ctx.fact("residential", False, "MS-4") and ctx.fact("residential_share", None, "L-2") is None
+                and not ctx.fact("completed_building", False, "L-5")):
             return out
     elif group == "M":
         return _education(ctx)
@@ -125,16 +131,23 @@ def patient_is_citizen(ctx: LineCtx) -> bool:
     return bool(ctx.need("patient_citizen", "MS-4"))
 
 
-def _education(ctx: LineCtx) -> Exempt | None:
-    fee = ctx.fact("annual_fee_per_student", None, "MS-4")
-    if fee is not None:
-        # Private school fees: taxable above RM60,000 per student per year.
-        return Exempt("MS-4") if fee <= SCHOOL_FEE_LIMIT else None
+def _student_category(ctx: LineCtx) -> str:
     category = ctx.fact("student_category", None, "MS-4")
     if category is None:
         citizen = ctx.fact("student_citizen", None, "MS-4")
         if citizen is None:
             raise NotSettled("MS-4", "student category not shown")
         category = "citizen" if citizen else "non_citizen"
-    # Higher education and language centres: taxable for non-citizens; disabled citizens exempt (Order item 10).
-    return Exempt("MS-4") if category in ("citizen", "disabled_citizen") else None
+    return category
+
+
+def _education(ctx: LineCtx) -> Exempt | None:
+    """Group M by provider kind (no ordinary value: not shown -> HAND_OVER). Private schools: fees above RM60,000 per
+    student per year; higher education and language centres: non-citizen students. Disabled citizens are exempt
+    (Order item 10)."""
+    kind = ctx.need("education_provider_kind", "MS-4")
+    if kind == "private_school":
+        if ctx.fact("student_category", None, "MS-4") == "disabled_citizen":
+            return Exempt("MS-4")
+        return Exempt("MS-4") if ctx.need("annual_fee_per_student", "MS-4") <= SCHOOL_FEE_LIMIT else None
+    return Exempt("MS-4") if _student_category(ctx) in ("citizen", "disabled_citizen") else None

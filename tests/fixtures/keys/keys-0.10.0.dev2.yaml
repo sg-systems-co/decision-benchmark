@@ -1651,6 +1651,157 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
+    - completed_building:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+      line_no: 1
+      residential:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-4
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_construction.py::test_l5_near_miss_building_not_completed_falls_under_the_regulations
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - completed_building:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+      residential:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: L-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_construction.py::test_l5_near_miss_invoice_without_the_residential_address_is_taxed
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - completed_building:
+        value: null
+      line_no: 1
+      residential:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: L-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_construction.py::test_l5_unknown_completion_is_a_hand_over
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - completed_building:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+      line_no: 1
+      residential:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: true
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: L-5
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: L-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_construction.py::test_l5_work_on_a_completed_home_with_recipient_and_address_is_exempt
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
     - client_established_in_malaysia:
         evidence:
         - doc_id: INV-CASE-1
@@ -5061,6 +5212,73 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
+    - excluded_management_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: health_examination_management
+      line_no: 1
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: P-15
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-15
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_policies.py::test_p15_health_examination_management_exempt_before_may_2026
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - excluded_management_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: health_examination_management
+      line_no: 1
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-15
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_policies.py::test_p15_near_miss_taxable_from_may_2026
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
     - education_fee_item:
         evidence:
         - doc_id: INV-CASE-1
@@ -5189,6 +5407,11 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: tuition
+      education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: higher_education
       line_no: 1
       service_item:
         evidence:
@@ -5225,7 +5448,12 @@ keys:
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts:
-    - line_no: 1
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: language_centre
+      line_no: 1
       oku_holder:
         evidence:
         - doc_id: INV-CASE-1
@@ -5650,6 +5878,129 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: P-20
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-20
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_policies.py::test_p20_digital_payment_exemptions_in_their_windows[bank-2025-07-20]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: non_bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: P-20
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-20
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_policies.py::test_p20_digital_payment_exemptions_in_their_windows[non_bank-2022-08-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: non_bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: P-20
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-20
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_policies.py::test_p20_digital_payment_exemptions_in_their_windows[non_bank-2025-07-31]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts: null
@@ -5699,6 +6050,183 @@ keys:
       treatment: SST_BUYER_ACCOUNTS
     tax_treatment: SST_BUYER_ACCOUNTS
   test: tests/rules/test_my_policies.py::test_p20_near_miss_labuan_imported_services_from_2022
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_policies.py::test_p20_near_miss_outside_the_windows_or_not_a_payment_provider[bank-2025-08-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: non_bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_policies.py::test_p20_near_miss_outside_the_windows_or_not_a_payment_provider[non_bank-2022-07-29]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: non_bank
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_policies.py::test_p20_near_miss_outside_the_windows_or_not_a_payment_provider[non_bank-2025-08-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_policies.py::test_p20_near_miss_outside_the_windows_or_not_a_payment_provider[none-2024-06-03]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - digital_payment_provider:
+        value: null
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: G(l)
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: P-20
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_policies.py::test_p20_unknown_provider_kind_is_a_hand_over
 - call: 0
   key:
     answer_source: rules
@@ -10565,7 +11093,12 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
-    - line_no: 1
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: higher_education
+      line_no: 1
       service_item:
         evidence:
         - doc_id: INV-CASE-1
@@ -10606,7 +11139,12 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
-    - line_no: 1
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: higher_education
+      line_no: 1
       service_item:
         evidence:
         - doc_id: INV-CASE-1
@@ -10647,7 +11185,12 @@ keys:
     decision: APPROVE
     engine_version: 0.10.0.dev2
     facts:
-    - line_no: 1
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: higher_education
+      line_no: 1
       service_item:
         evidence:
         - doc_id: INV-CASE-1
@@ -10683,7 +11226,12 @@ keys:
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
-    - line_no: 1
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: language_centre
+      line_no: 1
       service_item:
         evidence:
         - doc_id: INV-CASE-1
@@ -10721,6 +11269,47 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: language_centre
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: M
+      student_citizen:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: false
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts4-SST_CORRECT]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts:
@@ -10729,6 +11318,11 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: '50000.00'
+      education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: private_school
       line_no: 1
       service_item:
         evidence:
@@ -10756,7 +11350,7 @@ keys:
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
     tax_treatment: SST_SHOULD_BE_EXEMPT
-  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts4-SST_SHOULD_BE_EXEMPT]
+  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts5-SST_SHOULD_BE_EXEMPT]
 - call: 0
   key:
     answer_source: rules
@@ -10770,6 +11364,11 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: '70000.00'
+      education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: private_school
       line_no: 1
       service_item:
         evidence:
@@ -10792,7 +11391,156 @@ keys:
       line_no: 1
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
-  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts5-SST_CORRECT]
+  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts6-SST_CORRECT]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts:
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: private_school
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: M
+      student_category:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: disabled_citizen
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-4
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_service_tax.py::test_ms4_education[facts7-SST_SHOULD_BE_EXEMPT]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: M
+      student_category:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: non_citizen
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_service_tax.py::test_ms4_education_without_provider_kind_or_fee_is_a_hand_over[facts0]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: M
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_service_tax.py::test_ms4_education_without_provider_kind_or_fee_is_a_hand_over[facts1]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - education_provider_kind:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: private_school
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: M
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-4
+      gl_account: 6150-100
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_my_service_tax.py::test_ms4_education_without_provider_kind_or_fee_is_a_hand_over[facts2]
 - call: 0
   key:
     answer_source: rules

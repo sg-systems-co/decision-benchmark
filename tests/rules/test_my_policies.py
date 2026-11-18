@@ -176,7 +176,8 @@ def test_p16_education_fee_items_sponsored_and_diplomats(facts):
 
 
 def test_p16_near_miss_tuition_for_a_non_citizen():
-    r, c = one_line(rate="6", service_item="M", education_fee_item="tuition", student_category="non_citizen")
+    r, c = one_line(rate="6", service_item="M", education_fee_item="tuition", student_category="non_citizen",
+                    education_provider_kind="higher_education")
     assert result(r, c) == (*CORRECT, "MS-2")
 
 
@@ -187,7 +188,8 @@ def test_p17_training_for_oku_holders_by_a_recognised_centre():
 
 
 def test_p17_near_miss_centre_not_recognised():
-    r, c = one_line(rate="6", service_item="M", oku_holder=True, student_category="non_citizen")
+    r, c = one_line(rate="6", service_item="M", oku_holder=True, student_category="non_citizen",
+                    education_provider_kind="language_centre")
     assert result(r, c) == (*CORRECT, "MS-2")
 
 
@@ -243,3 +245,39 @@ def test_p21_guard_domestic_electricity_is_not_a_company_purchase_rule():
     # P-21 is not an engine rule: an electricity line is treated as any line outside the First Schedule.
     assert result(*one_line("utilities_electricity", rate="8", tax_type="02")) == (*EXEMPT, "MS-1")
     assert result(*one_line("utilities_electricity", rate="0")) == (OK, "NO_SST", "MS-1")
+
+
+# -- Review of PR #14: P-15 and the P-20 digital-payment parts ------------------------------------------------
+
+
+HEALTH_EXAM = {"excluded_management_kind": "health_examination_management"}
+
+
+def test_p15_health_examination_management_exempt_before_may_2026():
+    r, c = one_line("management_services", rate="8", day="2026-04-20", **HEALTH_EXAM)
+    assert result(r, c) == (*EXEMPT, "P-15")
+
+
+def test_p15_near_miss_taxable_from_may_2026():
+    r, c = one_line("management_services", rate="8", day="2026-05-04", **HEALTH_EXAM)
+    assert result(r, c) == (*CORRECT, "P-15")
+
+
+@pytest.mark.parametrize("provider, day", [("bank", "2025-07-20"), ("non_bank", "2022-08-01"), ("non_bank", "2025-07-31")])
+def test_p20_digital_payment_exemptions_in_their_windows(provider, day):
+    rate = "6" if day < "2024-03-01" else "8"
+    r, c = one_line(rate=rate, day=day, service_item="G(l)", digital_payment_provider=provider)
+    assert result(r, c) == (*EXEMPT, "P-20")
+
+
+@pytest.mark.parametrize("provider, day", [("bank", "2025-08-01"), ("non_bank", "2022-07-29"), ("non_bank", "2025-08-01"),
+                                           ("none", "2024-06-03")])
+def test_p20_near_miss_outside_the_windows_or_not_a_payment_provider(provider, day):
+    rate = "6" if day < "2024-03-01" else "8"        # 6% for every service before 1 Mar 2024
+    r, c = one_line(rate=rate, day=day, service_item="G(l)", digital_payment_provider=provider)
+    assert result(r, c) == (*CORRECT, "MS-2")
+
+
+def test_p20_unknown_provider_kind_is_a_hand_over():
+    r, c = one_line(rate="8", day="2025-07-20", service_item="G(l)", digital_payment_provider=None)
+    assert result(r, c) == (HO, None, "P-20")

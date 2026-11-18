@@ -82,6 +82,9 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [C + "test_l3_near_miss_no_statement_or_not_a_main_contractor"]},
     "L-4": {"positive": [C + "test_l4_place_of_worship_is_exempt"],
             "near_miss": [C + "test_l4_near_miss_commercial_building"]},
+    "L-5": {"positive": [C + "test_l5_work_on_a_completed_home_with_recipient_and_address_is_exempt"],
+            "near_miss": [C + "test_l5_near_miss_invoice_without_the_residential_address_is_taxed",
+                          C + "test_l5_near_miss_building_not_completed_falls_under_the_regulations"]},
     "L-6": {"positive": [C + "test_l6_facility_for_a_foreign_client_with_the_statement_is_exempt"],
             "near_miss": [C + "test_l6_near_miss_no_statement_on_the_invoice"]},
     "L-7": {"positive": [C + "test_l7_government_contractor"],
@@ -118,6 +121,8 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [P + "test_p13_near_miss_non_citizen_patient"]},
     "P-14": {"positive": [P + "test_p14_referral_not_walked_in_is_not_taxed"],
             "near_miss": [P + "test_p14_near_miss_walk_in_or_medical_aids_are_taxed"]},
+    "P-15": {"positive": [P + "test_p15_health_examination_management_exempt_before_may_2026"],
+            "near_miss": [P + "test_p15_near_miss_taxable_from_may_2026"]},
     "P-16": {"positive": [P + "test_p16_education_fee_items_sponsored_and_diplomats"],
             "near_miss": [P + "test_p16_near_miss_tuition_for_a_non_citizen"]},
     "P-17": {"positive": [P + "test_p17_training_for_oku_holders_by_a_recognised_centre"],
@@ -126,8 +131,10 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [P + "test_p18_near_miss_domestic_carriage"]},
     "P-19": {"positive": [P + "test_p19_distance_learning_and_e_newspapers_are_not_digital_services"],
             "near_miss": [P + "test_p19_near_miss_other_digital_content"]},
-    "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", "test_my_exemptions::test_ms7_near_miss_principal_customs_area_and_jda"],
-            "near_miss": [P + "test_p20_near_miss_labuan_imported_services_from_2022"]},
+    "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", "test_my_exemptions::test_ms7_near_miss_principal_customs_area_and_jda",
+                          P + "test_p20_digital_payment_exemptions_in_their_windows"],
+            "near_miss": [P + "test_p20_near_miss_labuan_imported_services_from_2022",
+                          P + "test_p20_near_miss_outside_the_windows_or_not_a_payment_provider"]},
     "MG-1": {"positive": [S + "test_mg1_manufacturer_reselling_bought_in_goods", S + "test_mg1_unregistered_supplier_charging_sales_tax", "test_tax_my_scope::test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader"],
             "near_miss": [S + "test_mg1_near_miss_registered_manufacturer_selling_its_own_goods", S + "test_mg1_near_miss_trader_charges_nothing"]},
     "MG-2": {"positive": [S + "test_mg2_wrong_rate_and_exempt_goods"],
@@ -178,7 +185,6 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
 }
 
 PENDING: set[str] = {
-    "L-5", "P-15",
     *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }

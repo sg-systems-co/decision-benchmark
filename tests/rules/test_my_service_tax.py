@@ -255,16 +255,29 @@ def test_ms4_healthcare_without_the_patient_shown_is_a_hand_over():
 
 
 @pytest.mark.parametrize("facts, expected", [
-    ({"student_category": "citizen"}, "SST_SHOULD_BE_EXEMPT"),
-    ({"student_category": "disabled_citizen"}, "SST_SHOULD_BE_EXEMPT"),
-    ({"student_category": "non_citizen"}, "SST_CORRECT"),
-    ({"student_citizen": True}, "SST_SHOULD_BE_EXEMPT"),
-    ({"annual_fee_per_student": "50000.00"}, "SST_SHOULD_BE_EXEMPT"),
-    ({"annual_fee_per_student": "70000.00"}, "SST_CORRECT"),
+    ({"education_provider_kind": "higher_education", "student_category": "citizen"}, "SST_SHOULD_BE_EXEMPT"),
+    ({"education_provider_kind": "higher_education", "student_category": "disabled_citizen"}, "SST_SHOULD_BE_EXEMPT"),
+    ({"education_provider_kind": "higher_education", "student_category": "non_citizen"}, "SST_CORRECT"),
+    ({"education_provider_kind": "language_centre", "student_citizen": True}, "SST_SHOULD_BE_EXEMPT"),
+    ({"education_provider_kind": "language_centre", "student_citizen": False}, "SST_CORRECT"),
+    ({"education_provider_kind": "private_school", "annual_fee_per_student": "50000.00"}, "SST_SHOULD_BE_EXEMPT"),
+    ({"education_provider_kind": "private_school", "annual_fee_per_student": "70000.00"}, "SST_CORRECT"),
+    ({"education_provider_kind": "private_school", "annual_fee_per_student": "70000.00",
+      "student_category": "disabled_citizen"}, "SST_SHOULD_BE_EXEMPT"),
 ])
 def test_ms4_education(facts, expected):
     r, c = one_line(rate="6", service_item="M", **facts)
     assert result(r, c)[1] == expected
+
+
+@pytest.mark.parametrize("facts", [
+    {"student_category": "non_citizen"},                                       # provider kind not shown
+    {"annual_fee_per_student": "70000.00"},                                    # a fee alone doesn't make a school
+    {"education_provider_kind": "private_school"},                             # school fee not shown
+])
+def test_ms4_education_without_provider_kind_or_fee_is_a_hand_over(facts):
+    r, c = one_line(rate="6", service_item="M", **facts)
+    assert result(r, c) == (HO, None, "MS-4")
 
 
 def test_ms4_unknown_exclusion_fact_is_a_hand_over():

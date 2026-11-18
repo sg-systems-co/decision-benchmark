@@ -1,5 +1,4 @@
-"""Group L construction works: L-1 to L-4, L-6 to L-8 (A12 build PR 2 commit 9). L-5 stays pending (no line
-fact tells a completed home from a residential building the Regulations exclude)."""
+"""Group L construction works: L-1 to L-8 (A12 build PR 2 commit 9; L-5 from the review of PR #14)."""
 
 import pytest
 
@@ -197,3 +196,27 @@ def test_l8_ship_or_platform_follows_the_election():
     assert result(r, c) == (RCI, "SST_WRONG_RATE", "L-8")
     assert result(*works(ship_platform_election="construction")) == (OK, "SST_CORRECT", "MS-2")
     assert result(*works(ship_platform_election=None)) == (HO, None, "L-8")
+
+
+# -- L-5 completed residential buildings (review of PR #14) --------------------------------------------------
+
+
+HOME = {"residential": True, "completed_building": True}
+
+
+def test_l5_work_on_a_completed_home_with_recipient_and_address_is_exempt():
+    assert result(*works(**HOME)) == (RCI, "SST_SHOULD_BE_EXEMPT", "L-5")
+
+
+def test_l5_near_miss_invoice_without_the_residential_address_is_taxed():
+    r, c = works(**HOME)
+    c["invoice"]["buyer_block"]["address"] = None
+    assert result(r, c) == (OK, "SST_CORRECT", "L-5")
+
+
+def test_l5_near_miss_building_not_completed_falls_under_the_regulations():
+    assert result(*works(residential=True, completed_building=False)) == (RCI, "SST_SHOULD_BE_EXEMPT", "MS-4")
+
+
+def test_l5_unknown_completion_is_a_hand_over():
+    assert result(*works(residential=True, completed_building=None)) == (HO, None, "L-5")

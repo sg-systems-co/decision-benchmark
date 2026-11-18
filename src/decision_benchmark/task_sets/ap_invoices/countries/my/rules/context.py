@@ -20,7 +20,7 @@ from functools import cached_property
 from ....codes import Code
 from ....fact_reader import FactReader
 from ....findings import NotSettled, finding
-from ....models import BuyerAction, Catalog, Company, Finding, InvoiceLine, Supplier
+from ....models import BuyerAction, Catalog, Company, Finding, Invoice, InvoiceLine, Supplier
 from ....models.common import ZERO
 from ....models.contract import ContractRecord
 from ..constants import TAX_TYPE_SALES, TAX_TYPE_SERVICE
@@ -79,6 +79,8 @@ class LineCtx:
     catalog: Catalog
     contracts: list[ContractRecord] = field(default_factory=list)
     """The case's contracts with this supplier."""
+    invoice: Invoice | None = None
+    """The invoice the line is on (rules that read its printed parties, e.g. L-5)."""
 
     # -- facts ----------------------------------------------------------------
 
