@@ -1,0 +1,5 @@
+# False positives, checked by hand: gitleaks' generic-api-key rule reads "key: `<test name>`" in the answer-key change
+# log as a key assignment. Both matches are the test name test_row05_negative_ovr_vendor_charges_no_gst. Only these
+# exact commit/file/rule/line fingerprints are ignored; every other match still fails the scan.
+264a4eb95d46eb9380fe435ecafb3f180dd330ea:tests/fixtures/keys/changes.md:generic-api-key:56
+49b0ebd3711cbafd8b81abe5fb77f172097091b3:tests/fixtures/keys/changes.md:generic-api-key:52
