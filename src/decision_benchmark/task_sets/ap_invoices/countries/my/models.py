@@ -13,11 +13,16 @@ from ...models.evidence import LineFact, LineFacts, Share, fact_field
 
 
 class MyTaxTreatment(StrEnum):
+    """The codes of $defs/tax_code in schemas/ap-invoices/v0.10/countries/my.schema.json."""
+
     SST_CORRECT = "SST_CORRECT"
     SST_WRONG_RATE = "SST_WRONG_RATE"
     SST_SHOULD_BE_EXEMPT = "SST_SHOULD_BE_EXEMPT"
     SST_SUPPLIER_NOT_REGISTERED = "SST_SUPPLIER_NOT_REGISTERED"
     NO_SST = "NO_SST"
+    SST_NOT_CHARGEABLE_BY_TRADER = "SST_NOT_CHARGEABLE_BY_TRADER"
+    SST_UNDERCHARGED = "SST_UNDERCHARGED"
+    SST_BUYER_ACCOUNTS = "SST_BUYER_ACCOUNTS"
 
 
 MyTaxClass = Literal["sales_5", "sales_10", "sales_exempt", "service_8", "service_6", "none"]

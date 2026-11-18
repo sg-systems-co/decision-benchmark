@@ -17,3 +17,9 @@ A12 build PR 1, commit 4: per-line results, line GL, versions in keys. 129 keys.
   - `engine_version` `0.10.0.dev1`, `rules_version` `v0.9` (the rules applied are still those of sheet v0.9; it becomes `v0.10` with engine 0.10.0).
 - **New keys (spec v0.10 clarification, GL per line):** `test_lines_booking_to_two_gl_accounts_each_keep_their_account` (formerly `UnsupportedCase`: lines booking to two GL accounts now each keep their account; the case-level account is the line with the largest amount excluding tax) and `test_case_gl_account_ties_go_to_the_lowest_line`.
 - **New keys from new tests (no rule change):** `test_gold_facts_are_the_facts_read`, `test_hand_over_line_is_null_with_its_basis`, `test_versions_in_keys` (tests/rules/test_registry.py).
+
+## 0.10.0.dev2
+
+A12 build PR 2 (Malaysia). One version for the whole PR: its golden file is rewritten at each commit of the PR, and this section lists every change against 0.10.0.dev1 by commit and rule ID. No 0.10.0.dev2 key reaches main before the PR is merged.
+
+- **Commit 6 (MS-1 to MS-4, MS-9).** All 129 keys of 0.10.0.dev1: unchanged apart from `engine_version`. 87 new keys from the new tests in `tests/rules/test_my_service_tax.py`.

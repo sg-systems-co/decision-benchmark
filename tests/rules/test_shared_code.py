@@ -67,6 +67,10 @@ def test_every_pack_fills_the_interface():
 
 
 def test_tax_codes_match_the_output_schema():
-    schema = json.loads((ROOT / "schemas/ap-invoices/v0.9/output.schema.json").read_text())
-    enum = [c for c in schema["properties"]["tax_treatment"]["enum"] if c is not None]
-    assert set(enum) == {str(c) for c in TaxTreatment} and len(enum) == len(TaxTreatment)
+    """Each pack's codes are its v0.10 schema part's $defs/tax_code. Singapore gains its new v0.10 codes in A12
+    build PR 3; until then its codes are a subset."""
+    for country, pack in PACKS.items():
+        part = json.loads((ROOT / f"schemas/ap-invoices/v0.10/countries/{country.lower()}.schema.json").read_text())
+        codes = {c["const"] for c in part["$defs"]["tax_code"]["oneOf"]}
+        mine = {str(c) for c in pack.tax_codes}
+        assert mine == codes if country == "MY" else mine <= codes, country

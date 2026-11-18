@@ -33,6 +33,17 @@ class Unsettled:
     tax_related: bool
 
 
+class NotSettled(Exception):
+    """A rule the documents don't settle for one line: the line's treatment is null (HAND_OVER) with the rule
+    as its basis. tax_related False: the open question is not the tax (e.g. a buyer action)."""
+
+    def __init__(self, basis: str, reason: str, tax_related: bool = True) -> None:
+        super().__init__(f"{basis}: {reason}")
+        self.basis = basis
+        self.reason = reason
+        self.tax_related = tax_related
+
+
 @dataclass(frozen=True)
 class LineResult:
     """One invoice line's tax result (spec v0.10 tax_lines)."""
