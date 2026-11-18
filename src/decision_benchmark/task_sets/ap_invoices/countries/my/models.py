@@ -97,6 +97,8 @@ class MsmeStatus(Model):
 class Shareholding(Model):
     holder_id: str = Field(min_length=1)
     held_id: str = Field(min_length=1)
+    holder_kind: Literal["company", "individual"] = "company"
+    """Only companies form a group (First Schedule para 4): sisters owned by one individual are not a group."""
     pct: Num = Field(ge=0, le=100)
     board_control: bool | None = None
     """Power over the board (counts with a 20-50% holding, First Schedule paras 4-7). None: not shown."""

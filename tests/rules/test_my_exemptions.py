@@ -226,3 +226,48 @@ def test_ms8_unregistered_buyer_is_a_hand_over():
     r, c = imported()
     company_sst(r)
     assert result(r, c) == (HO, None, "MS-8")
+
+
+def holdings(r, *rows, within=True):
+    """Shareholdings as (holder, held, pct, extra) rows; the supplier is S1 and the buyer my-c-001."""
+    company_facts(r, group={"shareholdings": [
+        {"holder_id": h, "held_id": d, "pct": p} | (x or {}) for h, d, p, x in rows]})
+    supplier_facts(r, group_company_id="S1", external_share_within_5pct=within)
+
+
+def test_ms6_sisters_under_a_common_parent_company_are_relieved():
+    # Para 4: one company (the parent P) controls each of the other companies.
+    r, c = one_line("management_services", rate="8")
+    holdings(r, ("P", "my-c-001", "60", None), ("P", "S1", "70", None))
+    assert result(r, c) == (RCI, "SST_SHOULD_BE_EXEMPT", "MS-6")
+
+
+def test_ms6_near_miss_sisters_under_a_common_individual_are_not_a_group():
+    r, c = one_line("management_services", rate="8")
+    ind = {"holder_kind": "individual"}
+    holdings(r, ("Mr X", "my-c-001", "60", ind), ("Mr X", "S1", "70", ind))
+    assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
+
+
+def test_ms6_indirect_control_through_a_subsidiary_is_relieved():
+    # Para 5: P controls SUB, SUB controls S1, so P controls S1 indirectly; P also controls the buyer.
+    r, c = one_line("management_services", rate="8")
+    holdings(r, ("P", "my-c-001", "55", None), ("P", "SUB", "60", None), ("SUB", "S1", "80", None))
+    assert result(r, c) == (RCI, "SST_SHOULD_BE_EXEMPT", "MS-6")
+    # Direct and indirect holdings add up: 30% by P and 25% by its subsidiary SUB is 55%.
+    r, c = one_line("management_services", rate="8")
+    holdings(r, ("P", "my-c-001", "55", None), ("P", "SUB", "60", None), ("P", "S1", "30", None),
+             ("SUB", "S1", "25", None))
+    assert result(r, c) == (RCI, "SST_SHOULD_BE_EXEMPT", "MS-6")
+
+
+def test_ms6_near_miss_parent_controls_only_one_sister():
+    r, c = one_line("management_services", rate="8")
+    holdings(r, ("P", "my-c-001", "60", None), ("P", "S1", "40", {"board_control": False}))
+    assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
+
+
+def test_ms6_unknown_board_control_on_the_common_parent_path_is_a_hand_over():
+    r, c = one_line("management_services", rate="8")
+    holdings(r, ("P", "my-c-001", "60", None), ("P", "S1", "40", {"board_control": None}))
+    assert result(r, c) == (HO, None, "MS-6")

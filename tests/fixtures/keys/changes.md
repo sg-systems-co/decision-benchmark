@@ -31,3 +31,7 @@ A12 build PR 2 (Malaysia). One version for the whole PR: its golden file is rewr
 - **Commit 12 (ME-1, ME-3, ME-4; ME-2 is the v0.9 check).** No existing key changes. New keys from `tests/rules/test_my_einvoice.py`. An open non-tax question (an unknown e-invoicing phase, ME-1 or ME-3) makes the case HAND_OVER with its tax treatment set.
 
 Rules still pending after this PR (no line fact the rule needs; see the PR description): L-5, P-15. Rules not built in this PR by plan: SG-1 to SG-12, WH-1 to WH-5, §5 (PR 3).
+
+Review of PR #14 (18 Nov 2026), pushed to the same PR under 0.10.0.dev2:
+
+- **A. Group relief (MS-6, K-6): companies controlled by one company are a group (First Schedule paras 4-5).** Control counts through subsidiaries; sisters under a common parent company are relieved; an individual owner forms no group. No existing key changes. New keys: `test_ms6_sisters_under_a_common_parent_company_are_relieved`, `test_ms6_near_miss_sisters_under_a_common_individual_are_not_a_group`, `test_ms6_indirect_control_through_a_subsidiary_is_relieved` (2 keys), `test_ms6_near_miss_parent_controls_only_one_sister`, `test_ms6_unknown_board_control_on_the_common_parent_path_is_a_hand_over`.
