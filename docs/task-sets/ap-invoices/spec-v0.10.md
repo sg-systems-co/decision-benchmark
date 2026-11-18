@@ -136,7 +136,7 @@ One entry per invoice line:
 | `basis` | The rule ID from the rule sheet that decides this line, for example `MS-8`, `K-1`, `SG-9`. On a null treatment, the rule the documents don't settle. |
 | `gl_account` | Optional. The GL account this line books to, from the company's chart of accounts. |
 
-**GL account per line and per case** (clarification, 18 Nov 2026). Real AP books each line to its own account, so a line may carry its own `gl_account`. The case-level `gl_account` stays, and is the GL account of the line with the largest amount excluding tax (ties: the lowest `line_no`). The main score and case-level GL accuracy are unchanged.
+**GL account per line and per case** (clarification, 18 Nov 2026). Real AP books each line to its own account, so a line may carry its own `gl_account`. The case-level `gl_account` stays, and is the GL account of the line with the largest absolute amount excluding tax (ties: the lowest `line_no`). "Absolute" makes the rule the same for credit notes, whose line amounts are negative, and for invoices with lines of both signs (clarification, 18 Nov 2026). The main score and case-level GL accuracy are unchanged.
 
 All lines of one output use one country's codes and rule IDs. `basis` is required and is published in the answer keys, but it is not scored in v0.10: several rules can lead to the same treatment, and the sheet does not rank them.
 

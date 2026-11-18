@@ -35,6 +35,7 @@ def line_accounts(view: CaseView, po: PurchaseOrder | None, line_map: dict[int, 
 
 
 def case_account(view: CaseView, accounts: dict[int, str]) -> str:
-    """The account of the line with the largest amount excluding tax; ties: the lowest line number."""
-    line = min(view.invoice.lines, key=lambda x: (-x.net_amount, x.line_no))
+    """The account of the line with the largest absolute amount excluding tax (spec v0.10 clarification, so credit
+    notes and mixed-sign invoices follow one rule); ties: the lowest line number."""
+    line = min(view.invoice.lines, key=lambda x: (-abs(x.net_amount), x.line_no))
     return accounts[line.line_no]

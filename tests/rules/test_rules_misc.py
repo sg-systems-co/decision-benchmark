@@ -1,10 +1,14 @@
 """Duplicates, fraud, matching, routing, hand-over and the engine's refusal to guess."""
 
+from types import SimpleNamespace
+
 import pytest
 
 from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices.models.invoice import InvoiceLine
 from decision_benchmark.task_sets.ap_invoices.rules import UnsupportedCase
+from decision_benchmark.task_sets.ap_invoices.rules.gl import case_account
 
 from .factory import (
     answer,
@@ -391,3 +395,27 @@ def test_non_standard_gst_rate_is_unsupported():
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", rate="8", po_line_no=1)])
     with pytest.raises(UnsupportedCase, match="GST rate"):
         answer(r, c)
+
+
+def _gl_view(doc_type: str, amounts: list[str]) -> SimpleNamespace:
+    lines = [InvoiceLine(line_no=n, qty=1, uom="unit", net_amount=a, category="it_services")
+             for n, a in enumerate(amounts, 1)]
+    return SimpleNamespace(invoice=SimpleNamespace(doc_type=doc_type, lines=lines))
+
+
+@pytest.mark.parametrize("doc_type, amounts, expected", [
+    # Credit note: every line amount is negative; the largest absolute amount wins, not the one nearest zero.
+    ("credit_note", ["-200.00", "-3200.00", "-50.00"], "GL-2"),
+    # Credit note with a tie on the absolute amount: the lowest line_no.
+    ("credit_note", ["-50.00", "-3200.00", "-3200.00"], "GL-2"),
+    # Mixed signs: a negative line with the largest absolute amount beats a smaller positive line.
+    ("invoice", ["1000.00", "-1500.00", "200.00"], "GL-2"),
+    # Mixed signs with a tie between +x and -x: the lowest line_no.
+    ("invoice", ["-800.00", "800.00", "100.00"], "GL-1"),
+])
+def test_case_gl_account_uses_the_largest_absolute_amount(doc_type, amounts, expected):
+    """Spec v0.10 clarification (review of PR #12, 18 Nov 2026): "largest amount" is the largest absolute amount
+    excluding tax; ties still go to the lowest line_no."""
+    view = _gl_view(doc_type, amounts)
+    accounts = {line.line_no: f"GL-{line.line_no}" for line in view.invoice.lines}
+    assert case_account(view, accounts) == expected
