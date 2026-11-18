@@ -18,6 +18,7 @@ from ..models import (
     Case,
     Company,
     CompanyRecords,
+    ContractRecord,
     Email,
     GoodsReceipt,
     Invoice,
@@ -46,6 +47,9 @@ class CaseView(Model):
     """The supplier's last 10 ledger items on or before as_of_date, newest first."""
     emails: list[Email]
     """The case's own threads, oldest first."""
+    contracts: list[ContractRecord] = []
+    """The written contracts with the supplier (as supplier or supplier-side party) signed on or before
+    as_of_date, or undated."""
 
     @property
     def policy(self) -> PolicyPack:
@@ -119,6 +123,11 @@ def build_case_view(records: CompanyRecords, envelope: ApCaseEnvelope) -> CaseVi
         (e for e in records.emails if e.case_id == envelope.case_id and e.sent_at.date() <= day),
         key=lambda e: (e.sent_at, e.message_id),
     )
+    contracts = [
+        k for k in records.contracts
+        if (k.supplier_id == case.supplier_id or case.supplier_id in k.parties)
+        and (k.signed_on is None or k.signed_on <= day)
+    ]
     return CaseView(
         case_id=envelope.case_id,
         country=envelope.country,
@@ -130,4 +139,5 @@ def build_case_view(records: CompanyRecords, envelope: ApCaseEnvelope) -> CaseVi
         goods_receipts=grs,
         history=history,
         emails=emails,
+        contracts=contracts,
     )

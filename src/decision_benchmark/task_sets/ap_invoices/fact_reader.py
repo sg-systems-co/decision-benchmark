@@ -8,11 +8,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .findings import NotSettled
 from .models.evidence import LineFact, LineFacts
 
 if TYPE_CHECKING:
     from .countries.base import CountryPack
     from .models import InvoiceLine
+
+
+class FactNotShown(NotSettled):
+    """A rule reads a line fact that is recorded with a null value: the documents don't show it."""
+
+    def __init__(self, name: str, basis: str) -> None:
+        super().__init__(basis, f"{name} not shown")
+        self.name = name
 
 
 class FactReader:
@@ -35,6 +44,23 @@ class FactReader:
         """The fact's value; None when it isn't recorded or the documents don't show it."""
         fact = self.get(name)
         return fact.value if fact is not None else None
+
+    def value_or(self, name: str, default, basis: str):
+        """The fact's value. Not recorded: default (the case doesn't raise the question, so the ordinary value
+        holds). Recorded with a null value: the documents don't show it, so FactNotShown with the rule's basis."""
+        fact = self.get(name)
+        if fact is None:
+            return default
+        if fact.value is None:
+            raise FactNotShown(name, basis)
+        return fact.value
+
+    def need(self, name: str, basis: str):
+        """The fact's value where no ordinary value exists: not recorded or null raises FactNotShown."""
+        fact = self.get(name)
+        if fact is None or fact.value is None:
+            raise FactNotShown(name, basis)
+        return fact.value
 
     def recorded_reads(self) -> list[str]:
         """The fields read that the facts record, in reading order (the line's gold facts)."""

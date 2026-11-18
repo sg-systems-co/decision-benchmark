@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ...findings import TaxResult
 from ...registry import RuleSpec, registry
 from ..base import CountryPack
-from . import constants, tax, validity
+from . import constants, rules as line_rules, validity
 from .models import MyContractFacts, MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ class MalaysiaPack(CountryPack):
     country = "MY"
     currency = "MYR"
     registration_types = {"MY_TIN": ("tin",), "MY_SST": ("sales", "service")}
-    certificate_kinds = ("schedule_c", "b2b_declaration")
+    certificate_kinds = ("schedule_a", "schedule_b", "schedule_c", "b2b_declaration")
     tax_codes = MyTaxTreatment
     tax_profile = MyTaxProfile
     profile_required = True
@@ -79,14 +79,7 @@ class MalaysiaPack(CountryPack):
         return validity.check(invoice)
 
     def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
-        return tax.assess(
-            view.invoice,
-            view.supplier,
-            self.supplier_facts_of(view.supplier),
-            view.company,
-            self.company_facts_of(view.company),
-            catalog,
-        )
+        return line_rules.assess(view, catalog)
 
 
 PACK = MalaysiaPack()

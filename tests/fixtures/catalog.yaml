@@ -115,6 +115,14 @@ categories:
     MY: {tax_class: sales_10, schedule_c_eligible: true}
   gl_role: raw_materials
   sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
+- category: test_exempt_goods
+  kind: goods
+  label: Test goods exempt from sales tax (Goods Exempted from Sales Tax Order 2025 in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_exempt}
+  gl_role: raw_materials
+  sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
 - category: test_finished_goods
   kind: goods
   label: Test finished goods (sales tax 5% in this fixture)

@@ -817,14 +817,49 @@
         },
         "excluded_management_kind": {
           "$ref": "../output.schema.json#/$defs/fact",
-          "description": "For Group G item (i): an excluded kind of management service.",
+          "description": "For Group G item (i): an excluded kind of management service, or health-examination management (taxable as management services from 1 May 2026, exempt before: P-15).",
           "x-family": "scope_and_exemption",
-          "x-rules": ["MS-4"],
+          "x-rules": ["MS-4", "P-15"],
           "properties": {
             "value": {
-              "enum": ["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "none", null]
+              "enum": [
+                "strata_management_to_owners",
+                "cmsa_fund_management",
+                "religious_welfare_body",
+                "health_examination_management",
+                "none",
+                null
+              ]
             }
           }
+        },
+        "value_provided_before_change": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Value of the service provided before the rate change that the service period spans, where the documents show it.",
+          "x-family": "split",
+          "x-rules": ["MS-3"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "completed_building": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The construction work is on a completed residential building (STP 2/2026).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["L-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "digital_payment_provider": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a digital service or digital payment line: the provider is a bank or a non-bank payment provider (P-20 dated exemptions).",
+          "x-family": "classification",
+          "x-rules": ["P-20"],
+          "properties": {"value": {"enum": ["bank", "non_bank", "none", null]}}
+        },
+        "education_provider_kind": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group M: the kind of education provider.",
+          "x-family": "classification",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"enum": ["private_school", "higher_education", "language_centre", null]}}
         }
       }
     },

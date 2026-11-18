@@ -10,7 +10,9 @@ import pytest
 from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
 
-from .factory import answer, ein, my_base, my_line, set_lines, set_po_line, sg_base, sg_line, tax_facts
+from .factory import (
+    answer, buyer_service_registered, ein, my_base, my_line, set_lines, set_po_line, sg_base, sg_line, tax_facts,
+)
 
 # One category per B2B scheme: (category, GL account, rate, item, a different item of another scheme).
 SCHEMES = {
@@ -26,6 +28,7 @@ def _my(category, gl, rate, provides=(), **facts):
     set_po_line(r, category=category, gl_account=gl)
     set_lines(c, [my_line(1, category, 1, "3200.00", rate=rate, tax_type="02", po_line_no=1, **facts)])
     tax_facts(r["company"], services_provided=list(provides))
+    buyer_service_registered(r)
     return r, c
 
 

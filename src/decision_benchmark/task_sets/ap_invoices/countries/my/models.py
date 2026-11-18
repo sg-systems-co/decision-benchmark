@@ -13,11 +13,16 @@ from ...models.evidence import LineFact, LineFacts, Share, fact_field
 
 
 class MyTaxTreatment(StrEnum):
+    """The codes of $defs/tax_code in schemas/ap-invoices/v0.10/countries/my.schema.json."""
+
     SST_CORRECT = "SST_CORRECT"
     SST_WRONG_RATE = "SST_WRONG_RATE"
     SST_SHOULD_BE_EXEMPT = "SST_SHOULD_BE_EXEMPT"
     SST_SUPPLIER_NOT_REGISTERED = "SST_SUPPLIER_NOT_REGISTERED"
     NO_SST = "NO_SST"
+    SST_NOT_CHARGEABLE_BY_TRADER = "SST_NOT_CHARGEABLE_BY_TRADER"
+    SST_UNDERCHARGED = "SST_UNDERCHARGED"
+    SST_BUYER_ACCOUNTS = "SST_BUYER_ACCOUNTS"
 
 
 MyTaxClass = Literal["sales_5", "sales_10", "sales_exempt", "service_8", "service_6", "none"]
@@ -92,6 +97,8 @@ class MsmeStatus(Model):
 class Shareholding(Model):
     holder_id: str = Field(min_length=1)
     held_id: str = Field(min_length=1)
+    holder_kind: Literal["company", "individual"] = "company"
+    """Only companies form a group (First Schedule para 4): sisters owned by one individual are not a group."""
     pct: Num = Field(ge=0, le=100)
     board_control: bool | None = None
     """Power over the board (counts with a 20-50% holding, First Schedule paras 4-7). None: not shown."""
@@ -133,7 +140,9 @@ class MyCompanyFacts(CountryBlock):
     zone: MyZone | None = None
     zone_known: bool = True
     einvoice_phase_start: date | None = None
-    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not shown."""
+    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not in a mandatory phase."""
+    einvoice_phase_known: bool = True
+    """False: the case can't show the company's e-invoicing phase (ME-3)."""
     industrial_undertaking: bool = False
     """An enterprise in an industrial undertaking (LHDN DTA note iv on 15/10 interest rows)."""
     labuan_fsa_regulated: bool = False
@@ -162,6 +171,10 @@ class MySupplierFacts(CountryBlock):
     pe_in_country: bool | None = None
     """A permanent establishment or business presence in Malaysia (WH-3). None: not shown."""
     einvoice_phase_start: date | None = None
+    """When the supplier's mandatory e-invoicing phase starts (ME-1). None: not in a mandatory phase (for example
+    annual turnover below RM3m)."""
+    einvoice_phase_known: bool = True
+    """False: the case can't show the supplier's e-invoicing phase (ME-1)."""
     approvals: list[Literal["caam_amo", "mida_shipyard", "dgta_amo"]] = []
     recognised_training_centre: bool = False
     zone: MyZone | None = None
@@ -260,4 +273,8 @@ class MyLineFacts(LineFacts):
         "public_lender", "employee_to_employer", "foreign_payor", "related_company_treasury", "late_payment_charge", "none",
     ]] | None = fact_field("classification", "ME-3")
     staff_secondment: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-4")
-    excluded_management_kind: LineFact[Literal["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "none"]] | None = fact_field("scope_and_exemption", "MS-4")
+    excluded_management_kind: LineFact[Literal["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "health_examination_management", "none"]] | None = fact_field("scope_and_exemption", "MS-4", "P-15")
+    value_provided_before_change: LineFact[Money] | None = fact_field("split", "MS-3")
+    completed_building: LineFact[bool] | None = fact_field("scope_and_exemption", "L-5")
+    digital_payment_provider: LineFact[Literal["bank", "non_bank", "none"]] | None = fact_field("classification", "P-20")
+    education_provider_kind: LineFact[Literal["private_school", "higher_education", "language_centre"]] | None = fact_field("classification", "MS-4")
