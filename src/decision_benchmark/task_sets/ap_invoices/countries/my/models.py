@@ -138,7 +138,9 @@ class MyCompanyFacts(CountryBlock):
     zone: MyZone | None = None
     zone_known: bool = True
     einvoice_phase_start: date | None = None
-    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not shown."""
+    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not in a mandatory phase."""
+    einvoice_phase_known: bool = True
+    """False: the case can't show the company's e-invoicing phase (ME-3)."""
     industrial_undertaking: bool = False
     """An enterprise in an industrial undertaking (LHDN DTA note iv on 15/10 interest rows)."""
     labuan_fsa_regulated: bool = False
@@ -167,6 +169,10 @@ class MySupplierFacts(CountryBlock):
     pe_in_country: bool | None = None
     """A permanent establishment or business presence in Malaysia (WH-3). None: not shown."""
     einvoice_phase_start: date | None = None
+    """When the supplier's mandatory e-invoicing phase starts (ME-1). None: not in a mandatory phase (for example
+    annual turnover below RM3m)."""
+    einvoice_phase_known: bool = True
+    """False: the case can't show the supplier's e-invoicing phase (ME-1)."""
     approvals: list[Literal["caam_amo", "mida_shipyard", "dgta_amo"]] = []
     recognised_training_centre: bool = False
     zone: MyZone | None = None

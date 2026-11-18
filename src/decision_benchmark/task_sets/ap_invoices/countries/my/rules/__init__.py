@@ -15,7 +15,7 @@ from ....findings import LineResult, NotSettled, TaxResult, Unsettled, worst_lin
 from ....models import Catalog, Finding
 from ....models.evidence import LineFacts
 from ..models import MyInvois, MyTaxProfile
-from . import imported, sales_tax, service_tax
+from . import einvoice, imported, sales_tax, service_tax
 from .context import LineCtx, Outcome
 
 if TYPE_CHECKING:
@@ -48,12 +48,23 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
             lines.append(LineResult(line.line_no, None, ns.basis, read=tuple(reader.recorded_reads()),
                                     missing=tuple(reader.missing())))
             continue
+        actions = out.actions
+        try:
+            actions += einvoice.self_billing(ctx)
+        except NotSettled as ns:
+            unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
         findings += out.findings
-        lines.append(LineResult(line.line_no, out.code, out.basis, out.actions, read=tuple(reader.recorded_reads()),
+        lines.append(LineResult(line.line_no, out.code, out.basis, actions, read=tuple(reader.recorded_reads()),
                                 missing=tuple(reader.missing())))
+    try:
+        findings += einvoice.supplier_phase(inv, view.supplier, sf)
+    except NotSettled as ns:
+        unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
+    findings += einvoice.particulars(inv, view.supplier, lines)
+    treatment = worst_line(lines, PACK.severity_order)
     if unsettled:
-        return TaxResult(None, [], unsettled, lines)
-    return TaxResult(worst_line(lines, PACK.severity_order), findings, [], lines)
+        return TaxResult(treatment, [], unsettled, lines)
+    return TaxResult(treatment, findings, [], lines)
 
 
 def assess_line(ctx: LineCtx) -> Outcome:

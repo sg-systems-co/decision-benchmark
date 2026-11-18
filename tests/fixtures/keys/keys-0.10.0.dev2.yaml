@@ -2065,6 +2065,724 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me1_near_miss_validated_or_before_the_phase
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me1_near_miss_validated_or_before_the_phase
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - uuid
+        - validation_datetime
+        rule: ME-1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me1_supplier_in_its_phase_without_a_validated_einvoice
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - validated_einvoice
+        - uuid
+        - validation_datetime
+        rule: ME-1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me1_supplier_in_its_phase_without_a_validated_einvoice
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me1_unknown_phase_is_a_hand_over_with_the_tax_set
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    - action: ISSUE_SELF_BILLED_EINVOICE
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_my_einvoice.py::test_me3_foreign_supplier_the_buyer_self_bills
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - interest_exception:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: public_lender
+      line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_near_miss_exception_or_buyer_not_in_its_phase[facts0-2025-01-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - interest_exception:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: late_payment_charge
+      line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_near_miss_exception_or_buyer_not_in_its_phase[facts1-2025-01-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_near_miss_exception_or_buyer_not_in_its_phase[facts2-2025-01-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: agents_dealers_distributors
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_near_miss_exception_or_buyer_not_in_its_phase[facts3-2027-01-01]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: agents_dealers_distributors
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_near_miss_exception_or_buyer_not_in_its_phase[facts4-None]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ISSUE_SELF_BILLED_EINVOICE
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: agents_dealers_distributors
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_section_8_3_types_on_a_domestic_invoice[facts0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ISSUE_SELF_BILLED_EINVOICE
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: individual_not_in_business
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_section_8_3_types_on_a_domestic_invoice[facts1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ISSUE_SELF_BILLED_EINVOICE
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts:
+    - interest_exception:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: none
+      line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_section_8_3_types_on_a_domestic_invoice[facts2]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions:
+    - action: ACCOUNT_IMPORTED_SERVICE_TAX
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-8
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_BUYER_ACCOUNTS
+    tax_treatment: SST_BUYER_ACCOUNTS
+  test: tests/rules/test_my_einvoice.py::test_me3_unknown_phase_or_exception_is_a_hand_over_with_the_tax_set
+- call: 1
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - interest_exception:
+        value: null
+      line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_unknown_phase_or_exception_is_a_hand_over_with_the_tax_set
+- call: 2
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev2
+    facts:
+    - interest_exception:
+        value: null
+      line_no: 1
+      self_billing_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: interest_payment
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me3_unknown_phase_or_exception_is_a_hand_over_with_the_tax_set
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - buyer_sst_no
+        - line1.tax_exemption_reason
+        rule: ME-4
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_einvoice.py::test_me4_b2b_exempt_invoice_must_show_the_buyer_and_the_exemption
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_einvoice.py::test_me4_near_miss_b2b_invoice_with_the_particulars
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-1
+      gl_account: 6150-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_einvoice.py::test_me4_near_miss_unregistered_supplier_issues_no_sst_invoice
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - ringgit_amounts
+        rule: ME-4
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me4_sst_invoice_missing_a_particular[<lambda>-ringgit_amounts]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - supplier_address
+        rule: ME-4
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me4_sst_invoice_missing_a_particular[<lambda>-supplier_address]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: MISSING_MANDATORY_FIELD
+      evidence:
+        missing:
+        - supplier_sst_no
+        rule: ME-4
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - MISSING_MANDATORY_FIELD
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_einvoice.py::test_me4_sst_invoice_missing_a_particular[<lambda>-supplier_sst_no]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.0.dev2
     facts: null

@@ -28,3 +28,6 @@ A12 build PR 2 (Malaysia). One version for the whole PR: its golden file is rewr
 - **Commit 9 (L-1 to L-4, L-6 to L-8).** No existing key changes. New keys from `tests/rules/test_my_construction.py`.
 - **Commit 10 (MS-10, P-1 to P-14, P-16 to P-20; P-21 guard).** No existing key changes. New keys from `tests/rules/test_my_policies.py`.
 - **Commit 11 (MG-1 to MG-6, G-1, G-3 to G-5; G-2, G-6, G-7 guards).** No existing key changes. New key: `test_sales_tax_by_registered_non_manufacturer_is_not_chargeable_by_a_trader` (formerly `UnsupportedCase`; MG-1: sales tax charged by a registered non-manufacturer is `SST_NOT_CHARGEABLE_BY_TRADER`). New keys from `tests/rules/test_my_sales_tax.py`.
+- **Commit 12 (ME-1, ME-3, ME-4; ME-2 is the v0.9 check).** No existing key changes. New keys from `tests/rules/test_my_einvoice.py`. An open non-tax question (an unknown e-invoicing phase, ME-1 or ME-3) makes the case HAND_OVER with its tax treatment set.
+
+Rules still pending after this PR (no line fact the rule needs; see the PR description): L-5, P-15. Rules not built in this PR by plan: SG-1 to SG-12, WH-1 to WH-5, §5 (PR 3).

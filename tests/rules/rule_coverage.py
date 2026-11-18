@@ -21,6 +21,7 @@ K = "test_my_rental::"
 C = "test_my_construction::"
 P = "test_my_policies::"
 S = "test_my_sales_tax::"
+E = "test_my_einvoice::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
     "MS-1": {"positive": [M + "test_ms1_unregistered_supplier_charging_service_tax",
@@ -140,6 +141,16 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [S + "test_g4_near_miss_returnable_pallets_are_taxable"]},
     "G-5": {"positive": [S + "test_g5_drop_shipment_export_is_invoiced_without_sales_tax"],
             "near_miss": [S + "test_g5_near_miss_not_a_drop_shipment"]},
+    "ME-1": {"positive": [E + "test_me1_supplier_in_its_phase_without_a_validated_einvoice"],
+             "near_miss": [E + "test_me1_near_miss_validated_or_before_the_phase"]},
+    "ME-2": {"positive": ["test_table_rows::test_row12_positive_buyer_tin", "test_table_rows::test_row12_positive_line_tax_type"],
+             "near_miss": ["test_table_rows::test_row12_negative_ordinary_invoice_below_threshold"]},
+    "ME-3": {"positive": [E + "test_me3_foreign_supplier_the_buyer_self_bills", E + "test_me3_section_8_3_types_on_a_domestic_invoice"],
+             "near_miss": [E + "test_me3_near_miss_exception_or_buyer_not_in_its_phase"]},
+    "ME-4": {"positive": [E + "test_me4_sst_invoice_missing_a_particular",
+                          E + "test_me4_b2b_exempt_invoice_must_show_the_buyer_and_the_exemption"],
+             "near_miss": [E + "test_me4_near_miss_b2b_invoice_with_the_particulars",
+                           E + "test_me4_near_miss_unregistered_supplier_issues_no_sst_invoice"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -161,6 +172,6 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
 
 PENDING: set[str] = {
     "L-5", "P-15",
-    *(f"ME-{i}" for i in range(1, 5)), *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
+    *(f"SG-{i}" for i in range(1, 13)), *(f"WH-{i}" for i in range(1, 6)),
     *SECTION_5,
 }
