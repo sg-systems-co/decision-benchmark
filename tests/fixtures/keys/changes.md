@@ -40,3 +40,12 @@ Review of PR #14 (18 Nov 2026), pushed to the same PR under 0.10.0.dev2:
 - **New facts and rules (L-5, P-15, P-20, Group M).** L-5: work on a completed residential building (`completed_building`) is exempt with the recipient and residential address on the invoice, else taxed. P-15: health-examination management (`excluded_management_kind`) exempt before 1 May 2026, taxable from then. P-20: bank digital services to 31 Jul 2025 and non-bank digital payments 1 Aug 2022-31 Jul 2025 (`digital_payment_provider`). MS-4 Group M: by `education_provider_kind`, never from whether a fee is recorded; not shown is HAND_OVER. Changed keys (MS-4, P-16, P-17; same treatments and bases, the gold facts now include `education_provider_kind`): `test_ms4_education` cases 0-3, `test_p16_near_miss_tuition_for_a_non_citizen`, `test_p17_near_miss_centre_not_recognised`. `test_ms4_education` cases 4-5 (a recorded fee without the provider kind) are replaced by cases 4-7 with the provider kind; the fee-only case is now `test_ms4_education_without_provider_kind_or_fee_is_a_hand_over` (HAND_OVER, MS-4). New keys: `test_l5_*` (4), `test_p15_*` (2), `test_p20_digital_payment_*`, `test_p20_near_miss_outside_the_windows_*`, `test_p20_unknown_provider_kind_is_a_hand_over` (8), `test_ms4_education_without_provider_kind_or_fee_is_a_hand_over` (3).
 
 Still pending after the review: SG-1 to SG-12, WH-1 to WH-5, §5 (PR 3). The line "Rules still pending after this PR" above (L-5, P-15) is superseded.
+
+## 0.10.0.dev3
+
+A12 build PR 3 (Singapore, withholding, mixed invoices). One version for the PR, as for 0.10.0.dev2: the golden file is rewritten at each commit and this section lists every change against 0.10.0.dev2 by commit and rule ID.
+
+- **Commit 13 (SG-1 to SG-6, SG-11, SG-12).** All 486 keys of 0.10.0.dev2 unchanged apart from `engine_version`, except one:
+  - `test_row05_negative_ovr_vendor_charges_no_gst` (SG-4): an OVR vendor charging a GST-registered buyer no GST stays `NO_GST`; its basis is now SG-4 (the vendor is not entitled to charge) in place of SG-12.
+  - New key: `test_gst_rate_below_the_time_of_supply_rate_is_undercharged` (formerly `UnsupportedCase` "GST rate"; SG-3: 8% in 2026 is `GST_UNDERCHARGED`).
+  - New keys from `tests/rules/test_sg_gst.py`.

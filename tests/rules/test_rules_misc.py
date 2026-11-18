@@ -392,11 +392,13 @@ def test_sg_mixed_claimable_and_disallowed_lines_are_unsupported():
         answer(r, c)
 
 
-def test_non_standard_gst_rate_is_unsupported():
+def test_gst_rate_below_the_time_of_supply_rate_is_undercharged():
+    # SG-3 (v0.10): formerly UnsupportedCase. 8% on a supply invoiced and delivered in 2026 (9%).
     r, c = sg_base()
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", rate="8", po_line_no=1)])
-    with pytest.raises(UnsupportedCase, match="GST rate"):
-        answer(r, c)
+    a = answer(r, c)
+    assert (a.decision, a.tax_treatment, a.tax_lines[0].basis) == (D.REQUEST_CORRECTED_INVOICE, "GST_UNDERCHARGED", "SG-3")
+    assert a.reason_codes == ["WRONG_TAX_RATE"]
 
 
 def _gl_view(doc_type: str, amounts: list[str]) -> SimpleNamespace:

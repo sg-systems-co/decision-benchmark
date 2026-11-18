@@ -13,11 +13,18 @@ from ...models.evidence import LineFact, LineFacts, Share, fact_field
 
 
 class SgTaxTreatment(StrEnum):
+    """The codes of $defs/tax_code in schemas/ap-invoices/v0.10/countries/sg.schema.json."""
+
     CLAIMABLE = "CLAIMABLE"
     NOT_CLAIMABLE_DISALLOWED = "NOT_CLAIMABLE_DISALLOWED"
     NOT_CLAIMABLE_INVALID_INVOICE = "NOT_CLAIMABLE_INVALID_INVOICE"
     GST_WRONGLY_CHARGED = "GST_WRONGLY_CHARGED"
     NO_GST = "NO_GST"
+    GST_UNDERCHARGED = "GST_UNDERCHARGED"
+    NOT_CLAIMABLE_EXEMPT_USE = "NOT_CLAIMABLE_EXEMPT_USE"
+    RESIDUAL_APPORTIONED = "RESIDUAL_APPORTIONED"
+    CUSTOMER_ACCOUNTING = "CUSTOMER_ACCOUNTING"
+    REVERSE_CHARGE = "REVERSE_CHARGE"
 
 
 SgDisallowed = Literal[
