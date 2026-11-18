@@ -1,7 +1,10 @@
 """Reverse charge on imported services and low-value goods (SG-8): IRAS "GST and the digital economy" (local
-businesses). Applies only to GST-registered buyers not entitled to full input tax (partially exempt); a fully
-taxable buyer, or one meeting the de minimis rule, does nothing. Imported services from 1 Jan 2020; low-value
-goods from 1 Jan 2023. Other imported goods bear GST at import, not on the invoice.
+businesses); IRAS e-Tax guide on overseas vendor registration, footnote 4: reverse charge applies to GST-registered
+persons "not entitled to full input tax credit or belong[ing] to a GST group that is not entitled to full input tax
+credit". Not entitled: a partially exempt buyer (de minimis not met), a buyer with non-business receipts, a member of
+such a GST group. A buyer meeting the de minimis rule may claim all input tax (IRAS "Claiming input tax incurred to
+make exempt supplies"), so on its own it does nothing. Imported services from 1 Jan 2020; low-value goods from
+1 Jan 2023. Other imported goods bear GST at import, not on the invoice.
 """
 
 from __future__ import annotations
@@ -27,9 +30,24 @@ def uncharged(ctx: LineCtx) -> Outcome | None:
     start = REVERSE_CHARGE_FROM if service else LOW_VALUE_GOODS_FROM
     if not (service or low_value) or ctx.day < start:
         return Outcome(T.NO_GST, "SG-8")
-    status = ctx.cf.input_tax_status
-    if status is None:
+    if full_credit(ctx):
+        return Outcome(T.NO_GST, "SG-8")
+    return Outcome(T.REVERSE_CHARGE, "SG-8", actions=(BuyerAction(action=ACCOUNT_REVERSE_CHARGE),))
+
+
+def full_credit(ctx: LineCtx) -> bool:
+    """The buyer is entitled to full input tax credit (SG-8)."""
+    cf = ctx.cf
+    if cf.input_tax_status is None:
         raise NotSettled("SG-8", "buyer's input-tax status not shown")
-    if status == "partially_exempt":
-        return Outcome(T.REVERSE_CHARGE, "SG-8", actions=(BuyerAction(action=ACCOUNT_REVERSE_CHARGE),))
-    return Outcome(T.NO_GST, "SG-8")
+    if cf.input_tax_status == "partially_exempt":
+        return False
+    if cf.non_business_receipts is None:
+        raise NotSettled("SG-8", "buyer's non-business receipts not shown")
+    if cf.non_business_receipts:
+        return False
+    if cf.in_gst_group:
+        if cf.gst_group_full_credit is None:
+            raise NotSettled("SG-8", "whether the buyer's GST group is entitled to full input tax credit not shown")
+        return cf.gst_group_full_credit
+    return True

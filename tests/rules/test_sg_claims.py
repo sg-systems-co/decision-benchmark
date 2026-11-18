@@ -128,3 +128,29 @@ def test_sg10_near_miss_motor_car_exception_before_its_date(facts, day, rate):
 
 def test_sg10_near_miss_no_disallowed_category():
     assert result(*sg_one_line(disallowed_category="none")) == (OK, "CLAIMABLE", "SG-1")
+
+
+
+@pytest.mark.parametrize("facts", [
+    {"status": "de_minimis_met", "non_business_receipts": True},
+    {"status": "fully_taxable", "in_gst_group": True, "gst_group_full_credit": False},
+    {"status": "de_minimis_met", "in_gst_group": True, "gst_group_full_credit": False},
+])
+def test_sg8_non_business_receipts_or_a_group_without_full_credit_reverse_charge(facts):
+    status = facts.pop("status")
+    r, c = foreign(status=status)
+    sg_company_facts(r, **facts)
+    assert result(r, c) == (OK, "REVERSE_CHARGE", "SG-8")
+
+
+def test_sg8_near_miss_group_entitled_to_full_credit():
+    r, c = foreign(status="de_minimis_met")
+    sg_company_facts(r, in_gst_group=True, gst_group_full_credit=True)
+    assert result(r, c) == (OK, "NO_GST", "SG-8")
+
+
+@pytest.mark.parametrize("facts", [{"in_gst_group": True}, {"non_business_receipts": None}])
+def test_sg8_unknown_group_credit_or_non_business_receipts_is_a_hand_over(facts):
+    r, c = foreign()
+    sg_company_facts(r, **facts)
+    assert result(r, c) == (HO, None, "SG-8")

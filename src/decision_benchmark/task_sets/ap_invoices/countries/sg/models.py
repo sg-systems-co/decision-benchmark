@@ -73,6 +73,14 @@ class SgCompanyFacts(CountryBlock):
     country: Literal["SG"] = "SG"
     input_tax_status: InputTaxStatus | None = "fully_taxable"
     """SG-8, SG-9. None: the records don't show it."""
+    non_business_receipts: bool | None = False
+    """The company has non-business receipts, so it is not entitled to full input tax whatever its de minimis
+    status (SG-8). None: the records don't show it."""
+    in_gst_group: bool = False
+    """The company belongs to a GST group (SG-8)."""
+    gst_group_full_credit: bool | None = None
+    """For a company in a GST group: the group is entitled to full input tax credit (SG-8; IRAS e-Tax guide on
+    overseas vendor registration, footnote 4). None: not shown (HAND_OVER when the company is in a group)."""
 
 
 class SgSupplierFacts(CountryBlock):

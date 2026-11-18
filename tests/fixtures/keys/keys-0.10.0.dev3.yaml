@@ -15647,6 +15647,118 @@ keys:
 - call: 0
   key:
     answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: NO_GST
+    tax_treatment: NO_GST
+  test: tests/rules/test_sg_claims.py::test_sg8_near_miss_group_entitled_to_full_credit
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_REVERSE_CHARGE_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: REVERSE_CHARGE
+    tax_treatment: REVERSE_CHARGE
+  test: tests/rules/test_sg_claims.py::test_sg8_non_business_receipts_or_a_group_without_full_credit_reverse_charge[facts0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_REVERSE_CHARGE_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: REVERSE_CHARGE
+    tax_treatment: REVERSE_CHARGE
+  test: tests/rules/test_sg_claims.py::test_sg8_non_business_receipts_or_a_group_without_full_credit_reverse_charge[facts1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions:
+    - action: ACCOUNT_REVERSE_CHARGE_GST
+      base_amount: null
+      basis: null
+      rate: null
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: REVERSE_CHARGE
+    tax_treatment: REVERSE_CHARGE
+  test: tests/rules/test_sg_claims.py::test_sg8_non_business_receipts_or_a_group_without_full_credit_reverse_charge[facts2]
+- call: 0
+  key:
+    answer_source: rules
     buyer_actions:
     - action: ACCOUNT_REVERSE_CHARGE_GST
       base_amount: null
@@ -15708,6 +15820,56 @@ keys:
       treatment: REVERSE_CHARGE
     tax_treatment: REVERSE_CHARGE
   test: tests/rules/test_sg_claims.py::test_sg8_partially_exempt_buyer_reverse_charges_an_imported_service
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg8_unknown_group_credit_or_non_business_receipts_is_a_hand_over[facts0]
+- call: 0
+  key:
+    answer_source: handover_by_construction
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: HAND_OVER
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6150-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - CANNOT_SETTLE_FROM_RULES
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-8
+      gl_account: 6150-000
+      line_no: 1
+      treatment: null
+    tax_treatment: null
+  test: tests/rules/test_sg_claims.py::test_sg8_unknown_group_credit_or_non_business_receipts_is_a_hand_over[facts1]
 - call: 0
   key:
     answer_source: handover_by_construction
