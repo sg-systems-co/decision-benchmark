@@ -18,7 +18,7 @@ from decision_benchmark.task_sets.ap_invoices.registry import RuleSpec, registry
 from decision_benchmark.task_sets.ap_invoices.spec import SPEC
 from decision_benchmark.task_sets.ap_invoices.versions import ENGINE_VERSION, RULES_VERSION
 
-from .factory import answer, line_facts, my_base, sg_base, sg_line, set_lines
+from .factory import answer, buyer_service_registered, line_facts, my_base, sg_base, sg_line, set_lines
 
 ROOT = Path(__file__).resolve().parents[2]
 V10 = ROOT / "schemas/ap-invoices/v0.10"
@@ -111,6 +111,7 @@ def test_gold_facts_are_the_facts_read():
 
 def test_hand_over_line_is_null_with_its_basis():
     r, c = my_base()
+    buyer_service_registered(r)
     c["invoice"]["lines"][0]["facts"] = line_facts(1, same_service_as_buyer=None)
     key = answer(r, c)
     assert key.decision == "HAND_OVER" and key.tax_treatment is None

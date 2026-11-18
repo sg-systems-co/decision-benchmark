@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from .factory import CATALOG, answer, my_base, my_line, my_supplier_sst, set_lines, tax_facts
+from .factory import CATALOG, answer, buyer_service_registered, my_base, my_line, my_supplier_sst, set_lines, tax_facts
 
 ACCOUNT = {
     "it_services": "6150-100", "management_services": "6160-000", "legal_services": "6160-000",
@@ -27,6 +27,7 @@ def one_line(category: str = "it_services", rate: str = "8", price: str = "3200.
     """(records, case) with one invoice line. tax_type defaults to the category's kind (01 goods, 02 services).
     day: the invoice date (PO and receipt move before it). supplier: its SST registration types."""
     r, c = my_base()
+    buyer_service_registered(r)   # the buyer is a registered person for service tax (MS-5, MS-8, P-1, L-3)
     kind = CATALOG.get(category).tax["MY"].tax_class
     tax_type = tax_type or ("01" if kind.startswith("sales_") else "02")
     po = r["purchase_orders"][0]

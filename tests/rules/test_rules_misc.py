@@ -11,6 +11,7 @@ from decision_benchmark.task_sets.ap_invoices.rules import UnsupportedCase
 from decision_benchmark.task_sets.ap_invoices.rules.gl import case_account
 
 from .factory import (
+    buyer_service_registered,
     answer,
     ein,
     ledger_copy,
@@ -317,6 +318,7 @@ def test_group_relief_unclear_is_a_hand_over_with_null_tax():
 
 def test_group_g_same_service_unclear_is_a_hand_over():
     r, c = my_base()
+    buyer_service_registered(r)
     c["invoice"]["lines"][0]["facts"] = line_facts(1, same_service_as_buyer=None)
     assert answer(r, c).decision is D.HAND_OVER
 

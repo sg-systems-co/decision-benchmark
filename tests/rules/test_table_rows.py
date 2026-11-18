@@ -9,6 +9,7 @@ from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
 
 from .factory import (
+    buyer_service_registered,
     answer,
     ein,
     my_base,
@@ -188,6 +189,7 @@ def test_row07_negative_six_percent_is_correct():
 
 def test_row08_positive():
     r, c = _my_with("management_services", "6160-000", rate="8")
+    buyer_service_registered(r)
     tax_facts(r["company"], services_provided=["G(i)"])
     a = answer(r, c)
     _check(a, D.REQUEST_CORRECTED_INVOICE, T.SST_SHOULD_BE_EXEMPT, "TAX_SHOULD_BE_EXEMPT")
@@ -195,12 +197,15 @@ def test_row08_positive():
 
 
 def test_row08_negative_buyer_does_not_provide_the_service():
-    a = answer(*_my_with("management_services", "6160-000", rate="8"))
+    r, c = _my_with("management_services", "6160-000", rate="8")
+    buyer_service_registered(r)
+    a = answer(r, c)
     _check(a, D.APPROVE, T.SST_CORRECT)
 
 
 def test_row08_negative_guard_services_are_excluded():
     r, c = _my_with("guard_services", "6170-000", rate="8")
+    buyer_service_registered(r)
     tax_facts(r["company"], services_provided=["G(k)"])
     _check(answer(r, c), D.APPROVE, T.SST_CORRECT)
 

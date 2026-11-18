@@ -151,7 +151,9 @@ class LineCtx:
         return False
 
     def buyer_registered(self) -> bool:
-        return self.company.registration("MY_SST", on=self.day) is not None
+        """The company is a registered person under the Service Tax Act 2018 on the invoice date (the B2B order,
+        s26 and the Service Tax Policies are made under that Act): a sales-tax registration doesn't count."""
+        return self.company.registration("MY_SST", on=self.day, types=("service",)) is not None
 
     def buyer_provides(self, prefix: str) -> bool:
         """The company provides a service whose First Schedule item starts with prefix (e.g. "K", "J", "G(h)")."""

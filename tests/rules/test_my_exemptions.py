@@ -271,3 +271,14 @@ def test_ms6_unknown_board_control_on_the_common_parent_path_is_a_hand_over():
     r, c = one_line("management_services", rate="8")
     holdings(r, ("P", "my-c-001", "60", None), ("P", "S1", "40", {"board_control": None}))
     assert result(r, c) == (HO, None, "MS-6")
+
+
+def test_ms5_near_miss_buyer_registered_for_sales_tax_only():
+    # The B2B order is made under the Service Tax Act 2018: a sales-tax registration doesn't make a registered person.
+    r, c = one_line("management_services", rate="8")
+    company_facts(r, services_provided=["G(i)"])
+    company_sst(r, "sales")
+    assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
+    r, c = one_line("management_services", rate="8")
+    company_facts(r, services_provided=["G(i)"])
+    assert result(r, c) == (RCI, "SST_SHOULD_BE_EXEMPT", "MS-5")

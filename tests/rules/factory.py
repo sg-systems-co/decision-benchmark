@@ -291,5 +291,15 @@ def my_supplier_sst(records: dict, *types: str) -> None:
     supplier_regs(records, MY_SUPPLIER_TIN, *({"scheme": "MY_SST", "number": "W10-2403-32000418", "type": t} for t in types))
 
 
+MY_BUYER_SERVICE_SST = {"scheme": "MY_SST", "number": "B16-0000-00000001", "type": "service"}
+
+
+def buyer_service_registered(records: dict) -> None:
+    """The MY base company also registered for service tax: a registered person under the Service Tax Act 2018, as the
+    B2B order (MS-5), s26 (MS-8) and the Service Tax Policies require. The base company holds only a sales-tax
+    registration."""
+    records["company"]["tax_registrations"].append(dict(MY_BUYER_SERVICE_SST))
+
+
 def answer(records: dict, case: dict):
     return answer_case(CompanyRecords.model_validate(records), wrap(case), CATALOG)

@@ -2856,6 +2856,61 @@ keys:
     case_id: ap-my-00001
     decision: APPROVE
     engine_version: 0.10.0.dev2
+    facts: null
+    findings: []
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_buyer_registered_for_sales_tax_only
+- call: 1
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev2
+    facts: null
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: b2b
+        line: 1
+      tier: 3
+    gl_account: 6160-000
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-5
+      gl_account: 6160-000
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_exemptions.py::test_ms5_near_miss_buyer_registered_for_sales_tax_only
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev2
     facts:
     - asset_type:
         evidence:

@@ -2,8 +2,9 @@
 with its 2019, 2020, 2024 and 2025 amendments; rental guide paras 24-26; construction guide para 36.
 
 The buyer is exempt when all of its order item's conditions hold. Items 3 and 4 (imported digital and IT
-services) are in imported.py; items 7 and 10 (patients, disabled students) in scope.py. The buyer's
-registration is any registration in the SST scheme, as in v0.9.
+services) are in imported.py; items 7 and 10 (patients, disabled students) in scope.py. The buyer must be
+registered for service tax (the order is made under the Service Tax Act 2018); a sales-tax registration doesn't
+count.
 """
 
 from __future__ import annotations
