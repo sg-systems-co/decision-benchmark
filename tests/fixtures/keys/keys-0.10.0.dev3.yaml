@@ -892,6 +892,115 @@ keys:
     answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev3
+    facts:
+    - line_no: 2
+      subject_outside_malaysia:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[1].description
+        value: true
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: MS-4
+        line: 2
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    - basis: MS-4
+      gl_account: 6160-000
+      line_no: 2
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_mixed_invoices.py::test_5a_my_wrongly_charged_line_makes_the_whole_invoice_corrected
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    - basis: SG-1
+      gl_account: 6150-000
+      line_no: 2
+      treatment: CLAIMABLE
+    tax_treatment: CLAIMABLE
+  test: tests/rules/test_mixed_invoices.py::test_5a_near_miss_lines_with_the_same_treatment
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.0.dev3
+    facts:
+    - exempt_supply:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[1].description
+        value: financial
+      line_no: 2
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: SG-5
+        line: 2
+      tier: 3
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    - basis: SG-5
+      gl_account: 6150-000
+      line_no: 2
+      treatment: GST_WRONGLY_CHARGED
+    tax_treatment: GST_WRONGLY_CHARGED
+  test: tests/rules/test_mixed_invoices.py::test_5a_sg_exempt_line_charged_with_gst_and_a_claimable_line
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
     decision: APPROVE
     engine_version: 0.10.0.dev3
     facts: null
@@ -14801,6 +14910,36 @@ keys:
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
   test: tests/rules/test_rules_misc.py::test_same_lines_inside_the_window_without_po_match_is_a_near_duplicate
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-sg-00001
+    decision: APPROVE
+    engine_version: 0.10.0.dev3
+    facts: null
+    findings: []
+    gl_account: 6400-000
+    grader_truth:
+      po_number: '4500010001'
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    - GST_NOT_CLAIMABLE_DISALLOWED
+    rules_version: v0.9
+    tax_lines:
+    - basis: SG-1
+      gl_account: 6400-000
+      line_no: 1
+      treatment: CLAIMABLE
+    - basis: SG-10
+      gl_account: 6400-000
+      line_no: 2
+      treatment: NOT_CLAIMABLE_DISALLOWED
+    tax_treatment: NOT_CLAIMABLE_DISALLOWED
+  test: tests/rules/test_rules_misc.py::test_sg_mixed_claimable_and_disallowed_lines_are_approved
 - call: 0
   key:
     answer_source: handover_by_construction

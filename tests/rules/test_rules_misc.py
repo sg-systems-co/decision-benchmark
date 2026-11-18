@@ -379,7 +379,9 @@ def test_case_gl_account_ties_go_to_the_lowest_line():
     assert answer(r, c).gl_account == "5300-400"
 
 
-def test_sg_mixed_claimable_and_disallowed_lines_are_unsupported():
+def test_sg_mixed_claimable_and_disallowed_lines_are_approved():
+    # Sheet §5 (v0.10): formerly UnsupportedCase (plan Q4). Each line its own treatment; a disallowed line alone
+    # leaves the invoice approved, booked without input tax on that line.
     r, c = sg_base()
     r["purchase_orders"][0]["lines"].append({
         "line_no": 2, "description": "Club fee", "category": "club_subscription", "qty": 1, "uom": "yr",
@@ -388,8 +390,10 @@ def test_sg_mixed_claimable_and_disallowed_lines_are_unsupported():
     r["goods_receipts"][0]["lines"].append({"po_line_no": 2, "qty_received": 1, "uom": "yr"})
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", po_line_no=1),
                   sg_line(2, "club_subscription", 1, "100.00", po_line_no=2)])
-    with pytest.raises(UnsupportedCase, match="Q4"):
-        answer(r, c)
+    a = answer(r, c)
+    assert (a.decision, a.tax_treatment) == (D.APPROVE, "NOT_CLAIMABLE_DISALLOWED")
+    assert [(t.treatment, t.basis) for t in a.tax_lines] == [("CLAIMABLE", "SG-1"), ("NOT_CLAIMABLE_DISALLOWED", "SG-10")]
+    assert a.reason_codes == ["MATCHED_WITHIN_TOLERANCE", "GST_NOT_CLAIMABLE_DISALLOWED"]
 
 
 def test_gst_rate_below_the_time_of_supply_rate_is_undercharged():

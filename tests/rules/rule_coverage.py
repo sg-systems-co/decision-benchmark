@@ -25,6 +25,7 @@ E = "test_my_einvoice::"
 G = "test_sg_gst::"
 Q = "test_sg_claims::"
 W = "test_withholding::"
+X5 = "test_mixed_invoices::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -213,6 +214,16 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
              "near_miss": [W + "test_wh4_near_miss_resident_entertainer"]},
     "WH-5": {"positive": [W + "test_wh5_withholding_rates"],
              "near_miss": [W + "test_wh5_near_miss_not_subject"]},
+    "§5-a": {"positive": [X5 + "test_5a_my_wrongly_charged_line_makes_the_whole_invoice_corrected",
+                          X5 + "test_5a_sg_exempt_line_charged_with_gst_and_a_claimable_line",
+                          "test_rules_misc::test_sg_mixed_claimable_and_disallowed_lines_are_approved",
+                          "test_rules_misc::test_mixed_lines_take_the_most_serious_tax_code"],
+             "near_miss": [X5 + "test_5a_near_miss_lines_with_the_same_treatment"]},
+    "§5-b": {"positive": [C + "test_l8_materials_not_separated_tax_the_whole_invoice",
+                          P + "test_p12_near_miss_not_itemised_the_whole_invoice_is_taxed",
+                          M + "test_ms2_near_miss_right_rate"],
+             "near_miss": [P + "test_p12_itemised_consultation_fee_is_exempt",
+                           P + "test_p16_education_fee_items_sponsored_and_diplomats"]},
     "MS-9": {"positive": [M + "test_ms9_registered_supplier_leaves_service_tax_off"],
              "near_miss": [M + "test_ms9_near_miss_unregistered_supplier_charges_nothing",
                            M + "test_ms9_near_miss_excluded_line_charges_nothing"]},
@@ -232,6 +243,4 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
     "G-7": [S + "test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
 }
 
-PENDING: set[str] = {
-    *SECTION_5,
-}
+PENDING: set[str] = set()

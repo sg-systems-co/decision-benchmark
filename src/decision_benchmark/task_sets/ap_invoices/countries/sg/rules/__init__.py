@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from ....codes import Code
 from ....fact_reader import FactReader
-from ....findings import LineResult, NotSettled, TaxResult, UnsupportedCase, Unsettled, finding, worst_line
+from ....findings import LineResult, NotSettled, TaxResult, Unsettled, finding, worst_line
 from ....models import Catalog, Finding, Invoice, InvoiceLine
 from ....models.common import ZERO
 from ....models.evidence import LineFacts
@@ -109,9 +109,9 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
         return TaxResult(treatment, [], unsettled, lines)
     if any(r.treatment == T.NOT_CLAIMABLE_INVALID_INVOICE for r in lines):
         findings = invalid + findings
+    # Sheet §5: each line keeps its own treatment and the decision follows the most severe line; a disallowed line
+    # alone leaves the invoice approved, with that line booked without input tax.
     codes = {r.treatment for r in lines}
-    if T.NOT_CLAIMABLE_DISALLOWED in codes and T.CLAIMABLE in codes:
-        raise UnsupportedCase("claimable and disallowed GST lines on one invoice (plan Q4)")
     extra = (Code.GST_NOT_CLAIMABLE_DISALLOWED,) if T.NOT_CLAIMABLE_DISALLOWED in codes else ()
     return TaxResult(treatment, findings, [], lines, extra_reasons=extra)
 
