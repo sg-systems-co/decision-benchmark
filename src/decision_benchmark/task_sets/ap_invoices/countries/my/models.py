@@ -271,4 +271,8 @@ class MyLineFacts(LineFacts):
         "public_lender", "employee_to_employer", "foreign_payor", "related_company_treasury", "late_payment_charge", "none",
     ]] | None = fact_field("classification", "ME-3")
     staff_secondment: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-4")
-    excluded_management_kind: LineFact[Literal["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "none"]] | None = fact_field("scope_and_exemption", "MS-4")
+    excluded_management_kind: LineFact[Literal["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "health_examination_management", "none"]] | None = fact_field("scope_and_exemption", "MS-4", "P-15")
+    value_provided_before_change: LineFact[Money] | None = fact_field("split", "MS-3")
+    completed_building: LineFact[bool] | None = fact_field("scope_and_exemption", "L-5")
+    digital_payment_provider: LineFact[Literal["bank", "non_bank", "none"]] | None = fact_field("classification", "P-20")
+    education_provider_kind: LineFact[Literal["private_school", "higher_education", "language_centre"]] | None = fact_field("classification", "MS-4")
