@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ...findings import TaxResult
-from ..base import CountryPack, LineFact
+from ...registry import RuleSpec, registry
+from ..base import CountryPack
 from . import constants, tax, validity
-from .models import MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
+from .models import MyContractFacts, MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
 
 if TYPE_CHECKING:
     from ...models import Catalog, Category, Company, Finding, Invoice
@@ -24,12 +25,28 @@ class MalaysiaPack(CountryPack):
     profile_required = True
     einvoice = MyInvois
     company_facts = MyCompanyFacts
+    contract_facts = MyContractFacts
     supplier_facts = MySupplierFacts
-    line_facts = {
-        "same_service_unclear": LineFact(default=False, nullable=False),
-        "personal_use": LineFact(default=False, nullable=False),
-    }
+    line_facts_model = MyLineFacts
     constants = constants
+    # x-severity-order of schemas/ap-invoices/v0.10/countries/my.schema.json (tests/rules/test_registry.py).
+    severity_order = (
+        "SST_SUPPLIER_NOT_REGISTERED",
+        "SST_NOT_CHARGEABLE_BY_TRADER",
+        "SST_SHOULD_BE_EXEMPT",
+        "SST_WRONG_RATE",
+        "SST_UNDERCHARGED",
+        "SST_CORRECT",
+        "SST_BUYER_ACCOUNTS",
+        "NO_SST",
+    )
+    # Every rule ID of the schema part's $defs/rule_id (docs/tax-rules-v0.10.md). Validity dates are added
+    # with each rule's implementation (A12 build PRs 2 and 3).
+    rules = registry(*(RuleSpec(r) for r in (
+        *(f"MS-{i}" for i in range(1, 11)), *(f"MG-{i}" for i in range(1, 7)), *(f"ME-{i}" for i in range(1, 5)),
+        *(f"K-{i}" for i in range(1, 9)), *(f"L-{i}" for i in range(1, 9)), *(f"P-{i}" for i in range(1, 22)),
+        *(f"G-{i}" for i in range(1, 8)), *(f"WH-{i}" for i in range(1, 5)),
+    )))
 
     def check_company(self, company: Company) -> None:
         super().check_company(company)

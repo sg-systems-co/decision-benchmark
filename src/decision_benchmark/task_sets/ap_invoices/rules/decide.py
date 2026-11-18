@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from ..codes import Code
 from ..findings import DECISION, UnsupportedCase, Unsettled, sort_findings
-from ..models import AnswerKey, AnswerSource, Catalog, Decision, Finding, GraderTruth, Tier
+from ..models import AnswerKey, AnswerSource, Catalog, Decision, Finding, GraderTruth, TaxLine, Tier
+from ..versions import ENGINE_VERSION, RULES_VERSION
 from . import duplicates, fraud, gl, matching, routing
 from .view import CaseView
 
@@ -54,8 +55,10 @@ def compute_answer(view: CaseView, catalog: Catalog) -> AnswerKey:
     if po_res.po is not None and mapping is None:
         mapping = matching.line_map(view, po_res.po)
 
-    gl_account = gl.account(view, po_res.po, mapping, catalog)
+    accounts = gl.line_accounts(view, po_res.po, mapping, catalog)
+    gl_account = gl.case_account(view, accounts)
     findings = sort_findings(findings)
+    lines_out = _lines_out(view, tax_result, accounts)
 
     if unsettled:
         if findings:
@@ -69,6 +72,7 @@ def compute_answer(view: CaseView, catalog: Catalog) -> AnswerKey:
             answer_source=AnswerSource.HANDOVER_BY_CONSTRUCTION,
             findings=[],
             grader_truth=_truth(view, po_res, variance, contact=False),
+            **lines_out,
         )
 
     assert tax is not None
@@ -84,7 +88,26 @@ def compute_answer(view: CaseView, catalog: Catalog) -> AnswerKey:
         answer_source=AnswerSource.RULES,
         findings=findings,
         grader_truth=_truth(view, po_res, variance, contact=decision in SUPPLIER_CONTACT),
+        **lines_out,
     )
+
+
+def _lines_out(view: CaseView, tax_result, accounts: dict[int, str]) -> dict:
+    """tax_lines (with each line's GL), buyer actions, gold facts and versions for the answer key."""
+    by_no = {line.line_no: line for line in view.invoice.lines}
+    facts = []
+    for res in tax_result.lines:
+        recorded = by_no[res.line_no].facts
+        if res.read and recorded is not None:
+            facts.append({"line_no": res.line_no, **recorded.to_output(list(res.read))})
+    return {
+        "tax_lines": [TaxLine(line_no=r.line_no, treatment=r.treatment, basis=r.basis, gl_account=accounts[r.line_no])
+                      for r in tax_result.lines],
+        "buyer_actions": [a for r in tax_result.lines for a in r.buyer_actions],
+        "facts": facts or None,
+        "engine_version": ENGINE_VERSION,
+        "rules_version": RULES_VERSION,
+    }
 
 
 def _truth(view: CaseView, po_res: matching.PoResolution, variance, contact: bool) -> GraderTruth:

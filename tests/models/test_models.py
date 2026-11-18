@@ -36,7 +36,7 @@ MY_INVOICE = {
             "tax_rate": "8",
             "tax_amount": "8.00",
             "category": "it_services",
-            "facts": {"personal_use": False},
+            "facts": {"personal_use": {"value": False, "evidence": [{"doc_id": "INV-1", "path": "lines[0].description"}]}},
         }
     ],
     "einvoice": {"country": "MY", "is_einvoice": True, "lines": [{"line_no": 1, "tax_type": "02"}]},
@@ -96,15 +96,19 @@ def test_einvoice_block_errors(change, msg):
 
 
 def test_line_facts_are_declared_by_the_country_pack():
-    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"vehicle_is_motor_car": True}}]}
-    with pytest.raises(ValidationError, match="not a MY line fact"):
+    ev = [{"doc_id": "INV-1", "path": "lines[0].description"}]
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"vehicle_is_motor_car": {"value": True, "evidence": ev}}}]}
+    with pytest.raises(ValidationError, match="Extra inputs"):
         Invoice.model_validate(bad)
-    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": None}}]}
-    with pytest.raises(ValidationError, match="can't be None"):
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": {"value": True}}}]}
+    with pytest.raises(ValidationError, match="needs at least one evidence reference"):
+        Invoice.model_validate(bad)
+    bad = MY_INVOICE | {"lines": [MY_INVOICE["lines"][0] | {"facts": {"personal_use": {"value": None, "evidence": ev}}}]}
+    with pytest.raises(ValidationError, match="has no evidence"):
         Invoice.model_validate(bad)
     sg = _sg_invoice()
-    sg["lines"][0]["facts"] = {"vehicle_is_motor_car": None}
-    Invoice.model_validate(sg)
+    sg["lines"][0]["facts"] = {"vehicle_is_motor_car": {"value": None}}
+    assert Invoice.model_validate(sg).lines[0].facts.vehicle_is_motor_car.value is None
 
 
 def test_tax_registrations_are_checked_against_the_scheme():
@@ -166,7 +170,7 @@ def test_email_signals_are_typed():
 
 def test_answer_key_null_tax_only_on_hand_over():
     base = dict(case_id="ap-my-00001", gl_account="6100", reason_codes=["CANNOT_SETTLE_FROM_RULES"],
-                grader_truth={"supplier_id": "S"})
+                grader_truth={"supplier_id": "S"}, engine_version="0.10.0.dev1", rules_version="v0.9")
     with pytest.raises(ValidationError, match="only on HAND_OVER"):
         AnswerKey(decision="APPROVE", tax_treatment=None, answer_source="rules", **base)
     with pytest.raises(ValidationError, match="if and only if"):
@@ -176,7 +180,7 @@ def test_answer_key_null_tax_only_on_hand_over():
 
 def test_answer_key_codes_are_checked():
     base = dict(case_id="ap-my-00001", gl_account="6100", decision="APPROVE", answer_source="rules",
-                grader_truth={"supplier_id": "S"})
+                grader_truth={"supplier_id": "S"}, engine_version="0.10.0.dev1", rules_version="v0.9")
     with pytest.raises(ValidationError, match="unknown tax treatment"):
         AnswerKey(tax_treatment="VAT_OK", reason_codes=["MATCHED_WITHIN_TOLERANCE"], **base)
     with pytest.raises(ValidationError):

@@ -1,15 +1,20 @@
 """Duplicates, fraud, matching, routing, hand-over and the engine's refusal to guess."""
 
+from types import SimpleNamespace
+
 import pytest
 
 from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from decision_benchmark.task_sets.ap_invoices.countries import TaxTreatment as T
+from decision_benchmark.task_sets.ap_invoices.models.invoice import InvoiceLine
 from decision_benchmark.task_sets.ap_invoices.rules import UnsupportedCase
+from decision_benchmark.task_sets.ap_invoices.rules.gl import case_account
 
 from .factory import (
     answer,
     ein,
     ledger_copy,
+    line_facts,
     my_base,
     my_line,
     replace_lines,
@@ -312,7 +317,7 @@ def test_group_relief_unclear_is_a_hand_over_with_null_tax():
 
 def test_group_g_same_service_unclear_is_a_hand_over():
     r, c = my_base()
-    c["invoice"]["lines"][0]["facts"] = {"same_service_unclear": True}
+    c["invoice"]["lines"][0]["facts"] = line_facts(1, same_service_as_buyer=None)
     assert answer(r, c).decision is D.HAND_OVER
 
 
@@ -339,7 +344,9 @@ def test_mixed_lines_take_the_most_serious_tax_code():
     assert (a.decision, a.tax_treatment) == (D.REQUEST_CORRECTED_INVOICE, T.SST_WRONG_RATE)
 
 
-def test_lines_booking_to_two_gl_accounts_are_unsupported():
+def test_lines_booking_to_two_gl_accounts_each_keep_their_account():
+    """Spec v0.10 clarification (18 Nov 2026): each line books to its own GL account; the case-level account
+    is the account of the line with the largest amount excluding tax."""
     r, c = my_base()
     r["purchase_orders"][0]["lines"].append({
         "line_no": 2, "description": "Courier", "category": "logistics_haulage", "qty": 1, "uom": "trip",
@@ -350,8 +357,24 @@ def test_lines_booking_to_two_gl_accounts_are_unsupported():
         my_line(1, "it_services", 1, "3200.00", po_line_no=1),
         my_line(2, "logistics_haulage", 1, "200.00", rate="6", po_line_no=2),
     ])
-    with pytest.raises(UnsupportedCase, match="GL"):
-        answer(r, c)
+    a = answer(r, c)
+    assert [(t.line_no, t.gl_account) for t in a.tax_lines] == [(1, r["purchase_orders"][0]["lines"][0]["gl_account"]),
+                                                                (2, "5300-400")]
+    assert a.gl_account == r["purchase_orders"][0]["lines"][0]["gl_account"]  # line 1: 3,200.00 > 200.00
+
+
+def test_case_gl_account_ties_go_to_the_lowest_line():
+    r, c = my_base()
+    r["purchase_orders"][0]["lines"].append({
+        "line_no": 2, "description": "Courier", "category": "logistics_haulage", "qty": 1, "uom": "trip",
+        "unit_price": "3200.00", "gl_account": "5300-400",
+    })
+    r["goods_receipts"][0]["lines"].append({"po_line_no": 2, "qty_received": 1, "uom": "trip"})
+    set_lines(c, [
+        my_line(1, "logistics_haulage", 1, "3200.00", rate="6", po_line_no=2),
+        my_line(2, "it_services", 1, "3200.00", po_line_no=1),
+    ])
+    assert answer(r, c).gl_account == "5300-400"
 
 
 def test_sg_mixed_claimable_and_disallowed_lines_are_unsupported():
@@ -372,3 +395,27 @@ def test_non_standard_gst_rate_is_unsupported():
     set_lines(c, [sg_line(1, "machine_parts", 10, "150.00", rate="8", po_line_no=1)])
     with pytest.raises(UnsupportedCase, match="GST rate"):
         answer(r, c)
+
+
+def _gl_view(doc_type: str, amounts: list[str]) -> SimpleNamespace:
+    lines = [InvoiceLine(line_no=n, qty=1, uom="unit", net_amount=a, category="it_services")
+             for n, a in enumerate(amounts, 1)]
+    return SimpleNamespace(invoice=SimpleNamespace(doc_type=doc_type, lines=lines))
+
+
+@pytest.mark.parametrize("doc_type, amounts, expected", [
+    # Credit note: every line amount is negative; the largest absolute amount wins, not the one nearest zero.
+    ("credit_note", ["-200.00", "-3200.00", "-50.00"], "GL-2"),
+    # Credit note with a tie on the absolute amount: the lowest line_no.
+    ("credit_note", ["-50.00", "-3200.00", "-3200.00"], "GL-2"),
+    # Mixed signs: a negative line with the largest absolute amount beats a smaller positive line.
+    ("invoice", ["1000.00", "-1500.00", "200.00"], "GL-2"),
+    # Mixed signs with a tie between +x and -x: the lowest line_no.
+    ("invoice", ["-800.00", "800.00", "100.00"], "GL-1"),
+])
+def test_case_gl_account_uses_the_largest_absolute_amount(doc_type, amounts, expected):
+    """Spec v0.10 clarification (review of PR #12, 18 Nov 2026): "largest amount" is the largest absolute amount
+    excluding tax; ties still go to the lowest line_no."""
+    view = _gl_view(doc_type, amounts)
+    accounts = {line.line_no: f"GL-{line.line_no}" for line in view.invoice.lines}
+    assert case_account(view, accounts) == expected

@@ -1,12 +1,13 @@
 """The three worked examples of step-11 plan §6 give exactly the answer keys shown there.
-Every answer key also validates against output.schema.json as a prediction."""
+Every answer key also validates against the v0.10 output schema (with its country parts) as a prediction."""
 
 import json
 from pathlib import Path
 
-import jsonschema
 import pytest
 import yaml
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 from decision_benchmark.task_sets.ap_invoices.envelope import ApCaseEnvelope
 from decision_benchmark.task_sets.ap_invoices.models import CompanyRecords
@@ -16,7 +17,10 @@ from .factory import CATALOG, answer, my_base, sg_base, tax_facts
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = sorted((ROOT / "tests/fixtures/worked-examples").glob("*.yaml"))
-SCHEMA = json.loads((ROOT / "schemas/ap-invoices/v0.9/output.schema.json").read_text())
+V10 = ROOT / "schemas/ap-invoices/v0.10"
+_PARTS = [json.loads(p.read_text()) for p in (V10 / "output.schema.json", *sorted((V10 / "countries").glob("*.json")))]
+VALIDATOR = Draft202012Validator(_PARTS[0], registry=Registry().with_resources(
+    (s["$id"], Resource.from_contents(s)) for s in _PARTS))
 
 
 def _load(path):
@@ -35,7 +39,7 @@ def test_worked_example(path):
     got = key.model_dump(mode="json")
     for field, value in expect.items():
         assert got[field] == value, field
-    jsonschema.validate(key.as_output(), SCHEMA)
+    VALIDATOR.validate(key.as_output())
 
 
 def test_findings_evidence_of_the_two_problem_case():
@@ -49,6 +53,6 @@ def test_findings_evidence_of_the_two_problem_case():
 def test_hand_over_answer_keys_validate_against_the_schema():
     r, c = my_base()
     tax_facts(r["suppliers"][0], group_relation="unclear")
-    jsonschema.validate(answer(r, c).as_output(), SCHEMA)
+    VALIDATOR.validate(answer(r, c).as_output())
     r, c = sg_base()
-    jsonschema.validate(answer(r, c).as_output(), SCHEMA)
+    VALIDATOR.validate(answer(r, c).as_output())

@@ -258,6 +258,27 @@ def test_line_facts_have_family_and_rules(country):
         assert {"tariff_code", "sublet", "itemised_consultation_fee", "materials_works_separated", "place_of_performance"} <= set(facts)
 
 
+@pytest.mark.parametrize("country, column", [("MY", 1), ("SG", 2)])
+def test_spec_family_table_matches_the_country_part(country, column):
+    facts = {k: v for k, v in PARTS[country]["$defs"]["line_facts"]["properties"].items() if k != "line_no"}
+    for family in {v["x-family"] for v in facts.values()}:
+        row = next(x for x in SPEC.splitlines() if x.startswith("| " + family.replace("_", "\\_") + " |"))
+        assert set(re.findall(r"`([a-z_0-9]+)`", row.split(" | ")[column])) == {
+            k for k, v in facts.items() if v["x-family"] == family}, family
+
+
+def test_clarification_facts_and_line_gl():
+    my = PARTS["MY"]["$defs"]["line_facts"]["properties"]
+    sg = PARTS["SG"]["$defs"]["line_facts"]["properties"]
+    assert {"manufactured_by_supplier", "own_use", "ship_platform_election", "self_billing_type", "variation_changes_value"} <= set(my)
+    assert {"beneficiary_outside_singapore", "low_value_goods"} <= set(sg)
+    for part in PARTS.values():
+        assert part["$defs"]["tax_line"]["properties"]["gl_account"]["type"] == "string"
+        assert "gl_account" not in part["$defs"]["tax_line"]["required"]
+    out = _load(EX / "valid/sg-mixed-lines-two-gl-accounts.json")
+    assert len({x["gl_account"] for x in out["tax_lines"]}) == 2
+
+
 @pytest.mark.parametrize("country", ["MY", "SG"])
 def test_buyer_actions_per_country(country):
     simple, withhold = PARTS[country]["$defs"]["buyer_action"]["oneOf"]
@@ -285,3 +306,18 @@ def test_wrong_country_case_level_code_is_not_a_schema_error():
     # As in v0.9: a Malaysian code on a Singapore case is a wrong tax treatment, not a schema break.
     VALIDATOR.validate({"case_id": "ap-sg-00001", "decision": "APPROVE", "tax_treatment": "SST_CORRECT",
                         "gl_account": "6100-000", "reason_codes": []})
+
+
+def test_me3_self_billing_types_are_the_nine_items_of_section_8_3():
+    """Review of PR #12 (18 Nov 2026): ME-3 lists the nine items (a)-(i) of section 8.3 of the LHDN e-Invoice
+    Specific Guideline v4.9; item (g) has its own exceptions, where the supplier issues the e-invoice."""
+    my = PARTS["MY"]["$defs"]["line_facts"]["properties"]
+    assert my["self_billing_type"]["properties"]["value"]["enum"] == [
+        "agents_dealers_distributors", "foreign_supplier", "profit_distribution", "ecommerce", "betting_gaming_payout",
+        "individual_not_in_business", "interest_payment", "insurance_claim_payment", "capital_return_or_liquidation",
+        "none", None]
+    exc = my["interest_exception"]
+    assert exc["properties"]["value"]["enum"] == [
+        "public_lender", "employee_to_employer", "foreign_payor", "related_company_treasury", "late_payment_charge",
+        "none", None]
+    assert exc["x-rules"] == ["ME-3"] and list(my).index("interest_exception") == list(my).index("self_billing_type") + 1

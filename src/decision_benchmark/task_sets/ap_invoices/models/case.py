@@ -14,6 +14,7 @@ from decision_benchmark.core.case import Provenance
 
 from .common import Model
 from .company import Company
+from .contract import ContractRecord, ResidenceCertificate
 from .email import Email
 from .facts import FactSheet
 from .invoice import Invoice
@@ -40,6 +41,8 @@ class CompanyRecords(Model):
     goods_receipts: list[GoodsReceipt] = []
     ledger: list[LedgerInvoice] = []
     emails: list[Email] = []
+    contracts: list[ContractRecord] = []
+    residence_certificates: list[ResidenceCertificate] = []
 
     @model_validator(mode="after")
     def _ids(self) -> CompanyRecords:
@@ -49,10 +52,30 @@ class CompanyRecords(Model):
             ("gr_number", [g.gr_number for g in self.goods_receipts]),
             ("ledger_id", [entry.ledger_id for entry in self.ledger]),
             ("message_id", [e.message_id for e in self.emails]),
+            ("contract_id", [c.contract_id for c in self.contracts]),
+            ("certificate_id", [c.certificate_id for c in self.residence_certificates]),
         ):
             if len(ids) != len(set(ids)):
                 raise ValueError(f"duplicate {name}")
+        known = {s.supplier_id for s in self.suppliers}
+        for c in self.contracts:
+            if c.company_id != self.company.company_id:
+                raise ValueError(f"contract {c.contract_id} belongs to another company")
+            if c.tax_facts is not None and c.tax_facts.country != self.company.country:
+                raise ValueError(f"contract {c.contract_id}: tax_facts are for {c.tax_facts.country}, the company is in {self.company.country}")
+            if not {c.supplier_id, *c.parties} <= known:
+                raise ValueError(f"contract {c.contract_id} names a supplier that is not in the records")
+        for cert in self.residence_certificates:
+            if cert.supplier_id not in known:
+                raise ValueError(f"certificate {cert.certificate_id} names a supplier that is not in the records")
         return self
+
+    def contract(self, contract_id: str) -> ContractRecord | None:
+        return next((c for c in self.contracts if c.contract_id == contract_id), None)
+
+    def residence_certificate(self, supplier_id: str, day: date) -> ResidenceCertificate | None:
+        """A certificate of residence of the supplier valid on that day, if the records hold one."""
+        return next((c for c in self.residence_certificates if c.supplier_id == supplier_id and c.valid_on(day)), None)
 
     def supplier(self, supplier_id: str) -> Supplier | None:
         return next((s for s in self.suppliers if s.supplier_id == supplier_id), None)

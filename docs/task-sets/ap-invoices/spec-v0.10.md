@@ -134,6 +134,9 @@ One entry per invoice line:
 | `line_no` | The line number printed on the invoice (1–200). Each line once. |
 | `treatment` | The country's tax code for this line. null only when the decision is HAND\_OVER. |
 | `basis` | The rule ID from the rule sheet that decides this line, for example `MS-8`, `K-1`, `SG-9`. On a null treatment, the rule the documents don't settle. |
+| `gl_account` | Optional. The GL account this line books to, from the company's chart of accounts. |
+
+**GL account per line and per case** (clarification, 18 Nov 2026). Real AP books each line to its own account, so a line may carry its own `gl_account`. The case-level `gl_account` stays, and is the GL account of the line with the largest absolute amount excluding tax (ties: the lowest `line_no`). "Absolute" makes the rule the same for credit notes, whose line amounts are negative, and for invoices with lines of both signs (clarification, 18 Nov 2026). The main score and case-level GL accuracy are unchanged.
 
 All lines of one output use one country's codes and rule IDs. `basis` is required and is published in the answer keys, but it is not scored in v0.10: several rules can lead to the same treatment, and the sheet does not rank them.
 
@@ -153,6 +156,8 @@ Actions the buyer itself must take besides the decision (decisions D1–D3 of th
 
 Each action is an object `{"action": ...}`. `WITHHOLD_TAX` also carries `rate` (percent), `basis` (the WH rule ID) and `base_amount` (the amount the rate applies to, in the invoice currency, as a decimal string). A payment with two withholdings (WH-3: 10% for the contractor and 3% for its employees) lists two `WITHHOLD_TAX` objects.
 
+**Buyer actions are obligations only** (clarification, 18 Nov 2026): things the buyer must do to process the invoice correctly. An optional claim the buyer may make later is not a buyer action. For example, where an exemption works by refund (G-3; the JDA refund route in P-20), the tax on the invoice is correctly charged: the line is `SST_CORRECT`, with no buyer action.
+
 ## Facts (optional, scored separately)
 
 `facts` lets an entry show what it read. Per invoice line, it gives the facts the rules turn on, each with its value and where the case documents show it.
@@ -167,12 +172,12 @@ Each action is an object `{"action": ...}`. `WITHHOLD_TAX` also carries `rate` (
 
 | Family | Malaysia | Singapore |
 | --- | --- | --- |
-| classification | `service_item`, `tariff_code`, `fb_content`, `financial_charge`, `asset_type`, `education_fee_item` | `exempt_supply`, `zero_rating_provision`, `prescribed_goods`, `disallowed_category`, `vehicle_is_motor_car` |
+| classification | `service_item`, `service_sub_item`, `tariff_code`, `manufactured_by_supplier`, `fb_content`, `financial_charge`, `insurance_cover`, `asset_type`, `education_fee_item`, `digital_content_type`, `pallet_returnable`, `self_billing_type`, `interest_exception` | `exempt_supply`, `zero_rating_provision`, `prescribed_goods`, `low_value_goods`, `disallowed_category`, `vehicle_is_motor_car` |
 | time\_and\_rate | `service_period_start`, `service_period_end`, `amount_paid_before_change`, `delivery_date` | `delivery_date`, `amount_paid_before_change`, `value_delivered_before_change`, `contract_excludes_tax_change` |
-| scope\_and\_exemption | `subject_outside_malaysia`, `statutory_fee_amount`, `residential`, `asset_in_malaysia`, `financial_lease`, `air_route`, `carriage`, `patient_citizen`, `student_citizen`, `oku_holder`, `mro_aircraft_ship`, `building_charge` | `goods_outside_singapore`, `export_evidence`, `international_transport`, `staff_medical_obligatory`, `insurance_obligatory`, `chauffeured_pay_per_trip`, `car_used_by_third_party` |
-| buyer\_and\_purpose | `personal_use`, `same_service_as_buyer`, `sublet`, `sublet_share`, `supplier_paid` | `purchase_attribution`, `business_purpose` |
+| scope\_and\_exemption | `subject_outside_malaysia`, `export_related`, `statutory_fee_amount`, `residential`, `premises_use`, `asset_in_malaysia`, `financial_lease`, `air_route`, `carriage`, `patient_citizen`, `patient_category`, `medical_aid`, `referral_walk_in`, `student_citizen`, `student_category`, `annual_fee_per_student`, `fully_sponsored`, `oku_holder`, `mro_aircraft_ship`, `building_charge`, `drop_shipment_export`, `staff_secondment`, `excluded_management_kind` | `goods_outside_singapore`, `export_evidence`, `international_transport`, `beneficiary_outside_singapore`, `staff_medical_obligatory`, `insurance_obligatory`, `chauffeured_pay_per_trip`, `car_used_by_third_party` |
+| buyer\_and\_purpose | `personal_use`, `own_use`, `same_service_as_buyer`, `sublet`, `sublet_share`, `supplier_paid`, `financial_use` | `purchase_attribution`, `business_purpose` |
 | split | `materials_works_separated`, `installation_separated`, `itemised_consultation_fee`, `package_single_price` | (none) |
-| contract | `contract_signed`, `contract_stamped`, `price_review_clause`, `residential_share`, `design_and_build`, `place_of_worship`, `client_established_in_malaysia`, `exemption_statement_on_invoice` | (none) |
+| contract | `contract_signed`, `contract_stamped`, `price_review_clause`, `variation_signed`, `variation_stamped`, `variation_changes_value`, `residential_share`, `mixed_development_stated`, `design_and_build`, `place_of_worship`, `client_established_in_malaysia`, `exemption_statement_on_invoice`, `ship_platform_election` | (none) |
 | withholding | `payment_nature`, `place_of_performance`, `in_country_share`, `hotel_reimbursement`, `certificate_of_residence` | `payment_nature`, `place_of_performance`, `certificate_of_residence` |
 
 Party facts (registrations, group structure, partial-exemption status, supplier residence) are case facts, not line facts, and are not part of `facts` in v0.10.
@@ -252,7 +257,7 @@ The v0.9 clarifications in the CHANGELOG carry over unchanged: the three implici
 
 | Column | Unit | Definition |
 | --- | --- | --- |
-| Per-line tax accuracy | invoice line | Share of answer-key lines whose treatment the entry matches for the same `line_no`, over the cases the entry decided. Key lines with a null treatment are left out. A key line the entry gives no entry for counts as wrong; entry lines with no key line are ignored. |
+| Per-line accuracy | invoice line | Two numbers: tax (the share of answer-key lines whose treatment the entry matches for the same `line_no`) and GL (the same for `gl_account`), over the cases the entry decided. Key lines with a null value are left out. A key line the entry gives no entry or value for counts as wrong; entry lines with no key line are ignored. |
 | Buyer-action accuracy | case | Share of cases where the entry's set of actions equals the key's exactly, over the cases the entry decided. `WITHHOLD_TAX` matches only with the same `rate` and `basis`; `base_amount` is recorded but not compared in v0.10. An empty list matches an empty key. |
 | Facts score | fact field | As defined under "Facts", reported per family and overall. |
 

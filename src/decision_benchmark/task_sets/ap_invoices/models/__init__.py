@@ -1,6 +1,6 @@
 """Pydantic schemas for task set ap-invoices (step-11 plan §4). Country-neutral; country types come from the packs."""
 
-from .answer import AnswerKey, Finding, GraderTruth
+from .answer import AnswerKey, BuyerAction, Finding, GraderTruth, TaxLine
 from .case import Case, CompanyRecords, LedgerInvoice, Provenance
 from .catalog import Catalog, Category, load_catalog
 from .common import (
@@ -18,6 +18,7 @@ from .common import (
     internal,
 )
 from .company import Address, Company, Person
+from .contract import ContractChange, ContractRecord, ResidenceCertificate
 from .email import BankChangeRequest, Email, EmailAddress, InstructionInjection, LookalikeSender, PriceChange, Signal
 from .facts import Fact, FactSheet
 from .invoice import BankBlock, Invoice, InvoiceLine, PartyBlock, Totals
@@ -41,6 +42,7 @@ __all__ = [
     "Address",
     "AnswerKey",
     "AnswerSource",
+    "BuyerAction",
     "ApprovalLimit",
     "BankAccount",
     "BankBlock",
@@ -50,6 +52,8 @@ __all__ = [
     "Catalog",
     "Category",
     "Company",
+    "ContractChange",
+    "ContractRecord",
     "CompanyRecords",
     "Contact",
     "CountryBlock",
@@ -83,9 +87,11 @@ __all__ = [
     "PriceChange",
     "Provenance",
     "PurchaseOrder",
+    "ResidenceCertificate",
     "RuleText",
     "Signal",
     "Supplier",
+    "TaxLine",
     "TaxProfile",
     "TaxRegistration",
     "Tier",

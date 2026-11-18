@@ -138,7 +138,12 @@
       "properties": {
         "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
         "treatment": {"anyOf": [{"$ref": "#/$defs/tax_code"}, {"type": "null"}]},
-        "basis": {"$ref": "#/$defs/rule_id"}
+        "basis": {"$ref": "#/$defs/rule_id"},
+        "gl_account": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional. The GL account this line books to, from the company's chart of accounts."
+        }
       }
     },
     "buyer_action": {
@@ -198,7 +203,7 @@
           "$ref": "../output.schema.json#/$defs/fact",
           "description": "For Group H: what the charge is.",
           "x-family": "classification",
-          "x-rules": ["MS-4", "P-1", "P-3", "P-5", "P-6"],
+          "x-rules": ["MS-4", "P-1", "P-3", "P-5", "P-6", "P-2", "P-4", "P-7"],
           "properties": {
             "value": {
               "enum": [
@@ -209,6 +214,14 @@
                 "insurance_premium",
                 "reinsurance",
                 "card_activation",
+                "bursa_share_brokerage",
+                "bursa_clearing_trading_fee",
+                "listing_perusal_fee",
+                "shariah_structure_fee",
+                "asnb_fund_management",
+                "government_securities_fee",
+                "commodity_platform_fee",
+                "tia_i_account_fee",
                 null
               ]
             }
@@ -568,6 +581,250 @@
           "x-family": "withholding",
           "x-rules": ["WH-1", "WH-2", "WH-4"],
           "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "manufactured_by_supplier": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The supplier manufactured the goods on this line (not bought in for resale).",
+          "x-family": "classification",
+          "x-rules": ["MG-1"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "export_related": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The financial service is export-related (Group H items 3-4 exclusion).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "P-1"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "insurance_cover": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group H item 2: what the insurance or takaful covers.",
+          "x-family": "classification",
+          "x-rules": ["MS-4"],
+          "properties": {
+            "value": {
+              "enum": [
+                "international_transport",
+                "export_credit",
+                "risk_outside_malaysia",
+                "educational_or_religious_insured",
+                "other",
+                null
+              ]
+            }
+          }
+        },
+        "premises_use": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group I item 13: use of the premises or land cleaned.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {
+            "value": {
+              "enum": ["commercial", "industrial", "residential", "religious", "educational", "agricultural", null]
+            }
+          }
+        },
+        "service_sub_item": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group G item (i): the sub-item (i) to (x), the 'same service' for group relief (STP 8/2020).",
+          "x-family": "classification",
+          "x-rules": ["MS-6"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^\\((i|ii|iii|iv|v|vi|vii|viii|ix|x)\\)$"}}
+        },
+        "own_use": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Construction works are for the buyer's own use (Order item 9).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "variation_signed": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Date a variation order or extension of time was signed.",
+          "x-family": "contract",
+          "x-rules": ["L-1"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "variation_stamped": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Date a variation order or extension of time was stamped by LHDN.",
+          "x-family": "contract",
+          "x-rules": ["L-1"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
+        },
+        "variation_changes_value": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "A variation order or extension of time changes the contract value.",
+          "x-family": "contract",
+          "x-rules": ["L-1"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "mixed_development_stated": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The stamped contract states a mixed development, with a surveyor or architect split.",
+          "x-family": "contract",
+          "x-rules": ["L-2"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "ship_platform_election": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For ships and platforms: the company's choice of manufacturing (sales tax) or construction (service tax).",
+          "x-family": "contract",
+          "x-rules": ["L-8"],
+          "properties": {"value": {"enum": ["manufacturing", "construction", null]}}
+        },
+        "annual_fee_per_student": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group M private schools: the fee per student per year.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "financial_use": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "What a Group H provider uses the bought financial service or reinsurance for.",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["P-1", "P-6"],
+          "properties": {
+            "value": {
+              "enum": [
+                "taxable_financial_services",
+                "offshore_financial_services",
+                "export_related_financial_services",
+                "medical_life_family_cover",
+                "other",
+                null
+              ]
+            }
+          }
+        },
+        "patient_category": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group I items 14-16: the patient's category.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-13"],
+          "properties": {
+            "value": {
+              "enum": [
+                "citizen",
+                "non_citizen",
+                "foreign_worker_screening",
+                "diplomat_with_mofa_letter",
+                "newborn_with_citizen_parent",
+                null
+              ]
+            }
+          }
+        },
+        "medical_aid": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Healthcare treatment with medical aids.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-14"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "referral_walk_in": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a facility-to-facility referral: the patient walked in to the second facility.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-14"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "fully_sponsored": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The education fees are fully sponsored.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["P-16"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "student_category": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group M: the student's category.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4", "P-16"],
+          "properties": {"value": {"enum": ["citizen", "non_citizen", "disabled_citizen", "diplomat_child", null]}}
+        },
+        "digital_content_type": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For digital services: online distance learning and e-publications are not taxable digital services.",
+          "x-family": "classification",
+          "x-rules": ["P-19"],
+          "properties": {"value": {"enum": ["online_distance_learning", "e_newspaper_journal_periodical", "other", null]}}
+        },
+        "pallet_returnable": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The pallets are returnable transport pallets (not one-way packaging).",
+          "x-family": "classification",
+          "x-rules": ["G-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "drop_shipment_export": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "A registered manufacturer exports the goods directly for the buying trader (bill-to/ship-to on the invoice).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["G-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "self_billing_type": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The self-billed e-invoice transaction type in section 8.3 of the LHDN e-Invoice Specific Guideline v4.9: (a) agents_dealers_distributors, (b) foreign_supplier, (c) profit_distribution, (d) ecommerce, (e) betting_gaming_payout, (f) individual_not_in_business, (g) interest_payment, (h) insurance_claim_payment, (i) capital_return_or_liquidation; none: not a self-billed transaction.",
+          "x-family": "classification",
+          "x-rules": ["ME-3"],
+          "properties": {
+            "value": {
+              "enum": [
+                "agents_dealers_distributors",
+                "foreign_supplier",
+                "profit_distribution",
+                "ecommerce",
+                "betting_gaming_payout",
+                "individual_not_in_business",
+                "interest_payment",
+                "insurance_claim_payment",
+                "capital_return_or_liquidation",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "interest_exception": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For section 8.3 item (g), interest: the exception that applies, where the supplier issues the e-invoice and the buyer does not self-bill. none: no exception applies.",
+          "x-family": "classification",
+          "x-rules": ["ME-3"],
+          "properties": {
+            "value": {
+              "enum": [
+                "public_lender",
+                "employee_to_employer",
+                "foreign_payor",
+                "related_company_treasury",
+                "late_payment_charge",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "staff_secondment": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group G item (j): the service is secondment or supply of staff (excluded).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "excluded_management_kind": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group G item (i): an excluded kind of management service.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {
+            "value": {
+              "enum": ["strata_management_to_owners", "cmsa_fund_management", "religious_welfare_body", "none", null]
+            }
+          }
         }
       }
     },

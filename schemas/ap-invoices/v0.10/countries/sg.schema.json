@@ -95,7 +95,12 @@
       "properties": {
         "line_no": {"$ref": "../output.schema.json#/$defs/line_no"},
         "treatment": {"anyOf": [{"$ref": "#/$defs/tax_code"}, {"type": "null"}]},
-        "basis": {"$ref": "#/$defs/rule_id"}
+        "basis": {"$ref": "#/$defs/rule_id"},
+        "gl_account": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional. The GL account this line books to, from the company's chart of accounts."
+        }
       }
     },
     "buyer_action": {
@@ -302,6 +307,20 @@
           "description": "The case holds the payee's certificate of residence.",
           "x-family": "withholding",
           "x-rules": ["WH-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "beneficiary_outside_singapore": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For s21(3)(j) and (k): the service directly benefits a person belonging outside Singapore.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "low_value_goods": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Imported low-value goods (reverse charge for a buyer not entitled to full input tax).",
+          "x-family": "classification",
+          "x-rules": ["SG-8"],
           "properties": {"value": {"type": ["boolean", "null"]}}
         }
       }

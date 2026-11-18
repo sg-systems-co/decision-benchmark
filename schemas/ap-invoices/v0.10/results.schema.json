@@ -58,6 +58,7 @@
         "cost": {"type": "number", "minimum": 0},
         "tax_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
         "line_tax_accuracy": {"$ref": "#/$defs/extra_column"},
+        "line_gl_accuracy": {"$ref": "#/$defs/extra_column"},
         "buyer_action_accuracy": {"$ref": "#/$defs/extra_column"},
         "facts_score": {
           "anyOf": [

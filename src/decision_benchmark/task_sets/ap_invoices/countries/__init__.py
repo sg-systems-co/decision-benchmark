@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from .base import CountryPack, LineFact
+from .base import CountryPack
 from .my import PACK as MY_PACK
 from .sg import PACK as SG_PACK
 
@@ -32,4 +32,4 @@ def all_tax_codes() -> frozenset[str]:
 TaxTreatment = StrEnum("TaxTreatment", {str(c): str(c) for p in PACKS.values() for c in p.tax_codes})
 """Every pack's tax-treatment codes, in registry order (the output schema's enum)."""
 
-__all__ = ["PACKS", "CountryPack", "LineFact", "TaxTreatment", "all_tax_codes", "pack", "scheme_types"]
+__all__ = ["PACKS", "CountryPack", "TaxTreatment", "all_tax_codes", "pack", "scheme_types"]
