@@ -58,6 +58,8 @@ class LineResult:
     """The line facts the rules read that the line records (its gold facts), in reading order."""
     missing: tuple[str, ...] = ()
     """The line facts the rules read that were not recorded or supplied."""
+    open_question: str | None = None
+    """The rule sheet's open question the treatment rests on, if any (generator truth; not in the answer key)."""
 
 
 @dataclass(frozen=True)

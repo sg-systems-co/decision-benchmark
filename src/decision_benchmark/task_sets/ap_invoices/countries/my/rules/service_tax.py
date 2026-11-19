@@ -16,7 +16,7 @@ from .context import Exempt, LineCtx, Outcome, Partial, Taxable
 
 LABELS = {"MS-5": "b2b"}
 """The finding label v0.9 keys use for an exemption (others use the rule ID)."""
-EXEMPTIONS = (policies.check, scope.exclusion, lambda ctx: areas.check(ctx, "MS-7"), rental.check,
+EXEMPTIONS = (policies.check, scope.exclusion, areas.service_check, rental.check,
               construction.check, group_relief.check, b2b.check)
 """The exclusion and exemption rules, in the order they are tried."""
 

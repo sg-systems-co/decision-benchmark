@@ -57,7 +57,7 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
                 unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
         findings += out.findings
         lines.append(LineResult(line.line_no, out.code, out.basis, actions, read=tuple(reader.recorded_reads()),
-                                missing=tuple(reader.missing())))
+                                missing=tuple(reader.missing()), open_question=out.open_question))
     try:
         findings += einvoice.supplier_phase(inv, view.supplier, sf)
     except NotSettled as ns:

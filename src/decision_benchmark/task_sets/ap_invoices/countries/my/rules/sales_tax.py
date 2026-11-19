@@ -71,7 +71,7 @@ def assess(ctx: LineCtx) -> Outcome:
     if not made:
         return Outcome(T.NO_SST, "MG-1")
     taxable_by = None
-    for rule in (lambda c: areas.check(c, "MG-5"), _policy, _drop_shipment, _certificate, _exempt_goods):
+    for rule in (areas.goods_check, _policy, _drop_shipment, _certificate, _exempt_goods):
         result = rule(ctx)
         if isinstance(result, Exempt):
             return ctx.exempt(result, SALES_LABELS.get(result.basis))

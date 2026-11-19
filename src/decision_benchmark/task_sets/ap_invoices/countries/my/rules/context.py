@@ -33,9 +33,11 @@ LOCAL_AUTHORITY_TO = date(2025, 9, 30)
 
 @dataclass(frozen=True)
 class Exempt:
-    """No tax is due on the whole line, by the rule in basis."""
+    """No tax is due on the whole line, by the rule in basis. open_question: the sheet's open question the answer rests
+    on (e.g. Q-A1), for the generator truth."""
 
     basis: str
+    open_question: str | None = None
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,7 @@ class Outcome:
     basis: str
     findings: tuple[Finding, ...] = ()
     actions: tuple[BuyerAction, ...] = ()
+    open_question: str | None = None
 
 
 @dataclass
@@ -170,8 +173,9 @@ class LineCtx:
         """Tax charged on an exempt line: SST_SHOULD_BE_EXEMPT; none charged: NO_SST."""
         if self.charged:
             return Outcome(T.SST_SHOULD_BE_EXEMPT, rule.basis, (
-                finding(Code.TAX_SHOULD_BE_EXEMPT, line=self.line.line_no, basis=label or rule.basis),))
-        return Outcome(T.NO_SST, rule.basis)
+                finding(Code.TAX_SHOULD_BE_EXEMPT, line=self.line.line_no, basis=label or rule.basis),),
+                open_question=rule.open_question)
+        return Outcome(T.NO_SST, rule.basis, open_question=rule.open_question)
 
     def exempt_part(self, basis: str) -> Outcome:
         """Tax charged on the whole line where part of it is exempt."""

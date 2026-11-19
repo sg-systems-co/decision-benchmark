@@ -18,6 +18,9 @@ ACCOUNT = {
     "construction_works": "6160-000", "maintenance_repair": "6160-000", "software_development": "6150-100",
     "test_raw_resin": "5100-100", "test_finished_goods": "5100-300", "office_supplies": "6300-000",
     "utilities_electricity": "6220-000", "test_exempt_goods": "5100-100",
+    "test_hotel": "6160-000", "test_catering": "6160-000", "test_customs_agent": "5300-400", "test_domestic_flight": "6160-000",
+    "test_cigarettes": "5100-300", "test_e_liquid": "5100-300", "test_petroleum": "5100-300", "test_motor_vehicle": "5100-300",
+    "test_marble": "5100-100", "test_wine": "5100-300", "test_office_furniture": "6300-000",
 }
 
 

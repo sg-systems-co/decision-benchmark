@@ -1,0 +1,55 @@
+# Goods the Malaysian sales tax area orders tax on entry (MG-5), and the goods taxed into Pulau 1 by exception.
+# Sources: docs/sources/manifest.yaml ids sales-tax-da-order-2018 (P.U. (A) 206/2018) and its amendments, and
+# sales-tax-sa-order-2018 (P.U. (A) 207/2018) and its amendments, as summarised in docs/tax-rules-v0.10.md MG-5.
+# Each row: an order (da or sa), the goods kinds it names (the catalog maps categories to kinds), the zones, the
+# dates (inclusive; to: null = still in force) and the instrument that set it.
+source:
+- sales-tax-da-order-2018
+- sales-tax-da-order-2018-amendment-1-2019
+- sales-tax-da-order-2018-amendment-2-2019
+- sales-tax-da-order-2018-amendment-1-2020
+- sales-tax-da-order-2018-amendment-1-2023
+- sales-tax-da-order-2018-amendment-1-2024
+- sales-tax-da-order-2018-amendment-1-2025
+- sales-tax-sa-order-2018
+- sales-tax-sa-order-2018-amendment-1-2018
+- sales-tax-sa-order-2018-amendment-1-2021
+- sales-tax-sa-order-2018-amendment-1-2023
+rows:
+- {order: da, goods: [alcohol, tobacco], zones: [labuan, langkawi, tioman], from: 2018-09-01, to: 2019-03-26,
+   note: 'item deleted by P.U. (A) 92/2019 from 27 Mar 2019', source: sales-tax-da-order-2018}
+- {order: da, goods: [marble, anchovies], zones: [langkawi], from: 2018-09-01, to: null, source: sales-tax-da-order-2018}
+- {order: da, goods: [motor_vehicle], zones: [tioman], from: 2018-09-01, to: null, source: sales-tax-da-order-2018}
+- {order: da, goods: [motor_vehicle], zones: [pangkor], from: 2020-01-01, to: null, source: sales-tax-da-order-2018-amendment-2-2019}
+- {order: da, goods: [petroleum], zones: [labuan, langkawi, tioman, pangkor], from: 2020-01-01, to: 2020-12-31,
+   note: 'paragraph replaced by P.U. (A) 420/2020 from 1 Jan 2021', source: sales-tax-da-order-2018-amendment-2-2019}
+- {order: da, goods: [petroleum, tobacco, smoking_pipes, e_cigarette, e_liquid_no_nicotine],
+   zones: [labuan, langkawi, tioman, pangkor], from: 2021-01-01, to: null,
+   note: 'designated areas other than Pulau 1 from 1 Dec 2024 (P.U. (A) 369/2024)', source: sales-tax-da-order-2018-amendment-1-2020}
+- {order: da, goods: [e_liquid_nicotine], zones: [labuan, langkawi, tioman, pangkor], from: 2023-04-01, to: null,
+   note: '"whether or not containing nicotine" (P.U. (A) 94/2023)', source: sales-tax-da-order-2018-amendment-1-2023}
+- {order: da, goods: [motor_vehicle], zones: [labuan, langkawi], from: 2026-01-01, to: null, headings: ['87.03', '87.11'],
+   value_above: '300000.00', value_basis: cif, note: 'completely built-up vehicles imported', source: sales-tax-da-order-2018-amendment-1-2025}
+- {order: da, goods: [motor_vehicle], zones: [labuan, langkawi], from: 2026-01-01, to: null, headings: ['87.03', '87.11'],
+   value_above: '300000.00', value_basis: sales_price, note: 'vehicles made in the principal customs area',
+   source: sales-tax-da-order-2018-amendment-1-2025}
+- {order: pulau_1_not_taxed, goods: [alcohol, chocolate, cosmetics_perfume], zones: [pulau_1], from: 2024-12-01, to: null,
+   note: 'all goods into Pulau 1 are taxed except these (wine, spirits, beer or malt liquor, chocolate, cosmetics, perfume)',
+   source: sales-tax-da-order-2018-amendment-1-2024}
+- {order: sa, goods: [forklift, crane, office_equipment_furniture, firefighting_pollution_control, motor_vehicle, petroleum,
+   tyres, chemicals, air_conditioning], zones: [free_zone], from: 2018-09-01, to: null, note: 'Schedule A', source: sales-tax-sa-order-2018}
+- {order: sa, goods: [forklift, crane, office_equipment_furniture, firefighting_pollution_control, motor_vehicle, petroleum,
+   tyres, chemicals, air_conditioning], zones: [licensed_warehouse, licensed_manufacturing_warehouse], from: 2019-01-01, to: null,
+   note: 'Schedule A', source: sales-tax-sa-order-2018-amendment-1-2018}
+- {order: sa, goods: [manufacturing_aid], zones: [free_zone], from: 2018-09-01, to: 2018-12-31, note: 'Schedule A', source: sales-tax-sa-order-2018}
+- {order: sa, not_used_directly: true, goods: [], zones: [free_zone], from: 2018-09-01, to: null,
+   note: 'Schedule A, goods not used directly in the approved activity', source: sales-tax-sa-order-2018}
+- {order: sa, not_used_directly: true, goods: [], zones: [licensed_warehouse, licensed_manufacturing_warehouse], from: 2019-01-01,
+   to: null, note: 'Schedule A, goods not used directly in warehousing (s65) or LMW manufacturing (s65A)',
+   source: sales-tax-sa-order-2018-amendment-1-2018}
+- {order: sa, tasik_kenyir: true, goods: [alcohol, tobacco], zones: [free_zone], from: 2018-09-01, to: null,
+   note: 'Tasik Kenyir Duty Free Area', source: sales-tax-sa-order-2018}
+- {order: sa, goods: [tobacco, smoking_pipes, e_cigarette, e_liquid_no_nicotine], zones: [free_zone], from: 2021-09-03, to: null,
+   source: sales-tax-sa-order-2018-amendment-1-2021}
+- {order: sa, goods: [e_liquid_nicotine], zones: [free_zone], from: 2023-04-01, to: null,
+   note: '"whether or not containing nicotine" (P.U. (A) 100/2023)', source: sales-tax-sa-order-2018-amendment-1-2023}
