@@ -21,7 +21,8 @@ EVIDENCE_OPTIONAL = "evidence_optional"
 
 
 def _to_share(value: Any) -> Decimal:
-    d = _to_decimal(value)
+    # The spec writes a share as a JSON number (facts.lines, check_rules input): read it by its shortest decimal form.
+    d = _to_decimal(repr(value) if isinstance(value, float) else value)
     if not Decimal(0) <= d <= Decimal(1):
         raise ValueError(f"a share is between 0 and 1: {value!r}")
     return d
