@@ -78,3 +78,4 @@ A12 build PR 4 (designated and special areas, MS-7 and MG-5, as rewritten in the
 A12 build PR 5 (catalog, `check_rules`, reference-row check), before the 0.10.0 release commit. Against 0.10.0.dev4:
 
 - **Commit 17 (catalog).** No existing key changes. Catalog fact defaults: a tax profile's `facts` give the value the rules use where a line doesn't record the fact. New keys: `test_catalog_fact_default_vessel_charter_is_exempt_without_a_line_fact` (2; K-3), `test_catalog_fact_default_residential_lease_is_exempt_without_a_line_fact` (2; SG-5). In `check_rules` mode only the supplied facts count (no fallback to the facts recorded on the invoice), and the SG-7 invoice total reads the same source.
+- **Commit 18 (`check_rules`).** No existing key changes. New keys from `tests/rules/test_check_rules.py` (the answer keys it compares `check_rules` against).

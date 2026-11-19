@@ -126,5 +126,6 @@ class CountryPack:
         """Invoice-validity findings that hold whatever the tax treatment."""
         raise NotImplementedError
 
-    def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
+    def assess_tax(self, view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None = None) -> TaxResult:
+        """facts: line facts by line number to use instead of those recorded on the invoice (check_rules)."""
         raise NotImplementedError
