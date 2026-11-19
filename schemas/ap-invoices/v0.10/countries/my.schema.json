@@ -860,6 +860,118 @@
           "x-family": "classification",
           "x-rules": ["MS-4"],
           "properties": {"value": {"enum": ["private_school", "higher_education", "language_centre", null]}}
+        },
+        "recipient_zone": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The zone of the buyer establishment the invoice names as receiving the service, where it is not the company's own zone (MS-7). pca: principal customs area.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-7"],
+          "properties": {
+            "value": {
+              "enum": [
+                "pca",
+                "labuan",
+                "langkawi",
+                "tioman",
+                "pangkor",
+                "pulau_1",
+                "free_zone",
+                "licensed_warehouse",
+                "licensed_manufacturing_warehouse",
+                "jda",
+                "petroleum_supply_base",
+                null
+              ]
+            }
+          }
+        },
+        "service_site_zone": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a site-bound service (accommodation, food and beverages, customs clearance, or a service the invoice shows performed at a named site): the zone of the site (MS-7).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-7"],
+          "properties": {
+            "value": {
+              "enum": [
+                "pca",
+                "labuan",
+                "langkawi",
+                "tioman",
+                "pangkor",
+                "pulau_1",
+                "free_zone",
+                "licensed_warehouse",
+                "licensed_manufacturing_warehouse",
+                "jda",
+                "petroleum_supply_base",
+                null
+              ]
+            }
+          }
+        },
+        "delivery_zone": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The zone of the delivery address the goods are transported into (MG-5).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MG-5"],
+          "properties": {
+            "value": {
+              "enum": [
+                "pca",
+                "labuan",
+                "langkawi",
+                "tioman",
+                "pangkor",
+                "pulau_1",
+                "free_zone",
+                "licensed_warehouse",
+                "licensed_manufacturing_warehouse",
+                "jda",
+                "petroleum_supply_base",
+                null
+              ]
+            }
+          }
+        },
+        "international_leg": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a logistics line under item 7 of P.U. (A) 212/2018: which of its five international legs the line is, or none (MS-7).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-7"],
+          "properties": {
+            "value": {
+              "enum": [
+                "outside_to_outside",
+                "last_exit_to_outside",
+                "outside_to_first_entry",
+                "transshipment",
+                "to_customs_warehouse",
+                "none",
+                null
+              ]
+            }
+          }
+        },
+        "used_directly_in_approved_activity": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Goods delivered into a free zone, licensed warehouse or LMW are used directly in its approved activity (MG-5, Schedule A of P.U. (A) 207/2018).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MG-5"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "motor_vehicle_value": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For a motor vehicle under headings 87.03 or 87.11: its CIF value or sales price, as motor_vehicle_value_basis says (MG-5, P.U. (A) 481/2025).",
+          "x-family": "classification",
+          "x-rules": ["MG-5"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "motor_vehicle_value_basis": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Which value motor_vehicle_value is: cif (imported) or sales_price (made in the principal customs area, excluding excise duty, sales tax, licence fee and insurance).",
+          "x-family": "classification",
+          "x-rules": ["MG-5"],
+          "properties": {"value": {"enum": ["cif", "sales_price", null]}}
         }
       }
     },
