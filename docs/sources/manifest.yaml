@@ -5001,3 +5001,278 @@ sources:
   wayback_url: null
   cited_by:
   - docs/tax-rules-v0.10.md#SG-6
+- id: sales-tax-da-order-2018
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) Order 2018 [P.U. (A) 206/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Tax-In-Respect-Of-Designated-Area-Order-2018.pdf
+  retrieved: '2026-11-18'
+  sha256: ff5a34117ebc3b1581e38c1311399e34e757cea3c28b6fbeaecee58cdf97b449
+  bytes: 567495
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018/2026-11-18/Sales-Tax-Imposition-Of-Tax-In-Respect-Of-Designated-Area-Order-2018.pdf
+  wayback_url: https://web.archive.org/web/20261012122512/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Tax-In-Respect-Of-Designated-Area-Order-2018.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-1-2019
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) Order 2019 [P.U. (A) 92/2019]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment-Order-2019.pdf
+  retrieved: '2026-11-18'
+  sha256: 5966039f433611faa2b56375853c045d40a2e7687f932ef6c5390a53d5ee09bf
+  bytes: 406915
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-1-2019/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment-Order-2019.pdf
+  wayback_url: https://web.archive.org/web/20261012071039/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment-Order-2019.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-2-2019
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) (No. 2) Order 2019 [P.U. (A) 391/2019]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment2-Order-2019.pdf
+  retrieved: '2026-11-18'
+  sha256: 3d1e47c46c0128419981bf205e1d97be344f7da5ee7800f95274be174068be91
+  bytes: 413312
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-2-2019/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment2-Order-2019.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-1-2020
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) Order 2020 [P.U. (A) 420/2020]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment-Order-2020.pdf
+  retrieved: '2026-11-18'
+  sha256: 48199b90279b639f94817028d2c51528f61b596c3ebe6ed8e5faab33452cc27d
+  bytes: 597549
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-1-2020/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amendment-Order-2020.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-1-2023
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) Order 2023 [P.U. (A) 94/2023]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amd-Order-2023-PUA-94.pdf
+  retrieved: '2026-11-18'
+  sha256: 025eecff5b704d4018d0479a4bb57982b062ed1eeb86128c22a6f40472ca00cd
+  bytes: 591024
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-1-2023/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Designated-Areas-Amd-Order-2023-PUA-94.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-1-2024
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) Order 2024 [P.U. (A) 369/2024]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/PUA-369-PCJ-DA.pdf
+  retrieved: '2026-11-18'
+  sha256: d156e37f130f3480923b1ac9714295bf149238dbbe38adf3c1d2e414c646f809
+  bytes: 205544
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-1-2024/2026-11-18/PUA-369-PCJ-DA.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-da-order-2018-amendment-1-2025
+  title: Sales Tax (Imposition of Sales Tax in respect of Designated Areas) (Amendment) Order 2025 [P.U. (A) 481/2025]
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PERINTAH%20CUKAI%20JUALAN%20(PENGENAAN%20CUKAI%20JUALAN%20BERKENAAN%20DENGAN%20KAWASAN%20DITETAPKAN)%20(PINDAAN)%202025.pdf
+  retrieved: '2026-11-18'
+  sha256: b76cbcdda1fd4b7a56c0e6991fd6b3b8fb6dd3f1b9987078f11a92f9ff685143
+  bytes: 227021
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-da-order-2018-amendment-1-2025/2026-11-18/PERINTAH CUKAI JUALAN (PENGENAAN CUKAI JUALAN BERKENAAN DENGAN KAWASAN DITETAPKAN) (PINDAAN) 2025.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-sa-order-2018
+  title: Sales Tax (Imposition of Sales Tax in respect of Special Areas) Order 2018 [P.U. (A) 207/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Tax-In-Respect-Of-Special-Area-Order-2018.pdf
+  retrieved: '2026-11-18'
+  sha256: aaf855bee244ba841bfac1b19d37e8d722603465cec28dce813d54ce195a023d
+  bytes: 422705
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-sa-order-2018/2026-11-18/Sales-Tax-Imposition-Of-Tax-In-Respect-Of-Special-Area-Order-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-sa-order-2018-amendment-1-2018
+  title: Sales Tax (Imposition of Sales Tax in respect of Special Areas) (Amendment) Order 2018 [P.U. (A) 401/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Special-Areas-Amendment-Order-2018.pdf
+  retrieved: '2026-11-18'
+  sha256: 986fc95cbed5bf72a90fdd6d66481270e321b08e082aded229db4399884e4ac2
+  bytes: 454439
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-sa-order-2018-amendment-1-2018/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Special-Areas-Amendment-Order-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-sa-order-2018-amendment-1-2021
+  title: Sales Tax (Imposition of Sales Tax in respect of Special Areas) (Amendment) Order 2021 [P.U. (A) 349/2021]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/PCJ-Pengenaan-CJ-berkenaan-dengan-Kawasan-Khas-Pindaan-2021-PUA349.pdf
+  retrieved: '2026-11-18'
+  sha256: 800b227db7cc63e028b833b7408cb990908ac49b51632c3dfbdd388b9b172b20
+  bytes: 580766
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-sa-order-2018-amendment-1-2021/2026-11-18/PCJ-Pengenaan-CJ-berkenaan-dengan-Kawasan-Khas-Pindaan-2021-PUA349.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-sa-order-2018-amendment-1-2023
+  title: Sales Tax (Imposition of Sales Tax in respect of Special Areas) (Amendment) Order 2023 [P.U. (A) 100/2023]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Special-Areas-Amendment-Order-2023-PUA-100.pdf
+  retrieved: '2026-11-18'
+  sha256: 056f4b3a5117dadafbe7814b2fbe345753871f4915098607ff10bd53aac806d5
+  bytes: 592378
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-sa-order-2018-amendment-1-2023/2026-11-18/Sales-Tax-Imposition-Of-Sales-Tax-In-Respect-Of-Special-Areas-Amendment-Order-2023-PUA-100.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: sales-tax-act-2018
+  title: Sales Tax Act 2018 [Act 806], as enacted
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Act-2018.pdf
+  retrieved: '2026-11-18'
+  sha256: c3a1737f11bb225414cc897ea8ab395885336b56d1fa56d8f8333becca032be4
+  bytes: 500138
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-act-2018/2026-11-18/Sales-Tax-Act-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+  note: Not linked from https://mysst.customs.gov.my/sst-act/ (its rows for the principal Acts link the 2018 amendment Acts); found at this URL on the RMCD upload host. As first enacted (before the Pangkor and Pulau 1 amendments).
+- id: service-tax-act-2018
+  title: Service Tax Act 2018 [Act 807], as enacted
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Service-Tax-Act-2018.pdf
+  retrieved: '2026-11-18'
+  sha256: b9e1d4a7344aca199e25e9b56f780e62a043124ccfae8e5f44bb27d2a82b14e3
+  bytes: 413067
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-act-2018/2026-11-18/Service-Tax-Act-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MS-7
+  note: Not linked from https://mysst.customs.gov.my/sst-act/ (its rows for the principal Acts link the 2018 amendment Acts); found at this URL on the RMCD upload host. As first enacted (before the Pangkor and Pulau 1 amendments).
+- id: sales-tax-amendment-act-2019
+  title: Sales Tax (Amendment) Act 2019 [Act A1596]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Amendment-Act-2019.pdf
+  retrieved: '2026-11-18'
+  sha256: b71cd9a5dcbef87a9d49969a3ddd40b5a08f13c478fc3366d5096762b9896f6e
+  bytes: 242094
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-amendment-act-2019/2026-11-18/Sales-Tax-Amendment-Act-2019.pdf
+  wayback_url: https://web.archive.org/web/20261012071221/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Amendment-Act-2019.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: service-tax-amendment-act-2019
+  title: Service Tax (Amendment) Act 2019 [Act A1597]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Service-Tax-Amendment-Act-2019.pdf
+  retrieved: '2026-11-18'
+  sha256: 43bbcbbb5b4100f033a773a2a8b8a52084f6d7bbcc7502c6ff83ed71b72000da
+  bytes: 315647
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-amendment-act-2019/2026-11-18/Service-Tax-Amendment-Act-2019.pdf
+  wayback_url: https://web.archive.org/web/20261012071300/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Service-Tax-Amendment-Act-2019.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MS-7
+- id: sales-tax-amendment-act-2019-commencement
+  title: 'Sales Tax (Amendment) Act 2019: Appointment of Date of Coming into Operation [P.U. (B) 659/2019]'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Appointment-of-Date-Coming-Into-Operation-for-sales-tax-amendment-2019.pdf
+  retrieved: '2026-11-18'
+  sha256: 293fdf3999dc0d68499c6a85c8e4ecfa75207513c0bdc14257c63b74bf6ed439
+  bytes: 386331
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-amendment-act-2019-commencement/2026-11-18/Appointment-of-Date-Coming-Into-Operation-for-sales-tax-amendment-2019.pdf
+  wayback_url: https://web.archive.org/web/20261012071059/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Appointment-of-Date-Coming-Into-Operation-for-sales-tax-amendment-2019.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: service-tax-amendment-act-2019-commencement
+  title: 'Service Tax (Amendment) Act 2019: Appointment of Date of Coming into Operation [P.U. (B) 660/2019]'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/CP-Appointment-Of-Date-Of-Coming-Into-Operation-2019-Pangkor.pdf
+  retrieved: '2026-11-18'
+  sha256: 31365e60e91b87d672993508400764a07283f64d00845fd36e9d995bc170f1d6
+  bytes: 290542
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-amendment-act-2019-commencement/2026-11-18/CP-Appointment-Of-Date-Of-Coming-Into-Operation-2019-Pangkor.pdf
+  wayback_url: https://web.archive.org/web/20261012071457/https://mysst.customs.gov.my/wp-content/uploads/2025/03/CP-Appointment-Of-Date-Of-Coming-Into-Operation-2019-Pangkor.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MS-7
+- id: sales-tax-amendment-act-2024
+  title: Sales Tax (Amendment) Act 2024 [Act A1718]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Act-A1718-SALES-TAX-AMENDMENT-ACT-2024.pdf
+  retrieved: '2026-11-18'
+  sha256: 2abd6bc99b518768833d63a2dfbc8fc7708dec180e7b3c4e35a24202cdbdcdcb
+  bytes: 238500
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-amendment-act-2024/2026-11-18/Act-A1718-SALES-TAX-AMENDMENT-ACT-2024.pdf
+  wayback_url: https://web.archive.org/web/20261012071642/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Act-A1718-SALES-TAX-AMENDMENT-ACT-2024.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: service-tax-amendment-act-2024
+  title: Service Tax (Amendment) Act 2024 [Act A1719]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Service-Tax-Amendment-Act-2024-Act-A1719.pdf
+  retrieved: '2026-11-18'
+  sha256: a0d0143a882a4a00465bd5c853dd0fbe958346df43411e442cd1d8141b75cdab
+  bytes: 202006
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-amendment-act-2024/2026-11-18/Service-Tax-Amendment-Act-2024-Act-A1719.pdf
+  wayback_url: https://web.archive.org/web/20261012071244/https://mysst.customs.gov.my/wp-content/uploads/2025/03/Service-Tax-Amendment-Act-2024-Act-A1719.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MS-7
+- id: sales-tax-amendment-act-2024-commencement
+  title: 'Sales Tax (Amendment) Act 2024: Appointment of Date of Coming into Operation [P.U. (B) 470/2024]'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/PUB-470-PENETAPAN-TARIKH-KUATKUASA-ACJ-2018-KUATKUASA-1.12.2024.pdf
+  retrieved: '2026-11-18'
+  sha256: 65652869d9e8347473b8876cd22daa4c26b639284547efdaaeba84c3c26d1056
+  bytes: 153994
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-amendment-act-2024-commencement/2026-11-18/PUB-470-PENETAPAN-TARIKH-KUATKUASA-ACJ-2018-KUATKUASA-1.12.2024.pdf
+  wayback_url: https://web.archive.org/web/20261117142631/https://mysst.customs.gov.my/wp-content/uploads/2025/03/PUB-470-PENETAPAN-TARIKH-KUATKUASA-ACJ-2018-KUATKUASA-1.12.2024.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-5
+- id: service-tax-amendment-act-2024-commencement
+  title: 'Service Tax (Amendment) Act 2024: Appointment of Date of Coming into Operation [P.U. (B) 471/2024]'
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/P.U.B_-471-PENETAPAN-TARIKH-PERMULAAN-KUAT-KUASA.pdf
+  retrieved: '2026-11-18'
+  sha256: 99ea27369f7d0600f9aad8bee47ba3101cde79c6e9d668033e6c73235142addb
+  bytes: 145987
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/service-tax-amendment-act-2024-commencement/2026-11-18/P.U.B_-471-PENETAPAN-TARIKH-PERMULAAN-KUAT-KUASA.pdf
+  wayback_url: https://web.archive.org/web/20261012071328/https://mysst.customs.gov.my/wp-content/uploads/2025/03/P.U.B_-471-PENETAPAN-TARIKH-PERMULAAN-KUAT-KUASA.pdf
+  cited_by:
+  - docs/tax-rules-v0.10.md#MS-7
