@@ -88,16 +88,12 @@ def item_applies(ctx: LineCtx, item: int, frm: str, to: str, kf: str, kt: str, d
     if item == 3:
         if not (kt == "sa" or day < IN_SPECIAL_AREAS_FROM):
             return False
-        supplier = ctx.sf.supplier_kind
-        if supplier == "local_authority":
-            return False
-        if supplier == "federal_state_government":
-            if day >= STATE_GOVERNMENT_EXCLUDED_FROM:
-                return False
-            raise NotSettled("MS-7", "federal or state government accommodation before 1 Jan 2020 not shown")
-        return True
+        return not _accommodation_excluded(ctx, day)
     if item == 4:
-        return kt == "sa" or day < IN_SPECIAL_AREAS_FROM
+        if not (kt == "sa" or day < IN_SPECIAL_AREAS_FROM):
+            return False
+        # Excluded: a canteen in an educational institution, a canteen operated by a religious institution or body.
+        return ctx.fact("canteen_kind", "none", "MS-7") == "none"
     if item == 5:
         where = kt == "sa" or (kt == "da" and to != "pulau_1" and day >= ITEM_5_DESIGNATED_FROM)
         return where and _licence(ctx, "customs_agent_s90")
@@ -105,6 +101,29 @@ def item_applies(ctx: LineCtx, item: int, frm: str, to: str, kf: str, kt: str, d
         return day >= ITEM_6_FROM and kt == "sa" and _licence(ctx, "entertainment_premises")
     if item == 7:
         return ITEM_7[0] <= day <= ITEM_7[1] and ctx.fact("international_leg", "none", "MS-7") == "none"
+    return False
+
+
+def _accommodation_excluded(ctx: LineCtx, day: date) -> bool:
+    """Item 3 exclusions (P.U. (A) 212/2018 as amended by 393/2019 and 337/2026; sheet, "How the table reads").
+    Local authority: every date. From 1 Jan 2020: Federal or State Government, statutory body, private HEI premises,
+    and premises an employer provides to its own employees. Before 1 Jan 2020: Federal Government, statutory body and
+    private HEI premises only when provided for educational, training or welfare purposes (State Government not
+    excluded then, so a Federal-or-State supplier with that purpose is HAND_OVER). A registered religious or welfare
+    body: premises used for religious or welfare activities and not commercially. For these supplier kinds the purpose
+    or use has no ordinary value: not shown is HAND_OVER."""
+    supplier = ctx.sf.supplier_kind
+    if supplier == "local_authority":
+        return True
+    if supplier == "religious_welfare_body" and ctx.need("non_commercial_religious_welfare", "MS-7"):
+        return True
+    public = supplier in ("federal_state_government", "statutory_body", "private_hei")
+    if day >= STATE_GOVERNMENT_EXCLUDED_FROM:
+        return public or bool(ctx.fact("employer_staff_accommodation", False, "MS-7"))
+    if public and ctx.need("educational_training_welfare_purpose", "MS-7"):
+        if supplier == "federal_state_government":
+            raise NotSettled("MS-7", "Federal or State Government premises before 1 Jan 2020 not shown")
+        return True
     return False
 
 

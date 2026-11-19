@@ -972,6 +972,34 @@
           "x-family": "classification",
           "x-rules": ["MG-5"],
           "properties": {"value": {"enum": ["cif", "sales_price", null]}}
+        },
+        "employer_staff_accommodation": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Accommodation an employer provides as a facility to its own employees (MS-7, item 3 exclusion from 1 Jan 2020).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-7"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "educational_training_welfare_purpose": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Government, statutory body or private higher educational institution premises provided for educational, training or welfare purposes (MS-7, item 3 exclusion before 1 Jan 2020).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-7"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "non_commercial_religious_welfare": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Premises of a registered religious or welfare body used for religious or welfare activities and not for commercial purposes (MS-7, item 3 exclusion).",
+          "x-family": "buyer_and_purpose",
+          "x-rules": ["MS-7"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "canteen_kind": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For food and beverages: a canteen in an educational institution or a canteen operated by a religious institution or body, or none (MS-7, item 4 exclusion).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-7"],
+          "properties": {"value": {"enum": ["educational_institution", "religious_body", "none", null]}}
         }
       }
     },

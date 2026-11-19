@@ -157,21 +157,61 @@ def test_ms7_item3_in_special_areas_from_6_september_2018(day, rate, expected):
     assert result(*svc("test_hotel", rate=rate, day=day, supplier="langkawi")) == expected
 
 
-@pytest.mark.parametrize("kind_, day, expected", [
-    ("local_authority", None, EXEMPT),
-    ("federal_state_government", "2020-01-02", EXEMPT),
-    ("federal_state_government", "2019-12-30", (HO, None, "MS-7")),   # State Government added from 1 Jan 2020
-])
-def test_ms7_item3_government_accommodation_excluded(kind_, day, expected):
-    rate = "6" if day and day < "2024-03-01" else "8"
-    r, c = svc("test_hotel", rate=rate, day=day, supplier="free_zone")
-    supplier_facts(r, supplier_kind=kind_)
-    assert result(r, c) == expected
+def hotel(day, supplier_kind=None, **facts):
+    rate = "6" if day < "2024-03-01" else "8"
+    r, c = svc("test_hotel", rate=rate, day=day, supplier="free_zone", **facts)
+    if supplier_kind:
+        supplier_facts(r, supplier_kind=supplier_kind)
+    return r, c
+
+
+HO7 = (HO, None, "MS-7")
+BEFORE, FROM = "2019-12-30", "2020-01-02"
+
+
+@pytest.mark.parametrize("day", [BEFORE, FROM])
+def test_ms7_item3_local_authority_premises_excluded_on_every_date(day):
+    assert result(*hotel(day, "local_authority")) == EXEMPT
+
+
+@pytest.mark.parametrize("supplier_kind", ["statutory_body", "private_hei"])
+def test_ms7_item3_statutory_body_and_private_hei_premises(supplier_kind):
+    assert result(*hotel(FROM, supplier_kind)) == EXEMPT                                    # from 1 Jan 2020: excluded
+    assert result(*hotel(BEFORE, supplier_kind, educational_training_welfare_purpose=True)) == EXEMPT
+    assert result(*hotel(BEFORE, supplier_kind, educational_training_welfare_purpose=False)) == TAXED
+    assert result(*hotel(BEFORE, supplier_kind)) == HO7                                     # purpose not shown
+
+
+def test_ms7_item3_federal_or_state_government_premises():
+    assert result(*hotel(FROM, "federal_state_government")) == EXEMPT                       # State added from 1 Jan 2020
+    assert result(*hotel(BEFORE, "federal_state_government", educational_training_welfare_purpose=False)) == TAXED
+    # Before 2020, with the purpose: excluded for Federal, not for State; the master doesn't say which.
+    assert result(*hotel(BEFORE, "federal_state_government", educational_training_welfare_purpose=True)) == HO7
+
+
+@pytest.mark.parametrize("day", [BEFORE, FROM])
+def test_ms7_item3_religious_or_welfare_body_premises(day):
+    assert result(*hotel(day, "religious_welfare_body", non_commercial_religious_welfare=True)) == EXEMPT
+    assert result(*hotel(day, "religious_welfare_body", non_commercial_religious_welfare=False)) == TAXED
+    assert result(*hotel(day, "religious_welfare_body")) == HO7
+
+
+def test_ms7_item3_employer_staff_accommodation_from_1_january_2020():
+    assert result(*hotel(FROM, employer_staff_accommodation=True)) == EXEMPT
+    assert result(*hotel(BEFORE, employer_staff_accommodation=True)) == TAXED
+    assert result(*hotel(FROM, employer_staff_accommodation=None)) == HO7
 
 
 def test_ms7_item3_wording_restated_25_september_2026_no_change():
     for day in ("2026-09-24", "2026-09-25"):
         assert result(*svc("test_hotel", day=day, supplier="free_zone")) == TAXED
+
+
+def test_ms7_item4_canteens_of_educational_or_religious_institutions_excluded():
+    for kind_ in ("educational_institution", "religious_body"):
+        assert result(*svc("test_catering", rate="6", supplier="free_zone", canteen_kind=kind_)) == EXEMPT
+    assert result(*svc("test_catering", rate="6", supplier="free_zone", canteen_kind="none")) == TAXED
+    assert result(*svc("test_catering", rate="6", supplier="free_zone", canteen_kind=None)) == HO7
 
 
 def test_ms7_item4_food_and_beverages_in_special_areas():

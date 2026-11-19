@@ -167,7 +167,9 @@ class MyCompanyFacts(CountryBlock):
 
 
 SupplierKind = Literal["company", "federal_state_government", "local_authority", "developer_jmb_mc",
-                       "approved_rnd_company", "research_institute"]
+                       "approved_rnd_company", "research_institute", "statutory_body", "private_hei",
+                       "religious_welfare_body"]
+"""private_hei: a private higher educational institution registered under Act 555 (MS-7 item 3)."""
 
 
 class MySupplierFacts(CountryBlock):
@@ -307,3 +309,7 @@ class MyLineFacts(LineFacts):
     used_directly_in_approved_activity: LineFact[bool] | None = fact_field("buyer_and_purpose", "MG-5")
     motor_vehicle_value: LineFact[Money] | None = fact_field("classification", "MG-5")
     motor_vehicle_value_basis: LineFact[Literal["cif", "sales_price"]] | None = fact_field("classification", "MG-5")
+    employer_staff_accommodation: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-7")
+    educational_training_welfare_purpose: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
+    non_commercial_religious_welfare: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
+    canteen_kind: LineFact[Literal["educational_institution", "religious_body", "none"]] | None = fact_field("scope_and_exemption", "MS-7")
