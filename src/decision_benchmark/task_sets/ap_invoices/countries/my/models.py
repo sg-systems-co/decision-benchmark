@@ -43,6 +43,10 @@ class MyTaxProfile(TaxProfile):
     item, and the service is not for personal use."""
     group_relief: bool = False
     """Group G items (a) to (i), (l) and (n) only (constants.GROUP_RELIEF_ITEMS)."""
+    area_items: list[Literal[1, 2, 3, 4, 5, 6, 7]] = []
+    """Items of the Schedule to P.U. (A) 212/2018 the service falls under: services taxed inside and between areas (MS-7)."""
+    area_goods: list[AreaGoods] = []
+    """Kinds of goods the area orders name (MG-5); the lists, zones and dates are in data/area_goods_lists.yaml."""
 
 
 class MyInvoisLine(Model):
@@ -72,9 +76,19 @@ class MyInvois(CountryBlock):
     lines: list[MyInvoisLine] = []
 
 
-MyZone = Literal["labuan", "langkawi", "tioman", "pangkor", "free_zone", "licensed_warehouse",
-                 "licensed_manufacturing_warehouse", "jda"]
-"""Designated areas (Labuan, Langkawi, Tioman, Pangkor) and special areas (MS-7, MG-5). None: principal customs area."""
+MyZone = Literal["labuan", "langkawi", "tioman", "pangkor", "pulau_1", "free_zone", "licensed_warehouse",
+                 "licensed_manufacturing_warehouse", "jda", "petroleum_supply_base"]
+"""Designated areas (Labuan, Langkawi, Tioman, Pangkor from 1 Jan 2020, Pulau 1 from 1 Dec 2024) and special areas
+(free zones, licensed warehouses, LMWs, the JDA; a petroleum supply base for sales tax from 1 Jan 2020) (MS-7, MG-5).
+None: principal customs area."""
+LineZone = Literal["pca", "labuan", "langkawi", "tioman", "pangkor", "pulau_1", "free_zone", "licensed_warehouse",
+                   "licensed_manufacturing_warehouse", "jda", "petroleum_supply_base"]
+"""A zone as a line fact names it: pca is the principal customs area."""
+AreaGoods = Literal["alcohol", "tobacco", "smoking_pipes", "e_cigarette", "e_liquid_no_nicotine", "e_liquid_nicotine",
+                    "petroleum", "marble", "anchovies", "motor_vehicle", "forklift", "crane", "office_equipment_furniture",
+                    "firefighting_pollution_control", "tyres", "chemicals", "air_conditioning", "manufacturing_aid",
+                    "chocolate", "cosmetics_perfume"]
+"""Kinds of goods the designated-area and special-area sales tax orders name (data/area_goods_lists.yaml)."""
 
 SalesBand = Literal["below_1m", "1m_to_1_5m", "above_1_5m"]
 """Annual sales declared to LHDN for the latest year of assessment, in RM (K-1)."""
@@ -125,8 +139,9 @@ class GroupStructure(Model):
         return self
 
 
-BuyerKind = Literal["aoc_airline", "registered_ship_owner", "government_department", "foreign_company"]
-"""Buyer kinds that P-9 (MRO of aircraft and ships) names."""
+BuyerKind = Literal["aoc_airline", "registered_ship_owner", "government_department", "foreign_company", "jda_operator"]
+"""Buyer kinds the rules name: P-9 (MRO of aircraft and ships); jda_operator, the MTJA or a company operating in the
+JDA (MS-7, Service Tax Policy 1/2021)."""
 
 
 class MyCompanyFacts(CountryBlock):
@@ -147,10 +162,14 @@ class MyCompanyFacts(CountryBlock):
     """An enterprise in an industrial undertaking (LHDN DTA note iv on 15/10 interest rows)."""
     labuan_fsa_regulated: bool = False
     buyer_kinds: list[BuyerKind] = []
+    tasik_kenyir: bool = False
+    """The company's free zone is the Tasik Kenyir Duty Free Area (MG-5, P.U. (A) 207/2018)."""
 
 
 SupplierKind = Literal["company", "federal_state_government", "local_authority", "developer_jmb_mc",
-                       "approved_rnd_company", "research_institute"]
+                       "approved_rnd_company", "research_institute", "statutory_body", "private_hei",
+                       "religious_welfare_body"]
+"""private_hei: a private higher educational institution registered under Act 555 (MS-7 item 3)."""
 
 
 class MySupplierFacts(CountryBlock):
@@ -178,7 +197,12 @@ class MySupplierFacts(CountryBlock):
     approvals: list[Literal["caam_amo", "mida_shipyard", "dgta_amo"]] = []
     recognised_training_centre: bool = False
     zone: MyZone | None = None
+    """The zone of the supplier's principal place of business (MS-7, MG-5). None: principal customs area."""
     zone_known: bool = True
+    area_licences: list[Literal["mavcom_air_service", "cma_telecoms", "customs_agent_s90", "entertainment_premises"]] = []
+    """Licences and approvals items 1, 2, 5 and 6 of P.U. (A) 212/2018 name (MS-7)."""
+    area_licences_known: bool = True
+    """False: the case can't show the supplier's licences (HAND_OVER where one decides the line)."""
     # Generator truth.
     # Do not add a clear "same group" value without its rule (Service Tax Policy 8/2020, group
     # relief) in tax.py and tests in the same PR. tax.py handles every value explicitly;
@@ -278,3 +302,14 @@ class MyLineFacts(LineFacts):
     completed_building: LineFact[bool] | None = fact_field("scope_and_exemption", "L-5")
     digital_payment_provider: LineFact[Literal["bank", "non_bank", "none"]] | None = fact_field("classification", "P-20")
     education_provider_kind: LineFact[Literal["private_school", "higher_education", "language_centre"]] | None = fact_field("classification", "MS-4")
+    recipient_zone: LineFact[LineZone] | None = fact_field("scope_and_exemption", "MS-7")
+    service_site_zone: LineFact[LineZone] | None = fact_field("scope_and_exemption", "MS-7")
+    delivery_zone: LineFact[LineZone] | None = fact_field("scope_and_exemption", "MG-5")
+    international_leg: LineFact[Literal["outside_to_outside", "last_exit_to_outside", "outside_to_first_entry", "transshipment", "to_customs_warehouse", "none"]] | None = fact_field("scope_and_exemption", "MS-7")
+    used_directly_in_approved_activity: LineFact[bool] | None = fact_field("buyer_and_purpose", "MG-5")
+    motor_vehicle_value: LineFact[Money] | None = fact_field("classification", "MG-5")
+    motor_vehicle_value_basis: LineFact[Literal["cif", "sales_price"]] | None = fact_field("classification", "MG-5")
+    employer_staff_accommodation: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-7")
+    educational_training_welfare_purpose: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
+    non_commercial_religious_welfare: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
+    canteen_kind: LineFact[Literal["educational_institution", "religious_body", "none"]] | None = fact_field("scope_and_exemption", "MS-7")

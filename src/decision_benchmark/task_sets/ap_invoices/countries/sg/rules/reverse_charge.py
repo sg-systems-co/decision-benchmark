@@ -4,7 +4,9 @@ persons "not entitled to full input tax credit or belong[ing] to a GST group tha
 credit". Not entitled: a partially exempt buyer (de minimis not met), a buyer with non-business receipts, a member of
 such a GST group. A buyer meeting the de minimis rule may claim all input tax (IRAS "Claiming input tax incurred to
 make exempt supplies"), so on its own it does nothing. Imported services from 1 Jan 2020; low-value goods from
-1 Jan 2023. Other imported goods bear GST at import, not on the invoice.
+1 Jan 2023 (IRAS "GST and the digital economy", local businesses; IRAS e-Tax guide on reverse charge). Other imported
+goods bear GST at import, not on the invoice. The facts are read in the sheet's order: supplier outside Singapore;
+service or low-value goods; input-tax status; non-business receipts; GST group and its credit.
 """
 
 from __future__ import annotations

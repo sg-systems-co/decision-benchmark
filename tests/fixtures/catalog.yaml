@@ -32,7 +32,7 @@ categories:
   label: Lorry haulage
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: J1(a), b2b_exempt: true}
+    MY: {tax_class: service_6, service_item: J1(a), b2b_exempt: true, area_items: [7]}
   gl_role: freight_inward
   sources: ['https://mysst.customs.gov.my/faq-services-tax/']
 - category: telecoms
@@ -40,7 +40,7 @@ categories:
   label: Telecommunication services
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: I2}
+    MY: {tax_class: service_6, service_item: I2, area_items: [2]}
   gl_role: telecoms
   sources: ['https://mysst.customs.gov.my/faq-services-tax/']
 - category: legal_services
@@ -80,7 +80,7 @@ categories:
   label: Licensed courier
   countries: [MY]
   tax:
-    MY: {tax_class: service_6, service_item: J1(d), b2b_exempt: true}
+    MY: {tax_class: service_6, service_item: J1(d), b2b_exempt: true, area_items: [7]}
   gl_role: freight_inward
   sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf']
 - category: advertising
@@ -123,6 +123,94 @@ categories:
     MY: {tax_class: sales_exempt}
   gl_role: raw_materials
   sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
+- category: test_hotel
+  kind: service
+  label: Test hotel accommodation (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: A, area_items: [3]}
+  gl_role: professional_fees
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_catering
+  kind: service
+  label: Test catering (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_6, service_item: B, area_items: [4]}
+  gl_role: professional_fees
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_customs_agent
+  kind: service
+  label: Test customs agent (release of goods) (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_6, service_item: J2, area_items: [5, 7]}
+  gl_role: freight_inward
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_domestic_flight
+  kind: service
+  label: Test domestic flight (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: I10, area_items: [1]}
+  gl_role: professional_fees
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_cigarettes
+  kind: goods
+  label: Test cigarettes (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [tobacco]}
+  gl_role: consumables
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_e_liquid
+  kind: goods
+  label: Test e-cigarette liquid with nicotine (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [e_liquid_nicotine]}
+  gl_role: consumables
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_petroleum
+  kind: goods
+  label: Test petroleum product (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [petroleum]}
+  gl_role: consumables
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_motor_vehicle
+  kind: goods
+  label: Test motor vehicle (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [motor_vehicle]}
+  gl_role: consumables
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_marble
+  kind: goods
+  label: Test marble (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [marble]}
+  gl_role: raw_materials
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_wine
+  kind: goods
+  label: Test wine (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [alcohol]}
+  gl_role: consumables
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_office_furniture
+  kind: goods
+  label: Test office furniture (area rules in this fixture)
+  countries: [MY]
+  tax:
+    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture]}
+  gl_role: office_supplies
+  sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_finished_goods
   kind: goods
   label: Test finished goods (sales tax 5% in this fixture)

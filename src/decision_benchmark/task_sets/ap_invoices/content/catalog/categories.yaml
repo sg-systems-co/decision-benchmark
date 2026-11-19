@@ -25,7 +25,7 @@ categories:
   label: "Industrial paints, primers and coatings"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -38,7 +38,7 @@ categories:
   label: "Industrial adhesives and glues"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -51,7 +51,7 @@ categories:
   label: "Solvents and thinners"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -248,7 +248,7 @@ categories:
   label: "Laptops and desktop computers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture]}
   gl_role: it_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -260,7 +260,7 @@ categories:
   label: "Printers and multifunction copiers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture]}
   gl_role: office_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -272,7 +272,7 @@ categories:
   label: "Electric forklift trucks"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, area_goods: [forklift]}
   gl_role: plant_machinery
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -407,7 +407,7 @@ categories:
   label: "Detergents and cleaning preparations"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, area_goods: [chemicals]}
   gl_role: cleaning_supplies
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -431,7 +431,7 @@ categories:
   label: "Office furniture: desks, cabinets, shelving"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture]}
   gl_role: office_furniture
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -530,7 +530,7 @@ categories:
   label: "Lorry haulage and freight transport"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false}
+    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false, area_items: [7]}
   gl_role: freight_inward
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
@@ -542,7 +542,7 @@ categories:
   label: "Courier and express delivery"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: "J1(d)", b2b_exempt: true, group_relief: false}
+    MY: {tax_class: service_6, service_item: "J1(d)", b2b_exempt: true, group_relief: false, area_items: [7]}
   gl_role: postage_courier
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
@@ -555,7 +555,7 @@ categories:
   label: "Warehousing and storage"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false}
+    MY: {tax_class: service_6, service_item: "J1(a)", b2b_exempt: true, group_relief: false, area_items: [7]}
   gl_role: warehousing
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf"
@@ -567,7 +567,7 @@ categories:
   label: "Mobile, fixed-line and broadband services"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: "I2", b2b_exempt: false, group_relief: false}
+    MY: {tax_class: service_6, service_item: "I2", b2b_exempt: false, group_relief: false, area_items: [2]}
   gl_role: telecoms
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Telekomunikasi%2027022024.pdf"
@@ -592,7 +592,7 @@ categories:
   label: "Catering for staff meetings and events"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_6, service_item: "B", b2b_exempt: false, group_relief: false}
+    MY: {tax_class: service_6, service_item: "B", b2b_exempt: false, group_relief: false, area_items: [4]}
   gl_role: staff_welfare
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Makanan%20%26%20Minuman_V7%2019042024.pdf"
@@ -793,7 +793,7 @@ categories:
   label: "Hotel rooms for business travel"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: service_8, service_item: "A", b2b_exempt: false, group_relief: false}
+    MY: {tax_class: service_8, service_item: "A", b2b_exempt: false, group_relief: false, area_items: [3]}
   gl_role: travel
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PENGINAPAN%20V4_26022024.pdf"

@@ -26,6 +26,7 @@ G = "test_sg_gst::"
 Q = "test_sg_claims::"
 W = "test_withholding::"
 X5 = "test_mixed_invoices::"
+A = "test_my_areas::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -57,8 +58,11 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
                            X + "test_ms6_near_miss_item_outside_group_relief",
                            X + "test_ms6_near_miss_sisters_under_a_common_individual_are_not_a_group",
                            X + "test_ms6_near_miss_parent_controls_only_one_sister"]},
-    "MS-7": {"positive": [X + "test_ms7_service_within_a_designated_area_is_not_taxed"],
-             "near_miss": [X + "test_ms7_near_miss_principal_customs_area_and_jda"]},
+    "MS-7": {"positive": [X + "test_ms7_service_within_a_designated_area_is_not_taxed", A + "test_ms7_step4_between_areas_not_taxed",
+                          A + "test_ms7_step2_jda_operator_window",
+                          A + "test_ms7_site_rule_langkawi_hotel_not_taxed_whatever_the_buyer_zone"],
+             "near_miss": [A + "test_ms7_step1_pca_to_pca_does_not_apply", A + "test_ms7_step2_pca_to_an_area_is_taxed",
+                           A + "test_ms7_step3_area_to_pca_is_taxed", A + "test_ms7_site_rule_accommodation_in_a_free_zone_is_taxed"]},
     "MS-8": {"positive": [X + "test_ms8_buyer_accounts_for_imported_service_tax",
                           X + "test_ms8_foreign_registered_person"],
              "near_miss": [X + "test_ms8_exceptions_buyer_accounts_for_nothing",
@@ -136,7 +140,7 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [P + "test_p18_near_miss_domestic_carriage"]},
     "P-19": {"positive": [P + "test_p19_distance_learning_and_e_newspapers_are_not_digital_services"],
             "near_miss": [P + "test_p19_near_miss_other_digital_content"]},
-    "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", "test_my_exemptions::test_ms7_near_miss_principal_customs_area_and_jda",
+    "P-20": {"positive": [P + "test_p20_labuan_imported_services_to_2021", A + "test_ms7_step2_jda_operator_window",
                           P + "test_p20_digital_payment_exemptions_in_their_windows"],
             "near_miss": [P + "test_p20_near_miss_labuan_imported_services_from_2022",
                           P + "test_p20_near_miss_outside_the_windows_or_not_a_payment_provider"]},
@@ -148,8 +152,11 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [S + "test_g1_motorcycles_exempt_from_july_2025"]},
     "MG-4": {"positive": [S + "test_mg4_buyer_holds_a_certificate_for_the_goods"],
             "near_miss": [S + "test_mg4_near_miss_certificate_expired_or_other_goods"]},
-    "MG-5": {"positive": [S + "test_mg5_goods_within_a_designated_area"],
-            "near_miss": [S + "test_mg5_near_miss_principal_customs_area"]},
+    "MG-5": {"positive": [S + "test_mg5_goods_within_a_designated_area", A + "test_mg5_step2_pca_manufacturer_into_an_area_no_sales_tax",
+                          A + "test_mg5_step3_from_a_designated_area", A + "test_mg5_step4_from_a_special_area",
+                          A + "test_mg5_step2_lmw_buyer_of_raw_materials_from_a_pca_manufacturer"],
+             "near_miss": [S + "test_mg5_near_miss_principal_customs_area", A + "test_mg5_step1_pca_to_pca_does_not_apply",
+                           A + "test_mg5_step6_goods_made_and_delivered_in_pulau_1"]},
     "MG-6": {"positive": [S + "test_mg6_a_policy_exemption_by_tariff_code"],
             "near_miss": [S + "test_mg6_near_miss_a_code_in_no_policy"]},
     "G-1": {"positive": [S + "test_g1_motorcycles_exempt_from_july_2025"],

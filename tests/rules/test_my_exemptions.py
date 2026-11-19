@@ -140,26 +140,10 @@ def test_ms7_service_within_a_designated_area_is_not_taxed():
     assert result(r, c) == (OK, "NO_SST", "MS-7")
 
 
-def test_ms7_near_miss_principal_customs_area_and_jda():
-    r, c = one_line(rate="8")
-    assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
-    r, c = one_line(rate="8")
-    company_facts(r, zone="jda")
-    supplier_facts(r, zone="jda")
-    assert result(r, c) == (OK, "SST_CORRECT", "MS-2")      # refund route since 15 Aug 2022 (P-20)
-
-
 def test_ms7_unknown_zone_status_is_a_hand_over():
     r, c = one_line(rate="8")
     supplier_facts(r, zone="labuan", zone_known=False)
     assert result(r, c) == (HO, None, "MS-7")
-
-
-def test_ms7_principal_customs_area_to_a_zone_is_not_in_the_sheet():
-    r, c = one_line(rate="8")
-    company_facts(r, zone="labuan")
-    with pytest.raises(UnsupportedCase, match="DA/SA orders"):
-        answer(r, c)
 
 
 # -- MS-8: imported taxable services ----------------------------------------------------------------

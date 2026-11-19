@@ -29,6 +29,8 @@ Found while writing spec v0.10 (PR #10), which listed where the sheet was unclea
 - **SG-12** (new): GST left off a standard-rated supply by a registered supplier → `GST_UNDERCHARGED`.
 - **§0.3** gives the full worst-line order; the order inside each group is set in the spec.
 - **ME-3** (18 Nov, after the engine review) lists all section 8.3 self-billing types from the guideline, with the interest exceptions, and says which arise on supplier invoices.
+- **MS-7 and MG-5** (18 Nov) rewritten from the Service Tax Act and Sales Tax Act Parts VIII–IX, their amendment Acts and every area order with its amendments (all archived in decision-benchmark-sources PR #4). The earlier text deferred PCA ↔ area cases to the orders and the FAQ; the rules now state them. Pulau 1 is added as an area. The petroleum supply base is added for sales tax and left open for service tax (Q-A5). The JDA follows Service Tax Policies 1/2021 and 2/2022, and five open questions (Q-A1 to Q-A5) are listed in §6.
+- **SG-8** (18 Nov) adds the GST-group condition and the de minimis case, as the engine review decided.
 
 ### 0.2 New areas
 
@@ -179,12 +181,51 @@ Group G items (a)–(i), (l), (n) supplied between companies in the same group a
 - Imported Group G services (items (a)–(i), (l)) from a group company abroad: not an imported taxable service (para 3A; STP 8/2020 amendment no. 1 para 1A). Digital services from a foreign registered person to a group company in Malaysia: not taxed, unless that FRP also supplies the service to outsiders in Malaysia (para 1B, 2A).
 - Rental between group companies: K-6 above (STP 2/2025 Appendix A, until the Regulations are amended).
 
-### MS-7 Designated and special areas
+### MS-7 Designated and special areas (rewritten 18 Nov 2026 from the Act and every area order)
 
-Services between and within designated areas (Labuan, Langkawi, Tioman, Pangkor) and special areas (free zones, licensed warehouses, licensed manufacturing warehouses, the JDA) are not taxed except as the Minister prescribes; principal customs area ↔ DA/SA rules as in the DA/SA orders and the service-tax FAQ.
+**Areas** (Service Tax Act 2018 s2 as amended; Parts VIII and IX, ss47–56):
+- Designated areas (DA): Labuan, Langkawi, Tioman; Pangkor from 1 Jan 2020 (Act A1597); Pulau 1 from 1 Dec 2024 (Act A1719, Pulau 1 as defined in Customs Act 1967 s2(1)).
+- Special areas (SA): free zones, licensed warehouses, licensed manufacturing warehouses (LMW), the Joint Development Area (JDA). Act A1597 para 3(b) adds petroleum supply bases licensed under Customs Act s77B, but its commencement notice (P.U. (B) 660/2019) brings into force only paras 3(a) and 3(d), the Pangkor provisions. No archived text brings para 3(b) into force, so for service tax a petroleum supply base is open question Q-A5: a line where it decides the answer → HAND_OVER, not planted. For sales tax it is a special area from 1 Jan 2020 (Act A1596, in force in full under P.U. (B) 659/2019).
+- Principal customs area (PCA): the rest of Malaysia. In Parts VIII and IX "Malaysia" means the PCA (ss47, 52).
 
-- Deciding facts: supplier and buyer locations (addresses, zone status in the company master).
-- Unknown zone status for an address inside a known zone → HAND_OVER.
+**Where a service is provided.** Each line has a "from" zone and a "to" zone.
+- From: the zone of the supplier's principal place of business (ss49, 54 turn on it). Supplier master.
+- To: the zone of the buyer establishment that receives the service, which is the establishment the invoice is addressed to. Company master; a line fact `recipient_zone` overrides it when the invoice names another establishment of the buyer.
+- Site-bound services (accommodation, food and beverages, customs clearance, and any service the invoice shows performed at a named site) are provided where they are performed. Both "from" and "to" are the site's zone (line fact `service_site_zone`). RMCD's Panduan Perkhidmatan Penginapan (V4, 26 Feb 2024) says accommodation provided within a designated area is not subject to service tax ("perkhidmatan penginapan yang disediakan di dalam kawasan yang ditetapkan … tidak tertakluk kepada cukai perkhidmatan"). Its Panduan Makanan dan Minuman (V7, 19 Apr 2024) says the same for food and drink. Both are archived.
+
+**Decision.** MS-7 runs after MS-1 to MS-4 have found a taxable service from a supplier who may charge. It removes the tax or confirms it. It is judged at the time of supply (MS-3); where a period spans an order's start or end date and no split is shown, HAND_OVER, as in MS-3.
+
+1. From PCA to PCA: MS-7 does not apply.
+2. From PCA to a DA or SA: taxed as normal. A registered person whose principal place of business is in the PCA charges tax on services it provides to a DA (s50) or an SA (s55).
+   - JDA, 1 May 2021 to 14 Aug 2022: the Malaysia-Thailand Joint Authority (MTJA) and companies operating in the JDA are exempt from paying tax on services provided within the JDA by PCA companies (Service Tax Policy 1/2021, under s34(3)(a)). Tax charged on such a line → `SST_SHOULD_BE_EXEMPT`. Buyer fact: buyer kind `jda_operator` (company master).
+   - JDA, from 15 Aug 2022: JDA operator companies reclaim the tax by quarterly refund (Service Tax Policy 2/2022, under s34(3)(b)). The invoice is correct as charged (`SST_CORRECT`); the refund claim is outside AP. RMCD's service tax FAQ still says "From PCA (other than SA) to JDA – not subject to service tax"; that is the position under Policy 1/2021, and Policy 2/2022 replaced it.
+   - Before 1 May 2021 the JDA has no special rule: taxed as normal (Policy 1/2021 para 2(b) confirms the tax was due).
+3. From a DA or SA to the PCA: taxed as normal. A person whose principal place of business is in a DA or SA charges tax on services it provides within Malaysia (ss49, 54).
+4. Both zones in areas (within one area, between areas, or between a DA and an SA): no service tax (ss48, 53), unless one of these applies:
+   - Pulau 1 (from 1 Dec 2024): every taxable service in the First Schedule provided within Pulau 1, between Pulau 1 and another DA, or between Pulau 1 and an SA is taxed (P.U. (A) 370/2024 para 2).
+   - A service in the Schedule of P.U. (A) 212/2018, in force on the time of supply (table below).
+   - Otherwise: tax charged → `SST_SHOULD_BE_EXEMPT`; no tax → correct.
+
+**Services the Minister taxes inside and between areas** (P.U. (A) 212/2018 as amended by P.U. (A) 232/2018, 231/2019, 393/2019, 65/2024, 371/2024, 165/2025, 337/2026; para 3 makes each listed service chargeable when the listed person provides it):
+
+| Item | Service | Provided by | In force |
+|---|---|---|---|
+| 1 | Passenger air transport between DAs, between SAs, DA to SA, SA to DA. From 1 Dec 2024 "designated areas" here excludes Pulau 1 (371/2024), which falls under the Pulau 1 order instead. | Holder of an air service licence (s35) or air service permit (s36) under the Malaysian Aviation Commission Act 2015 | From 1 Sep 2018 |
+| 2 | Telecommunication services on the same four routes; same Pulau 1 exclusion | A telecommunication services or content applications service provider registered under the Communications and Multimedia Act 1998 or licensed under its Licensing Regulations 2000 | From 1 Sep 2018 |
+| 3 | Accommodation premises in special areas (the words "in special areas" from 6 Sep 2018, 232/2018), excluding premises provided by an employer as a facility to its employees (from 1 Jan 2020, 393/2019; wording restated from 25 Sep 2026, 337/2026). Also excluded: premises provided by the Federal Government (State Government added from 1 Jan 2020), a statutory body or local authority, or a private higher educational institution registered under Act 555 (before 1 Jan 2020 only when provided for educational, training or welfare purposes); premises of a registered religious or welfare body for religious or welfare activities and not for commercial purposes. | Any person operating accommodation premises (hotel, inn, lodging house, service apartment, homestay or similar) | From 1 Sep 2018 |
+| 4 | Food and beverages in special areas ("in special areas" from 6 Sep 2018) | (1) Restaurant, bar, snack bar, canteen, coffee house or any place providing food and drinks, eat-in or take-away, excluding a canteen in an educational institution and a canteen operated by a religious institution or body; (2) catering; (3) food courts | From 1 Sep 2018 |
+| 5 | Clearing goods from customs control in special areas; also in designated areas excluding Pulau 1 from 30 May 2025 (165/2025) | A customs agent approved under Customs Act s90 (s90(2) from 1 Jan 2020) | From 1 Sep 2018 |
+| 6 | Food and beverages in special areas | A person operating a night-club, dance hall or cabaret, or a place licensed under Excise Act s35(1)(a) or (b) as a First, Second or Third Class Public House or First or Second Class Beer House | 1 Sep 2019 (231/2019) |
+| 7 | (a) All logistics services, except five international legs: delivery from a place outside Malaysia to a place outside Malaysia; from the last point of exit in Malaysia to a place outside Malaysia; from a place outside Malaysia to the first point of entry; goods arriving at a Malaysian customs port or airport for transfer between aircraft or vessels until carried out of Malaysia; goods arriving for transfer to a customs warehouse, licensed warehouse or approved place until carried out of Malaysia. (b) Delivery, distribution or transport of goods including courier, except food and beverage delivery by item-4 persons. (c) The same through an e-commerce platform. (d) Release of goods from customs control. | Logistics providers (supply chain management, warehousing, freight forwarding, port or airport, shipping, aviation, cold chain), delivery and transport providers, e-commerce delivery, couriers licensed under Postal Services Act 2012 s10, customs agents approved under Customs Act s90(2) | 1 Mar 2024 to 29 May 2025 (65/2024; deleted by 165/2025) |
+
+- How the table reads (settled in the PR 4 review, 19 Nov):
+  - Items 1 and 2 "between designated areas" and "between special areas" mean two different areas. A flight or telecom service within one area is not listed, so it is untaxed (step 4).
+  - Item 7 names no route. It applies to any line where both zones are areas, which is the whole scope of the order.
+  - Item 3 exclusions are facts. Supplier kinds (supplier master): `federal_state_government`, `local_authority`, `statutory_body`, `private_hei` (registered under Act 555), `religious_welfare_body`. A religious or welfare body is excluded only for premises used for religious or welfare activities and not commercially (line fact `non_commercial_religious_welfare`). Before 1 Jan 2020, government, statutory body and private HEI premises are excluded only when provided for educational, training or welfare purposes (line fact `educational_training_welfare_purpose`). From 1 Jan 2020, premises an employer provides to its own employees are excluded (line fact `employer_staff_accommodation`). A fact the documents don't show, where it decides the line → HAND_OVER.
+  - Item 4 excludes a canteen in an educational institution and a canteen operated by a religious institution or body. Line fact `canteen_kind`: `educational_institution`, `religious_body` or none. Unknown where it decides the line → HAND_OVER.
+- Deciding facts: supplier zone (supplier master), recipient zone (company master or line), site zone for site-bound lines (line), the line's category (catalog maps each category to a schedule item or none), the supplier's licence or approval where an item names one (supplier master: `area_licences`, values `mavcom_air_service`, `cma_telecoms`, `customs_agent_s90`, `entertainment_premises`), and for item 7 whether the line is one of the five international legs (line).
+- Unknown zone of a party → HAND_OVER. Unknown site zone for a site-bound line → HAND_OVER. Unknown licence or international leg where it decides the line → HAND_OVER. A zone is never read off an address: the master shows it or the case doesn't settle it.
+- Pulau 1 appears only where a master gives it as a zone. Its legal boundary (Customs Act s2(1)) is not archived yet, so the generator plants Pulau 1 only with the zone stated in the master.
 
 ### MS-8 Imported taxable services
 
@@ -273,9 +314,46 @@ Goods that stopped being exempt on 1 Jul 2025 aren't taxed if invoiced before th
 - Deciding facts: certificate kind, number, validity, goods covered (company master and the PO/invoice reference).
 - Unknown whether the goods are inside the certificate's scope → HAND_OVER.
 
-### MG-5 Designated and special areas
+### MG-5 Designated and special areas (rewritten 18 Nov 2026 from the Act and every area order)
 
-Sales tax doesn't apply within designated areas except on prescribed goods; special-area rules as in the DA/SA orders.
+**Areas**: as in MS-7 (Sales Tax Act 2018 s2 as amended by Acts A1596, from 1 Jan 2020, and A1718, from 1 Dec 2024). Parts VIII and IX (ss48–61) set the rules; in them "Malaysia" means the PCA.
+
+**Zones of a goods line.** "From": where the goods were made or dispatched, which is the supplier's zone (supplier master). "To": the zone the goods are transported into, which is the delivery address's zone (line fact `delivery_zone`; default the company master's zone).
+
+**Decision.** MG-5 runs after MG-1 and MG-2 and is judged at the invoice date (MG-3). Where no sales tax is due and the invoice shows some, the answer is `SST_SHOULD_BE_EXEMPT`.
+
+1. From PCA to PCA: MG-5 does not apply.
+2. From a PCA manufacturer into a DA (other than Pulau 1) or an SA: no sales tax on the invoice. The transport is treated as an export (ss51(1)(b), 58(1)(b)); no tax is levied on goods transported to a DA or SA from Malaysia (ss50(1)(a)(i), 57(1)(a)(i)). RMCD's Guide on Manufacturing and Import/Export (as at 1 Jan 2021) says these goods are declared on Customs Form No. 2 (K2), or JDA No. 3 for the JDA.
+   - Goods the DA order taxes on entry (list below): the same guide says the tax is declared on Customs Form No. 1 (K1) on entering the DA. That is the buyer's import declaration, so the supplier's invoice still carries no sales tax. The buyer's K1 payment is outside AP (no `buyer_actions` value). This reading rests on the guide's sentence; it is open question Q-A1 for the accountant review.
+   - Goods the SA order taxes on entry into a free zone, licensed warehouse or LMW (list below): no official text says whether the PCA manufacturer charges the tax on its invoice or it is paid on a customs declaration. Such a line → HAND_OVER either way (open question Q-A2). Not planted until settled.
+3. From a DA (other than Pulau 1): the Act does not apply to goods manufactured in a DA other than petroleum (s49(1)). Sales tax on such a line → `SST_SHOULD_BE_EXEMPT`, whatever the "to" zone: goods sent from a DA to the PCA bear tax as an importation (s50(1)(b)), declared by the importer on K1 (guide, Table 1 row 10), not on the supplier's invoice. Petroleum manufactured in a DA: ordinary MG rules.
+4. From an SA: the Act does not apply to goods manufactured in an SA (s56).
+   - SA to SA, SA to DA: no tax (s57(1)(a)(ii), (iii)); tax shown → `SST_SHOULD_BE_EXEMPT`.
+   - SA to PCA: tax is due as on an importation (ss57(1)(b), 58(1)(a)), declared on K1 or K9 (guide paras 56–58). No tax on the invoice → correct. Tax shown on the invoice → HAND_OVER: no official text says whether an LMW or warehouse licensee who paid the K9 tax may show it on its invoice (open question Q-A3).
+   - JDA to PCA: no tax (s57(1)(a)(i); guide para 59(iii), Form JDA3); tax shown → `SST_SHOULD_BE_EXEMPT`.
+5. From one area to another (within one DA, between DAs, DA to SA): no tax (ss50(1)(a)(ii), (iii)); tax shown → `SST_SHOULD_BE_EXEMPT`. For goods the DA order lists, moved between two DAs, the order's words "imported or transported into the designated area" (from 1 Jan 2026) may reach them → HAND_OVER for those lines only.
+6. Pulau 1 (from 1 Dec 2024): the Act applies to goods manufactured in Pulau 1, except goods the Minister declares by order (s49(2)). Goods imported into Pulau 1 or transported into it from the PCA, a DA or an SA bear sales tax, except declared goods (s50(2)(a)). The DA order (P.U. (A) 369/2024) taxes all goods into Pulau 1 except wine, spirits, beer or malt liquor, chocolate, cosmetics and perfume.
+   - A registered manufacturer in Pulau 1 selling goods made there, delivered in Pulau 1, not in that list: ordinary MG rules.
+   - Goods in that list made in Pulau 1: HAND_OVER (no s49(2) order found yet).
+   - Goods transported into Pulau 1 from elsewhere: HAND_OVER. The Act does not say whether the supplier charges this tax on its invoice or it is collected on entry (open question Q-A4).
+   - Goods made in Pulau 1 and sent out of it: HAND_OVER. Section 50(2) covers goods into Pulau 1; no archived text covers goods leaving it (part of Q-A4).
+   - Not planted until Q-A4 and the Pulau 1 boundary are settled.
+
+**Goods the DA order taxes on entry** (P.U. (A) 206/2018 as amended by 92/2019, 391/2019, 420/2020, 94/2023, 369/2024, 481/2025):
+- 1 Sep 2018 to 26 Mar 2019: wine, spirit, beer, malt liquor, tobacco and tobacco products into all DAs. Item deleted by 92/2019.
+- From 1 Sep 2018: marble and anchovies into Langkawi; motor vehicles into Tioman. Pangkor added for motor vehicles from 1 Jan 2020 (391/2019).
+- 1 Jan 2020 to 31 Dec 2020: petroleum into the DAs (391/2019).
+- From 1 Jan 2021 (420/2020, paragraph replaced): petroleum, cigarettes, tobacco products, smoking pipes including bowls, electronic cigarettes and similar vaporising devices, and their liquid or gel preparations into the DAs. Until 31 Mar 2023 only preparations "not containing nicotine"; from 1 Apr 2023 "whether or not containing nicotine" (94/2023). From 1 Dec 2024 these apply to the DAs other than Pulau 1 (369/2024).
+- From 1 Jan 2026 (481/2025): completely built-up motor vehicles imported into Labuan or Langkawi under headings 87.03 and 87.11, CIF value above RM300,000; motor vehicles made in the PCA and transported into Labuan or Langkawi under the same headings, sales price above RM300,000 excluding excise duty, sales tax, licence fee and insurance.
+
+**Goods the SA order taxes on entry** (P.U. (A) 207/2018 as amended by 401/2018, 349/2021, 100/2023):
+- Schedule A goods imported or transported into a free zone (from 1 Jan 2019 also a licensed warehouse or LMW) to be used or consumed there: forklifts; cranes; office equipment or furniture; firefighting and pollution control equipment; motor vehicles and spare parts; petroleum and petroleum products; tyres; explosives and chemicals; air conditioning equipment; manufacturing aids (until 31 Dec 2018); goods not used directly in the activities approved under the Free Zones Act 1990 First and Second Schedules, in warehousing under Customs Act s65, or in LMW manufacturing under s65A (wording from 1 Jan 2019).
+- Wine, spirit, beer, malt liquor, tobacco and tobacco products into the Tasik Kenyir Duty Free Area.
+- From 3 Sep 2021 (349/2021): cigarettes, tobacco products, smoking pipes, electronic cigarettes and their preparations into any free zone. Preparations "not containing nicotine" until 31 Mar 2023; "whether or not containing nicotine" from 1 Apr 2023 (100/2023).
+
+- How the lists read (PR 4 review, 19 Nov): "moved between two DAs" in step 5 means two different DAs. The SA order's "to be used or consumed there" has no separate fact: a listed good delivered into the zone is taken as used there, and the line is HAND_OVER under Q-A2 anyway. The catalog maps categories to goods kinds, and a data file gives each list its kinds, zones and dates. The mappings of laptops, printers and office furniture to "office equipment or furniture", and of paints, adhesives, solvents and cleaning chemicals to "explosives and chemicals", are provisional and are reviewed when Q-A2 is settled.
+- Deciding facts: supplier zone and whether it manufactured the goods (supplier master), delivery zone (line), the goods' category (catalog maps categories to the DA and SA lists), CIF value or sales price for the motor vehicle items (line), whether goods are used directly in the approved activity (line), whether the free zone is Tasik Kenyir (company master).
+- Unknown zone, delivery zone, list membership or direct use, where it decides the line → HAND_OVER.
 
 ### MG-6 Ministerial sales tax exemptions (Sales Tax Policies, read 17 Nov 2026)
 
@@ -357,9 +435,12 @@ Mobile phones (screen ≤ 17.5 cm, not sold with a plan), memory cards (not USB 
 
 ### SG-8 Reverse charge (imported services and low-value goods)
 
-Applies only to GST-registered buyers **not entitled to full input tax** (partially exempt or with non-business receipts): they account for GST on imported services and on low-value goods. A fully taxable buyer does nothing.
-- Deciding facts: buyer's partial-exemption status (company master), supplier outside Singapore.
-- Answer: `REVERSE_CHARGE` (new code) where it applies; otherwise `NO_GST`.
+Applies only to GST-registered buyers **not entitled to full input tax credit**. Three kinds of buyer are not entitled: a partially exempt buyer that does not meet the de minimis rule, a buyer with non-business receipts, and a member of a GST group that is not entitled to full input tax credit (IRAS e-Tax guide on overseas vendor registration, footnote 4: reverse charge applies to GST-registered persons "not entitled to full input tax credit or belong[ing] to a GST group that is not entitled to full input tax credit"). Such a buyer accounts for GST on imported services from 1 Jan 2020 and on low-value goods from 1 Jan 2023 (IRAS "GST and the digital economy", local businesses; IRAS e-Tax guide on reverse charge).
+- A buyer meeting the de minimis rule may claim all its input tax (IRAS "Claiming input tax incurred to make exempt supplies"), so on its own it does nothing. Inside a GST group without full credit, it reverse-charges.
+- A fully taxable buyer does nothing.
+- Imported goods other than low-value goods bear GST at import, not on the invoice: `NO_GST`.
+- Deciding facts, read in this order: supplier outside Singapore (supplier master); service or low-value goods (catalog, line fact `low_value_goods`); the buyer's input-tax status (`fully_taxable`, `de_minimis_met`, `partially_exempt`); non-business receipts; GST group membership and whether the group is entitled to full input tax credit (all company master). The first one the case can't show → HAND_OVER.
+- Answer: `REVERSE_CHARGE` with `buyer_actions` += `ACCOUNT_REVERSE_CHARGE_GST` where it applies; otherwise `NO_GST`.
 
 ### SG-9 Partially exempt buyers
 
@@ -418,6 +499,15 @@ Where the law ties the treatment to how the invoice is split, the split is the d
 
 All four items open in the first draft were read on 17 Nov 2026: Groups C–F and Group I item 10 (MS-4), Singapore rate-change rules (SG-3), the full s21(3) list (SG-6), Malaysian and Singapore withholding tax (§4A). Reading them turned up a fifth gap, the Ministerial exemptions published as policies (C6), now read in full (MS-10, MG-6, Groups K and L).
 
+**Designated and special areas (read 18 Nov 2026).** MS-7 and MG-5 are read in full from the archived Acts and orders. Five questions are open. In Q-A1 to Q-A4 the official texts say tax is due, but not who collects it or how it shows on an invoice:
+- Q-A1: goods the DA order taxes, sent from a PCA manufacturer into a DA. The RMCD manufacturing guide (as at 1 Jan 2021) says they are declared on K1 on entering the DA, so the sheet treats the invoice as carrying no sales tax.
+- Q-A2: Schedule A goods (and tobacco or alcohol) sent from a PCA manufacturer into a free zone, licensed warehouse or LMW. → HAND_OVER, not planted.
+- Q-A3: tax shown on an invoice from an LMW or licensed warehouse for goods sent into the PCA (tax declared on K9). → HAND_OVER, not planted.
+- Q-A4: goods transported into Pulau 1, and listed goods made there. → HAND_OVER, not planted. The Pulau 1 boundary (Customs Act s2(1)) is not archived yet.
+- Q-A5: whether a petroleum supply base is a special area for service tax. Act A1597 para 3(b) adds it, but no archived notice brings that paragraph into force. → HAND_OVER where it decides the answer, not planted.
+
+Next research step: look for RMCD guides published after 1 Jan 2021 that settle Q-A1 to Q-A4. Candidates are a newer Guide on Manufacturing and Import/Export, the free zone and LMW guides, and any Pulau 1 guide. For Q-A5, look for a P.U. (B) notice bringing Act A1597 para 3(b) into force. Also archive the Customs Act definition of Pulau 1. Each answer found moves its question out of HAND_OVER with a citation. Until then, Q-A1 stays as written and is flagged for the accountant review.
+
 Left for the archive and engine PRs, as data rather than rules: the per-country DTA rate tables (LHDN and IRAS pages), the tariff-code lists in Sales Tax Policy 1/2026, and the full Service Tax and Sales Tax Policy texts (all to be archived in decision-benchmark-sources with manifest entries).
 
 ## 7. Decisions (taken by Sebastian, 17 Nov 2026)
@@ -432,4 +522,5 @@ Rule behind all four: the benchmark covers everything an AP team must do in prac
 ## 8. Sources
 
 Malaysia — https://mysst.customs.gov.my/sst-regulations/ , /sst-orders/ , /industry-guides/ , /service-tax-policy/ (Service Tax Policies 1/2019–6/2026), /sales-tax-policy/ (Sales Tax Policies 1/2022–2/2026), /faq-services-tax/ , /faq-sales-tax/ ; MOF releases of 9 Jun 2025 and 5 Jan 2026; LHDN e-invoice timeline and MyInvois SDK; LHDN withholding tax page (https://www.hasil.gov.my/en/perundangan/cukai-pegangan/), Public Ruling 10/2019 (https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf), DTA withholding rates (https://www.hasil.gov.my/en/antarabangsa/perjanjian-pengelakan-pencukaian-dua-kali-pppdk/kadar-cukai-pegangan/).
+Malaysia, areas (MS-7, MG-5) — Service Tax Act 2018 Parts VIII–IX and Acts A1597, A1719; Sales Tax Act 2018 Parts VIII–IX and Acts A1596, A1718 with their commencement notices; P.U. (A) 212/2018 and amendments 232/2018, 231/2019, 393/2019, 65/2024, 371/2024, 165/2025, 337/2026; P.U. (A) 370/2024 (Pulau 1); P.U. (A) 206/2018 and amendments 92/2019, 391/2019, 420/2020, 94/2023, 369/2024, 481/2025; P.U. (A) 207/2018 and amendments 401/2018, 349/2021, 100/2023; Service Tax Policies 1/2021 and 2/2022; RMCD Guide on Manufacturing and Import/Export (as at 1 Jan 2021); RMCD Panduan Perkhidmatan Penginapan (V4, 26 Feb 2024) and Panduan Makanan dan Minuman (V7, 19 Apr 2024); RMCD service tax and sales tax FAQs; commencement notices P.U. (B) 659/2019, 660/2019, 470/2024, 471/2024. All archived in decision-benchmark-sources (PR #4 and the v0.10 archive).
 Singapore — https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/ (pages listed in §4), incl. GST rate change transitional rules and adjustments pages; GST Act 1993 s21 (https://sso.agc.gov.sg/Act/GSTA1993); IRAS, responsibilities of a GST-registered business (https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/responsibilities-of-a-gst-registered-business) for SG-12; IRAS withholding tax pages (https://www.iras.gov.sg/taxes/withholding-tax/).
