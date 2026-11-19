@@ -1000,6 +1000,7 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
 - id: sales-tax-goods-exempted-order-2025
   title: Sales Tax (Goods Exempted From Sales Tax) Order 2025 — Principal
   authority: RMCD
@@ -1056,6 +1057,7 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
 - id: sales-tax-rate-of-sales-tax-order-2025-amendment-2-2025
   title: Sales Tax (Rate Of Sales Tax) Order 2025 — Amendment 2/2025
   authority: RMCD
@@ -3258,6 +3260,7 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-1
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
   published: '2025-10-10'
 - id: sales-tax-policy-2-2025
   title: Sales Tax Policy No.2/2025
@@ -3318,6 +3321,7 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#MG-6
   - docs/tax-rules-v0.10.md#G-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
   published: '2026-02-04'
 - id: sales-tax-policy-2-2026
   title: Sales Tax Policy No.2/2026

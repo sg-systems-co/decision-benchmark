@@ -83,3 +83,9 @@ A12 build PR 5 (catalog, `check_rules`, reference-row check), before the 0.10.0 
 ## 0.10.0
 
 The v0.10 engine (A12 build PR 5, release commit). Against 0.10.0.dev5: every one of the 719 keys changes only `engine_version` (0.10.0) and `rules_version` (v0.9 -> v0.10: the task set's spec version is now v0.10). Nothing else changes. Every rule of sheet v0.10 is built (the PENDING set is gone); its keys are listed by build PR in the sections above.
+
+- **PR 5 review (19 Nov): goods pinned to one tariff code (G-1, G-3, L-8).** No existing key changes (733 keys: the 719 above unchanged, 14 new). New keys from `tests/rules/test_pinned_goods.py`, which runs the engine with the release category's Malaysian profile:
+  - G-1, `motorcycles_50_150cc` (8711.20.96 00): 30 Jun 2025 `SST_CORRECT` by MG-3 (10%); 1 Jul 2025 and 1 Nov 2025 `SST_SHOULD_BE_EXEMPT` by G-1 (3 keys).
+  - G-3, `animal_feed_fishmeal` (2301.20.20 00) and `animal_feed_premix` (2309.90.20 00): 5% `SST_CORRECT` on 31 Dec 2025 (MG-3) and on 1 Jan 2026 (G-3, refund route); 10% on 1 Jan 2026 `SST_WRONG_RATE` by MG-2 (5 keys).
+  - MG-2, construction materials: `construction_cement` (2523.29.90 00) and `construction_rebar_round` (7214.20.31 00) charged → `SST_SHOULD_BE_EXEMPT`; `construction_rebar_other_section` (7214.20.41 00) 5% `SST_CORRECT`, 10% `SST_WRONG_RATE`; `construction_ceramic_tiles` (heading 6907) 10% `SST_CORRECT` (5 keys).
+  - L-8: separated materials charged service tax → `SST_SHOULD_BE_EXEMPT` (1 key).

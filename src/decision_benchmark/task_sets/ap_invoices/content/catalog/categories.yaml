@@ -10,8 +10,10 @@
 #     the rate order and the heading is not in the exemption order.
 #   - Read from the gazetted PDFs linked on mysst.customs.gov.my/sst-orders/, with every later
 #     amendment listed there: rate order P.U. (A) 199/2025, 399/2025 and 281/2026; exemption order
-#     P.U. (A) 200/2025 and 400/2025. None of them touches a heading or subheading used here
-#     (P.U. (A) 400/2025 only rewords one 30.04 subheading, which stays exempt). Checked 16 Nov 2026.
+#     P.U. (A) 200/2025 and 400/2025. None of them touches a heading or subheading used in the v1
+#     entries (P.U. (A) 400/2025 also inserts 12.01, deletes 12.06, renumbers one 49.01 subheading and
+#     adds 8711.20.96/99 00; only motorcycles_50_150cc below uses one of these). Checked 16 Nov 2026,
+#     rechecked 19 Nov 2026. P.U. (A) 165/2026 and 303/2026 (listed in rule sheet section 2) are not archived.
 # Singapore: a category gets an SG profile only when Regulation 26/27 blocks the claim.
 version: 1
 categories:
@@ -1541,3 +1543,154 @@ categories:
   sources:
   - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/Motor-Vehicles-Expenses
   note: Claimable from 1 Apr 2022 (SG-10).
+
+# ---------------------------------------------------------------- A12: goods pinned to one tariff code (G-1, G-3, L-8)
+# Each category carries its exact 10-digit code as the tariff_code fact default. Codes and quoted lines were read
+# from the archived orders and policies (sources repo, retrieved 17 Nov 2026). The 2018 rate and exemption orders
+# are not archived, so no category states a rate for invoices before 1 Jul 2025 from a source.
+
+- category: motorcycles_50_150cc
+  kind: goods
+  label: Motorcycles over 50 cc up to 150 cc
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_10
+      area_goods:
+      - motor_vehicle
+      facts:
+        tariff_code: 8711.20.96 00
+  gl_role: motor_vehicles
+  sources:
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/EN-Sales-Tax-Policy-No.1-2025-MOTORCYCLES-AMENDMENT-No.1.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20400%20(2025).pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  note: >-
+    HS 8711.20.96 00 ("- - - Other motorcycles (with or without side-cars), including motor scooters: - - - - Other",
+    under 8711.20 more than 50 cc up to 250 cc). Not in the First or Second Schedule of P.U. (A) 170/2025 (only
+    8711.60 is), not in P.U. (A) 171/2025 as made: 10% under para 2(1). G-1: exempt from 1 Jul 2025 (Sales Tax
+    Policy 1/2025 Amendment No. 1: "8711.20.96 00 ... This sales tax exemption shall take effect from 1 July 2025");
+    added to the Exemption Order from 1 Nov 2025 by P.U. (A) 400/2025 para 3(e).
+
+- category: animal_feed_fishmeal
+  kind: goods
+  label: Fishmeal for animal feed manufacture, 60% protein or more
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_5
+      schedule_c_eligible: true
+      facts:
+        tariff_code: 2301.20.20 00
+  gl_role: raw_materials
+  sources:
+  - https://mysst.customs.gov.my/wp-content/uploads/2026/03/EN-Sales-Tax-Policy-No.1-2026.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  note: >-
+    HS 2301.20.20 00 (First Schedule, 5%: "- - Of fish, with a protein content of 60 % or more by weight"); heading
+    23.01 not in the Exemption Order. G-3 from 1 Jan 2026 (Sales Tax Policy 1/2026 Appendix I item 2 "Fishmeal
+    (>60%) 2301.20.20 00"): refund route, so 5% on the invoice stays correct.
+
+- category: animal_feed_premix
+  kind: goods
+  label: Feed premixes and supplements for animal feed manufacture
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_5
+      schedule_c_eligible: true
+      facts:
+        tariff_code: 2309.90.20 00
+  gl_role: raw_materials
+  sources:
+  - https://mysst.customs.gov.my/wp-content/uploads/2026/03/EN-Sales-Tax-Policy-No.1-2026.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/2-PUA%20199.2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  note: >-
+    HS 2309.90.20 00 (First Schedule, 5%: "- - Premixes, feed supplements or feed additives"; kept when P.U. (A)
+    199/2025 para (f) substituted heading 23.09 from 1 Jul 2025). Not among the 23.09 codes in the Exemption Order
+    (2309.90.11 00, and 2309.90.12/13/19 00 added by P.U. (A) 200/2025). G-3 from 1 Jan 2026 (Policy 1/2026
+    Appendix I item 16 "Premix-Super MS 2309.90.20 00"): refund route, so 5% on the invoice stays correct.
+
+- category: construction_cement
+  kind: goods
+  label: Portland cement for construction
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_exempt
+      facts:
+        tariff_code: 2523.29.90 00
+  gl_role: building_works
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-7-2025-Construction-Works.pdf
+  note: >-
+    HS 2523.29.90 00 (Exemption Order: "25.23 Portland cement ... 2523.29 - - Other: 2523.29.90 00 - - - Other");
+    heading 25.23 not in the rate order. L-8: materials on a construction invoice.
+
+- category: construction_rebar_round
+  kind: goods
+  label: Steel rebars, circular cross-section
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_exempt
+      facts:
+        tariff_code: 7214.20.31 00
+  gl_role: building_works
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-7-2025-Construction-Works.pdf
+  note: >-
+    HS 7214.20.31 00 (Exemption Order: "- - - Of circular cross-section: 7214.20.31 00 - - - - Of a kind used for
+    concrete reinforcement (rebars)"); not in the rate order. Heading 72.14 splits by rate, see
+    construction_rebar_other_section. L-8.
+
+- category: construction_rebar_other_section
+  kind: goods
+  label: Steel rebars, other cross-section
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_5
+      facts:
+        tariff_code: 7214.20.41 00
+  gl_role: building_works
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-7-2025-Construction-Works.pdf
+  note: >-
+    HS 7214.20.41 00 (First Schedule, 5%: "- - - Other: 7214.20.41 00 - - - - Of a kind used for concrete
+    reinforcement (rebars)"); not in the Exemption Order. L-8.
+
+- category: construction_ceramic_tiles
+  kind: goods
+  label: Ceramic floor and wall tiles
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: sales_10
+      facts:
+        tariff_code: '6907'
+  gl_role: building_works
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-7-2025-Construction-Works.pdf
+  note: >-
+    HS 69.07, the whole heading (tariff_code 6907). Heading 69.07 is in neither order nor any archived amendment
+    (chapter 69 entries stop at 69.06): 10% under para 2(1). L-8.
