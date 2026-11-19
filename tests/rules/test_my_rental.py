@@ -205,3 +205,10 @@ def test_k8_near_miss_registered_co_owner():
     r, c = rental()
     _co_owned(r)
     assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
+
+
+def test_catalog_fact_default_vessel_charter_is_exempt_without_a_line_fact():
+    # The category implies asset_type vessel (catalog facts): K-3.
+    assert result(*one_line("test_vessel_charter", rate="6")) == (RCI, "SST_SHOULD_BE_EXEMPT", "K-3")
+    # A line fact still overrides the category's value.
+    assert result(*one_line("test_vessel_charter", rate="6", asset_type="machinery")) == (OK, "SST_CORRECT", "MS-2")

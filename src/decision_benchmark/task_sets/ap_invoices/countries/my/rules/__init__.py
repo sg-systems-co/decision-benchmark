@@ -35,12 +35,14 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
     findings: list[Finding] = []
     unsettled: list[Unsettled] = []
     for line in inv.lines:
-        reader = FactReader(PACK, line, (facts or {}).get(line.line_no))
+        # check_rules: only the supplied facts count; a line with none supplied reads an empty set.
+        source = None if facts is None else facts.get(line.line_no) or PACK.line_facts_model()
+        reader = FactReader(PACK, line, source)
         profile = catalog.get(line.category).tax["MY"]
         assert isinstance(profile, MyTaxProfile)
         ctx = LineCtx(line=line, ext=ext.get(line.line_no), reader=reader, profile=profile, supplier=view.supplier,
                       sf=sf, company=view.company, cf=cf, day=inv.issue_date, processing_date=view.as_of_date,
-                      catalog=catalog, contracts=view.contracts, invoice=inv,
+                      catalog=catalog, contracts=view.contracts, invoice=inv, defaults=PACK.fact_defaults(profile),
                       residence_certificates=view.residence_certificates)
         try:
             out = assess_line(ctx)

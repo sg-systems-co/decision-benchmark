@@ -84,3 +84,7 @@ ContractTaxFacts = Annotated[SerializeAsAny[CountryBlock], _parse_block("contrac
 
 class TaxProfile(Model):
     """Base of a category's tax profile in one country (the pack's ``tax_profile`` model)."""
+
+    facts: dict[str, Any] = {}
+    """Line facts the category implies (e.g. an aircraft charter's asset type): the value the rules use where a line
+    doesn't record the fact. Names and values are checked against the country pack's line-facts model."""

@@ -34,6 +34,8 @@ SgDisallowed = Literal[
     "family_benefit",
     "medical_accident_insurance",
     "betting",
+    "director_only_benefit",
+    "third_party_csr",
 ]
 
 

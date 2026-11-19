@@ -1,6 +1,6 @@
 [project]
 name = "decision-benchmark"
-version = "0.10.0.dev4"
+version = "0.10.0.dev5"
 description = "SG Systems Decision Benchmark: open benchmarks for business decisions in Southeast Asia"
 readme = "README.md"
 license = "Apache-2.0"

@@ -211,6 +211,22 @@ categories:
     MY: {tax_class: sales_10, area_goods: [office_equipment_furniture]}
   gl_role: office_supplies
   sources: ['https://mysst.customs.gov.my/sst-orders/']
+- category: test_vessel_charter
+  kind: service
+  label: Test vessel charter (catalog fact default asset_type vessel)
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_6, service_item: K, facts: {asset_type: vessel}}
+  gl_role: professional_fees
+  sources: ['https://mysst.customs.gov.my/faq-services-tax/']
+- category: test_residential_lease_sg
+  kind: service
+  label: Test residential lease (catalog fact default exempt_supply residential_property)
+  countries: [SG]
+  tax:
+    SG: {facts: {exempt_supply: residential_property}}
+  gl_role: staff_welfare
+  sources: ['https://mysst.customs.gov.my/faq-services-tax/']
 - category: test_finished_goods
   kind: goods
   label: Test finished goods (sales tax 5% in this fixture)

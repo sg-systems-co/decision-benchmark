@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from ..findings import TaxResult
 from ..models.common import CountryBlock, TaxProfile
-from ..models.evidence import LineFact, LineFacts
+from ..models.evidence import EVIDENCE_OPTIONAL, LineFact, LineFacts
 from ..registry import RuleSpec
 
 if TYPE_CHECKING:
@@ -67,6 +67,21 @@ class CountryPack:
         """Raise ValueError if the category's profile for this country is missing or doesn't fit."""
         if self.profile_required and self.country not in category.tax:
             raise ValueError(f"{category.category}: categories used in {self.country} need a tax profile")
+        profile = category.tax.get(self.country)
+        if profile is not None:
+            try:
+                self.fact_defaults(profile)
+            except (ValueError, KeyError) as e:
+                raise ValueError(f"{category.category}: facts: {e}") from None
+
+    def fact_defaults(self, profile: TaxProfile) -> dict:
+        """The line-fact values a category implies, typed by the line-facts model."""
+        unknown = set(profile.facts) - set(self.line_facts_model.model_fields)
+        if unknown:
+            raise KeyError(f"not {self.country} line facts: {sorted(unknown)}")
+        parsed = self.line_facts_model.model_validate(
+            {name: {"value": value} for name, value in profile.facts.items()}, context={EVIDENCE_OPTIONAL: True})
+        return {name: getattr(parsed, name).value for name in profile.facts}
 
     def check_invoice(self, invoice: Invoice) -> None:
         """Raise ValueError for e-invoice lines that don't exist or line facts of another country."""

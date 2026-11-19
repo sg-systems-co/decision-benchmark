@@ -81,7 +81,7 @@ wheels = [
 
 [[package]]
 name = "decision-benchmark"
-version = "0.10.0.dev4"
+version = "0.10.0.dev5"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },

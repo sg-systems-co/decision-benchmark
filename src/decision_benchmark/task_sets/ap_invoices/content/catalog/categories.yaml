@@ -892,3 +892,652 @@ categories:
     - "https://www.iras.gov.sg/docs/default-source/e-tax/etax-guide_guide-on-reimbursement-and-disbursement-of-expenses_2019-12-30.pdf?sfvrsn=3254880e_32"
     - "https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax"
   note: "Betting, sweepstakes, lotteries and games of chance."
+
+# ---------------------------------------------------------------- A12: rental, new rules, Singapore v0.10 (plan §6)
+
+- category: equipment_rental
+  kind: service
+  label: Rental of machinery and equipment
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        asset_type: machinery
+  gl_role: rent
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  note: Group K rental (8% from 1 Jul 2025, 6% from 1 Jan 2026); B2B only when sublet (MS-5 item 8); K-1 to K-8.
+
+- category: commercial_premises_rental
+  kind: service
+  label: Rental of commercial premises
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        asset_type: commercial_premises
+  gl_role: rent
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%202-2025%20(Sewaan%20atau%20Pajakan)%20(Pindaan%20No.5)%20220726.pdf
+  note: Group K rental of commercial premises; SME tenants (K-1, K-2), contracts (K-4).
+
+- category: passenger_vehicle_rental
+  kind: service
+  label: Passenger vehicle rental
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        asset_type: vehicle
+  gl_role: motor_vehicle_running
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Sewa%20Kenderaan%20Penumpang%203.9.2025.pdf
+  note: Group K rental of passenger vehicles.
+
+- category: aircraft_vessel_charter
+  kind: service
+  label: Charter of aircraft or ships
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        asset_type: vessel
+  gl_role: rent
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  note: 'K-3: rental of aircraft (not drones) and ships (not floating storage units) is exempt.'
+
+- category: residential_housing_rental
+  kind: service
+  label: Staff housing rental
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        asset_type: housing
+  gl_role: staff_welfare
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%202-2025%20(Rental%20or%20Leasing)%20(Amnd%20No.5)%20220726.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Peraturan-Peraturan%20CP%20(Pindaan)%202025.pdf
+  note: Housing accommodation is excluded from Group K (MS-4).
+
+- category: golf_club_fees
+  kind: service
+  label: Golf club fees
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: E
+    SG:
+      disallowed: club_subscription
+  gl_role: club_subscriptions
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
+  note: Group E (8%); in Singapore a club fee (SG-10).
+
+- category: karaoke_event_venue
+  kind: service
+  label: Karaoke venue for a staff event
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: C
+  gl_role: staff_welfare
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
+  note: Group C (karaoke from 26 Feb 2024), 8%.
+
+- category: private_club_services
+  kind: service
+  label: Private club services
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: D
+    SG:
+      disallowed: club_subscription
+  gl_role: club_subscriptions
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
+  note: Group D (8%); in Singapore a club fee (SG-10).
+
+- category: domestic_flight
+  kind: service
+  label: Domestic air tickets
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: I10
+      area_items:
+      - 1
+  gl_role: travel
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Penerbangan%20Domestik-%2031.5.2024.pdf
+  note: Group I item 10; exclusions by route (MS-4); item 1 of P.U. (A) 212/2018 between areas (MS-7).
+
+- category: aircraft_ship_mro
+  kind: service
+  label: Maintenance, repair and overhaul of aircraft or ships
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(n)
+      b2b_exempt: true
+      group_relief: true
+      facts:
+        mro_aircraft_ship: true
+  gl_role: repairs_maintenance
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%20Bil.6-2024%20(Pindaan%20No.3)_MRO.pdf
+  note: G(n); P-9 for approved AMOs and qualifying buyers.
+
+- category: building_maintenance_charges
+  kind: service
+  label: Building maintenance charges and sinking fund
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(n)
+      b2b_exempt: true
+      group_relief: true
+      facts:
+        building_charge: maintenance
+  gl_role: repairs_maintenance
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%203__2026%20(pindaan%201)%20MF%20%26%20SF_BM.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-5-2024.pdf
+  note: P-10 (non-residential, developer/JMB/MC, from 1 Jul 2026), P-11 (residential).
+
+- category: healthcare_consultation
+  kind: service
+  label: Private clinic consultation fees
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: I14
+      facts:
+        itemised_consultation_fee: true
+    SG:
+      disallowed: staff_medical
+  gl_role: staff_welfare_medical
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/09032026_Final%20PANDUAN%20PERKHIDMATAN%20KESIHATAN%20KUMPULAN%20I.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%205-2025%20(Private%20Healthcare)%20(Amendment%20No.%204)%20ENG.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-6-2025-Private-Healthcare.pdf
+  note: I14; citizens exempt (Order item 7); P-12 to P-14. The patient's category is a line fact the case must show.
+
+- category: staff_medical_treatment
+  kind: service
+  label: Private hospital treatment for staff
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: I14
+    SG:
+      disallowed: staff_medical
+  gl_role: staff_welfare_medical
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/09032026_Final%20PANDUAN%20PERKHIDMATAN%20KESIHATAN%20KUMPULAN%20I.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%205-2025%20(Private%20Healthcare)%20(Amendment%20No.%204)%20ENG.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-6-2025-Private-Healthcare.pdf
+  note: I14; the patient's citizenship decides (MS-4, P-13, P-14).
+
+- category: staff_education_fees
+  kind: service
+  label: Education fees for staff
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: M
+      facts:
+        education_fee_item: tuition
+  gl_role: training
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/3.%20GUIDE%20ON%20PRIVATE%20EDUCATION%20SERVICES.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-4-2025-Education-Amendment-No.-2.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-6-2020.pdf
+  note: Group M by provider kind; P-16 fee items, P-17 OKU training.
+
+- category: imported_consultancy
+  kind: service
+  label: Consultancy from an overseas firm
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(g)
+      b2b_exempt: true
+      group_relief: true
+  gl_role: professional_fees
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Bercukai%20Diimport.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-2-2020.pdf
+  note: Imported taxable service (MS-8); STP 2/2020.
+
+- category: imported_it_services
+  kind: service
+  label: IT services from an overseas provider
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(h)
+      b2b_exempt: true
+      group_relief: true
+  gl_role: it_services
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Bercukai%20Diimport.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-2-2020.pdf
+  note: MS-8; B2B order item 4 for resellers.
+
+- category: foreign_digital_services
+  kind: service
+  label: Digital services from a foreign registered person
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(l)
+      b2b_exempt: true
+      group_relief: true
+  gl_role: it_services
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Digital%20Service%20by%20FSP_V2_01022021.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/STP-3-2020.pdf
+  note: MS-8, B2B order item 3, STP 3/2020.
+
+- category: software_royalty
+  kind: service
+  label: Software licence royalties to a non-resident
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(l)
+      b2b_exempt: true
+      group_relief: true
+      facts:
+        payment_nature: royalty
+    SG:
+      facts:
+        payment_nature: royalty
+  gl_role: royalties
+  sources:
+  - https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf
+  - https://www.iras.gov.sg/taxes/withholding-tax/basics-of-withholding-tax/types-of-payment-and-withholding-tax-rates
+  note: WH-1 (10%), WH-5 (10%), treaty rates.
+
+- category: equipment_rental_from_abroad
+  kind: service
+  label: Equipment rental from a non-resident
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: K
+      facts:
+        payment_nature: movable_property_rent
+        asset_type: machinery
+    SG:
+      facts:
+        payment_nature: movable_property_rent
+  gl_role: rent
+  sources:
+  - https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf
+  - https://www.iras.gov.sg/taxes/withholding-tax/basics-of-withholding-tax/types-of-payment-and-withholding-tax-rates
+  note: WH-2 (iii), WH-5.
+
+- category: technical_services_from_abroad
+  kind: service
+  label: Technical services from a non-resident
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: G(g)
+      b2b_exempt: true
+      group_relief: true
+      facts:
+        payment_nature: technical_advice
+    SG:
+      facts:
+        payment_nature: technical_or_management_fee
+  gl_role: professional_fees
+  sources:
+  - https://www.hasil.gov.my/wp-content/uploads/PR_10_2019.pdf
+  - https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/pua_20171024_P.U.%20(A)%20323.pdf
+  note: WH-2 (ii) on the Malaysian part; WH-5 for work done in Singapore.
+
+- category: loan_interest_non_resident
+  kind: service
+  label: Loan interest to a non-resident lender
+  countries:
+  - MY
+  - SG
+  tax:
+    MY:
+      tax_class: none
+      facts:
+        payment_nature: interest
+    SG:
+      facts:
+        payment_nature: interest
+        exempt_supply: financial
+  gl_role: interest_expense
+  sources:
+  - https://www.hasil.gov.my/en/perundangan/cukai-pegangan/
+  - https://www.iras.gov.sg/taxes/withholding-tax/basics-of-withholding-tax/types-of-payment-and-withholding-tax-rates
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-is-gst-not-charged/supplies-exempt-from-gst
+  note: Interest is outside Group H (MS-4); WH-1 15%, WH-5 15%; an exempt supply in Singapore (SG-5).
+
+- category: business_insurance
+  kind: service
+  label: Business insurance premiums
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: H2
+      facts:
+        insurance_cover: other
+  gl_role: insurance
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20perkhidmatan%20insurans%20atau%20takaful%20Jun%202025%20V4%2019%20Jun%202025.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20On%20Financial%20Service%20%20-%20%20Version%202.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%201-2025%20(Financial)%20(Amendment%20No.%205).pdf
+  note: Group H item 2 from 1 Jul 2025; cover exclusions (MS-4).
+
+- category: bank_fees_commissions
+  kind: service
+  label: Bank fees and commissions
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: H3
+      facts:
+        financial_charge: fee_or_commission
+  gl_role: bank_charges
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20On%20Financial%20Service%20%20-%20%20Version%202.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%201-2025%20(Financial)%20(Amendment%20No.%205).pdf
+  note: Group H items 3-4 from 1 Jul 2025; P-1 to P-7.
+
+- category: card_activation
+  kind: service
+  label: Credit and charge card fees
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: H1
+      facts:
+        financial_charge: card_activation
+  gl_role: bank_charges
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20On%20Financial%20Service%20%20-%20%20Version%202.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%201-2025%20(Financial)%20(Amendment%20No.%205).pdf
+  note: RM25 per card per year (Second Schedule).
+
+- category: freight_forwarding
+  kind: service
+  label: Freight forwarding
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: J1(a)
+      b2b_exempt: true
+      area_items:
+      - 7
+  gl_role: freight_inward
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-4-2024-Pindaan-No-1.pdf
+  note: Group J item 1(a); carriage exclusions (MS-4); P-18.
+
+- category: customs_agent
+  kind: service
+  label: Customs agent fees
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: J2
+      b2b_exempt: true
+      area_items:
+      - 5
+      - 7
+  gl_role: freight_inward
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Ejen%20Kastam%2030.5.2024.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/03/DCP-Bil-4-2024-Pindaan-No-1.pdf
+  note: Group J item 2; items 5 and 7 of P.U. (A) 212/2018 (MS-7).
+
+- category: commercial_cleaning
+  kind: service
+  label: Cleaning of commercial premises
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: I13
+      facts:
+        premises_use: commercial
+  gl_role: repairs_maintenance
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pembersihan.pdf
+  note: Group I item 13; residential, religious, educational, agricultural excluded.
+
+- category: installed_equipment
+  kind: service
+  label: Supply and installation of equipment
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_6
+      service_item: L
+      b2b_exempt: true
+      facts:
+        installation_separated: false
+  gl_role: building_works
+  sources:
+  - https://mysst.customs.gov.my/wp-content/uploads/2025/12/STP-7-2025-Construction-Works.pdf
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDE%20ON%20CONSTRUCTION%20WORK%20SERVICES%20DATED%2017.03.2026%20%5BAMENDMENT%5D%20%5BBI%5D_2.11.26%20(1).pdf
+  note: 'L-8: not separated, sales tax on the whole value if the installer is a registered manufacturer.'
+
+- category: mobile_phones
+  kind: goods
+  label: Mobile phones
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        prescribed_goods: mobile_phone
+  gl_role: it_equipment
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-goods-and-services-tax-(gst)/customer-accounting-for-prescribed-goods
+  note: SG-7 above S$10,000 excluding GST per invoice.
+
+- category: memory_cards
+  kind: goods
+  label: Memory cards
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        prescribed_goods: memory_card
+  gl_role: it_equipment
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-goods-and-services-tax-(gst)/customer-accounting-for-prescribed-goods
+  note: SG-7.
+
+- category: packaged_software
+  kind: goods
+  label: Off-the-shelf software
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        prescribed_goods: off_the_shelf_software
+  gl_role: it_equipment
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-goods-and-services-tax-(gst)/customer-accounting-for-prescribed-goods
+  note: SG-7.
+
+- category: financial_advisory
+  kind: service
+  label: Financial advisory fees
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        exempt_supply: none
+  gl_role: professional_fees
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-is-gst-not-charged/supplies-exempt-from-gst
+  note: Advising, arranging and broking are not exempt (SG-5).
+
+- category: residential_lease_sg
+  kind: service
+  label: Residential lease for staff
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        exempt_supply: residential_property
+  gl_role: staff_welfare
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-is-gst-not-charged/supplies-exempt-from-gst
+  note: Lease of residential property is exempt (SG-5).
+
+- category: international_freight_sg
+  kind: service
+  label: International freight
+  countries:
+  - SG
+  tax:
+    SG:
+      facts:
+        zero_rating_provision: s21(3)(a)
+        international_transport: true
+  gl_role: freight_inward
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-0-gst-(zero-rate)/providing-international-services
+  note: Zero-rated under s21(3)(a) (SG-6).
+
+- category: director_benefits
+  kind: service
+  label: Benefits for directors only
+  countries:
+  - SG
+  tax:
+    SG:
+      disallowed: director_only_benefit
+  gl_role: staff_welfare
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
+  note: Not claimable (SG-10).
+
+- category: csr_items
+  kind: goods
+  label: Corporate social initiative items for third parties
+  countries:
+  - SG
+  tax:
+    SG:
+      disallowed: third_party_csr
+  gl_role: staff_welfare
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
+  note: Not for the business (SG-10).
+
+- category: chauffeured_private_hire
+  kind: service
+  label: Chauffeured private hire, pay per trip
+  countries:
+  - SG
+  tax:
+    SG:
+      disallowed: motor_car
+      facts:
+        vehicle_is_motor_car: true
+        chauffeured_pay_per_trip: true
+  gl_role: travel
+  sources:
+  - https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/Motor-Vehicles-Expenses
+  note: Claimable from 1 Apr 2022 (SG-10).

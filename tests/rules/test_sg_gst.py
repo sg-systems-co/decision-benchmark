@@ -147,3 +147,8 @@ def test_sg12_near_miss_unregistered_supplier_charges_none():
     r["suppliers"][0]["tax_registrations"] = []
     c["invoice"]["einvoice"]["supplier_gst_no"] = None
     assert result(r, c) == (OK, "NO_GST", "SG-4")
+
+
+def test_catalog_fact_default_residential_lease_is_exempt_without_a_line_fact():
+    assert result(*sg_one_line("test_residential_lease_sg", rate="0")) == (OK, "NO_GST", "SG-5")
+    assert result(*sg_one_line("test_residential_lease_sg", rate="9")) == (RCI, "GST_WRONGLY_CHARGED", "SG-5")

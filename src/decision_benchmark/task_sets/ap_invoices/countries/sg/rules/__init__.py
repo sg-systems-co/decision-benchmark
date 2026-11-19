@@ -78,17 +78,29 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
             return TaxResult(worst_line(lines, PACK.severity_order), wrong, [], lines)
     invalid = validity.check(inv) if charged else []
     sf, cf = PACK.supplier_facts_of(view.supplier), PACK.company_facts_of(view.company)
+
+    def profile_of(line: InvoiceLine) -> SgTaxProfile:
+        found = catalog.get(line.category).tax.get("SG") or SgTaxProfile()
+        assert isinstance(found, SgTaxProfile)
+        return found
+
+    def facts_of(line: InvoiceLine) -> LineFacts | None:
+        return facts.get(line.line_no) if facts is not None else line.facts
+
+    prescribed = customer_accounting.prescribed_value(inv.lines, facts_of, lambda x: PACK.fact_defaults(profile_of(x)))
     lines: list[LineResult] = []
     findings: list[Finding] = []
     unsettled: list[Unsettled] = []
     for line in inv.lines:
-        reader = FactReader(PACK, line, (facts or {}).get(line.line_no))
-        profile = catalog.get(line.category).tax.get("SG") or SgTaxProfile()
-        assert isinstance(profile, SgTaxProfile)
+        # check_rules: only the supplied facts count; a line with none supplied reads an empty set.
+        source = None if facts is None else facts.get(line.line_no) or PACK.line_facts_model()
+        reader = FactReader(PACK, line, source)
+        profile = profile_of(line)
         ctx = LineCtx(line=line, ext=ext.get(line.line_no), reader=reader, profile=profile, invoice=inv,
                       supplier=view.supplier, sf=sf, company=view.company, cf=cf, registration=reg,
                       charged=line.line_no in charged, day=inv.issue_date, processing_date=view.as_of_date,
-                      catalog=catalog, residence_certificates=view.residence_certificates)
+                      catalog=catalog, residence_certificates=view.residence_certificates,
+                      defaults=PACK.fact_defaults(profile), prescribed_value=prescribed)
         try:
             out = assess_line(ctx, invalid)
         except NotSettled as ns:

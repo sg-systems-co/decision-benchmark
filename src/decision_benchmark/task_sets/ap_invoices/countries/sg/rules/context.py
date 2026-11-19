@@ -51,14 +51,22 @@ class LineCtx:
     day: date
     processing_date: date
     catalog: Catalog
+    defaults: dict = field(default_factory=dict)
+    """Line-fact values the line's category implies (the catalog profile's facts)."""
+    prescribed_value: Decimal = ZERO
+    """The invoice's prescribed goods (SG-7), excluding GST, in the invoice currency: lines whose prescribed_goods (as
+    supplied or recorded, else the category's value) is not none."""
     residence_certificates: list[ResidenceCertificate] = field(default_factory=list)
     """The supplier's certificates of residence in the case records (treaty withholding rates)."""
 
 
     def fact(self, name: str, default, basis: str):
-        return self.reader.value_or(name, default, basis)
+        """The line fact; not recorded: the category's value (catalog fact defaults), else the ordinary default."""
+        return self.reader.value_or(name, self.defaults.get(name, default), basis)
 
     def need(self, name: str, basis: str):
+        if name in self.defaults and self.reader.get(name) is None:
+            return self.defaults[name]
         return self.reader.need(name, basis)
 
     @property
