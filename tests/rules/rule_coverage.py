@@ -6,7 +6,7 @@ mixed-invoice rules of §5, is in exactly one place:
 - RULE_TESTS: at least one positive and one near-miss test, as "module::function" under tests/rules;
 - NOT_ENGINE: not an engine rule (the reason), with at least one guard test in NOT_ENGINE_GUARDS
   asserting it has no effect on the invoice;
-- PENDING: not built yet. Emptied rule by rule in A12 build PRs 2-4; it must be empty at engine 0.10.0.
+PENDING (rules not built yet) was emptied in A12 build PRs 2-5 and removed at engine 0.10.0.
 """
 
 from __future__ import annotations
@@ -255,5 +255,3 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
     "G-6": [S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
     "G-7": [S + "test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
 }
-
-PENDING: set[str] = set()

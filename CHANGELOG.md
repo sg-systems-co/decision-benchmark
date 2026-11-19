@@ -11,7 +11,17 @@ Versioning rules:
 
 ## [Unreleased]
 
-Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet). The engine still writes v0.9 keys until the engine plan (A12) lands.
+Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
+
+Engine: 0.10.0. Rules as of: 2026-11-19.
+
+### Engine (A12, build PRs #12, #14, #15, #17 and this one)
+
+- Every rule of rule sheet v0.10 is built, line by line: Malaysian service tax, rental, construction, Ministerial exemptions, sales tax, e-invoices, designated and special areas; Singapore GST; withholding tax in both countries; mixed invoices. A rule the documents don't settle gives HAND_OVER with that rule as basis.
+- Answer keys carry `tax_lines` (treatment, basis, GL account per line), `buyer_actions`, the gold `facts` with evidence, `engine_version` 0.10.0 and `rules_version` v0.10.
+- `check_rules` (agent variant b) runs the same code path on facts a caller supplies; the reference-row check shows it reproduces every answer key from its gold facts.
+- The release catalog maps categories to the facts and lists the rules need (fact defaults, P.U. (A) 212/2018 items, area goods kinds) and adds 37 categories.
+- Release entries from v0.10 pin the engine: `release/publish.py` checks the "Engine: … Rules as of: …" line against the package version.
 
 ### Spec v0.10
 

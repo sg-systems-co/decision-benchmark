@@ -88,6 +88,26 @@ def unreleased_spec_version(root: Path = REPO_ROOT) -> str | None:
     return spec.group(1) if spec else None
 
 
+PIN_RE = re.compile(r"^Engine: (\S+)\. Rules as of: (\d{4}-\d{2}-\d{2})\.", re.MULTILINE)
+PINNED_FROM = (0, 10)
+"""Release entries from spec v0.10 on pin the engine and the rules' as-of date (A12 plan §9)."""
+
+
+def check_engine_pin(tag: str, changelog: str, spec: tuple[int, int]) -> None:
+    """From v0.10, the tag's CHANGELOG entry states "Engine: <version>. Rules as of: <date>." and the engine version is
+    the package being published (the version recorded in every answer key)."""
+    if spec < PINNED_FROM:
+        return
+    from decision_benchmark import __version__
+
+    entry = re.search(rf"^## \[{re.escape(tag)}\][^\n]*\n(.*?)(?=^## \[|\Z)", changelog, re.MULTILINE | re.DOTALL)
+    pin = PIN_RE.search(entry.group(1)) if entry else None
+    if pin is None:
+        raise ReleaseError(f"CHANGELOG entry '## [{tag}]' has no line 'Engine: <version>. Rules as of: <date>.'")
+    if pin.group(1) != __version__:
+        raise ReleaseError(f"CHANGELOG entry pins engine {pin.group(1)}, the package is {__version__}")
+
+
 def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT, allow_unreleased_card: bool = False) -> list[str]:
     """Offline checks. Returns the staged file list. Raises ReleaseError.
 
@@ -101,6 +121,7 @@ def verify_release(tag: str, staged: Path, root: Path = REPO_ROOT, allow_unrelea
     changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
     if not re.search(rf"^## \[{re.escape(tag)}\]", changelog, re.MULTILINE):
         raise ReleaseError(f"CHANGELOG.md has no entry '## [{tag}]'")
+    check_engine_pin(tag, changelog, (int(m.group(1)), int(m.group(2))))
     if not staged.is_dir():
         raise ReleaseError(f"staged folder {staged} does not exist (run release/stage.py first)")
     card = (staged / "README.md").read_text(encoding="utf-8") if (staged / "README.md").exists() else ""

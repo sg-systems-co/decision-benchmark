@@ -1,4 +1,4 @@
-"""The TaskSetSpec of ap-invoices, from docs/task-sets/ap-invoices/spec-v0.9.md.
+"""The TaskSetSpec of ap-invoices, from docs/task-sets/ap-invoices/spec-v0.10.md.
 
 Costs: "Cost per case" table and the two alternative weightings (1 / 2 / 5, 1 / 3 / 20).
 Invalid predictions get the missed-problem cost (CHANGELOG clarification, plan Q19).
@@ -19,7 +19,7 @@ D = Decimal
 SPEC = TaskSetSpec(
     id=TASK_SET_ID,
     title="Supplier invoices, Malaysia and Singapore",
-    spec_version="v0.9",
+    spec_version="v0.10",
     decisions=tuple(d.value for d in Decision),
     approve_decision=Decision.APPROVE.value,
     trap_decisions=(Decision.REJECT_DUPLICATE.value, Decision.FRAUD_REVIEW.value),
@@ -43,6 +43,6 @@ SPEC = TaskSetSpec(
         "ambiguous": D(3),
     },
     report_by=("country",),
-    output_schema="schemas/ap-invoices/v0.9/output.schema.json",
+    output_schema="schemas/ap-invoices/v0.10/output.schema.json",
     hf_repo_id="sgsystems/decision-benchmark-ap-invoices",
 )
