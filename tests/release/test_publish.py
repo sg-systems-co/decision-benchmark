@@ -272,3 +272,32 @@ def test_any_other_card_label_still_fails(staged, capsys):
     _unlabelled_stage(staged, "v0.11")
     code, out = run(staged, capsys, extra=["--dry-run", "--allow-unreleased-card"])
     assert code == 1 and "no version label for v0.9 or v0.10" in out
+
+
+# --- engine pin (A12 plan §9) ---------------------------------------------------
+
+
+def _changelog(tmp_path, entry: str) -> Path:
+    (tmp_path / "CHANGELOG.md").write_text(f"# Changelog\n\n## [v0.10.0] - 2026-12-01\n\n{entry}\n\n## [v0.9.0] - 2026-11-01\n",
+                                           encoding="utf-8")
+    return tmp_path
+
+
+def test_a_v0_10_release_entry_must_pin_the_engine(tmp_path):
+    root = _changelog(tmp_path, "Spec: v0.10.")
+    with pytest.raises(publish.ReleaseError, match="Engine: <version>. Rules as of: <date>."):
+        publish.verify_release("v0.10.0", tmp_path / "staged", root=root)
+
+
+def test_the_pinned_engine_must_be_the_package(tmp_path):
+    root = _changelog(tmp_path, "Engine: 0.9.9. Rules as of: 2026-11-19.")
+    with pytest.raises(publish.ReleaseError, match="pins engine 0.9.9"):
+        publish.verify_release("v0.10.0", tmp_path / "staged", root=root)
+
+
+def test_a_correct_pin_passes_to_the_next_check(tmp_path):
+    from decision_benchmark import __version__
+
+    root = _changelog(tmp_path, f"Engine: {__version__}. Rules as of: 2026-11-19.")
+    with pytest.raises(publish.ReleaseError, match="staged folder"):
+        publish.verify_release("v0.10.0", tmp_path / "staged", root=root)

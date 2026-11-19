@@ -45,7 +45,7 @@ Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one e
 
 ### GL roles
 
-The chart-of-accounts templates (B1) must have exactly one active account for each role used here: `audit_accounting_fees`, `building_works`, `cleaning_supplies`, `club_subscriptions`, `components`, `freight_inward`, `it_equipment`, `it_services`, `legal_fees`, `management_fees`, `marketing_advertising`, `motor_vehicle_running`, `office_equipment`, `office_furniture`, `office_supplies`, `packaging_materials`, `parking`, `plant_machinery`, `postage_courier`, `professional_fees`, `raw_materials`, `recruitment`, `repairs_maintenance`, `safety_ppe`, `security`, `staff_welfare`, `staff_welfare_medical`, `telecoms`, `tools_small_equipment`, `training`, `travel`, `utilities`, `warehousing`.
+The chart-of-accounts templates (B1) must have exactly one active account for each role used here: `audit_accounting_fees`, `bank_charges`, `building_works`, `cleaning_supplies`, `club_subscriptions`, `components`, `freight_inward`, `insurance`, `interest_expense`, `it_equipment`, `it_services`, `legal_fees`, `management_fees`, `marketing_advertising`, `motor_vehicle_running`, `motor_vehicles`, `office_equipment`, `office_furniture`, `office_supplies`, `packaging_materials`, `parking`, `plant_machinery`, `postage_courier`, `professional_fees`, `raw_materials`, `recruitment`, `rent`, `repairs_maintenance`, `royalties`, `safety_ppe`, `security`, `staff_welfare`, `staff_welfare_medical`, `telecoms`, `tools_small_equipment`, `training`, `travel`, `utilities`, `warehousing`.
 
 ## Format
 

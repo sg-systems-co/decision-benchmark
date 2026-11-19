@@ -6,7 +6,7 @@ mixed-invoice rules of §5, is in exactly one place:
 - RULE_TESTS: at least one positive and one near-miss test, as "module::function" under tests/rules;
 - NOT_ENGINE: not an engine rule (the reason), with at least one guard test in NOT_ENGINE_GUARDS
   asserting it has no effect on the invoice;
-- PENDING: not built yet. Emptied rule by rule in A12 build PRs 2-4; it must be empty at engine 0.10.0.
+PENDING (rules not built yet) was emptied in A12 build PRs 2-5 and removed at engine 0.10.0.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ Q = "test_sg_claims::"
 W = "test_withholding::"
 X5 = "test_mixed_invoices::"
 A = "test_my_areas::"
+PG = "test_pinned_goods::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -98,7 +99,7 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [C + "test_l6_near_miss_no_statement_on_the_invoice"]},
     "L-7": {"positive": [C + "test_l7_government_contractor"],
             "near_miss": [C + "test_l7_near_miss_local_authority_after_september_2025"]},
-    "L-8": {"positive": [C + "test_l8_materials_not_separated_tax_the_whole_invoice", C + "test_l8_installation_not_separated_by_a_manufacturer_bears_sales_tax", C + "test_l8_ship_or_platform_follows_the_election"],
+    "L-8": {"positive": [C + "test_l8_materials_not_separated_tax_the_whole_invoice", PG + "test_l8_separated_materials_on_a_construction_invoice_carry_no_service_tax", C + "test_l8_installation_not_separated_by_a_manufacturer_bears_sales_tax", C + "test_l8_ship_or_platform_follows_the_election"],
             "near_miss": [C + "test_l8_near_miss_installation_by_a_non_manufacturer_bears_service_tax"]},
     "MS-10": {"positive": [P + "test_ms10_a_policy_exemption_with_tax_charged_is_should_be_exempt"],
             "near_miss": [P + "test_ms10_near_miss_a_policy_exemption_without_tax_is_no_sst"]},
@@ -159,9 +160,9 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
                            A + "test_mg5_step6_goods_made_and_delivered_in_pulau_1"]},
     "MG-6": {"positive": [S + "test_mg6_a_policy_exemption_by_tariff_code"],
             "near_miss": [S + "test_mg6_near_miss_a_code_in_no_policy"]},
-    "G-1": {"positive": [S + "test_g1_motorcycles_exempt_from_july_2025"],
+    "G-1": {"positive": [S + "test_g1_motorcycles_exempt_from_july_2025", PG + "test_g1_motorcycles_exempt_from_1_july_2025"],
             "near_miss": [S + "test_g1_near_miss_other_motorcycle_code"]},
-    "G-3": {"positive": [S + "test_g3_feed_raw_materials_are_taxed_on_the_invoice_refund_route"],
+    "G-3": {"positive": [S + "test_g3_feed_raw_materials_are_taxed_on_the_invoice_refund_route", PG + "test_g3_feed_raw_materials_stay_at_5_percent"],
             "near_miss": [S + "test_g3_near_miss_before_january_2026"]},
     "G-4": {"positive": [S + "test_g4_one_way_pallets_are_schedule_c_packaging"],
             "near_miss": [S + "test_g4_near_miss_returnable_pallets_are_taxable"]},
@@ -255,5 +256,3 @@ NOT_ENGINE_GUARDS: dict[str, list[str]] = {
     "G-6": [S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
     "G-7": [S + "test_g7_guard_machinery_in_a_refund_only_window_is_taxed_as_usual", S + "test_g6_guard_no_answer_key_names_a_not_engine_rule"],
 }
-
-PENDING: set[str] = set()

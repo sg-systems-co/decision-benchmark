@@ -11,15 +11,18 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Annotated, Any, Generic, TypeVar
 
-from pydantic import BeforeValidator, Field, PlainSerializer, model_validator
+from pydantic import BeforeValidator, Field, PlainSerializer, ValidationInfo, model_validator
 
 from decision_benchmark.core.model import Model, _to_decimal
 
 T = TypeVar("T")
+EVIDENCE_OPTIONAL = "evidence_optional"
+"""Validation context key: facts supplied without evidence (check_rules input, catalog fact defaults)."""
 
 
 def _to_share(value: Any) -> Decimal:
-    d = _to_decimal(value)
+    # The spec writes a share as a JSON number (facts.lines, check_rules input): read it by its shortest decimal form.
+    d = _to_decimal(repr(value) if isinstance(value, float) else value)
     if not Decimal(0) <= d <= Decimal(1):
         raise ValueError(f"a share is between 0 and 1: {value!r}")
     return d
@@ -62,10 +65,11 @@ class LineFact(Model, Generic[T]):
     evidence: list[EvidenceRef] = []
 
     @model_validator(mode="after")
-    def _evidence(self) -> LineFact:
+    def _evidence(self, info: ValidationInfo) -> LineFact:
         if self.value is None and self.evidence:
             raise ValueError("a fact the documents don't show has no evidence")
-        if self.value is not None and not self.evidence:
+        optional = bool(info.context and info.context.get(EVIDENCE_OPTIONAL))
+        if self.value is not None and not self.evidence and not optional:
             raise ValueError("a fact with a value needs at least one evidence reference")
         return self
 

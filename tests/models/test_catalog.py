@@ -71,7 +71,7 @@ def test_release_catalog_covers_every_rule_sheet_situation():
     """Every tax situation in the rule-sheet table has at least one category to plant it on."""
     cat = load_catalog(RELEASE)
     my = [c for c in cat.categories if "MY" in c.countries]
-    sg = [c.tax["SG"].disallowed for c in cat.categories if "SG" in c.tax]
+    sg = [c.tax["SG"].disallowed for c in cat.categories if "SG" in c.tax and c.tax["SG"].disallowed]
     six = {c.category for c in my if c.tax["MY"].tax_class == "service_6"}
     assert {"catering", "logistics_haulage", "telecoms", "parking"} <= six
     services = [c.tax["MY"] for c in my if c.tax["MY"].tax_class.startswith("service_")]
@@ -83,7 +83,7 @@ def test_release_catalog_covers_every_rule_sheet_situation():
     assert all(p.service_item in GROUP_RELIEF_ITEMS for p in services if p.group_relief)
     assert any(c.tax["MY"].schedule_c_eligible for c in my)
     assert set(sg) == {"club_subscription", "staff_medical", "motor_car", "family_benefit",
-                       "medical_accident_insurance", "betting"}
+                       "medical_accident_insurance", "betting", "director_only_benefit", "third_party_csr"}
 
 
 @pytest.mark.skipif(not RELEASE.exists(), reason="release catalog not drafted yet")

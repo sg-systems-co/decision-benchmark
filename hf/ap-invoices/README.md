@@ -53,6 +53,8 @@ All cases are synthetic. The companies, suppliers and people are fictional. Answ
 - **131 Singapore treaty-rate fields are not human-reviewed.** The withholding rates read from Singapore's tax treaties are machine-read; 131 rate fields are flagged for review in the source archive (a protocol amends the article, several rates, or no rate). Where a rate is not settled from the treaty text, the answer is HAND_OVER.
 - **The engine writes the answer keys.** So a score measures agreement with the published rules, not accuracy on real invoices, until the real-data check is published.
 - **Each release pins an engine version and an as-of date.** Every answer key records the engine version and rule-sheet version that wrote it. Rules change; a score is only as current as its as-of date.
+- **Engine 0.10.0, rules as of 19 November 2026.** The keys of this version are written by engine 0.10.0 from rule sheet v0.10.
+- **Five area questions are open (Q-A1 to Q-A5).** For Malaysia's designated and special areas the official texts leave five questions open. Q-A1 cases are planted under the reading of RMCD's manufacturing guide (no sales tax on the invoice) and flagged so they can be dropped if the accountant review overturns it; the other four give HAND_OVER and are not planted.
 
 - Spec: [spec-v0.10.md](https://github.com/sg-systems-co/decision-benchmark/blob/main/docs/task-sets/ap-invoices/spec-v0.10.md)
 - Tax rules with sources: [tax-rules-v0.10.md](https://github.com/sg-systems-co/decision-benchmark/blob/main/docs/tax-rules-v0.10.md)
@@ -178,7 +180,8 @@ Every data release ships the generator seed for train and test, a pinned build e
 - Synthetic data. The layouts, suppliers and problems are generated. Real invoices are messier.
 - No human has reviewed the rules or the answer keys yet. A rules-engine bug would show up as a wrong answer key. Until the real-data check is published, a score measures agreement with the published rules, not accuracy on real invoices.
 - 131 Singapore treaty-rate fields are machine-read and not human-reviewed; rates not settled from the treaty text are HAND_OVER.
-- Tax rules are as read in the official texts on 16–17 November 2026. Rates and thresholds change; each release states its as-of date.
+- Tax rules are as read in the official texts on 16–19 November 2026 (designated and special areas read 18 November). Rates and thresholds change; each release states its as-of date.
+- Five questions on Malaysia's designated and special areas (Q-A1 to Q-A5) are open; Q-A1 cases are planted under the guide's reading, and the other four give HAND_OVER and are not planted.
 - Out of scope: payment runs, month-end close, multi-currency revaluation, customs and import permits, expense claims. Missing-trader-fraud checks for Singapore GST are not modelled.
 - Malaysia and Singapore only. English with some Bahasa Malaysia, Chinese and Thai.
 - The cost weights are a choice, not a standard. Use the other weightings and the risk–coverage curve if they don't fit.

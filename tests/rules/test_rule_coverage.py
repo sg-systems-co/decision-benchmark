@@ -1,5 +1,5 @@
-"""Every rule in the v0.10 rule sheet has registered tests, is not an engine rule with a guard test,
-or is still pending (A12 plan §12). PENDING must be empty at engine 0.10.0."""
+"""Every rule in the v0.10 rule sheet has registered tests or is not an engine rule with a guard test (A12 plan §12).
+The PENDING set used during the build is gone at engine 0.10.0."""
 
 import importlib
 import re
@@ -7,7 +7,8 @@ from pathlib import Path
 
 from decision_benchmark import __version__
 
-from .rule_coverage import NOT_ENGINE, NOT_ENGINE_GUARDS, PENDING, RULE_TESTS, SECTION_5
+from . import rule_coverage
+from .rule_coverage import NOT_ENGINE, NOT_ENGINE_GUARDS, RULE_TESTS, SECTION_5
 
 ROOT = Path(__file__).resolve().parents[2]
 SHEET = (ROOT / "docs/tax-rules-v0.10.md").read_text(encoding="utf-8")
@@ -29,10 +30,10 @@ def test_the_sheet_has_81_rule_ids_and_two_section_5_rules():
 
 def test_every_rule_is_in_exactly_one_place():
     guarded = {r for r in NOT_ENGINE if NOT_ENGINE_GUARDS.get(r)}
-    places = [set(RULE_TESTS), guarded, PENDING]
+    places = [set(RULE_TESTS), guarded]
     assert set().union(*places) == sheet_rules()
     assert sum(len(p) for p in places) == len(sheet_rules()), "a rule is in more than one place"
-    assert set(NOT_ENGINE) - guarded <= PENDING, "a not-engine rule without its guard test stays pending"
+    assert set(NOT_ENGINE) == guarded, "every not-engine rule has its guard test"
     assert set(NOT_ENGINE) == {"P-21", "G-2", "G-6", "G-7"}
 
 
@@ -46,6 +47,6 @@ def test_registered_tests_exist():
         assert all(_exists(n) for n in names), rule
 
 
-def test_pending_is_empty_at_engine_0_10_0():
-    if not __version__.startswith("0.10.0.dev"):
-        assert not PENDING, f"rules still pending at engine {__version__}: {sorted(PENDING)}"
+def test_every_rule_is_built_at_engine_0_10():
+    # A12 plan §12: the PENDING set is emptied and removed with engine 0.10.0.
+    assert __version__.startswith("0.10.") and not hasattr(rule_coverage, "PENDING")

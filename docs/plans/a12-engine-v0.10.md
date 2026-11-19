@@ -285,7 +285,7 @@ Each commit is one area and keeps the suite green; counts are cumulative from 38
 | 14 | SG-7–SG-10 | 30 | 770 |
 | 15 | Treaty loaders with `confirmed`; WH-1–WH-5 | 35 | 805 |
 | 16 | §5 mixed invoices | 10 | 815 |
-| 17 | Catalog: rental, new categories, C1/C2 regressions | 20 | 835 |
+| 17 | Catalog: rental, new categories, C1/C2 regressions. Built without the §6 profile fields `b2b_condition` and dated `rates` (accepted in the PR 5 review, 19 Nov 2026): the engine derives both from the service item and the date. Goods for G-1, G-3 and L-8 are pinned to one tariff code each, split where a heading's codes differ in rate | 20 | 835 |
 | 18 | `check_rules` + equivalence tests | 15 | 850 |
 | 19 | Reference-row test, `PENDING` emptied, version 0.10.0, `changes.md` | 6 | 856 |
 

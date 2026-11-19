@@ -12,6 +12,7 @@ from . import constants, rules as line_rules
 from .models import SgContractFacts, SgLineFacts, PintSg, SgCompanyFacts, SgSupplierFacts, SgTaxProfile, SgTaxTreatment
 
 if TYPE_CHECKING:
+    from ...models.evidence import LineFacts
     from ...models import Catalog, Company, Finding, Invoice
     from ...rules.view import CaseView
 
@@ -60,8 +61,8 @@ class SingaporePack(CountryPack):
         assert isinstance(invoice.einvoice, PintSg)
         return invoice.einvoice.gross_sgd
 
-    def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
-        return line_rules.assess(view, catalog)
+    def assess_tax(self, view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None = None) -> TaxResult:
+        return line_rules.assess(view, catalog, facts)
 
 
 PACK = SingaporePack()

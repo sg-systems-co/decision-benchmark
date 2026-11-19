@@ -118,3 +118,10 @@ def test_share_bounds():
 def test_pack_fact_lookup_rejects_unknown_names():
     with pytest.raises(KeyError):
         PACKS["MY"].fact(None, "vehicle_is_motor_car")
+
+
+def test_share_reads_a_json_number_as_its_decimal():
+    # facts.lines writes a share as a JSON number; check_rules reads it back exactly.
+    model = PACKS["MY"].line_facts_model
+    got = model.model_validate({"sublet_share": {"value": 0.4, "evidence": EV}}).sublet_share.value
+    assert got == Decimal("0.4") and isinstance(got, Decimal)

@@ -72,3 +72,20 @@ A12 build PR 4 (designated and special areas, MS-7 and MG-5, as rewritten in the
 - **Former `UnsupportedCase`, now rules (MS-7):** principal customs area <-> area services (`test_ms7_step2_pca_to_an_area_is_taxed`, `test_ms7_step3_area_to_pca_is_taxed`); the JDA before the refund route (`test_ms7_step2_jda_operator_window`).
 - **New keys:** 93, from `tests/rules/test_my_areas.py`.
 - **PR 4 review (19 Nov): item 3 and item 4 exclusions as facts (MS-7).** Supplier kinds `statutory_body`, `private_hei`, `religious_welfare_body`; line facts `employer_staff_accommodation`, `educational_training_welfare_purpose`, `non_commercial_religious_welfare`, `canteen_kind`. No kept key changes. `test_ms7_item3_government_accommodation_excluded` (3 keys) is replaced by `test_ms7_item3_local_authority_premises_excluded_on_every_date`, `test_ms7_item3_federal_or_state_government_premises`, `test_ms7_item3_statutory_body_and_private_hei_premises`, `test_ms7_item3_religious_or_welfare_body_premises`, `test_ms7_item3_employer_staff_accommodation_from_1_january_2020` and `test_ms7_item4_canteens_of_educational_or_religious_institutions_excluded` (26 new keys). The same three cases keep their answers in the new tests: local authority excluded, Federal or State excluded from 1 Jan 2020, and before 2020 HAND_OVER now only where the educational, training or welfare purpose makes Federal-or-State matter.
+
+## 0.10.0.dev5
+
+A12 build PR 5 (catalog, `check_rules`, reference-row check), before the 0.10.0 release commit. Against 0.10.0.dev4:
+
+- **Commit 17 (catalog).** No existing key changes. Catalog fact defaults: a tax profile's `facts` give the value the rules use where a line doesn't record the fact. New keys: `test_catalog_fact_default_vessel_charter_is_exempt_without_a_line_fact` (2; K-3), `test_catalog_fact_default_residential_lease_is_exempt_without_a_line_fact` (2; SG-5). In `check_rules` mode only the supplied facts count (no fallback to the facts recorded on the invoice), and the SG-7 invoice total reads the same source.
+- **Commit 18 (`check_rules`).** No existing key changes. New keys from `tests/rules/test_check_rules.py` (the answer keys it compares `check_rules` against).
+
+## 0.10.0
+
+The v0.10 engine (A12 build PR 5, release commit). Against 0.10.0.dev5: every one of the 719 keys changes only `engine_version` (0.10.0) and `rules_version` (v0.9 -> v0.10: the task set's spec version is now v0.10). Nothing else changes. Every rule of sheet v0.10 is built (the PENDING set is gone); its keys are listed by build PR in the sections above.
+
+- **PR 5 review (19 Nov): goods pinned to one tariff code (G-1, G-3, L-8).** No existing key changes (733 keys: the 719 above unchanged, 14 new). New keys from `tests/rules/test_pinned_goods.py`, which runs the engine with the release category's Malaysian profile:
+  - G-1, `motorcycles_50_150cc` (8711.20.96 00): 30 Jun 2025 `SST_CORRECT` by MG-3 (10%); 1 Jul 2025 and 1 Nov 2025 `SST_SHOULD_BE_EXEMPT` by G-1 (3 keys).
+  - G-3, `animal_feed_fishmeal` (2301.20.20 00) and `animal_feed_premix` (2309.90.20 00): 5% `SST_CORRECT` on 31 Dec 2025 (MG-3) and on 1 Jan 2026 (G-3, refund route); 10% on 1 Jan 2026 `SST_WRONG_RATE` by MG-2 (5 keys).
+  - MG-2, construction materials: `construction_cement` (2523.29.90 00) and `construction_rebar_round` (7214.20.31 00) charged → `SST_SHOULD_BE_EXEMPT`; `construction_rebar_other_section` (7214.20.41 00) 5% `SST_CORRECT`, 10% `SST_WRONG_RATE`; `construction_ceramic_tiles` (heading 6907) 10% `SST_CORRECT` (5 keys).
+  - L-8: separated materials charged service tax → `SST_SHOULD_BE_EXEMPT` (1 key).

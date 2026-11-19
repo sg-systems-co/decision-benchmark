@@ -22,14 +22,25 @@ ACCOUNT_CUSTOMER_ACCOUNTING = "ACCOUNT_CUSTOMER_ACCOUNTING_GST"
 
 def _prescribed_value(ctx: LineCtx) -> Decimal:
     """The invoice's prescribed goods, excluding GST, in SGD."""
-    total = sum((x.net_amount for x in ctx.invoice.lines
-                 if x.facts is not None and getattr(x.facts, "prescribed_goods", None) is not None
-                 and x.facts.prescribed_goods.value not in (None, "none")), ZERO)
     if ctx.invoice.currency == "SGD":
-        return total
+        return ctx.prescribed_value
     if ctx.invoice.exchange_rate is None:
         raise NotSettled("SG-7", "SGD value of the prescribed goods not shown")
-    return total * ctx.invoice.exchange_rate
+    return ctx.prescribed_value * ctx.invoice.exchange_rate
+
+
+def prescribed_value(lines, facts_of, defaults_of) -> Decimal:
+    """Sum of net amounts of the lines whose prescribed_goods is not none; facts_of(line) gives the line's facts (supplied
+    or recorded), defaults_of(line) the category's fact values. A line whose prescribed goods aren't shown counts as
+    none here; its own SG-7 read is HAND_OVER."""
+    total = ZERO
+    for line in lines:
+        facts = facts_of(line)
+        fact = getattr(facts, "prescribed_goods", None) if facts is not None else None
+        value = fact.value if fact is not None else defaults_of(line).get("prescribed_goods", "none")
+        if value not in (None, "none"):
+            total += line.net_amount
+    return total
 
 
 def applies(ctx: LineCtx) -> bool:

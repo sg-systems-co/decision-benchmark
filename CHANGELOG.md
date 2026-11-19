@@ -11,7 +11,17 @@ Versioning rules:
 
 ## [Unreleased]
 
-Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet). The engine still writes v0.9 keys until the engine plan (A12) lands.
+Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
+
+Engine: 0.10.0. Rules as of: 2026-11-19.
+
+### Engine (A12, build PRs #12, #14, #15, #17 and this one)
+
+- Every rule of rule sheet v0.10 is built, line by line: Malaysian service tax, rental, construction, Ministerial exemptions, sales tax, e-invoices, designated and special areas; Singapore GST; withholding tax in both countries; mixed invoices. A rule the documents don't settle gives HAND_OVER with that rule as basis.
+- Answer keys carry `tax_lines` (treatment, basis, GL account per line), `buyer_actions`, the gold `facts` with evidence, `engine_version` 0.10.0 and `rules_version` v0.10.
+- `check_rules` (agent variant b) runs the same code path on facts a caller supplies; the reference-row check shows it reproduces every answer key from its gold facts.
+- The release catalog maps categories to the facts and lists the rules need (fact defaults, P.U. (A) 212/2018 items, area goods kinds) and adds 44 categories; goods for G-1, G-3 and L-8 are pinned to one tariff code each, read at subheading level from the archived orders.
+- Release entries from v0.10 pin the engine: `release/publish.py` checks the "Engine: … Rules as of: …" line against the package version.
 
 ### Spec v0.10
 
@@ -63,6 +73,7 @@ Decided by Sebastian in the review of the A12 engine plan (PR #11), 18 Nov 2026.
 - **Malaysian line facts from the review of build PR 2 (schema, spec "Facts").** Decided by Sebastian in the review of PR #14, 18 Nov 2026. New: `value_provided_before_change` (split; MS-3: the value provided before a rate change, where the documents show it), `completed_building` (L-5), `digital_payment_provider` (`bank`, `non_bank`, `none`; P-20 dated digital-payment exemptions), `education_provider_kind` (`private_school`, `higher_education`, `language_centre`; Group M). `excluded_management_kind` gains `health_examination_management` (P-15).
 - **Singapore line fact from the review of build PR 3 (schema, spec "Facts").** Decided by Sebastian in the review of PR #15, 18 Nov 2026. New: `value_performed_in_singapore` (split; WH-5: the value of technical, service or management work performed in Singapore, where the documents show it).
 - **Malaysian area facts for MS-7 and MG-5 (schema, spec "Facts").** Decided by Sebastian with the rewritten MS-7 and MG-5 (sheet of 18 Nov 2026). New line facts: `recipient_zone`, `service_site_zone`, `delivery_zone` (zones, `pca` for the principal customs area), `international_leg` (the five item-7 legs of P.U. (A) 212/2018, or `none`), `used_directly_in_approved_activity`, `motor_vehicle_value` with `motor_vehicle_value_basis` (`cif`, `sales_price`). Zones gain `pulau_1` and `petroleum_supply_base`. From the PR 4 review (19 Nov): line facts `employer_staff_accommodation`, `educational_training_welfare_purpose`, `non_commercial_religious_welfare` (item 3 exclusions) and `canteen_kind` (item 4 exclusions).
+- **`check_rules` on facts the caller doesn't supply (spec, variant (b)).** Decided by Sebastian in the review of build PR 5 (PR #18), 19 Nov 2026. A fact the rules read but the call doesn't supply takes the engine's ordinary default and is listed in `missing`; the line's `treatment` is null only where a rule can't settle it. This is the only way the tool reproduces the answer keys from their gold facts (the reference-row check). The spec said a missing fact makes the treatment null; it now says this.
 - **Buyer actions are obligations only (spec `buyer_actions`).** An optional later claim is not a buyer action: where an exemption works by refund (G-3, the JDA refund route in P-20), the line is `SST_CORRECT` with no buyer action.
 
 ### v0.9 clarifications (no version bump; no scores exist yet; carried into v0.10)

@@ -11,6 +11,7 @@ from . import constants, rules as line_rules, validity
 from .models import MyContractFacts, MyLineFacts, MyCompanyFacts, MyInvois, MySupplierFacts, MyTaxProfile, MyTaxTreatment
 
 if TYPE_CHECKING:
+    from ...models.evidence import LineFacts
     from ...models import Catalog, Category, Company, Finding, Invoice
     from ...rules.view import CaseView
 
@@ -78,8 +79,8 @@ class MalaysiaPack(CountryPack):
     def validity(self, invoice: Invoice) -> list[Finding]:
         return validity.check(invoice)
 
-    def assess_tax(self, view: CaseView, catalog: Catalog) -> TaxResult:
-        return line_rules.assess(view, catalog)
+    def assess_tax(self, view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None = None) -> TaxResult:
+        return line_rules.assess(view, catalog, facts)
 
 
 PACK = MalaysiaPack()
