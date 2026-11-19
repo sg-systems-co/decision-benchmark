@@ -85,7 +85,9 @@ def test_mg2_near_miss_right_rate():
 # -- MG-3, G-1: rate transitions and motorcycles ------------------------------------------------------
 
 
-def test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed():
+def test_mg3_policy_code_invoiced_before_the_policy_date_takes_the_category_rate():
+    # The fixture category is 10% before 1 Jul 2025 too. The release motorcycle category was exempt then
+    # (Goods Exempted Orders 2018 and 2022): test_goods_before_2025.
     assert result(*goods(day="2025-06-25", tariff_code=MOTORCYCLE)) == (OK, "SST_CORRECT", "MG-3")
 
 

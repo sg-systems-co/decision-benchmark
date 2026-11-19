@@ -5317,3 +5317,244 @@ sources:
   wayback_url: https://web.archive.org/web/20261012071328/https://mysst.customs.gov.my/wp-content/uploads/2025/03/P.U.B_-471-PENETAPAN-TARIKH-PERMULAAN-KUAT-KUASA.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-7
+- id: sales-tax-rates-of-tax-order-2018
+  title: Sales Tax (Rates of Tax) Order 2018 [P.U. (A) 221/2018] — Principal
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: de487ac798a54a68a832d8970b99b002274c6b87969402e603645a20d33fe783
+  bytes: 1585058
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2018/2026-11-19/Sales-Tax-Rates-Of-Tax-Order-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2018-amendment-1-2018
+  title: Sales Tax (Rates of Tax) (Amendment) Order 2018 [P.U. (A) 233/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-1-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: 84136a0a7d6cad3de135d033a6e4b4597ae7efdcf50f24a1b3341e210e912eae
+  bytes: 620484
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2018-amendment-1-2018/2026-11-19/Sales-Tax-Rates-Of-Tax-Order-Amd-1-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2018-amendment-2-2018
+  title: Sales Tax (Rates of Tax) (Amendment) (No. 2) Order 2018 [P.U. (A) 254/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-2-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: e30e01ab91875695df2a4d66ce9642fb9365ad8fb6a7f2d23f6edb765934a1bc
+  bytes: 765426
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2018-amendment-2-2018/2026-11-19/Sales-Tax-Rates-Of-Tax-Order-Amd-2-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2018-amendment-3-2018
+  title: Sales Tax (Rate of Tax) (Amendment) (No. 3) Order 2018 [P.U. (A) 400/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-3-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: cd87ed37a96261eaee4379cd1acbf52c81b6c0ff6846c2cfa7a34dc9a494fbfa
+  bytes: 497642
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2018-amendment-3-2018/2026-11-19/Sales-Tax-Rates-Of-Tax-Order-Amd-3-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2018-amendment-2019
+  title: Sales Tax (Rates of Tax) (Amendment) Order 2019 [P.U. (A) 370/2019]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/sales-tax-rate-of-tax-amendment-2019.pdf
+  retrieved: '2026-11-19'
+  sha256: 7540486ed4481ab92d49cd1081df8bd74e20a44e851afd119ea67af70fd5c965
+  bytes: 615561
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2018-amendment-2019/2026-11-19/sales-tax-rate-of-tax-amendment-2019.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2022
+  title: Sales Tax (Rates of Tax) Order 2022 [P.U. (A) 176/2022] — Principal
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-2022_PUA176.pdf
+  retrieved: '2026-11-19'
+  sha256: ba3118acf625bdf65fa33e29e3f4a20808aeea0214cebc964322fcb4a61b82ac
+  bytes: 1849745
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2022/2026-11-19/Sales-Tax-Rates-Of-Tax-Order-2022_PUA176.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-rates-of-tax-order-2022-amendment-2023
+  title: Sales Tax (Rate of Tax) (Amendment) Order 2023 [P.U. (A) 102/2023]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rate-of-Tax-Amendment-2023-PUA-102.pdf
+  retrieved: '2026-11-19'
+  sha256: 7584fac892e3d901796aed5e82b9c3dca6091b9ffd7317caec17eb1d50104dd8
+  bytes: 601835
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-rates-of-tax-order-2022-amendment-2023/2026-11-19/Sales-Tax-Rate-of-Tax-Amendment-2023-PUA-102.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2018
+  title: Sales Tax (Goods Exempted From Tax) Order 2018 [P.U. (A) 219/2018] — Principal
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: 2736970ea6898f7834940ca7839ad1f8303781c8bbfa843e3c385563d20f7d83
+  bytes: 18684093
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2018/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Order-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2018-amendment-1-2018
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) Order 2018 [P.U. (A) 228/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-1-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: 01b33c63a73642232585650a4a60f86e166429cdf57a7db450bb57e479439ca6
+  bytes: 593236
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2018-amendment-1-2018/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-1-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2018-amendment-2-2018
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) (No. 2) Order 2018 [P.U. (A) 234/2018]
+  authority: AGC
+  country: my
+  official_url: https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/pua_20180906_PUA234.pdf
+  retrieved: '2026-11-19'
+  sha256: 4b8efa52c52fcf6805e415cafe05eaea138de6593dff396b88abc09da668579e
+  bytes: 806734
+  content_type: application/pdf
+  archive_path: sources/my/agc/sales-tax-goods-exempted-from-tax-order-2018-amendment-2-2018/2026-11-19/pua_20180906_PUA234.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  note: MySST's orders page links this row to the Rates of Tax (Amendment) (No. 2) Order 2018 file; taken from the e-Federal Gazette (lom.agc.gov.my).
+- id: sales-tax-goods-exempted-from-tax-order-2018-amendment-3-2018
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) (No. 3) Order 2018 [P.U. (A) 253/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-3-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: 75cc8fcc3e8f89468079a78c0bbbe31a43e0fa195df9ae567125c31bb0335afa
+  bytes: 743904
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2018-amendment-3-2018/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-3-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2018-amendment-4-2018
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) (No. 4) Order 2018 [P.U. (A) 404/2018]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-4-2018.pdf
+  retrieved: '2026-11-19'
+  sha256: 1c305c7d371fc1bf7e4b31dbfb3c99153c9a4c9b5874190c6faa4a6225fb5527
+  bytes: 601923
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2018-amendment-4-2018/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-4-2018.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2022
+  title: Sales Tax (Goods Exempted From Tax) Order 2022 [P.U. (A) 175/2022] — Principal
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-2022_PUA175.pdf
+  retrieved: '2026-11-19'
+  sha256: 3bfdb399f2086b842cebdeb4d2a9ae1a254b1c6a488fd8caa2df89bb1fa8da10
+  bytes: 7094392
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2022/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Order-2022_PUA175.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2022-amendment-1-2023
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) Order 2023 [P.U. (A) 109/2023]
+  authority: RMCD
+  country: my
+  official_url: https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Amendment-Order-2023_PUA109.pdf
+  retrieved: '2026-11-19'
+  sha256: eb619c30b7d4e88dc6e42ab0b6b1df3054dbdd109278ef9ca64e8a21fc3431a1
+  bytes: 421148
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-goods-exempted-from-tax-order-2022-amendment-1-2023/2026-11-19/Sales-Tax-Goods-Exempted-From-Tax-Amendment-Order-2023_PUA109.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+- id: sales-tax-goods-exempted-from-tax-order-2022-amendment-2-2023
+  title: Sales Tax (Goods Exempted From Tax) (Amendment) (No. 2) Order 2023 [P.U. (A) 401/2023]
+  authority: AGC
+  country: my
+  official_url: https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/1946278/PUA%20401.pdf
+  retrieved: '2026-11-19'
+  sha256: 630aa658dc15c7097b57dcf677f3524fede60fc115bf94592a3eca290223e6f0
+  bytes: 189361
+  content_type: application/pdf
+  archive_path: sources/my/agc/sales-tax-goods-exempted-from-tax-order-2022-amendment-2-2023/2026-11-19/PUA 401.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-3
+  - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
+  note: Not on MySST's orders page; taken from the e-Federal Gazette (lom.agc.gov.my).
+- id: sales-tax-persons-exempted-order-2018-amendment-1-2026
+  title: Sales Tax (Persons Exempted From Payment of Tax) (Amendment) Order 2026 [P.U. (A) 165/2026]
+  authority: AGC
+  country: my
+  official_url: https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/3450519/PUA%20165_2026.pdf
+  retrieved: '2026-11-19'
+  sha256: dec63b0ea2bbfde596b0f0fdcc471f8d3db33cb2e4e22810ac14178b29bbdcac
+  bytes: 195247
+  content_type: application/pdf
+  archive_path: sources/my/agc/sales-tax-persons-exempted-order-2018-amendment-1-2026/2026-11-19/PUA 165_2026.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#MG-4
+  note: Not on MySST's orders page; taken from the e-Federal Gazette (lom.agc.gov.my). Rule sheet v0.10 section 2 listed it among the Goods Exempted Order's amendments until 19 Nov 2026.
+- id: sales-tax-persons-exempted-order-2018-amendment-2-2026
+  title: Sales Tax (Persons Exempted From Payment of Tax) (Amendment) (No. 2) Order 2026 [P.U. (A) 303/2026]
+  authority: RMCD
+  country: my
+  official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA303_2026.pdf
+  retrieved: '2026-11-19'
+  sha256: 67f3f32317d02a9ca47a759a66a6fc6484ad6edffee3bcf1471139b8a9a8435b
+  bytes: 297513
+  content_type: application/pdf
+  archive_path: sources/my/rmcd/sales-tax-persons-exempted-order-2018-amendment-2-2026/2026-11-19/PUA303_2026.pdf
+  wayback_url: null
+  cited_by:
+  - docs/tax-rules-v0.10.md#G-3
+  - docs/tax-rules-v0.10.md#MG-4
+  note: Rule sheet v0.10 section 2 listed it among the Goods Exempted Order's amendments until 19 Nov 2026. In operation 1 Sep 2026; MySST's page shows 28/08/2026.

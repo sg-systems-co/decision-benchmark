@@ -278,7 +278,7 @@ Transitional "new-scope" exemptions that ended (registration grace periods in Ju
 
 ## 2. Malaysia — sales tax
 
-Sources: Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] + amendments 199/2025, 399/2025, 281/2026; Sales Tax (Goods Exempted from Sales Tax) Order 2025 [171/2025] + 200/2025, 400/2025, 165/2026, 276/2026, 303/2026; Sales Tax (Persons Exempted from Payment of Tax) Order 2018 Schedules A, B, C and amendments; RMCD sales tax FAQ and Guide on Manufacturing; MOF release 5 Jan 2026.
+Sources: Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] + amendments 199/2025, 399/2025, 281/2026; Sales Tax (Goods Exempted from Sales Tax) Order 2025 [171/2025] + 200/2025, 400/2025, 276/2026; Sales Tax (Persons Exempted from Payment of Tax) Order 2018 Schedules A, B, C and amendments (among them 165/2026 and 303/2026, listed here among the exemption order's amendments until 19 Nov 2026); before 1 Jul 2025 (MG-3), the Sales Tax (Rates of Tax) Orders 2018 [221/2018] and 2022 [176/2022] and (Goods Exempted from Tax) Orders 2018 [219/2018] and 2022 [175/2022], with their amendments; RMCD sales tax FAQ and Guide on Manufacturing; MOF release 5 Jan 2026.
 
 ### MG-1 Who may charge sales tax
 
@@ -300,7 +300,7 @@ Sales tax is single-stage: charged by a **registered manufacturer** on taxable g
 
 ### MG-3 Rate transitions (1 Jul 2025 and later amendments)
 
-Goods that stopped being exempt on 1 Jul 2025 aren't taxed if invoiced before that date (Rate Order amendment 2025 para 3). The 1 Jan 2026 exemptions for critical raw materials used by registered manufacturers, animal feed, fertiliser and pesticides apply from that date.
+Goods that stopped being exempt on 1 Jul 2025 aren't taxed if invoiced before that date (Rate Order amendment 2025 para 3). Before 1 Jul 2025 the rate comes from the orders then in force: the 2018 orders from 1 Sep 2018, the 2022 orders from 1 Jun 2022. A goods category whose heading those orders exempt only in part has no earlier rate, and its lines dated before 1 Jul 2025 are HAND_OVER (added 19 Nov 2026, engine 0.10.1). The 1 Jan 2026 exemptions for critical raw materials used by registered manufacturers, animal feed, fertiliser and pesticides apply from that date.
 
 - Deciding facts: invoice date, delivery date.
 

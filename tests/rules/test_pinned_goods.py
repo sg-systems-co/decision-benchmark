@@ -36,11 +36,12 @@ def test_each_category_is_pinned_to_its_code(name, code):
     assert RELEASE.get(name).tax["MY"].facts["tariff_code"] == code
 
 
-# -- G-1 motorcycles 8711.20.96 00: 10% under para 2(1), exempt from 1 Jul 2025 ------------------------------
+# -- G-1 motorcycles 8711.20.96 00: exempt before 1 Jul 2025 (2018, 2022 orders) and from it (G-1) -----------
 
 
-def test_g1_motorcycles_taxed_the_day_before_the_exemption():
-    assert run("motorcycles_50_150cc", "10", day="2025-06-30") == (OK, "SST_CORRECT", "MG-3")
+def test_g1_motorcycles_exempt_the_day_before_the_policy_under_the_2022_order():
+    # Engine 0.10.1: P.U. (A) 175/2022 Schedule A lists 8711.20.96 00 (MG-3); 0.10.0 had 10% here.
+    assert run("motorcycles_50_150cc", "10", day="2025-06-30") == (RCI, "SST_SHOULD_BE_EXEMPT", "MG-3")
 
 
 @pytest.mark.parametrize("day", ["2025-07-01", "2025-11-01"])   # policy from 1 Jul; Exemption Order from 1 Nov

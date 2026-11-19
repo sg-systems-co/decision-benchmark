@@ -89,3 +89,17 @@ The v0.10 engine (A12 build PR 5, release commit). Against 0.10.0.dev5: every on
   - G-3, `animal_feed_fishmeal` (2301.20.20 00) and `animal_feed_premix` (2309.90.20 00): 5% `SST_CORRECT` on 31 Dec 2025 (MG-3) and on 1 Jan 2026 (G-3, refund route); 10% on 1 Jan 2026 `SST_WRONG_RATE` by MG-2 (5 keys).
   - MG-2, construction materials: `construction_cement` (2523.29.90 00) and `construction_rebar_round` (7214.20.31 00) charged → `SST_SHOULD_BE_EXEMPT`; `construction_rebar_other_section` (7214.20.41 00) 5% `SST_CORRECT`, 10% `SST_WRONG_RATE`; `construction_ceramic_tiles` (heading 6907) 10% `SST_CORRECT` (5 keys).
   - L-8: separated materials charged service tax → `SST_SHOULD_BE_EXEMPT` (1 key).
+
+## 0.10.1
+
+Goods rates before 1 Jul 2025 (review of A12 build PR 5, 19 Nov). Against 0.10.0: 804 keys; 731 change only `engine_version` (0.10.1), one changes its answer, one is renamed, 71 are new.
+
+- **MG-3, changed answer:** `motorcycles_50_150cc` (8711.20.96 00) charged 10% on 30 Jun 2025: `SST_CORRECT` by MG-3 (10%) → `SST_SHOULD_BE_EXEMPT` by MG-3. The Sales Tax (Goods Exempted from Tax) Order 2022 [P.U. (A) 175/2022] Schedule A lists "8711.20.96 00 - - - - Other"; the 2018 order had it from 1 Sep 2018 (P.U. (A) 228/2018). Test renamed with it: `test_pinned_goods.py::test_g1_motorcycles_taxed_the_day_before_the_exemption` → `test_g1_motorcycles_exempt_the_day_before_the_policy_under_the_2022_order`.
+- **MG-3, renamed, same key:** `test_my_sales_tax.py::test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed` → `test_mg3_policy_code_invoiced_before_the_policy_date_takes_the_category_rate`. It runs on a fixture category that is 10% before 1 Jul 2025 as well, so the old name no longer described the release motorcycles.
+- **MG-3, new keys** from `tests/rules/test_goods_before_2025.py` (release profiles):
+  - Exempt before 1 Jul 2025 and charged at the 2025 rate, on 1 Sep 2018, 31 May 2022, 1 Jun 2022 and 30 Jun 2025 → `SST_SHOULD_BE_EXEMPT` by MG-3: `hdpe_resin`, `polypropylene_resin`, `pvc_resin`, `copper_wire`, `electric_forklifts`, `power_tools`, `centrifugal_pumps`, `animal_feed_fishmeal`, `animal_feed_premix`, `construction_rebar_other_section`, `motorcycles_50_150cc` (44 keys).
+  - The same ten 5% categories on 1 Jul 2025 → `SST_CORRECT` (MG-2; MG-3 for the two feed codes, before G-3) (10 keys).
+  - `hdpe_resin` without tax on 30 Jun 2025 → `NO_SST` by MG-3; on 1 Jul 2025 → `SST_UNDERCHARGED` by MS-9 (2 keys).
+  - Unchanged classes on 1 Mar 2019 and 30 Jun 2025, by MG-2: `laptops_desktops` 5% correct, `printers_copiers` 10% wrong rate, `construction_ceramic_tiles` 10% correct, `construction_cement` charged → `SST_SHOULD_BE_EXEMPT` (8 keys).
+  - `process_gauges`, `control_instruments`, `tool_bits` on 30 Jun 2025 → HAND_OVER by MG-3 (headings only partly exempt in the earlier orders); on 1 Jul 2025 → 10% `SST_CORRECT` (6 keys).
+  - `laptops_desktops` on 31 Aug 2018, before sales tax began → HAND_OVER by MG-3 (1 key).

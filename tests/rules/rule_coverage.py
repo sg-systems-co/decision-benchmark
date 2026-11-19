@@ -28,6 +28,7 @@ W = "test_withholding::"
 X5 = "test_mixed_invoices::"
 A = "test_my_areas::"
 PG = "test_pinned_goods::"
+GB = "test_goods_before_2025::"
 T = "test_table_rows::"
 RULE_TESTS: dict[str, dict[str, list[str]]] = {
     # A12 build PR 2: Malaysia.
@@ -149,7 +150,9 @@ RULE_TESTS: dict[str, dict[str, list[str]]] = {
             "near_miss": [S + "test_mg1_near_miss_registered_manufacturer_selling_its_own_goods", S + "test_mg1_near_miss_trader_charges_nothing"]},
     "MG-2": {"positive": [S + "test_mg2_wrong_rate_and_exempt_goods"],
             "near_miss": [S + "test_mg2_near_miss_right_rate"]},
-    "MG-3": {"positive": [S + "test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed"],
+    "MG-3": {"positive": [S + "test_mg3_policy_code_invoiced_before_the_policy_date_takes_the_category_rate",
+                          GB + "test_goods_exempt_before_1_july_2025_carry_no_tax_invoiced_before_then",
+                          GB + "test_partly_exempt_headings_are_not_settled_before_1_july_2025"],
             "near_miss": [S + "test_g1_motorcycles_exempt_from_july_2025"]},
     "MG-4": {"positive": [S + "test_mg4_buyer_holds_a_certificate_for_the_goods"],
             "near_miss": [S + "test_mg4_near_miss_certificate_expired_or_other_goods"]},

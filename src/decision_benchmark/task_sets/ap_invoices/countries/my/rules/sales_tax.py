@@ -1,8 +1,9 @@
 """Sales tax on one goods line: MG-1 to MG-6 and G-1, G-3 to G-5 (rule sheet v0.10 section 2).
 
 Sales tax is single-stage: only a registered manufacturer charges it, on taxable goods it manufactured and
-sold (MG-1). The rate is the goods category's (the catalog takes it from the Rate of Sales Tax Order 2025;
-v0.9 clarification), judged at the invoice date (MG-3). Exemptions: designated areas (MG-5), the Sales Tax
+sold (MG-1). The rate is the goods category's, judged at the invoice date (MG-3): from 1 Jul 2025 its class
+under the 2025 orders, before that its class under the 2018 and 2022 orders (the catalog's earlier_classes);
+a date no earlier class covers is HAND_OVER. Exemptions: designated areas (MG-5), the Sales Tax
 Policies by tariff code (G-1; G-3 works by refund, so the tax on the invoice is correct), drop-shipment
 exports (G-5), the buyer's Schedule A, B or C certificate (MG-4; pallets only as one-way packaging, G-4) and
 goods the category marks exempt (MG-2). G-2, G-6 and G-7 have no invoice effect (not engine rules).
@@ -10,9 +11,9 @@ goods the category marks exempt (MG-2). G-2, G-6 and G-7 have no invoice effect 
 
 from __future__ import annotations
 
-from ....findings import finding
+from ....findings import NotSettled, finding
 from ....codes import Code
-from ..constants import TAX_CLASS_RATE, TAX_TYPE_SERVICE
+from ..constants import SALES_TAX_ORDERS_2025_FROM, TAX_CLASS_RATE, TAX_TYPE_SERVICE
 from ..models import MyTaxTreatment as T
 from .. import tariffs
 from . import areas
@@ -79,10 +80,22 @@ def assess(ctx: LineCtx) -> Outcome:
             taxable_by = result.basis
     if not ctx.charged:
         return ctx.undercharged("MS-9", "sales")
-    expected = TAX_CLASS_RATE[ctx.profile.tax_class]
+    tax_class, basis = _tax_class(ctx)
+    expected = TAX_CLASS_RATE[tax_class]
     if ctx.line.tax_rate != expected:
-        return ctx.wrong_rate("MG-2", expected)
-    return Outcome(T.SST_CORRECT, taxable_by or "MG-2")
+        return ctx.wrong_rate(basis, expected)
+    return Outcome(T.SST_CORRECT, taxable_by or basis)
+
+
+def _tax_class(ctx: LineCtx) -> tuple[str, str]:
+    """MG-2, MG-3: the category's class on the invoice date and the rule it rests on. From 1 Jul 2025 the 2025
+    orders (MG-2); before, the 2018 or 2022 orders (MG-3 where the class differs from today's, else MG-2)."""
+    if ctx.day >= SALES_TAX_ORDERS_2025_FROM:
+        return ctx.profile.tax_class, "MG-2"
+    for earlier in ctx.profile.earlier_classes:
+        if earlier.valid_from <= ctx.day <= earlier.valid_to:
+            return earlier.tax_class, "MG-2" if earlier.tax_class == ctx.profile.tax_class else "MG-3"
+    raise NotSettled("MG-3", "the goods' rate before 1 Jul 2025 is not settled for this category")
 
 
 def _drop_shipment(ctx: LineCtx) -> Exempt | None:
@@ -91,5 +104,6 @@ def _drop_shipment(ctx: LineCtx) -> Exempt | None:
 
 
 def _exempt_goods(ctx: LineCtx) -> Exempt | None:
-    """MG-2: goods the Goods Exempted Order exempts (the category's class)."""
-    return Exempt("MG-2") if ctx.profile.tax_class == "sales_exempt" else None
+    """MG-2, MG-3: goods the Goods Exempted Order in force on the invoice date exempts (the category's class)."""
+    tax_class, basis = _tax_class(ctx)
+    return Exempt(basis) if tax_class == "sales_exempt" else None

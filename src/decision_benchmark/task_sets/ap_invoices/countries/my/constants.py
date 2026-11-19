@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 
 TAX_CLASS_RATE = {
@@ -10,6 +11,9 @@ TAX_CLASS_RATE = {
     "service_8": Decimal("8"),
     "service_6": Decimal("6"),
 }
+SALES_TAX_ORDERS_2025_FROM = date(2025, 7, 1)
+"""The Sales Tax (Rate of Sales Tax) Order 2025 [P.U. (A) 170/2025] and (Goods Exempted from Sales Tax) Order 2025
+[P.U. (A) 171/2025] apply from this date; they revoke the 2022 orders (MG-3)."""
 SALES_TAX_SOURCE = "https://mysst.customs.gov.my/faq-sales-tax/"
 SERVICE_TAX_SOURCE = "https://mysst.customs.gov.my/faq-services-tax/"
 GROUP_G_SOURCE = (

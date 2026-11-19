@@ -1,6 +1,7 @@
 # Test-only catalog for the rules-engine tests. It is NOT the release catalog
 # (src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml)
-# and makes no statement about which real goods carry which sales-tax rate.
+# and makes no statement about which real goods carry which sales-tax rate. Each goods category keeps its
+# class for the whole sales tax period before 1 Jul 2025 (earlier_classes), so dated tests read one rate.
 version: 0
 categories:
 - category: it_services
@@ -112,7 +113,7 @@ categories:
   label: Test raw material (sales tax 10% in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
 - category: test_exempt_goods
@@ -120,7 +121,7 @@ categories:
   label: Test goods exempt from sales tax (Goods Exempted from Sales Tax Order 2025 in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_exempt}
+    MY: {tax_class: sales_exempt, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: raw_materials
   sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
 - category: test_hotel
@@ -160,7 +161,7 @@ categories:
   label: Test cigarettes (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [tobacco]}
+    MY: {tax_class: sales_10, area_goods: [tobacco], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_e_liquid
@@ -168,7 +169,7 @@ categories:
   label: Test e-cigarette liquid with nicotine (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [e_liquid_nicotine]}
+    MY: {tax_class: sales_10, area_goods: [e_liquid_nicotine], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_petroleum
@@ -176,7 +177,7 @@ categories:
   label: Test petroleum product (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [petroleum]}
+    MY: {tax_class: sales_10, area_goods: [petroleum], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_motor_vehicle
@@ -184,7 +185,7 @@ categories:
   label: Test motor vehicle (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [motor_vehicle]}
+    MY: {tax_class: sales_10, area_goods: [motor_vehicle], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_marble
@@ -192,7 +193,7 @@ categories:
   label: Test marble (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [marble]}
+    MY: {tax_class: sales_10, area_goods: [marble], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_wine
@@ -200,7 +201,7 @@ categories:
   label: Test wine (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [alcohol]}
+    MY: {tax_class: sales_10, area_goods: [alcohol], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_office_furniture
@@ -208,7 +209,7 @@ categories:
   label: Test office furniture (area rules in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture]}
+    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: office_supplies
   sources: ['https://mysst.customs.gov.my/sst-orders/']
 - category: test_vessel_charter
@@ -232,7 +233,7 @@ categories:
   label: Test finished goods (sales tax 5% in this fixture)
   countries: [MY]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_5}]}
   gl_role: consumables
   sources: ['https://mysst.customs.gov.my/faq-sales-tax/']
 - category: office_supplies
