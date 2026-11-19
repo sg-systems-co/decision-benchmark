@@ -58,6 +58,12 @@ def test_g3_feed_raw_materials_stay_at_5_percent(name, day, basis):
     assert run(name, "5", day=day) == (OK, "SST_CORRECT", basis)
 
 
+@pytest.mark.parametrize("name", ["animal_feed_fishmeal", "animal_feed_premix"])
+@pytest.mark.parametrize("day, basis", [("2026-08-31", "G-3"), ("2026-09-01", "MG-2")])
+def test_g3_ends_31_august_2026_without_a_certificate_the_5_percent_rate_applies(name, day, basis):
+    assert run(name, "5", day=day) == (OK, "SST_CORRECT", basis)
+
+
 def test_g3_near_miss_feed_raw_materials_at_10_percent_is_the_wrong_rate():
     assert run("animal_feed_fishmeal", "10", day="2026-01-01") == (RCI, "SST_WRONG_RATE", "MG-2")
 

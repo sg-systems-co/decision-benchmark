@@ -92,7 +92,7 @@ The v0.10 engine (A12 build PR 5, release commit). Against 0.10.0.dev5: every on
 
 ## 0.10.1
 
-Goods rates before 1 Jul 2025 (review of A12 build PR 5, 19 Nov). Against 0.10.0: 804 keys; 731 change only `engine_version` (0.10.1), one changes its answer, one is renamed, 71 are new.
+Goods rates before 1 Jul 2025 (review of A12 build PR 5, 19 Nov) and the end of G-3 (review of #19). Against 0.10.0: 813 keys; 731 change only `engine_version` (0.10.1), one changes its answer, one is renamed, 80 are new.
 
 - **MG-3, changed answer:** `motorcycles_50_150cc` (8711.20.96 00) charged 10% on 30 Jun 2025: `SST_CORRECT` by MG-3 (10%) → `SST_SHOULD_BE_EXEMPT` by MG-3. The Sales Tax (Goods Exempted from Tax) Order 2022 [P.U. (A) 175/2022] Schedule A lists "8711.20.96 00 - - - - Other"; the 2018 order had it from 1 Sep 2018 (P.U. (A) 228/2018). Test renamed with it: `test_pinned_goods.py::test_g1_motorcycles_taxed_the_day_before_the_exemption` → `test_g1_motorcycles_exempt_the_day_before_the_policy_under_the_2022_order`.
 - **MG-3, renamed, same key:** `test_my_sales_tax.py::test_mg3_motorcycle_invoiced_before_its_exemption_is_taxed` → `test_mg3_policy_code_invoiced_before_the_policy_date_takes_the_category_rate`. It runs on a fixture category that is 10% before 1 Jul 2025 as well, so the old name no longer described the release motorcycles.
@@ -103,3 +103,8 @@ Goods rates before 1 Jul 2025 (review of A12 build PR 5, 19 Nov). Against 0.10.0
   - Unchanged classes on 1 Mar 2019 and 30 Jun 2025, by MG-2: `laptops_desktops` 5% correct, `printers_copiers` 10% wrong rate, `construction_ceramic_tiles` 10% correct, `construction_cement` charged → `SST_SHOULD_BE_EXEMPT` (8 keys).
   - `process_gauges`, `control_instruments`, `tool_bits` on 30 Jun 2025 → HAND_OVER by MG-3 (headings only partly exempt in the earlier orders); on 1 Jul 2025 → 10% `SST_CORRECT` (6 keys).
   - `laptops_desktops` on 31 Aug 2018, before sales tax began → HAND_OVER by MG-3 (1 key).
+- **G-3 and MG-4 (review of #19), no existing key changes.** G-3's refund route ends on 31 Aug 2026: from 1 Sep 2026 the Persons Exempted Order covers these buyers (P.U. (A) 303/2026, Schedule B items 5 to 7). New keys (9):
+  - G-3, feed code on the fixture category: 31 Aug 2026 → `SST_CORRECT` by G-3, with or without a Schedule B certificate valid from 1 Sep 2026 (2 keys).
+  - MG-2, the same on 1 Sep 2026 without a certificate → `SST_CORRECT` by MG-2 (1 key).
+  - MG-4, 1 Sep 2026 with the certificate: tax shown → `SST_SHOULD_BE_EXEMPT`; no tax → `NO_SST` (2 keys).
+  - Release `animal_feed_fishmeal` and `animal_feed_premix` at 5% without a certificate: 31 Aug 2026 → `SST_CORRECT` by G-3; 1 Sep 2026 → `SST_CORRECT` by MG-2 (4 keys).

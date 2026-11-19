@@ -4,12 +4,15 @@ Sales tax is single-stage: only a registered manufacturer charges it, on taxable
 sold (MG-1). The rate is the goods category's, judged at the invoice date (MG-3): from 1 Jul 2025 its class
 under the 2025 orders, before that its class under the 2018 and 2022 orders (the catalog's earlier_classes);
 a date no earlier class covers is HAND_OVER. Exemptions: designated areas (MG-5), the Sales Tax
-Policies by tariff code (G-1; G-3 works by refund, so the tax on the invoice is correct), drop-shipment
+Policies by tariff code (G-1; G-3 works by refund to 31 Aug 2026, so the tax on the invoice is correct; from 1 Sep 2026 the
+Persons Exempted Order covers those buyers, Schedule B items 5-7: MG-4 with a certificate, else the ordinary rate), drop-shipment
 exports (G-5), the buyer's Schedule A, B or C certificate (MG-4; pallets only as one-way packaging, G-4) and
 goods the category marks exempt (MG-2). G-2, G-6 and G-7 have no invoice effect (not engine rules).
 """
 
 from __future__ import annotations
+
+from datetime import date
 
 from ....findings import NotSettled, finding
 from ....codes import Code
@@ -20,6 +23,9 @@ from . import areas
 from .context import Exempt, LineCtx, Outcome, Taxable
 
 CERTIFICATE_KINDS = ("schedule_a", "schedule_b", "schedule_c")
+G3_REFUND_ROUTE_TO = date(2026, 8, 31)
+"""G-3 (Sales Tax Policy 1/2026) works by refund "until the Persons Exempted Order is amended": P.U. (A) 303/2026
+inserts Schedule B items 5-7 (animal feed, fertiliser and pesticide manufacturers) from 1 Sep 2026."""
 SALES_LABELS = {"MG-4": "schedule_c"}
 """The finding label v0.9 keys use for a Schedule C exemption."""
 
@@ -47,6 +53,8 @@ def _policy(ctx: LineCtx) -> Exempt | Taxable | None:
         return None
     if ctx.day < row.effective_from:
         return Taxable("MG-3")
+    if row.rule == "G-3" and ctx.day > G3_REFUND_ROUTE_TO:
+        return None   # MG-4 with a Schedule B certificate (items 5-7), else the ordinary rate (MG-2)
     return Exempt("G-1") if row.rule == "G-1" else Taxable("G-3")
 
 

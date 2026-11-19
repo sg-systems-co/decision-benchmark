@@ -307,7 +307,7 @@ Goods that stopped being exempt on 1 Jul 2025 aren't taxed if invoiced before th
 ### MG-4 Exemptions by person (Persons Exempted Order)
 
 - Schedule C: registered manufacturers buy raw materials, components, packaging and manufacturing aids for taxable goods exempt (items 1–5 as in the manufacturing guide).
-- Schedule B: manufacturers of non-taxable goods buy inputs exempt.
+- Schedule B: manufacturers of non-taxable goods buy inputs exempt. From 1 Sep 2026, items 5–7 (P.U. (A) 303/2026) add licensed manufacturers of animal feed, fertiliser and pesticide products, ending G-3's refund route.
 - Schedule A: specific persons and purposes (e.g. items 34–38, 49, 54–56, 62 in the manufacturing guide; oil and gas items 33A/33B; others).
 - All require the buyer to hold the exemption (certificate in the case documents) for those goods and that period.
 
@@ -361,7 +361,7 @@ Goods that stopped being exempt on 1 Jul 2025 aren't taxed if invoiced before th
 | --- | --- | --- |
 | G-1 | Motorcycles 8711.20.96 00 and 8711.20.99 00 (50–250 cc, other) exempt from 1 Jul 2025 | Sales Tax Policy 1/2025 (Amdt 1) |
 | G-2 | Soya beans 1201.10.00 00 and 1201.90.00 00 imported, exempt from 1 Jul 2025 | 2/2025 |
-| G-3 | Raw materials for animal feed, fertilisers and pesticides (tariff codes in its Appendices I–III) bought by licensed manufacturers, exempt from 1 Jan 2026 until the Persons Exempted Order is amended (refund route) | 1/2026 |
+| G-3 | Raw materials for animal feed, fertilisers and pesticides (tariff codes in its Appendices I–III) bought by licensed manufacturers: 1 Jan 2026 to 31 Aug 2026, refund route (invoice correct as charged). From 1 Sep 2026 the Persons Exempted Order covers them (P.U. (A) 303/2026, Schedule B items 5–7), so MG-4 applies: a buyer holding the certificate is exempt, and tax shown → `SST_SHOULD_BE_EXEMPT`; without one, the ordinary rate applies (MG-2) | 1/2026; P.U. (A) 303/2026 |
 | G-4 | Pallets: exempt under Schedule C items 1/3 only as one-way packaging that goes to the buyer; returnable transport pallets are taxable | 1/2022 |
 | G-5 | Drop-shipment: a registered manufacturer exporting directly for a Malaysian trader invoices the trader without sales tax (one trader level only, bill-to/ship-to on the invoice) | 2/2022 |
 | G-6 | Re-imports of exported goods returned because of the Middle East conflict, by the same manufacturer, to 31 Dec 2026 | 2/2026 |

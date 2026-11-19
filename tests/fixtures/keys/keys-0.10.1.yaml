@@ -14442,6 +14442,135 @@ keys:
       line_no: 1
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g3_ends_on_31_august_2026_then_mg4_schedule_b[2026-08-31-False-expected0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: G-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g3_ends_on_31_august_2026_then_mg4_schedule_b[2026-08-31-True-expected1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_my_sales_tax.py::test_g3_ends_on_31_august_2026_then_mg4_schedule_b[2026-09-01-False-expected2]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.1
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings:
+    - code: TAX_SHOULD_BE_EXEMPT
+      evidence:
+        basis: schedule_c
+        line: 1
+      tier: 3
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - TAX_SHOULD_BE_EXEMPT
+    rules_version: v0.10
+    tax_lines:
+    - basis: MG-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_SHOULD_BE_EXEMPT
+    tax_treatment: SST_SHOULD_BE_EXEMPT
+  test: tests/rules/test_my_sales_tax.py::test_g3_ends_on_31_august_2026_then_mg4_schedule_b[2026-09-01-True-expected3]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: G-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
   test: tests/rules/test_my_sales_tax.py::test_g3_feed_raw_materials_are_taxed_on_the_invoice_refund_route
 - call: 0
   key:
@@ -15209,6 +15338,37 @@ keys:
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
   test: tests/rules/test_my_sales_tax.py::test_mg4_near_miss_certificate_expired_or_other_goods[over1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts:
+    - line_no: 1
+      tariff_code:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: 2301.20.10 00
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MG-4
+      gl_account: 5100-100
+      line_no: 1
+      treatment: NO_SST
+    tax_treatment: NO_SST
+  test: tests/rules/test_my_sales_tax.py::test_mg4_schedule_b_items_5_7_buyer_invoiced_without_tax
 - call: 0
   key:
     answer_source: rules
@@ -19196,6 +19356,106 @@ keys:
       treatment: SST_SHOULD_BE_EXEMPT
     tax_treatment: SST_SHOULD_BE_EXEMPT
   test: tests/rules/test_pinned_goods.py::test_g1_motorcycles_exempt_the_day_before_the_policy_under_the_2022_order
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: G-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_pinned_goods.py::test_g3_ends_31_august_2026_without_a_certificate_the_5_percent_rate_applies[2026-08-31-G-3-animal_feed_fishmeal]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: G-3
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_pinned_goods.py::test_g3_ends_31_august_2026_without_a_certificate_the_5_percent_rate_applies[2026-08-31-G-3-animal_feed_premix]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_pinned_goods.py::test_g3_ends_31_august_2026_without_a_certificate_the_5_percent_rate_applies[2026-09-01-MG-2-animal_feed_fishmeal]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.1
+    facts: null
+    findings: []
+    gl_account: 5100-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MG-2
+      gl_account: 5100-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_pinned_goods.py::test_g3_ends_31_august_2026_without_a_certificate_the_5_percent_rate_applies[2026-09-01-MG-2-animal_feed_premix]
 - call: 0
   key:
     answer_source: rules

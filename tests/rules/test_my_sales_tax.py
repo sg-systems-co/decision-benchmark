@@ -168,6 +168,29 @@ def test_g3_near_miss_before_january_2026():
     assert result(*goods(day="2025-12-10", tariff_code=FEED)) == (OK, "SST_CORRECT", "MG-3")
 
 
+# G-3 ends on 31 Aug 2026: from 1 Sep 2026 P.U. (A) 303/2026 Schedule B items 5-7 cover these buyers (MG-4).
+ITEMS_5_7 = {"valid_from": "2026-09-01"}   # a Schedule B certificate under the new items starts on 1 Sep 2026
+
+
+@pytest.mark.parametrize("day, with_certificate, expected", [
+    ("2026-08-31", False, (OK, "SST_CORRECT", "G-3")),
+    ("2026-08-31", True, (OK, "SST_CORRECT", "G-3")),          # the certificate is not valid yet
+    ("2026-09-01", False, (OK, "SST_CORRECT", "MG-2")),
+    ("2026-09-01", True, (RCI, "SST_SHOULD_BE_EXEMPT", "MG-4")),
+])
+def test_g3_ends_on_31_august_2026_then_mg4_schedule_b(day, with_certificate, expected):
+    r, c = goods(day=day, tariff_code=FEED)
+    if with_certificate:
+        certificate(r, "schedule_b", **ITEMS_5_7)
+    assert result(r, c) == expected
+
+
+def test_mg4_schedule_b_items_5_7_buyer_invoiced_without_tax():
+    r, c = goods(rate="0", day="2026-09-01", tariff_code=FEED)
+    certificate(r, "schedule_b", **ITEMS_5_7)
+    assert result(r, c) == (OK, "NO_SST", "MG-4")
+
+
 def test_g5_drop_shipment_export_is_invoiced_without_sales_tax():
     assert result(*goods(drop_shipment_export=True)) == (RCI, "SST_SHOULD_BE_EXEMPT", "G-5")
     assert result(*goods(rate="0", drop_shipment_export=True)) == (OK, "NO_SST", "G-5")
