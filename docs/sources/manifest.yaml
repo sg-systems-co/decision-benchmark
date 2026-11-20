@@ -259,7 +259,7 @@ sources:
   bytes: 831579
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-a-manufacturing-and-b-import-export-malay/2026-11-17/Panduan Pengilangan_01Jan2021.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117143559/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Pengilangan_01Jan2021.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-1
   - docs/tax-rules-v0.10.md#MG-4
@@ -511,7 +511,7 @@ sources:
   bytes: 466931
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-electricity-transmission-and-distribution-services-ms/2026-11-17/PERKHIDMATAN PENGHANTARAN DAN PENGAGIHAN ELEKTRIK V4 16.04.2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PERKHIDMATAN%20PENGHANTARAN%20DAN%20PENGAGIHAN%20ELEKTRIK%20V4%2016.04.2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
 - id: guide-employment-services-ms
@@ -524,7 +524,7 @@ sources:
   bytes: 271871
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-employment-services-ms/2026-11-17/Panduan Perkhidmatan Pekerjaan V3 14052024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Pekerjaan%20V3%2014052024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -609,7 +609,7 @@ sources:
   bytes: 505642
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-group-c-d-and-e-services-ms/2026-11-17/Panduan Kumpulan CDE_4.9.25.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -623,7 +623,7 @@ sources:
   bytes: 823109
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-sales-tax-exemption-under-item-33a-33b-55-63-64-65-schedule-a-sales-tax-pe/2026-11-17/7. Guide on Sales Tax Exemption Under Item Schedule A (33A,33B,55,63,64, and 65).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/7.%20Guide%20on%20Sales%20Tax%20Exemption%20Under%20Item%20Schedule%20A%20(33A%2C33B%2C55%2C63%2C64%2C%20and%2065).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-4
 - id: guide-shariah-credit-card-financing-ms
@@ -636,7 +636,7 @@ sources:
   bytes: 259382
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-shariah-credit-card-financing-ms/2026-11-17/2. Panduan Perkhidmatan Baris Kredit atau Pembiayaan Patuh Syariah.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/2.%20Panduan%20Perkhidmatan%20Baris%20Kredit%20atau%20Pembiayaan%20Patuh%20Syariah.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
 - id: guide-transition-of-sales-tax-rate-changes
@@ -649,7 +649,7 @@ sources:
   bytes: 364560
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-transition-of-sales-tax-rate-changes/2026-11-17/GUIDELINES FOR THE TRANSITION OF SALES TAX RATE CHANGES.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/GUIDELINES%20FOR%20THE%20TRANSITION%20OF%20SALES%20TAX%20RATE%20CHANGES.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-3
 - id: guide-transition-of-sales-tax-rate-changes-malay
@@ -662,7 +662,7 @@ sources:
   bytes: 408405
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-transition-of-sales-tax-rate-changes-malay/2026-11-17/1. PANDUAN PERALIHAN PERUBAHAN KADAR CUKAI JUALAN.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141053/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/1.%20PANDUAN%20PERALIHAN%20PERUBAHAN%20KADAR%20CUKAI%20JUALAN.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-3
 - id: guide-implementation-of-sales-tax-on-low-value-goods-lvg
@@ -675,7 +675,7 @@ sources:
   bytes: 8973412
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-implementation-of-sales-tax-on-low-value-goods-lvg/2026-11-17/Guidelines for The Implementation of Sales Tax On Low Value Goods (LVG).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guidelines%20for%20The%20Implementation%20of%20Sales%20Tax%20On%20Low%20Value%20Goods%20(LVG).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
 - id: guide-imported-taxable-services-ms
@@ -688,7 +688,7 @@ sources:
   bytes: 260023
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-imported-taxable-services-ms/2026-11-17/Panduan Perkhidmatan Bercukai Diimport.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142806/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Bercukai%20Diimport.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-8
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -702,7 +702,7 @@ sources:
   bytes: 623856
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-information-technology-services-ms/2026-11-17/Panduan Perkhidmatan Teknologi Maklumat - V7 26.02.2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Teknologi%20Maklumat%20-%20V7%2026.02.2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -717,7 +717,7 @@ sources:
   bytes: 298476
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-insurance-or-takaful-services-ms/2026-11-17/Panduan perkhidmatan insurans atau takaful Jun 2025 V4 19 Jun 2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20perkhidmatan%20insurans%20atau%20takaful%20Jun%202025%20V4%2019%20Jun%202025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -731,7 +731,7 @@ sources:
   bytes: 822174
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-logistic-services-ms/2026-11-17/Panduan Perkhidmatan Logistik 06062025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Logistik%2006062025.pdf
   cited_by:
   - CHANGELOG.md
   - docs/tax-rules-v0.10.md#MS-4
@@ -747,7 +747,7 @@ sources:
   bytes: 298423
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-maintenance-or-repair-services-ms/2026-11-17/PANDUAN PERKHIDMATAN PENYENGGARAAN 290324.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20PENYENGGARAAN%20290324.pdf
   cited_by:
   - CHANGELOG.md
   - docs/tax-rules-v0.10.md#MS-4
@@ -762,7 +762,7 @@ sources:
   bytes: 287529
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-management-services/2026-11-17/Guide on Management Services  V5 6.5.2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142804/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf
   cited_by:
   - CHANGELOG.md
   - docs/task-sets/ap-invoices/spec-v0.9.md
@@ -838,7 +838,7 @@ sources:
   bytes: 531823
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-private-education-services/2026-11-17/3. GUIDE ON PRIVATE EDUCATION SERVICES.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/3.%20GUIDE%20ON%20PRIVATE%20EDUCATION%20SERVICES.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -866,7 +866,7 @@ sources:
   bytes: 494715
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-professional-services/2026-11-17/Guide on Professional Services 20210921.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142806/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Professional%20Services%2020210921.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -881,7 +881,7 @@ sources:
   bytes: 620180
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-professional-services-malay/2026-11-17/Panduan Perkhidmatan Professional_20211031.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141057/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Perkhidmatan%20Professional_20211031.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -895,7 +895,7 @@ sources:
   bytes: 561774
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-rental-or-leasing-services/2026-11-17/5. GUIDE ON RENTAL OR LEASING SERVICES.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/5.%20GUIDE%20ON%20RENTAL%20OR%20LEASING%20SERVICES.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -910,7 +910,7 @@ sources:
   bytes: 1000725
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-rental-or-leasing-services-malay/2026-11-17/PANDUAN PERKHIDMATAN SEWAAN ATAU PAJAKAN_VERSI 2@1452026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141055/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20SEWAAN%20ATAU%20PAJAKAN_VERSI%202%401452026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -924,7 +924,7 @@ sources:
   bytes: 555425
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-telecommunication-services-ms/2026-11-17/Perkhidmatan Telekomunikasi 27022024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Telekomunikasi%2027022024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -938,7 +938,7 @@ sources:
   bytes: 348447
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-vehicle-parking-services-ms/2026-11-17/PANDUAN PERKHIDMATAN RUANG LETAK KENDERAAN V4 4.6.2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142805/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/PANDUAN%20PERKHIDMATAN%20RUANG%20LETAK%20KENDERAAN%20V4%204.6.2026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -952,7 +952,7 @@ sources:
   bytes: 221557
   content_type: application/pdf
   archive_path: sources/my/rmcd/guide-warehouse-management-services-ms/2026-11-17/Perkhidmatan Pengurusan Penggudangan.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142806/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Perkhidmatan%20Pengurusan%20Penggudangan.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-4
   - docs/tax-rules-v0.10.md#MS-5
@@ -967,7 +967,7 @@ sources:
   bytes: 330661
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-goods-exempted-amendment-order-2026/2026-11-17/PUA 276 PERINTAH CUKAI JUALAN (ORANG YANG DIKECUALIKAN).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142631/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20276%20PERINTAH%20CUKAI%20JUALAN%20(ORANG%20YANG%20DIKECUALIKAN).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
@@ -982,7 +982,7 @@ sources:
   bytes: 285513
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-goods-exempted-order-2025-amendment-1-2025/2026-11-17/4-PUA 200_2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141053/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/4-PUA%20200_2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
@@ -996,7 +996,7 @@ sources:
   bytes: 240473
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-goods-exempted-order-2025-amendment-2-2025/2026-11-17/PUA 400 (2025).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141054/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20400%20(2025).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
@@ -1026,7 +1026,7 @@ sources:
   bytes: 840061
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-persons-exempted-order-2018/2026-11-17/Sales Tax (Person Exempted From Payment Of Tax) Order 2018.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141055/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Sales%20Tax%20(Person%20Exempted%20From%20Payment%20Of%20Tax)%20Order%202018.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-4
 - id: sales-tax-rate-of-sales-tax-amendment-order-2026
@@ -1082,7 +1082,7 @@ sources:
   bytes: 4762834
   content_type: application/pdf
   archive_path: sources/my/rmcd/sales-tax-rate-of-sales-tax-order-2025/2026-11-17/1-PUA 170_2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141053/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
@@ -1253,7 +1253,7 @@ sources:
   bytes: 321970
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-persons-exempted-order-2018-amendment-1-2025/2026-11-17/Perintah-CP-Orang-yang-Dikecualikan-daripada-Pembayaran-CukaiPindaan-2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141105/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah-CP-Orang-yang-Dikecualikan-daripada-Pembayaran-CukaiPindaan-2025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-5
 - id: service-tax-persons-exempted-order-2018
@@ -1307,7 +1307,7 @@ sources:
   bytes: 245277
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018-amendment-1-2026/2026-11-17/Perintah Cukai Perkhidmatan (Kadar Cukai)(Pindaan) 2026.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141105/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Perintah%20Cukai%20Perkhidmatan%20(Kadar%20Cukai)(Pindaan)%202026.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-2
   - docs/tax-rules-v0.10.md#MS-3
@@ -1323,7 +1323,7 @@ sources:
   bytes: 576905
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-rate-of-tax-order-2018/2026-11-17/Service Tax (Rate Of Tax) Order 2018.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141105/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/Service%20Tax%20(Rate%20Of%20Tax)%20Order%202018.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-2
   - docs/tax-rules-v0.10.md#MS-3
@@ -1353,7 +1353,7 @@ sources:
   bytes: 162280
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-amendment-no-1/2026-11-17/STP 8-2020 (Amendment No 1).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142910/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%208-2020%20(Amendment%20No%201).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-6
@@ -1368,7 +1368,7 @@ sources:
   bytes: 156507
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-amendment-no-1-malay/2026-11-17/DCP  8-2020 (Pindaan No 1).pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141127/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%20%208-2020%20(Pindaan%20No%201).pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-6
@@ -1383,7 +1383,7 @@ sources:
   bytes: 320296
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-policy-no-8-2020-malay/2026-11-17/DCP 8_2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117141127/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/MS/DCP%208_2020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#MS-10
   - docs/tax-rules-v0.10.md#MS-6
@@ -1398,7 +1398,7 @@ sources:
   bytes: 454376
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2018/2026-11-17/Service Tax Regulations (Amendment) 2018.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142705/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%202018.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1414,7 +1414,7 @@ sources:
   bytes: 3069902
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2019/2026-11-17/Service Tax (Amendment) Regulations 2019.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20(Amendment)%20Regulations%202019.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1430,7 +1430,7 @@ sources:
   bytes: 513338
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2020/2026-11-17/Service Tax Regulations (Amendment) 2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%202020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1462,7 +1462,7 @@ sources:
   bytes: 716860
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2024/2026-11-17/PERATURAN-PERATURAN CUKAI PERKHIDMATAN (PINDAAN) 2024.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/PERATURAN-PERATURAN%20CUKAI%20PERKHIDMATAN%20(PINDAAN)%202024.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1478,7 +1478,7 @@ sources:
   bytes: 427748
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-1-2025/2026-11-17/Peraturan-Peraturan CP (Pindaan) 2025.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Peraturan-Peraturan%20CP%20(Pindaan)%202025.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1495,7 +1495,7 @@ sources:
   bytes: 661420
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2018/2026-11-17/Service Tax Regulations (Amendment 2) 2018.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment%202)%202018.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1511,7 +1511,7 @@ sources:
   bytes: 448574
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2019/2026-11-17/Service Tax Regulations (Amendment 2) 2019.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment%202)%202019.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1527,7 +1527,7 @@ sources:
   bytes: 419566
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2020/2026-11-17/Service Tax Regulations (Amendment) No2 2020.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/Service%20Tax%20Regulations%20(Amendment)%20No2%202020.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1543,7 +1543,7 @@ sources:
   bytes: 625124
   content_type: application/pdf
   archive_path: sources/my/rmcd/service-tax-regulations-2018-amendment-2-2023/2026-11-17/PUA 413 Peraturan2 CP (Pindaan)(No.2) 2023.pdf
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117142706/https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Regulations/PUA%20413%20Peraturan2%20CP%20(Pindaan)(No.2)%202023.pdf
   cited_by:
   - docs/tax-rules-v0.10.md#ME-4
   - docs/tax-rules-v0.10.md#MS-1
@@ -1658,7 +1658,7 @@ sources:
   bytes: 297210
   content_type: text/html
   archive_path: sources/sg/iras/gst-and-digital-economy-local-businesses/2026-11-17/local-businesses.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261030135056/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/gst-and-digital-economy/local-businesses
   cited_by:
   - docs/tax-rules-v0.10.md#SG-8
 - id: basics-of-gst
@@ -1671,7 +1671,7 @@ sources:
   bytes: 252702
   content_type: text/html
   archive_path: sources/sg/iras/basics-of-gst/2026-11-17/basics-of-gst.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261116044215/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst
   cited_by:
   - src/decision_benchmark/task_sets/ap_invoices/countries/sg/constants.py
 - id: claim-input-tax-in-the-correct-accounting-period
@@ -1684,7 +1684,7 @@ sources:
   bytes: 268801
   content_type: text/html
   archive_path: sources/sg/iras/claim-input-tax-in-the-correct-accounting-period/2026-11-17/claim-input-tax-in-the-correct-accounting-period.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182402/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/claim-input-tax-in-the-correct-accounting-period
   cited_by:
   - docs/task-sets/ap-invoices/tax-rules-v0.9.md
   - docs/tax-rules-v0.10.md#SG-11
@@ -1698,7 +1698,7 @@ sources:
   bytes: 270230
   content_type: text/html
   archive_path: sources/sg/iras/claiming-input-tax-incurred-to-make-exempt-supplies/2026-11-17/claiming-input-tax-incurred-to-make-exempt-supplies.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182030/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/claiming-input-tax-incurred-to-make-exempt-supplies
   cited_by:
   - docs/tax-rules-v0.10.md#SG-9
 - id: conditions-for-claiming-input-tax
@@ -1711,7 +1711,7 @@ sources:
   bytes: 284382
   content_type: text/html
   archive_path: sources/sg/iras/conditions-for-claiming-input-tax/2026-11-17/conditions-for-claiming-input-tax.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260914201052/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/conditions-for-claiming-input-tax
   cited_by:
   - CHANGELOG.md
   - docs/task-sets/ap-invoices/spec-v0.9.md
@@ -1729,7 +1729,7 @@ sources:
   bytes: 263563
   content_type: text/html
   archive_path: sources/sg/iras/current-gst-rates/2026-11-17/current-gst-rates.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261103100506/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/basics-of-gst/current-gst-rates
   cited_by:
   - CHANGELOG.md
   - docs/tax-rules-v0.10.md#SG-3
@@ -1744,7 +1744,7 @@ sources:
   bytes: 272184
   content_type: text/html
   archive_path: sources/sg/iras/customer-accounting-for-prescribed-goods/2026-11-17/customer-accounting-for-prescribed-goods.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260614193828/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-goods-and-services-tax-(gst)/customer-accounting-for-prescribed-goods
   cited_by:
   - docs/tax-rules-v0.10.md#SG-7
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -1758,7 +1758,7 @@ sources:
   bytes: 272635
   content_type: text/html
   archive_path: sources/sg/iras/employee-benefits-claiming-gst/2026-11-17/employee-benefits.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260421111625/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/common-scenarios---do-i-claim-gst/employee-benefits
   cited_by:
   - docs/tax-rules-v0.10.md#SG-10
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -1813,7 +1813,7 @@ sources:
   bytes: 263584
   content_type: text/html
   archive_path: sources/sg/iras/overview-of-withholding-tax/2026-11-17/overview-of-withholding-tax-(WHT).html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261117182030/https://www.iras.gov.sg/taxes/withholding-tax/basics-of-withholding-tax/overview-of-withholding-tax-(WHT)
   cited_by:
   - docs/tax-rules-v0.10.md#WH-5
 - id: paying-suppliers-after-claiming-gst
@@ -1826,7 +1826,7 @@ sources:
   bytes: 264093
   content_type: text/html
   archive_path: sources/sg/iras/paying-suppliers-after-claiming-gst/2026-11-17/paying-suppliers-after-claiming-gst.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261103100522/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/claiming-gst-(input-tax)/paying-suppliers-after-claiming-gst
   cited_by:
   - docs/tax-rules-v0.10.md#SG-11
 - id: providing-international-services
@@ -1839,7 +1839,7 @@ sources:
   bytes: 331475
   content_type: text/html
   archive_path: sources/sg/iras/providing-international-services/2026-11-17/providing-international-services.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261104175306/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-to-charge-0-gst-(zero-rate)/providing-international-services
   cited_by:
   - docs/tax-rules-v0.10.md#SG-6
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -1853,7 +1853,7 @@ sources:
   bytes: 302029
   content_type: text/html
   archive_path: sources/sg/iras/supplies-exempt-from-gst/2026-11-17/supplies-exempt-from-gst.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20260813052550/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/charging-gst-(output-tax)/when-is-gst-not-charged/supplies-exempt-from-gst
   cited_by:
   - docs/tax-rules-v0.10.md#SG-5
   - src/decision_benchmark/task_sets/ap_invoices/content/catalog/categories.yaml
@@ -1867,7 +1867,7 @@ sources:
   bytes: 263181
   content_type: text/html
   archive_path: sources/sg/iras/wrongful-collection-of-gst-by-gst-registered-persons/2026-11-17/wrongful-collection-of-gst-by-gst-registered-persons.html
-  wayback_url: null
+  wayback_url: https://web.archive.org/web/20261115060913/https://www.iras.gov.sg/taxes/goods-services-tax-(gst)/getting-it-right/wrongful-collection-of-gst-by-gst-registered-persons
   cited_by:
   - docs/tax-rules-v0.10.md#SG-4
 - id: stp-1-2019
