@@ -53,7 +53,7 @@ All cases are synthetic. The companies, suppliers and people are fictional. Answ
 - **131 Singapore treaty-rate fields are not human-reviewed.** The withholding rates read from Singapore's tax treaties are machine-read; 131 rate fields are flagged for review in the source archive (a protocol amends the article, several rates, or no rate). Where a rate is not settled from the treaty text, the answer is HAND_OVER.
 - **The engine writes the answer keys.** So a score measures agreement with the published rules, not accuracy on real invoices, until the real-data check is published.
 - **Each release pins an engine version and an as-of date.** Every answer key records the engine version and rule-sheet version that wrote it. Rules change; a score is only as current as its as-of date.
-- **Engine 0.10.1, rules as of 19 November 2026.** The keys of this version are written by engine 0.10.1 from rule sheet v0.10.
+- **Engine 0.10.2, rules as of 20 November 2026.** The keys of this version are written by engine 0.10.2 from rule sheet v0.10.
 - **Five area questions are open (Q-A1 to Q-A5).** For Malaysia's designated and special areas the official texts leave five questions open. Q-A1 cases are planted under the reading of RMCD's manufacturing guide (no sales tax on the invoice) and flagged so they can be dropped if the accountant review overturns it; the other four give HAND_OVER and are not planted.
 
 - Spec: [spec-v0.10.md](https://github.com/sg-systems-co/decision-benchmark/blob/main/docs/task-sets/ap-invoices/spec-v0.10.md)

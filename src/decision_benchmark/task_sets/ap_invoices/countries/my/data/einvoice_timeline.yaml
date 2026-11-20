@@ -1,0 +1,32 @@
+# Malaysian e-invoicing timeline (ME-1): implementation dates, exemptions and interim relaxation periods.
+# Sources: docs/sources/manifest.yaml (ids below): the LHDN timeline page (updated 30 Aug 2026), e-Invoice Guideline
+# v4.6 sections 1.5-1.6 and e-Invoice Specific Guideline v4.9 section 16 (Table 16.1). Written from rule sheet v0.10
+# ME-1 (20 Nov 2026); tests/rules/test_my_einvoice.py checks every date here against the sheet.
+source:
+- lhdn-e-invoice-implementation-timeline
+- irbm-e-invoice-guideline
+- irbm-e-invoice-specific-guideline
+rows:
+# Implementation date by FY2022 / YA2022 turnover band (Guideline Table 1.1; timeline page).
+- {kind: phase, bands: [above_100m], start: 2024-08-01, source: lhdn-e-invoice-implementation-timeline}
+- {kind: phase, bands: [25m_to_100m], start: 2025-01-01, source: lhdn-e-invoice-implementation-timeline}
+- {kind: phase, bands: [5m_to_25m], start: 2025-07-01, source: lhdn-e-invoice-implementation-timeline}
+- {kind: phase, bands: [3m_to_5m], start: 2026-01-01, source: lhdn-e-invoice-implementation-timeline}
+# Exempt: turnover below RM3m (timeline page, 30 Aug 2026; the Guideline v4.6 of 7 Dec 2025 still says RM1m, and the
+# later page governs).
+- {kind: exempt_band, bands: [below_1m, 1m_to_3m], source: lhdn-e-invoice-implementation-timeline}
+# New businesses (Guideline section 1.5): commenced 2023-2025 with turnover of at least RM1m, from 1 Jul 2026;
+# commenced 2026 or later, from 1 Jul 2026 or the commencement date (the later), or, if the first year's turnover is
+# below RM1m, from 1 January of the second year following the year turnover reached RM1m.
+- {kind: new_business, started_from: 2023-01-01, started_to: 2025-12-31, start: 2026-07-01, source: irbm-e-invoice-guideline}
+- {kind: new_business, started_from: 2026-01-01, start: 2026-07-01, source: irbm-e-invoice-guideline}
+# Persons exempt from issuing e-invoices (Guideline section 1.6.1); `to`: exempt only for supplies before that date,
+# `statutory_fees`: from then on exempt only for statutory payments, fees and charges.
+- {kind: exempt_person, supplier_kinds: [foreign_diplomatic_office, individual_not_in_business], source: irbm-e-invoice-guideline}
+- {kind: exempt_person, supplier_kinds: [statutory_body, local_authority], to: 2025-06-30, statutory_fees: true, source: irbm-e-invoice-guideline}
+- {kind: exempt_person, supplier_kinds: [international_organisation], to: 2025-06-30, source: irbm-e-invoice-guideline}
+# Interim relaxation (Specific Guideline Table 16.1): no individual e-invoice needed; a consolidated one is allowed.
+- {kind: relaxation, starts: [2024-08-01], bands: [above_100m], to: 2025-01-31, source: irbm-e-invoice-specific-guideline}
+- {kind: relaxation, starts: [2025-01-01], bands: [25m_to_100m], to: 2025-06-30, source: irbm-e-invoice-specific-guideline}
+- {kind: relaxation, starts: [2025-07-01], bands: [5m_to_25m], to: 2025-12-31, source: irbm-e-invoice-specific-guideline}
+- {kind: relaxation, starts: [2026-01-01, 2026-07-01], bands: [below_1m, 1m_to_3m, 3m_to_5m], to: 2027-12-31, source: irbm-e-invoice-specific-guideline}

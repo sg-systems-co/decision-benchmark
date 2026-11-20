@@ -34,6 +34,8 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
     lines: list[LineResult] = []
     findings: list[Finding] = []
     unsettled: list[Unsettled] = []
+    check_statutory = einvoice.statutory_fees_only_from(inv, view.supplier, sf)
+    statutory_lines: list[bool] = []
     for line in inv.lines:
         # check_rules: only the supplied facts count; a line with none supplied reads an empty set.
         source = None if facts is None else facts.get(line.line_no) or PACK.line_facts_model()
@@ -44,6 +46,8 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
                       sf=sf, company=view.company, cf=cf, day=inv.issue_date, processing_date=view.as_of_date,
                       catalog=catalog, contracts=view.contracts, invoice=inv, defaults=PACK.fact_defaults(profile),
                       residence_certificates=view.residence_certificates)
+        if check_statutory:
+            statutory_lines.append(einvoice.statutory_fee_line(ctx))
         try:
             out = assess_line(ctx)
         except NotSettled as ns:
@@ -61,7 +65,7 @@ def assess(view: CaseView, catalog: Catalog, facts: dict[int, LineFacts] | None 
         lines.append(LineResult(line.line_no, out.code, out.basis, actions, read=tuple(reader.recorded_reads()),
                                 missing=tuple(reader.missing()), open_question=out.open_question))
     try:
-        findings += einvoice.supplier_phase(inv, view.supplier, sf)
+        findings += einvoice.supplier_phase(inv, view.supplier, sf, statutory_lines)
     except NotSettled as ns:
         unsettled.append(Unsettled(ns.reason, tax_related=ns.tax_related))
     findings += einvoice.particulars(inv, view.supplier, lines)
