@@ -1,6 +1,6 @@
 # Step 11 plan: generator, rules engine, scorer, agent environment
 
-Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. Task set: `ap-invoices` (called `ap-invoices-my-sg` until A10). Spec: v0.9 ("synthetic, rules-based"), frozen.
+Status: approved by Sebastian on 13 Nov 2026, with the decisions in §16. **B1 for spec v0.10:** see [b1-generator-v0.10.md](b1-generator-v0.10.md), which replaces §4, §5, §7, §8 and the B1 row of §12 for B1. Task set: `ap-invoices` (called `ap-invoices-my-sg` until A10). Spec: v0.9 ("synthetic, rules-based"), frozen.
 
 This PR adds only this plan. No code. The builds happen in later runs, one PR per row in §12, after review. PR A ended with commits A8 and A9, which split generic code (`core/`) from the task set (`task_sets/ap_invoices/`) and moved the shared case fields onto the core envelope. A10 split the task set into country-neutral models and rules plus one country pack per country, and renamed it `ap-invoices`. §3, §3.1, §3.2, §4 and §12 describe the result.
 
