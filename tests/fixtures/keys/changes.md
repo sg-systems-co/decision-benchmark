@@ -108,3 +108,16 @@ Goods rates before 1 Jul 2025 (review of A12 build PR 5, 19 Nov) and the end of 
   - MG-2, the same on 1 Sep 2026 without a certificate → `SST_CORRECT` by MG-2 (1 key).
   - MG-4, 1 Sep 2026 with the certificate: tax shown → `SST_SHOULD_BE_EXEMPT`; no tax → `NO_SST` (2 keys).
   - Release `animal_feed_fishmeal` and `animal_feed_premix` at 5% without a certificate: 31 Aug 2026 → `SST_CORRECT` by G-3; 1 Sep 2026 → `SST_CORRECT` by MG-2 (4 keys).
+
+## 0.10.2
+
+E-invoice phases, exemptions and interim relaxation periods (ME-1; review of the B1 plan, 20 Nov). Against 0.10.1: 865 keys; all 813 keys of 0.10.1 change only `engine_version` (0.10.2), 52 are new. No existing key falls inside a relaxation period, so none changes its answer.
+
+- **ME-1, new keys** from `tests/rules/test_my_einvoice.py`:
+  - Each established phase (above RM100m, RM25m-100m, RM5m-25m, RM3m-5m), invoice without a validated e-invoice: the day before the implementation date, the implementation date and the last day of the relaxation period → no finding, APPROVE; the day after the relaxation period → `MISSING_MANDATORY_FIELD` (ME-1), REQUEST_CORRECTED_INVOICE (16 keys).
+  - Turnover below RM3m (two bands) → exempt; RM3m-5m on 1 Mar 2028 → finding (3 keys).
+  - Foreign diplomatic office and individual not conducting business → exempt (2 keys). Statutory body, local authority and international organisation: 30 Jun 2025 → exempt; 1 Jul 2025 → finding (6 keys). Statutory body and local authority from 1 Jul 2025: the whole line a statutory fee → exempt; part of it → finding (4 keys).
+  - New businesses: commenced 2023, 2025 and Mar 2026 with RM3m-5m → from 1 Jul 2026, relaxation to 31 Dec 2027, finding on 1 Jan 2028 (9 keys); commenced 2023-2025 below RM1m → no date (1 key); commenced 1 Sep 2026 → before it no finding, from it HAND_OVER (Table 16.1 publishes no period), with a validated e-invoice APPROVE (3 keys); commenced 2024 above RM5m → HAND_OVER from 1 Jul 2026 (2 keys); commenced 2026 with first-year turnover below RM1m and RM1m reached in 2026 → from 1 Jan 2028, HAND_OVER then; RM1m not reached → no finding (3 keys).
+  - Unknown supplier phase: 31 Jan 2025 → APPROVE (no supplier past its relaxation period yet); 1 Feb 2025 → HAND_OVER; with a validated e-invoice → APPROVE (3 keys).
+- **ME-1, migrated tests, same keys:** `test_me1_supplier_in_its_phase_without_a_validated_einvoice`, `test_me1_near_miss_validated_or_before_the_phase` and `test_me1_unknown_phase_is_a_hand_over_with_the_tax_set` now state the supplier's turnover band instead of a phase start date; their keys are unchanged.
+

@@ -1,16 +1,20 @@
 """E-invoices and SST invoice particulars: ME-1, ME-3, ME-4 (rule sheet v0.10 section 3). ME-2 (MyInvois
 mandatory fields) is validity.py.
 
-Sources: LHDN e-Invoice Guideline and Specific Guideline v4.9 (section 8.3 self-billing); LHDN timeline;
-Service Tax Regulations 2018 reg 10(1) and 10(1A). Open questions here are not about the tax: they leave the
-line's treatment set and make the case HAND_OVER (NotSettled with tax_related False).
+Sources: LHDN e-Invoice Guideline v4.6 (sections 1.5-1.6) and Specific Guideline v4.9 (section 8.3 self-billing,
+section 16 interim relaxation); LHDN timeline; Service Tax Regulations 2018 reg 10(1) and 10(1A). The ME-1 dates are
+in data/einvoice_timeline.yaml. Open questions here are not about the tax: they leave the line's treatment set and
+make the case HAND_OVER (NotSettled with tax_related False).
 """
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from ....codes import Code
 from ....findings import LineResult, NotSettled, finding
 from ....models import BuyerAction, Finding, Invoice, Supplier
+from .. import einvoice_timeline as tl
 from ..models import MyCompanyFacts, MyInvois, MySupplierFacts
 from ..models import MyTaxTreatment as T
 from .context import HOME, LineCtx
@@ -18,20 +22,63 @@ from .context import HOME, LineCtx
 ISSUE_SELF_BILLED = "ISSUE_SELF_BILLED_EINVOICE"
 
 
-def supplier_phase(inv: Invoice, supplier: Supplier, sf: MySupplierFacts) -> list[Finding]:
-    """ME-1: a supplier in a mandatory phase on the invoice date issues a validated e-invoice."""
+def _validated(inv: Invoice) -> bool:
+    e = inv.einvoice
+    assert isinstance(e, MyInvois)
+    return bool(e.is_einvoice and e.uuid and e.validation_datetime)
+
+
+def statutory_fees_only_from(inv: Invoice, supplier: Supplier, sf: MySupplierFacts):
+    """A statutory body or local authority after its general exemption ended is exempt only for statutory payments,
+    fees and charges (e-Invoice Guideline 1.6.1(c)(i)): True when each line must then be checked."""
+    row = tl.exempt_person(sf.supplier_kind)
+    return (supplier.country == HOME and row is not None and row.statutory_fees and row.to is not None
+            and inv.issue_date > row.to and not _validated(inv))
+
+
+def statutory_fee_line(ctx: LineCtx) -> bool:
+    """The whole line is a statutory payment, fee or charge (the line fact MS-4 reads, with its ordinary value)."""
+    fee = ctx.fact("statutory_fee_amount", Decimal(0), "ME-1")
+    return fee >= ctx.net
+
+
+def supplier_phase(inv: Invoice, supplier: Supplier, sf: MySupplierFacts,
+                   statutory_lines: list[bool] | None = None) -> list[Finding]:
+    """ME-1: a supplier in a mandatory phase on the invoice date and outside that phase's interim relaxation period
+    issues a validated e-invoice. Inside the relaxation period it may issue a consolidated e-invoice instead, so an
+    ordinary invoice raises no finding (Specific Guideline 16.2(a), (d)). statutory_lines: for a statutory body or
+    local authority (statutory_fees_only_from), whether each line is a statutory fee."""
     if supplier.country != HOME:
         return []                       # an overseas supplier issues no MyInvois e-invoice (the buyer self-bills, ME-3)
+    if _validated(inv):
+        return []
+    day = inv.issue_date
     if not sf.einvoice_phase_known:
+        if day <= tl.earliest_relaxation_end():
+            return []                   # no supplier is past its relaxation period yet: the phase doesn't decide
         raise NotSettled("ME-1", "supplier e-invoicing phase not shown", tax_related=False)
-    start = sf.einvoice_phase_start
-    if start is None or inv.issue_date < start:
+    person = tl.exempt_person(sf.supplier_kind)
+    if person is not None and (person.to is None or day <= person.to):
+        return []
+    if person is not None and person.statutory_fees and statutory_lines and all(statutory_lines):
+        return []
+    status = sf.einvoice
+    if status is None or tl.exempt_band(status.turnover_band):
+        return []
+    start = tl.implementation_date(status)
+    if start is None or day < start:
+        return []
+    end = tl.relaxation_end(start, status.turnover_band)
+    if end is None:
+        raise NotSettled("ME-1", "no interim relaxation period is published for this implementation date",
+                         tax_related=False)
+    if day <= end:
         return []
     e = inv.einvoice
     assert isinstance(e, MyInvois)
     missing = [name for name, present in (("validated_einvoice", e.is_einvoice), ("uuid", e.uuid),
                                           ("validation_datetime", e.validation_datetime)) if not present]
-    return [finding(Code.MISSING_MANDATORY_FIELD, missing=missing, rule="ME-1")] if missing else []
+    return [finding(Code.MISSING_MANDATORY_FIELD, missing=missing, rule="ME-1")]
 
 
 def self_billing(ctx: LineCtx) -> tuple[BuyerAction, ...]:
