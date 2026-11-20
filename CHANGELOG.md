@@ -13,7 +13,7 @@ Versioning rules:
 
 Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
 
-Engine: 0.10.0. Rules as of: 2026-11-19.
+Engine: 0.10.1. Rules as of: 2026-11-19.
 
 ### Engine (A12, build PRs #12, #14, #15, #17 and this one)
 
@@ -22,6 +22,14 @@ Engine: 0.10.0. Rules as of: 2026-11-19.
 - `check_rules` (agent variant b) runs the same code path on facts a caller supplies; the reference-row check shows it reproduces every answer key from its gold facts.
 - The release catalog maps categories to the facts and lists the rules need (fact defaults, P.U. (A) 212/2018 items, area goods kinds) and adds 44 categories; goods for G-1, G-3 and L-8 are pinned to one tariff code each, read at subheading level from the archived orders.
 - Release entries from v0.10 pin the engine: `release/publish.py` checks the "Engine: … Rules as of: …" line against the package version.
+
+### Engine 0.10.1: goods rates before 1 Jul 2025 (MG-3)
+
+- Before 1 Jul 2025 a goods line takes its category's class under the orders then in force: the Sales Tax (Rates of Tax) and (Goods Exempted from Tax) Orders 2018 from 1 Sep 2018 and 2022 from 1 Jun 2022, with every amendment. Engine 0.10.0 applied the 2025 classes to every date. The orders are archived and in the manifest.
+- Exempt before 1 Jul 2025, so no sales tax on goods invoiced before then (P.U. (A) 199/2025 para 3(2)): HDPE, polypropylene and PVC resin, copper wire, electric forklifts, power tools, centrifugal pumps, fishmeal, feed premix and other-section rebar (5% from 1 Jul 2025), and motorcycles 8711.20.96 00 (exempt without a break; G-1 continues it).
+- Gauges (90.26), thermostats and controllers (90.32) and tool bits (82.07): the earlier orders exempt their headings only in part, so a line dated before 1 Jul 2025 is HAND_OVER (MG-3). So is any goods line dated before sales tax began on 1 Sep 2018.
+- Rule sheet section 2: P.U. (A) 165/2026 and 303/2026 amend the Persons Exempted Order, not the Goods Exempted Order; the sources line now says so and names the 2018 and 2022 orders.
+- G-3 ends on 31 Aug 2026. From 1 Sep 2026 P.U. (A) 303/2026 adds Schedule B items 5 to 7 (animal feed, fertiliser and pesticide manufacturers) to the Persons Exempted Order: a buyer holding the certificate is exempt (MG-4; tax shown → `SST_SHOULD_BE_EXEMPT`), and without one the ordinary rate applies (MG-2). Rule sheet G-3 and MG-4 updated.
 
 ### Spec v0.10
 

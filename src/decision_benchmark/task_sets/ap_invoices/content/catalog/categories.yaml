@@ -13,7 +13,34 @@
 #     P.U. (A) 200/2025 and 400/2025. None of them touches a heading or subheading used in the v1
 #     entries (P.U. (A) 400/2025 also inserts 12.01, deletes 12.06, renumbers one 49.01 subheading and
 #     adds 8711.20.96/99 00; only motorcycles_50_150cc below uses one of these). Checked 16 Nov 2026,
-#     rechecked 19 Nov 2026. P.U. (A) 165/2026 and 303/2026 (listed in rule sheet section 2) are not archived.
+#     rechecked 19 Nov 2026. P.U. (A) 165/2026 and 303/2026 (listed in rule sheet section 2 among the
+#     exemption order's amendments) amend the Sales Tax (Persons Exempted from Payment of Tax) Order 2018
+#     instead (Schedule A items 27, 58, 58A; Schedule B items 5-7 from 1 Sep 2026) and name no tariff code.
+# Before 1 Jul 2025 (`earlier_classes`, MG-3): the Sales Tax (Rates of Tax) Order 2018 [P.U. (A) 221/2018]
+#   and (Goods Exempted from Tax) Order 2018 [P.U. (A) 219/2018] applied from 1 Sep 2018, and the 2022
+#   orders [P.U. (A) 176/2022, 175/2022] from 1 Jun 2022 until the 2025 orders revoked them. The same three
+#   rules set each class, read at the heading or subheading the entry names. A heading that is only partly
+#   in an earlier exemption order has no earlier class (HAND_OVER before 1 Jul 2025). No v1 entry's class
+#   differs between the 2018 and 2022 orders, so each has one period, 1 Sep 2018 to 30 Jun 2025. Read
+#   19 Nov 2026 with every amendment (none touches a v1 entry except P.U. (A) 228/2018, which inserts
+#   8711.20.96 from 1 Sep 2018):
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-1-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-2-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-Amd-3-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/sales-tax-rate-of-tax-amendment-2019.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rates-Of-Tax-Order-2022_PUA176.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Rate-of-Tax-Amendment-2023-PUA-102.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-1-2018.pdf
+#     https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/pua_20180906_PUA234.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-3-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-Amd-4-2018.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Order-2022_PUA175.pdf
+#     https://mysst.customs.gov.my/wp-content/uploads/2025/03/Sales-Tax-Goods-Exempted-From-Tax-Amendment-Order-2023_PUA109.pdf
+#     https://lom.agc.gov.my/ilims/upload/portal/akta/outputp/1946278/PUA%20401.pdf
+#   (P.U. (A) 234/2018 and 401/2023 come from the e-Federal Gazette: MySST's row for 234/2018 links the rate
+#   order's amendment instead, and 401/2023 is not on MySST.)
 # Singapore: a category gets an SG profile only when Regulation 26/27 blocks the claim.
 version: 1
 categories:
@@ -27,7 +54,7 @@ categories:
   label: "Industrial paints, primers and coatings"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -40,7 +67,7 @@ categories:
   label: "Industrial adhesives and glues"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -53,7 +80,7 @@ categories:
   label: "Solvents and thinners"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals]}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, area_goods: [chemicals], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -66,7 +93,7 @@ categories:
   label: "Plastic film and sheet"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -79,7 +106,7 @@ categories:
   label: "Plastic packaging: bags, bottles, caps, containers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -92,7 +119,7 @@ categories:
   label: "Self-adhesive packing tape"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -105,7 +132,7 @@ categories:
   label: "Corrugated cartons and boxes"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -118,7 +145,7 @@ categories:
   label: "Printed product labels"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -131,7 +158,7 @@ categories:
   label: "Woven sacks and bulk bags"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -144,7 +171,7 @@ categories:
   label: "Wooden pallets"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: packaging_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -157,7 +184,7 @@ categories:
   label: "Bolts, nuts, screws and washers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: components
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -170,7 +197,7 @@ categories:
   label: "Insulated electric wire and cable"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: components
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -183,7 +210,7 @@ categories:
   label: "Electrical switches, plugs and connectors (up to 1,000 V)"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, schedule_c_eligible: true}
+    MY: {tax_class: sales_10, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: components
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -196,52 +223,52 @@ categories:
   label: "High-density polyethylene resin"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, schedule_c_eligible: true}
+    MY: {tax_class: sales_5, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
-  note: "HS 3901.20.00 00 (First Schedule, 5%)."
+  note: "HS 3901.20.00 00 (First Schedule, 5%). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"3901.20.00 00 - Polyethylene having a specific gravity of 0.94 or more\"."
 
 - category: polypropylene_resin
   kind: goods
   label: "Polypropylene resin pellets"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, schedule_c_eligible: true}
+    MY: {tax_class: sales_5, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
-  note: "HS 3902.10.40 00 (First Schedule, 5%)."
+  note: "HS 3902.10.40 00 (First Schedule, 5%). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"3902.10.40 00 - - Granules, pellets, beads, flakes, chips and similar forms\"."
 
 - category: pvc_resin
   kind: goods
   label: "PVC resin, suspension type"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, schedule_c_eligible: true}
+    MY: {tax_class: sales_5, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
-  note: "HS 3904.10.10 00 (First Schedule, 5%)."
+  note: "HS 3904.10.10 00 (First Schedule, 5%). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"3904.10.10 00 - - Homopolymers, suspension type\"."
 
 - category: copper_wire
   kind: goods
   label: "Copper wire"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, schedule_c_eligible: true}
+    MY: {tax_class: sales_5, schedule_c_eligible: true, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: raw_materials
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
     - "https://mysst.customs.gov.my/faq-sales-tax/"
-  note: "HS 7408.11 (First Schedule, 5%; all its listed subheadings)."
+  note: "HS 7408.11 (First Schedule, 5%; all its listed subheadings). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"7408.11 - - Of which the maximum cross-sectional dimension exceeds 6 mm:\" with all its subheadings."
 
 # ---------------------------------------------------------------- goods: equipment at 5%
 
@@ -250,7 +277,7 @@ categories:
   label: "Laptops and desktop computers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture]}
+    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_5}]}
   gl_role: it_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -262,7 +289,7 @@ categories:
   label: "Printers and multifunction copiers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture]}
+    MY: {tax_class: sales_5, area_goods: [office_equipment_furniture], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_5}]}
   gl_role: office_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -274,36 +301,36 @@ categories:
   label: "Electric forklift trucks"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5, area_goods: [forklift]}
+    MY: {tax_class: sales_5, area_goods: [forklift], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: plant_machinery
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 8427.10.00 00 (First Schedule, 5%)."
+  note: "HS 8427.10.00 00 (First Schedule, 5%). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"8427.10.00 00 - Self-propelled trucks powered by an electric motor\"."
 
 - category: power_tools
   kind: goods
   label: "Electric drills, saws and other power tools"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: tools_small_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 8467.21, 8467.22, 8467.29 (First Schedule, 5%)."
+  note: "HS 8467.21, 8467.22, 8467.29 (First Schedule, 5%). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"8467.21.00 00 - - Drills of all kinds\", \"8467.22.00 00 - - Saws\", \"8467.29.00 00 - - Other\"."
 
 - category: centrifugal_pumps
   kind: goods
   label: "Centrifugal pumps"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_5}
+    MY: {tax_class: sales_5, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 8413.70 (First Schedule, 5%; all listed subheadings)."
+  note: "HS 8413.70 (First Schedule, 5%; all listed subheadings). Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: \"8413.70 - Other centrifugal pumps:\" with every subheading the 2025 First Schedule lists (8413.70.11 00 to 8413.70.99 00)."
 
 # ---------------------------------------------------------------- goods: spares, tools, supplies
 # Not manufacturing inputs, so never Schedule C in v0.9.
@@ -313,7 +340,7 @@ categories:
   label: "Ball and roller bearings (maintenance spares)"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -325,7 +352,7 @@ categories:
   label: "Industrial valves and taps (maintenance spares)"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -337,7 +364,7 @@ categories:
   label: "Rubber hoses and tubes"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -349,7 +376,7 @@ categories:
   label: "Electric accumulators (lead-acid and lithium batteries)"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: repairs_maintenance
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -366,7 +393,7 @@ categories:
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 90.26."
+  note: "HS 90.26. Before 1 Jul 2025 not settled: heading 90.26 is partly exempt (\"9026.20.90 00 - - Other (Not electrically operated)\", 2022) in the Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, so a line dated before then is HAND_OVER."
 
 - category: control_instruments
   kind: goods
@@ -378,14 +405,14 @@ categories:
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 90.32."
+  note: "HS 90.32. Before 1 Jul 2025 not settled: heading 90.32 is partly exempt (\"9032.10.00 00 - Thermostats (Not electrically operated)\", 2022) in the Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, so a line dated before then is HAND_OVER."
 
 - category: hand_tools
   kind: goods
   label: "Hand tools: spanners, pliers, cutters"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: tools_small_equipment
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -402,14 +429,14 @@ categories:
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
-  note: "HS 82.07."
+  note: "HS 82.07. Before 1 Jul 2025 not settled: heading 82.07 is partly exempt (\"8207.20.00 00 - Dies for drawing or extruding metal\") in the Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, so a line dated before then is HAND_OVER."
 
 - category: cleaning_chemicals
   kind: goods
   label: "Detergents and cleaning preparations"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, area_goods: [chemicals]}
+    MY: {tax_class: sales_10, area_goods: [chemicals], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: cleaning_supplies
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -421,7 +448,7 @@ categories:
   label: "Safety boots and shoes"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: safety_ppe
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -433,7 +460,7 @@ categories:
   label: "Office furniture: desks, cabinets, shelving"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture]}
+    MY: {tax_class: sales_10, area_goods: [office_equipment_furniture], earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: office_furniture
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -445,7 +472,7 @@ categories:
   label: "Pens and markers"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_10}
+    MY: {tax_class: sales_10, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}]}
   gl_role: office_supplies
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/1-PUA%20170_2025.pdf"
@@ -459,7 +486,7 @@ categories:
   label: "Fresh milk for the staff pantry"
   countries: [MY, SG]
   tax:
-    MY: {tax_class: sales_exempt}
+    MY: {tax_class: sales_exempt, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: staff_welfare
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
@@ -471,7 +498,7 @@ categories:
   label: "Rice for a staff canteen"
   countries: [MY]
   tax:
-    MY: {tax_class: sales_exempt}
+    MY: {tax_class: sales_exempt, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: staff_welfare
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
@@ -483,7 +510,7 @@ categories:
   label: "Medicines for a company clinic or first-aid room"
   countries: [MY]
   tax:
-    MY: {tax_class: sales_exempt}
+    MY: {tax_class: sales_exempt, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: staff_welfare_medical
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
@@ -495,7 +522,7 @@ categories:
   label: "Plantation and farm machinery (other than soil preparation)"
   countries: [MY]
   tax:
-    MY: {tax_class: sales_exempt}
+    MY: {tax_class: sales_exempt, earlier_classes: [{valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}]}
   gl_role: plant_machinery
   sources:
     - "https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/3-PUA%20171%20(2025).pdf"
@@ -1557,6 +1584,8 @@ categories:
   tax:
     MY:
       tax_class: sales_10
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       area_goods:
       - motor_vehicle
       facts:
@@ -1573,6 +1602,9 @@ categories:
     8711.60 is), not in P.U. (A) 171/2025 as made: 10% under para 2(1). G-1: exempt from 1 Jul 2025 (Sales Tax
     Policy 1/2025 Amendment No. 1: "8711.20.96 00 ... This sales tax exemption shall take effect from 1 July 2025");
     added to the Exemption Order from 1 Nov 2025 by P.U. (A) 400/2025 para 3(e).
+    Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: "8711.20.96 00
+    - - - - Other" (2022); in 2018 as 8711.20.96 10 and 90, inserted by P.U. (A) 228/2018 from 1 Sep 2018. Exempt
+    without a break: G-1 continues it from 1 Jul 2025.
 
 - category: animal_feed_fishmeal
   kind: goods
@@ -1582,6 +1614,8 @@ categories:
   tax:
     MY:
       tax_class: sales_5
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       schedule_c_eligible: true
       facts:
         tariff_code: 2301.20.20 00
@@ -1594,6 +1628,8 @@ categories:
     HS 2301.20.20 00 (First Schedule, 5%: "- - Of fish, with a protein content of 60 % or more by weight"); heading
     23.01 not in the Exemption Order. G-3 from 1 Jan 2026 (Sales Tax Policy 1/2026 Appendix I item 2 "Fishmeal
     (>60%) 2301.20.20 00"): refund route, so 5% on the invoice stays correct.
+    Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: "2301.20.20 00
+    - - Of fish, with a protein content of 60% or more by weight".
 
 - category: animal_feed_premix
   kind: goods
@@ -1603,6 +1639,8 @@ categories:
   tax:
     MY:
       tax_class: sales_5
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       schedule_c_eligible: true
       facts:
         tariff_code: 2309.90.20 00
@@ -1617,6 +1655,8 @@ categories:
     199/2025 para (f) substituted heading 23.09 from 1 Jul 2025). Not among the 23.09 codes in the Exemption Order
     (2309.90.11 00, and 2309.90.12/13/19 00 added by P.U. (A) 200/2025). G-3 from 1 Jan 2026 (Policy 1/2026
     Appendix I item 16 "Premix-Super MS 2309.90.20 00"): refund route, so 5% on the invoice stays correct.
+    Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: "2309.90.20 00
+    - - Premixes, feed supplements or feed additives".
 
 - category: construction_cement
   kind: goods
@@ -1626,6 +1666,8 @@ categories:
   tax:
     MY:
       tax_class: sales_exempt
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       facts:
         tariff_code: 2523.29.90 00
   gl_role: building_works
@@ -1645,6 +1687,8 @@ categories:
   tax:
     MY:
       tax_class: sales_exempt
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       facts:
         tariff_code: 7214.20.31 00
   gl_role: building_works
@@ -1665,6 +1709,8 @@ categories:
   tax:
     MY:
       tax_class: sales_5
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_exempt}
       facts:
         tariff_code: 7214.20.41 00
   gl_role: building_works
@@ -1675,6 +1721,8 @@ categories:
   note: >-
     HS 7214.20.41 00 (First Schedule, 5%: "- - - Other: 7214.20.41 00 - - - - Of a kind used for concrete
     reinforcement (rebars)"); not in the Exemption Order. L-8.
+    Before 1 Jul 2025: exempt, Sales Tax (Goods Exempted from Tax) Orders 2018 and 2022, Schedule A: "7214.20.41 00
+    - - - - Of a kind used for concrete reinforcement (rebars)".
 
 - category: construction_ceramic_tiles
   kind: goods
@@ -1684,6 +1732,8 @@ categories:
   tax:
     MY:
       tax_class: sales_10
+      earlier_classes:
+      - {valid_from: 2018-09-01, valid_to: 2025-06-30, tax_class: sales_10}
       facts:
         tariff_code: '6907'
   gl_role: building_works

@@ -10,6 +10,7 @@ from pydantic import Field, StringConstraints, model_validator
 
 from ...models.common import CountryBlock, Model, Money, Num, TaxProfile, internal
 from ...models.evidence import LineFact, LineFacts, Share, fact_field
+from .constants import SALES_TAX_ORDERS_2025_FROM
 
 
 class MyTaxTreatment(StrEnum):
@@ -32,8 +33,32 @@ ServiceItem = Annotated[str, Field(pattern=r"^[A-Z]([0-9]+)?(\([a-z]\))?$")]
 Examples: "G(a)", "G(h)", "J1(a)", "I8", "L"."""
 
 
+SalesTaxClass = Literal["sales_5", "sales_10", "sales_exempt"]
+
+
+class EarlierClass(Model):
+    """A goods category's sales tax class under the orders in force before the 2025 orders, from valid_from to
+    valid_to inclusive: the Sales Tax (Rates of Tax) Order and (Goods Exempted from Tax) Order 2018 (from
+    1 Sep 2018) and 2022 (from 1 Jun 2022), with their amendments."""
+
+    valid_from: date
+    valid_to: date
+    tax_class: SalesTaxClass
+
+    @model_validator(mode="after")
+    def _ordered(self) -> "EarlierClass":
+        if self.valid_to < self.valid_from:
+            raise ValueError("valid_to is before valid_from")
+        return self
+
+
 class MyTaxProfile(TaxProfile):
     tax_class: MyTaxClass
+    """For goods: the class under the 2025 orders, from 1 Jul 2025 (constants.SALES_TAX_ORDERS_2025_FROM)."""
+    earlier_classes: list[EarlierClass] = []
+    """Goods only: the class before 1 Jul 2025, by period (MG-3). A goods line dated before 1 Jul 2025 that no
+    period covers is HAND_OVER: the earlier orders don't settle the category's rate (e.g. its heading is only
+    partly exempt), or the date is before sales tax began on 1 Sep 2018."""
     schedule_c_eligible: bool = False
     service_item: ServiceItem | None = None
     """First Schedule item of a taxable service. Required for service_6 and service_8, null otherwise."""
@@ -47,6 +72,17 @@ class MyTaxProfile(TaxProfile):
     """Items of the Schedule to P.U. (A) 212/2018 the service falls under: services taxed inside and between areas (MS-7)."""
     area_goods: list[AreaGoods] = []
     """Kinds of goods the area orders name (MG-5); the lists, zones and dates are in data/area_goods_lists.yaml."""
+
+    @model_validator(mode="after")
+    def _earlier_classes(self) -> "MyTaxProfile":
+        if self.earlier_classes and not self.tax_class.startswith("sales_"):
+            raise ValueError("earlier_classes is for goods (a sales_ tax class) only")
+        spans = sorted(self.earlier_classes, key=lambda c: c.valid_from)
+        if any(b.valid_from <= a.valid_to for a, b in zip(spans, spans[1:])):
+            raise ValueError("earlier_classes periods overlap")
+        if spans and spans[-1].valid_to >= SALES_TAX_ORDERS_2025_FROM:
+            raise ValueError("earlier_classes must end before 1 Jul 2025, when the 2025 orders apply")
+        return self
 
 
 class MyInvoisLine(Model):
