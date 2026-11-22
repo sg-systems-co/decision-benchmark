@@ -13,7 +13,7 @@ Versioning rules:
 
 Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
 
-Engine: 0.10.1. Rules as of: 2026-11-19.
+Engine: 0.10.2. Rules as of: 2026-11-20.
 
 ### Engine (A12, build PRs #12, #14, #15, #17 and this one)
 
@@ -30,6 +30,13 @@ Engine: 0.10.1. Rules as of: 2026-11-19.
 - Gauges (90.26), thermostats and controllers (90.32) and tool bits (82.07): the earlier orders exempt their headings only in part, so a line dated before 1 Jul 2025 is HAND_OVER (MG-3). So is any goods line dated before sales tax began on 1 Sep 2018.
 - Rule sheet section 2: P.U. (A) 165/2026 and 303/2026 amend the Persons Exempted Order, not the Goods Exempted Order; the sources line now says so and names the 2018 and 2022 orders.
 - G-3 ends on 31 Aug 2026. From 1 Sep 2026 P.U. (A) 303/2026 adds Schedule B items 5 to 7 (animal feed, fertiliser and pesticide manufacturers) to the Persons Exempted Order: a buyer holding the certificate is exempt (MG-4; tax shown → `SST_SHOULD_BE_EXEMPT`), and without one the ordinary rate applies (MG-2). Rule sheet G-3 and MG-4 updated.
+
+### Engine 0.10.2: e-invoice phases, exemptions and relaxation periods (ME-1)
+
+- Rule sheet ME-1 rewritten (20 Nov 2026) from the archived LHDN timeline page, e-Invoice Guideline v4.6 sections 1.5-1.6 and Specific Guideline v4.9 section 16: the implementation date by FY2022 / YA2022 turnover, new businesses, the exempt persons, the RM3m exemption, and the interim relaxation periods. The dates are pack data (`countries/my/data/einvoice_timeline.yaml`).
+- Correction: inside a supplier's interim relaxation period (to 31 Jan 2025, 30 Jun 2025 or 31 Dec 2025 by phase; to 31 Dec 2027 for the up-to-RM5m phase starting 1 Jan or 1 Jul 2026) an ordinary invoice raises no ME-1 finding, since the supplier may issue a consolidated e-invoice (Specific Guideline 16.2(a), (d)). Engine 0.10.1 raised the finding from the implementation date. Where Table 16.1 publishes no relaxation period for a supplier's implementation date (a new business commenced after 1 Jul 2026, or above RM5m), an invoice without a validated e-invoice is HAND_OVER.
+- The supplier record states the facts that fix the phase (`einvoice`: turnover band, turnover basis, commencement date, the date turnover reached RM1m) instead of a phase start date; the unused free-text `turnover_band` is gone. Three supplier kinds are added for the exempt persons (foreign diplomatic office, individual not conducting business, international organisation). A statutory body or local authority is exempt for supplies before 1 Jul 2025 and, after that, for statutory fees and charges only (the line fact `statutory_fee_amount`).
+- A validated e-invoice now settles ME-1 before the supplier's phase is looked at, so an unknown phase no longer hands over an invoice that has one; an unknown phase hands over only from 1 Feb 2025, when it can decide.
 
 ### Spec v0.10
 

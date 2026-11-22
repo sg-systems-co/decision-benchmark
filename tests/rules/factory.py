@@ -103,7 +103,7 @@ def my_base() -> tuple[dict, dict]:
                 {"scheme": "MY_TIN", "number": "C2000000002", "type": "tin"},
                 {"scheme": "MY_SST", "number": "W10-2403-32000418", "type": "service"},
             ],
-            "tax_facts": {"country": "MY", "turnover_band": "RM5m-25m"},
+            "tax_facts": {"country": "MY"},
         }],
         "purchase_orders": [{
             "po_number": "PO-1", "company_id": cid, "supplier_id": "S1", "po_date": "2026-09-20",

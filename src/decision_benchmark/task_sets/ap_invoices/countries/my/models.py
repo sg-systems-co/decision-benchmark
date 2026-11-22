@@ -204,14 +204,46 @@ class MyCompanyFacts(CountryBlock):
 
 SupplierKind = Literal["company", "federal_state_government", "local_authority", "developer_jmb_mc",
                        "approved_rnd_company", "research_institute", "statutory_body", "private_hei",
-                       "religious_welfare_body"]
-"""private_hei: a private higher educational institution registered under Act 555 (MS-7 item 3)."""
+                       "religious_welfare_body", "foreign_diplomatic_office", "individual_not_in_business",
+                       "international_organisation"]
+"""private_hei: a private higher educational institution registered under Act 555 (MS-7 item 3). The last three are
+persons exempt from issuing e-invoices (ME-1; e-Invoice Guideline v4.6 section 1.6.1)."""
+
+EinvoiceBand = Literal["below_1m", "1m_to_3m", "3m_to_5m", "5m_to_25m", "25m_to_100m", "above_100m"]
+"""Annual turnover or revenue in ringgit: below RM1m, RM1m to below RM3m, RM3m up to RM5m, above RM5m up to RM25m,
+above RM25m up to RM100m, above RM100m (ME-1 phases and the RM3m exemption)."""
+
+
+class MyEinvoiceStatus(Model):
+    """What the supplier record shows about its e-invoicing phase (ME-1; LHDN timeline, e-Invoice Guideline v4.6
+    section 1.5). The phase follows from these facts; data/einvoice_timeline.yaml holds the dates."""
+
+    turnover_band: EinvoiceBand
+    """The turnover that fixes the phase: FY2022 audited turnover, YA2022 revenue without audited accounts (pro-rated
+    to 12 months if the year end changed), or a new business's annual turnover. Later changes don't move the phase."""
+    turnover_basis: Literal["fy2022_audited", "ya2022_revenue", "new_business"]
+    business_started_on: date | None = None
+    """When the business or operation commenced; required for a new business (from 2023)."""
+    turnover_reached_1m_on: date | None = None
+    """A business commenced in 2026 or later whose first year's turnover was below RM1m: when its total annual
+    turnover reached RM1m (None: not yet)."""
+
+    @model_validator(mode="after")
+    def _consistent(self) -> MyEinvoiceStatus:
+        new = self.turnover_basis == "new_business"
+        started = self.business_started_on
+        if new and (started is None or started < date(2023, 1, 1)):
+            raise ValueError("a new business commenced on or after 1 Jan 2023 (business_started_on)")
+        if not new and started is not None and started >= date(2023, 1, 1):
+            raise ValueError("a business commenced from 2023 is a new business (turnover_basis new_business)")
+        if self.turnover_reached_1m_on is not None and (not new or started is None or started.year < 2026):
+            raise ValueError("turnover_reached_1m_on is only for a new business commenced in 2026 or later")
+        return self
 
 
 class MySupplierFacts(CountryBlock):
     country: Literal["MY"] = "MY"
     is_manufacturer: bool = False
-    turnover_band: str | None = None
     service_categories: list[str] = []
     msic_code: str | None = None
     registration_known: bool = True
@@ -225,11 +257,10 @@ class MySupplierFacts(CountryBlock):
     frp_supplies_outsiders_in_my: bool | None = None
     pe_in_country: bool | None = None
     """A permanent establishment or business presence in Malaysia (WH-3). None: not shown."""
-    einvoice_phase_start: date | None = None
-    """When the supplier's mandatory e-invoicing phase starts (ME-1). None: not in a mandatory phase (for example
-    annual turnover below RM3m)."""
+    einvoice: MyEinvoiceStatus | None = None
+    """The facts that fix the supplier's e-invoicing phase (ME-1). None: the record shows no mandatory phase."""
     einvoice_phase_known: bool = True
-    """False: the case can't show the supplier's e-invoicing phase (ME-1)."""
+    """False: the case can't show the supplier's e-invoicing phase (ME-1): HAND_OVER where the phase decides."""
     approvals: list[Literal["caam_amo", "mida_shipyard", "dgta_amo"]] = []
     recognised_training_centre: bool = False
     zone: MyZone | None = None
