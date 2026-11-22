@@ -1,0 +1,30 @@
+# Allowed two-problem pairs (step 11 plan §5.1, B1 plan §3.1): (primary, secondary). The secondary is always a problem
+# of a lower priority tier (step 11 §5.2: 1 fraud, 2 duplicate, 3 invalid invoice and wrongly charged tax, 4
+# mismatch, 5 routing), so the primary still sets the decision. Hand-over cases never take a second problem (Q14),
+# and no pair has two problems of the same tier.
+share: '15'
+pairs:
+- [bank_change, duplicate]
+- [bank_change, invalid_invoice]
+- [bank_change, tax_problem]
+- [bank_change, price_mismatch]
+- [bank_change, quantity_mismatch]
+- [bank_change, not_received]
+- [bank_change, no_po_or_above_limit]
+- [duplicate, invalid_invoice]
+- [duplicate, tax_problem]
+- [duplicate, price_mismatch]
+- [duplicate, quantity_mismatch]
+- [duplicate, not_received]
+- [duplicate, no_po_or_above_limit]
+- [invalid_invoice, price_mismatch]
+- [invalid_invoice, quantity_mismatch]
+- [invalid_invoice, not_received]
+- [invalid_invoice, no_po_or_above_limit]
+- [tax_problem, price_mismatch]
+- [tax_problem, quantity_mismatch]
+- [tax_problem, not_received]
+- [tax_problem, no_po_or_above_limit]
+- [price_mismatch, no_po_or_above_limit]
+- [quantity_mismatch, no_po_or_above_limit]
+- [not_received, no_po_or_above_limit]

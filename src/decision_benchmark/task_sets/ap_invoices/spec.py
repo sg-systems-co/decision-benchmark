@@ -9,12 +9,44 @@ Results are reported per country and overall; countries are the dataset's Huggin
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 
+import yaml
+
+from decision_benchmark.core.generator.spec import Generation
 from decision_benchmark.core.task_set import CostWeights, TaskSetSpec
 
 from .models.common import TASK_SET_ID, Decision
 
 D = Decimal
+HERE = Path(__file__).resolve().parent
+PACKAGE_ROOT = HERE.parents[1]
+"""src/decision_benchmark: the root the generator's paths are relative to."""
+CONTENT = HERE / "content"
+TASK_DIR = HERE.relative_to(PACKAGE_ROOT).as_posix()
+PIPELINE_PATHS = (
+    "core/generator", f"{TASK_DIR}/models", f"{TASK_DIR}/rules", f"{TASK_DIR}/countries", f"{TASK_DIR}/content",
+    *(f"{TASK_DIR}/{name}" for name in ("__init__.py", "codes.py", "envelope.py", "fact_reader.py", "findings.py",
+                                        "registry.py", "spec.py", "table_rows.py", "versions.py")),
+)
+"""What shapes the data (step 11 plan §8.1); B1-2 adds the task set's generator/, B3 render/."""
+LOCK_FILE = PACKAGE_ROOT.parents[1] / "uv.lock"
+
+
+def _yaml(name: str) -> dict:
+    return yaml.safe_load((CONTENT / name).read_text(encoding="utf-8"))
+
+
+def generation() -> Generation:
+    """The generator config from content/generator/*.yaml and content/hardcases/pairs.yaml (B1 plan §3)."""
+    rules = _yaml("generator/rules.yaml")
+    return Generation(
+        root=str(PACKAGE_ROOT), release_seeds=f"{TASK_DIR}/content/release-seeds.yaml",
+        pipeline_paths=PIPELINE_PATHS, lock_file=str(LOCK_FILE),
+        two_problems=_yaml("hardcases/pairs.yaml"), rules=rules["rules"], not_counted=rules["not_counted"],
+        **_yaml("generator/generation.yaml"),
+    )
+
 
 SPEC = TaskSetSpec(
     id=TASK_SET_ID,
@@ -45,4 +77,5 @@ SPEC = TaskSetSpec(
     report_by=("country",),
     output_schema="schemas/ap-invoices/v0.10/output.schema.json",
     hf_repo_id="sgsystems/decision-benchmark-ap-invoices",
+    generation=generation(),
 )

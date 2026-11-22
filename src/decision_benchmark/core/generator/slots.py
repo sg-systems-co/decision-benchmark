@@ -1,0 +1,387 @@
+"""The slot allocator (B1 plan §3.6): one deterministic pass that turns a split's quotas into a table of case slots.
+
+Order: exception type x country and the two-problem pairs; hard kinds; foreign suppliers and line counts; mixed
+cases; the rule floor; the date-boundary floor. The axes meet only through explicit compatibility rules, every
+quota is met exactly, and a demand that can't be placed raises InfeasibleDemand naming it. The result goes to
+``report/slots.json`` (``Allocation.report()``), which tests compare with the plan's tables.
+
+Generic: countries, exception types, rule ids and precedence rows are strings the task set supplies.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+from dataclasses import dataclass, field
+from datetime import date, timedelta
+from fractions import Fraction
+from math import floor
+
+from .quotas import InfeasibleDemand, apportion, as_fraction, halves, share_of
+from .seeds import rng
+from .spec import Generation, RuleSpec, SplitSpec
+
+H1, H2, H3 = "H1", "H2", "H3"
+"""Hard kinds: scan-only, conflicting documents, missing information (B1 plan §3.2)."""
+PROBLEM, CORRECT = "problem", "correct"
+MAX_PROBLEM_LINES = 2
+"""A tax slot carries at most two planted problem lines."""
+
+
+@dataclass
+class RuleUse:
+    rule: str
+    form: str
+    carrier: str
+
+
+@dataclass
+class Slot:
+    key: int
+    """Position before the final shuffle (stable within one allocation)."""
+    country: str
+    primary: str
+    secondary: str | None = None
+    hard: str | None = None
+    row: str | None = None
+    foreign: bool = False
+    lines: int = 1
+    mixed: str | None = None
+    """None, 'lines' (lines with different outcomes) or 'split' (one line turns on a split)."""
+    rules: list[RuleUse] = field(default_factory=list)
+    window: tuple[date, date] | None = None
+    boundary: tuple[date, str] | None = None
+    case_index: int = 0
+
+    def types(self) -> tuple[str, ...]:
+        return (self.primary,) if self.secondary is None else (self.primary, self.secondary)
+
+    def export(self) -> dict:
+        return {
+            "case_index": self.case_index, "country": self.country, "primary": self.primary,
+            "secondary": self.secondary, "hard": self.hard, "row": self.row, "foreign": self.foreign,
+            "lines": self.lines, "mixed": self.mixed,
+            "rules": [{"rule": u.rule, "form": u.form, "carrier": u.carrier} for u in self.rules],
+            "window": [self.window[0].isoformat(), self.window[1].isoformat()] if self.window else None,
+            "boundary": {"day": self.boundary[0].isoformat(), "side": self.boundary[1]} if self.boundary else None,
+        }
+
+
+@dataclass
+class Allocation:
+    split: SplitSpec
+    slots: list[Slot]
+    gen: Generation
+    quotas: dict[str, object]
+
+    def report(self) -> dict:
+        """The tables of B1 plan §3 for this split, counted from the slots."""
+        gen, slots, n = self.gen, self.slots, self.split.n_cases
+        names = [t.name for t in gen.types]
+        mix = {t: {c: 0 for c in gen.countries} for t in names}
+        for s in slots:
+            mix[s.primary][s.country] += 1
+        hard = Counter(s.hard for s in slots if s.hard)
+        hard_by_type = {t: sum(1 for s in slots if s.primary == t and s.hard) for t in names}
+        n_by_type = {t: sum(mix[t].values()) for t in names}
+        uses = Counter((u.rule, u.form) for s in slots for u in s.rules)
+        floor_tier = gen.floor_for(n)
+        rules = {r.id: {"country": r.country, "family": r.family, "total": uses[(r.id, PROBLEM)] + uses[(r.id, CORRECT)],
+                        "problem": uses[(r.id, PROBLEM)]} for r in gen.rules}
+        groups: dict[str, int] = Counter()
+        for r in gen.rules:
+            groups[r.country] += rules[r.id]["total"]
+        problem_by_family: dict[str, int] = Counter()
+        for r in gen.rules:
+            problem_by_family[f"{r.country}:{r.family}"] += rules[r.id]["problem"]
+        boundaries = Counter(f"{s.country}:{s.boundary[0].isoformat()}:{s.boundary[1]}" for s in slots if s.boundary)
+        return {
+            "split": self.split.name, "n_cases": n, "seed": self.split.seed,
+            "exception_mix": {t: {**mix[t], "total": n_by_type[t]} for t in names},
+            "countries": {c: sum(1 for s in slots if s.country == c) for c in gen.countries},
+            "two_problems": {
+                "total": sum(1 for s in slots if s.secondary),
+                "pairs": dict(sorted(Counter(f"{s.primary}+{s.secondary}" for s in slots if s.secondary).items())),
+            },
+            "hard": {
+                "total": sum(hard.values()), H1: hard[H1], H2: hard[H2], H3: hard[H3],
+                "scan_only_cap": floor(sum(hard.values()) * as_fraction(gen.hard_cases.scan_only_cap_of_hard)),
+                "rows": dict(sorted(Counter(s.row for s in slots if s.row).items())),
+                "row_cap": floor(hard[H2] * as_fraction(gen.hard_cases.conflict_row_cap)),
+                "share_by_type": {t: f"{Fraction(hard_by_type[t], n_by_type[t]) * 100:.2f}" if n_by_type[t] else None
+                                  for t in names},
+            },
+            "foreign": {c: sum(1 for s in slots if s.country == c and s.foreign) for c in gen.countries},
+            "lines": {"cases": dict(sorted(Counter(str(s.lines) for s in slots).items(), key=lambda kv: int(kv[0]))),
+                      "total": sum(s.lines for s in slots)},
+            "mixed": {"total": sum(1 for s in slots if s.mixed), "split": sum(1 for s in slots if s.mixed == "split"),
+                      "by_country": {c: sum(1 for s in slots if s.mixed and s.country == c) for c in gen.countries}},
+            "rule_floor": {"per_rule": floor_tier.per_rule, "problem_per_rule": floor_tier.problem_per_rule,
+                           "problem_per_family": floor_tier.problem_per_family, "by_country": dict(groups),
+                           "total": sum(groups.values()), "problem_by_family": dict(sorted(problem_by_family.items())),
+                           "rules": rules},
+            "date_boundaries": dict(sorted(boundaries.items())),
+            "slots": [s.export() for s in sorted(slots, key=lambda s: s.case_index)],
+        }
+
+
+def allocate(gen: Generation, quotas: dict[str, object], split: SplitSpec) -> Allocation:
+    """Fill the slot table of one split. Deterministic given the split's seed; raises InfeasibleDemand if a quota or
+    demand can't be met exactly."""
+    a = _Allocator(gen, quotas, split)
+    a.exception_mix()
+    a.two_problems()
+    a.hard_cases()
+    a.foreign()
+    a.lines()
+    a.mixed()
+    a.rule_floor()
+    a.boundaries()
+    a.order()
+    return Allocation(split, a.slots, gen, quotas)
+
+
+class _Allocator:
+    def __init__(self, gen: Generation, quotas: dict[str, object], split: SplitSpec) -> None:
+        if [t.name for t in gen.types] != list(quotas):
+            raise InfeasibleDemand("the generation types and the quota keys differ")
+        self.gen, self.quotas, self.split = gen, quotas, split
+        self.n = split.n_cases
+        self.slots: list[Slot] = []
+        self.cells: dict[tuple[str, str], list[Slot]] = {}
+
+    def _rng(self, *purpose: str):
+        return rng(self.split.seed, "slots", *purpose)
+
+    def _shuffled(self, slots: list[Slot], *purpose: str) -> list[Slot]:
+        out = list(slots)
+        self._rng(*purpose).shuffle(out)
+        return out
+
+    def _pick(self, pool: list[Slot], k: int, what: str, *purpose: str) -> list[Slot]:
+        if k > len(pool):
+            raise InfeasibleDemand(f"{what}: needs {k} slots, only {len(pool)} fit")
+        return self._shuffled(pool, *purpose)[:k]
+
+    # 1. exception type x country
+    def exception_mix(self) -> None:
+        counts = {t: share_of(self.n, self.quotas[t]) for t in self.quotas}
+        if sum(counts.values()) != self.n:
+            raise InfeasibleDemand(f"the exception mix gives {sum(counts.values())} cases, not {self.n}")
+        for t, by_country in halves(counts, self.gen.countries).items():
+            for c, k in by_country.items():
+                cell = [Slot(key=len(self.slots) + i, country=c, primary=t) for i in range(k)]
+                self.slots += cell
+                self.cells[(t, c)] = cell
+
+    # 1b. two-problem pairs
+    def two_problems(self) -> None:
+        tp = self.gen.two_problems
+        total = share_of(self.n, tp.share)
+        secondaries: dict[str, list[str]] = {}
+        for p, s in tp.pairs:
+            secondaries.setdefault(p, []).append(s)
+        eligible = {f"{t}|{c}": len(cell) for (t, c), cell in self.cells.items() if t in secondaries}
+        for key, k in apportion(total, eligible).items():
+            t, c = key.split("|")
+            chosen = self._pick(self.cells[(t, c)], k, f"two problems on {t} in {c}", "pairs", t, c)
+            options = secondaries[t]
+            start = self._rng("pairs-rotation", t, c).randrange(len(options))
+            for i, slot in enumerate(sorted(chosen, key=lambda s: s.key)):
+                slot.secondary = options[(start + i) % len(options)]
+
+    # 2. hard kinds
+    def hard_cases(self) -> None:
+        hc = self.gen.hard_cases
+        total = share_of(self.n, hc.share)
+        scan = share_of(total, hc.scan_only_share_of_hard)
+        cap = floor(total * as_fraction(hc.scan_only_cap_of_hard))
+        if scan > cap:
+            raise InfeasibleDemand(f"scan-only {scan} exceeds its cap {cap}")
+        handover_cells = {k: v for k, v in self.cells.items() if self.gen.type(k[0]).handover}
+        handover_n = sum(len(v) for v in handover_cells.values())
+        missing_exact = handover_n * as_fraction(hc.missing_share_of_handover)
+        if missing_exact.denominator != 1:
+            raise InfeasibleDemand(f"missing information: {missing_exact} of {handover_n} hand-over cases isn't whole")
+        missing = int(missing_exact)
+        conflict = total - scan - missing
+        if conflict < 0:
+            raise InfeasibleDemand("hard kinds exceed the hard total")
+        # H3 only in hand-over cells.
+        for (t, c), k in self._apportion_cells(missing, handover_cells).items():
+            for s in self._pick(self.cells[(t, c)], k, f"missing information in {t}/{c}", "H3", t, c):
+                s.hard = H3
+        # H1 over every cell in proportion to its size.
+        for (t, c), k in self._apportion_cells(scan, self.cells).items():
+            pool = [s for s in self.cells[(t, c)] if s.hard is None]
+            for s in self._pick(pool, k, f"scan-only in {t}/{c}", "H1", t, c):
+                s.hard = H1
+        # H2 over the cells with at least one compatible precedence row.
+        rows_for = {k: [r for r in hc.rows if k[1] in r.countries and k[0] in r.types] for k in self.cells}
+        conflict_cells = {k: v for k, v in self.cells.items() if rows_for[k] and not self.gen.type(k[0]).handover}
+        for (t, c), k in self._apportion_cells(conflict, conflict_cells).items():
+            pool = [s for s in self.cells[(t, c)] if s.hard is None]
+            for s in self._pick(pool, k, f"conflicting documents in {t}/{c}", "H2", t, c):
+                s.hard = H2
+        # Precedence rows: fewest options first, then the least used row, within the cap.
+        row_cap = floor(conflict * as_fraction(hc.conflict_row_cap))
+        used = Counter()
+        h2 = sorted((s for s in self.slots if s.hard == H2), key=lambda s: (len(rows_for[(s.primary, s.country)]), s.key))
+        for s in h2:
+            options = [r.id for r in rows_for[(s.primary, s.country)] if used[r.id] < row_cap]
+            if not options:
+                raise InfeasibleDemand(f"conflicting documents: no precedence row under the cap {row_cap} for "
+                                       f"{s.primary}/{s.country}")
+            choice = min(options, key=lambda r: (used[r], [x.id for x in hc.rows].index(r)))
+            s.row = choice
+            used[choice] += 1
+        # Band: each type that takes conflicting documents keeps its hard share inside the band.
+        lo, hi = (as_fraction(x) for x in hc.type_hard_share_band)
+        for t in {k[0] for k in conflict_cells}:
+            n_t = sum(len(v) for k, v in self.cells.items() if k[0] == t)
+            h_t = sum(1 for s in self.slots if s.primary == t and s.hard)
+            if n_t and not lo <= Fraction(h_t * 100, n_t) <= hi:
+                raise InfeasibleDemand(f"hard share of {t} is {h_t}/{n_t}, outside {lo}-{hi}%")
+
+    def _apportion_cells(self, total: int, cells: dict) -> dict:
+        weights = {f"{t}|{c}": len(v) for (t, c), v in cells.items()}
+        return {tuple(k.split("|")): n for k, n in apportion(total, weights).items() if n}
+
+    # 3a. foreign suppliers, per country
+    def foreign(self) -> None:
+        for c in self.gen.countries:
+            pool = [s for s in self.slots if s.country == c]
+            share = as_fraction(self.gen.foreign_share)
+            k = apportion(len(pool), {"foreign": share, "domestic": 100 - share})["foreign"]
+            cells = {key: v for key, v in self.cells.items() if key[1] == c}
+            for (t, cc), m in self._apportion_cells(k, cells).items():
+                for s in self._pick(self.cells[(t, cc)], m, f"foreign suppliers in {t}/{cc}", "foreign", t, cc):
+                    s.foreign = True
+
+    # 3b. lines per case
+    def lines(self) -> None:
+        buckets = apportion(self.n, self.gen.lines)
+        counts: list[int] = []
+        for bucket, k in buckets.items():
+            lo, _, hi = bucket.partition("-")
+            sizes = [str(x) for x in range(int(lo), int(hi or lo) + 1)]
+            for size, m in apportion(k, {s: 1 for s in sizes}).items():
+                counts += [int(size)] * m
+        order = self._shuffled(self.slots, "lines")
+        for s, k in zip(order, counts, strict=True):
+            s.lines = k
+
+    # 4a. mixed cases
+    def mixed(self) -> None:
+        mx = self.gen.mixed
+        total = share_of(self.n, mx.share)
+        split_exact = total * as_fraction(mx.split_share)
+        if split_exact.denominator != 1:
+            raise InfeasibleDemand(f"split cases: {split_exact} of {total} mixed cases isn't whole")
+        split = int(split_exact)
+        ok = [s for s in self.slots if not self.gen.type(s.primary).handover]
+        for c, k in apportion(split, {c: 1 for c in mx.split_countries}).items():
+            pool = [s for s in ok if s.country == c]
+            for s in self._pick(pool, k, f"split cases in {c}", "mixed-split", c):
+                s.mixed = "split"
+        for c, k in apportion(total - split, {c: 1 for c in self.gen.countries}).items():
+            pool = [s for s in ok if s.country == c and s.lines >= 2 and s.mixed is None]
+            for s in self._pick(pool, k, f"mixed lines in {c}", "mixed-lines", c):
+                s.mixed = "lines"
+
+    # 4b. rule floor
+    def rule_floor(self) -> None:
+        tier = self.gen.floor_for(self.n)
+        if tier.per_rule == 0:
+            return
+        problem = {r.id: 0 for r in self.gen.rules}
+        if tier.problem_per_rule:
+            for r in self.gen.rules:
+                if r.problem_form:
+                    problem[r.id] = min(tier.problem_per_rule, tier.per_rule)
+        if tier.problem_per_family:
+            families: dict[tuple[str, str], list[str]] = {}
+            for r in self.gen.rules:
+                if r.problem_form:
+                    families.setdefault((r.country, r.family), []).append(r.id)
+            for (c, fam), ids in families.items():
+                start = self._rng("family", c, fam).randrange(len(ids))
+                for i in range(tier.problem_per_family):
+                    problem[ids[(start + i) % len(ids)]] += 1
+        rank = {s.key: i for i, s in enumerate(self._shuffled(self.slots, "rules"))}
+        free_lines = {s.key: s.lines for s in self.slots}
+        free_problem = {s.key: min(MAX_PROBLEM_LINES, s.lines) for s in self.slots}
+        free_finding = {s.key: 1 for s in self.slots}
+        free_action = {s.key: s.lines for s in self.slots}
+        demands = [(r, PROBLEM, problem[r.id]) for r in self.gen.rules if problem[r.id]]
+        demands += [(r, CORRECT, tier.per_rule - problem[r.id]) for r in self.gen.rules]
+        demands.sort(key=lambda d: (len(self._candidates(d[0], d[1])), d[1] != PROBLEM, d[0].id))
+        for rule, form, k in demands:
+            candidates = self._candidates(rule, form)
+            for i in range(k):
+                pool = [s for s in candidates
+                        if all(u.rule != rule.id for u in s.rules) and self._free(s, rule, form, free_lines,
+                                                                                   free_problem, free_finding,
+                                                                                   free_action) > 0]
+                if not pool:
+                    raise InfeasibleDemand(f"rule floor: {rule.id} ({form}) placed {i} of {k}; no compatible slot "
+                                           f"has room in a split of {self.n}")
+                s = max(pool, key=lambda s: (self._free(s, rule, form, free_lines, free_problem, free_finding,
+                                                        free_action), -rank[s.key]))
+                s.rules.append(RuleUse(rule.id, form, rule.carrier))
+                if rule.carrier == "line":
+                    free_lines[s.key] -= 1
+                    if form == PROBLEM:
+                        free_problem[s.key] -= 1
+                elif rule.carrier == "finding":
+                    free_finding[s.key] -= 1
+                else:
+                    free_action[s.key] -= 1
+
+    def _candidates(self, rule: RuleSpec, form: str) -> list[Slot]:
+        out = []
+        for s in self.slots:
+            if s.country != rule.country or self.gen.type(s.primary).handover:
+                continue
+            if rule.foreign and not s.foreign:
+                continue
+            if form == PROBLEM:
+                if not any(self.gen.type(t).tax for t in s.types()):
+                    continue
+            elif rule.types and not set(rule.types) & set(s.types()):
+                continue
+            out.append(s)
+        return out
+
+    @staticmethod
+    def _free(s, rule, form, free_lines, free_problem, free_finding, free_action) -> int:
+        if rule.carrier == "line":
+            return min(free_lines[s.key], free_problem[s.key]) if form == PROBLEM else free_lines[s.key]
+        return free_finding[s.key] if rule.carrier == "finding" else free_action[s.key]
+
+    # 4c. date boundaries
+    def boundaries(self) -> None:
+        tier = self.gen.boundary_floor_for(self.n)
+        for s in self.slots:
+            s.window = self.gen.windows[s.country]
+        if tier.per_side == 0:
+            return
+        taken: set[int] = set()
+        for b in self.gen.boundaries:
+            lo, hi = self.gen.windows[b.country]
+            sides = {
+                "before": (max(lo, b.day - timedelta(days=tier.days)), b.day - timedelta(days=1)),
+                "after": (b.day, min(hi, b.day + timedelta(days=tier.days - 1))),
+            }
+            for side, window in sides.items():
+                if window[0] > window[1]:
+                    raise InfeasibleDemand(f"boundary {b.country} {b.day}: no {side} days inside the window")
+                pool = [s for s in self.slots if s.country == b.country and s.key not in taken]
+                for s in self._pick(pool, tier.per_side, f"boundary {b.country} {b.day} {side}", "boundary",
+                                    b.country, b.day.isoformat(), side):
+                    s.window, s.boundary = window, (b.day, side)
+                    taken.add(s.key)
+
+    # 5. final order
+    def order(self) -> None:
+        for i, s in enumerate(self._shuffled(self.slots, "order")):
+            s.case_index = self.split.id_start + i

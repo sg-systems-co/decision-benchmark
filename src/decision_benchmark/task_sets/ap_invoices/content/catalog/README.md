@@ -28,13 +28,33 @@ Singapore: 8 categories carry a Regulation 26/27 class (motor_car ×3, and one e
 - Services: the RMCD industry guides linked from https://mysst.customs.gov.my/industry-guides/, the service-tax FAQ and the MOF releases. Every taxable service names its First Schedule item in `service_item`.
 - Singapore: the IRAS page on conditions for claiming input tax.
 
-**Left out on purpose.** Rental and leasing (Q10; its rate also changed to 6% on 1 January 2026), financial services, private healthcare, education, beauty, cleaning services, domestic flights and Malaysian electricity (none of these is settled by the rule sheet).
+**Left out of v1 (v0.9).** Rental and leasing, financial services, private healthcare, education, beauty, cleaning services, domestic flights and Malaysian electricity were left out because rule sheet v0.9 didn't settle them. Rule sheet v0.10 settles all of them except domestic electricity (P-21, not a company purchase), and A12 added categories for them; the v0.9 limits no longer apply (B1 plan, decision 13).
+
+### Planting limits for v0.10 (B1 plan §3.5)
+
+Each limit is a test run over every generated case, in `tests/generator/test_planting_limits.py`. The PR that builds the cases a limit governs adds its test; until then the engine test named here holds the rule.
+
+| # | Limit | Test |
+| --- | --- | --- |
+| 1 | No Q-A2 to Q-A5 case: no engine result names those questions, and no master or line fact gives the zone `pulau_1`. | `test_limit_1_no_open_area_questions` (B1-4); engine: `tests/rules/test_my_areas.py` |
+| 2 | Q-A1 only when flagged: `open_questions: [Q-A1]` in the generator truth if and only if the engine's line result carries Q-A1. | `test_limit_2_q_a1_only_when_flagged` (B1-4); engine: `tests/rules/test_my_areas.py` |
+| 3 | No goods line dated before 1 Sep 2018 (invoice or delivery date). | `test_limit_3_no_goods_before_sales_tax` (B1-4); engine: `test_goods_before_2025.py` |
+| 4 | No `process_gauges`, `control_instruments` or `tool_bits` line dated before 1 Jul 2025. | `test_limit_4_no_partly_exempt_headings_early` (B1-4); engine: `test_goods_before_2025.py` |
+| 5 | A case that reads an unconfirmed Singapore treaty row is HAND_OVER with basis WH-5, in an Ambiguous slot. | `test_limit_5_unconfirmed_treaty_rows` (B1-5); engine: `test_withholding.py` |
+| 6a | A zone always comes from a master or a line fact, never from an address. | `test_limit_6a_zone_from_records` (B1-4) |
+| 6b | Self-billing types (a), (b), (f) and (g) only. | `test_limit_6b_self_billing_types` (B1-4) |
+| 6c | `sales_exempt` and `none` categories are never charged tax. | `test_limit_6c_exempt_categories_uncharged` (B1-4) |
+| 6d | `group_relation: unclear` only on group-relief categories. | `test_limit_6d_unclear_group_relation` (B1-4) |
+| 6e | Credit notes are clean only (step 11 Q12). | `test_limit_6e_clean_credit_notes` (B1-3) |
+| 7 | Every planted WH-2 line states its service period. | `test_limit_7_wh2_service_period` (B1-4) |
+
+The allocator's own limits (exact quotas, hard kinds only where the plan allows them, a rule at most once per case, the precedence-row cap) are tested now, in `tests/generator/test_slots.py`.
 
 ### Rules for the generator (B1)
 
 - **B2B exemption.** A company's `services_provided` lists First Schedule items (`service_item` values such as `G(h)`, `J1(a)`, `I8`, `L`), not categories. A line is exempt when its category has `b2b_exempt: true`, both parties are SST-registered, the buyer provides the same item and the line is not for personal use. Different categories can share an item: `it_services` and `software_development` are both `G(h)`, `logistics_haulage` and `warehousing` both `J1(a)`. Courier is `J1(d)`, a different item from `J1(a)`.
 - **Group relief** applies only to categories with `group_relief: true` (Group G items (a) to (i), (l) and (n); see `GROUP_RELIEF_ITEMS`). Set `group_relation: unclear` only on invoices for those; for any other category the relation doesn't matter and the case is not a HAND_OVER.
-- **Construction:** contracts signed on or after 1 July 2025, commercial premises only.
+- **Construction:** any contract the K-x and L-x rules settle, including non-reviewable contracts signed before 1 July 2025 (L-1) and residential work (L-2, L-5); the v0.9 limit (contracts signed on or after 1 July 2025, commercial premises only) is gone.
 - **Courier:** a courier licensed under the Postal Services Act 2012 (item `J1(d)`). Before 26 February 2024 courier delivery was the old Group I item 6, parcels up to 30 kg only: a courier line dated before then (or in the STP 1/2024 window to 31 March 2024) states `parcel_weight_kg`. **Vehicle servicing in Malaysia:** labour only (spare parts are not service-taxed).
 - **26 February 2024 additions (engine 0.10.3).** `karaoke_event_venue` (Group C item 1(e)), `maintenance_repair` and the other G(n) categories, the I12 brokering categories and the Group J logistics categories are taxable services only from 26 February 2024 (Service Tax (Amendment) Regulations 2024). A line dated 26 February to 31 March 2024 falls under the STP 1/2024 transitional exemption and needs the supplier fact `registered_before_2024_02_26` where it decides (1-31 March). A line with a service period across 26 February 2024 or 1 July 2025 (the start of Groups H items 2-4, K, L, M and Group I items 14-16) is taxed only on the part from the start date (reg 3A, MS-3): B1 states `value_provided_before_change` on such a line or plants it as HAND_OVER.
 - **`wellness_centre_services`** (Group C item 2): before 1 July 2025 the line fact `wellness_facility_kind` names an excluded facility (private, Government or university healthcare facility; T&CM practitioner premises from 27 November 2024); not recorded means none.

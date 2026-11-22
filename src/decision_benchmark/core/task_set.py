@@ -13,6 +13,7 @@ from decimal import Decimal
 from pydantic import Field, model_validator
 
 from .case import AnswerEnvelope, CaseEnvelope
+from .generator.spec import Generation
 from .model import Model, Num
 
 HAND_OVER = "HAND_OVER"
@@ -53,6 +54,9 @@ class TaskSetSpec(Model):
     output_schema: str
     """Path of the output JSON schema, relative to the repository root."""
     hf_repo_id: str
+    generation: Generation | None = None
+    """The generator's config: exception types and tiers, two-problem pairs, hard cases, mixed cases, the rule floor
+    and the date boundaries (B1 plan §3). None for a task set without a generator yet."""
 
     @model_validator(mode="after")
     def _consistent(self) -> TaskSetSpec:
@@ -73,6 +77,8 @@ class TaskSetSpec(Model):
             raise ValueError(f"report_by names fields the case envelope does not have: {sorted(unknown)}")
         if sum(self.quotas.values(), Decimal(0)) != 100:
             raise ValueError("quotas must sum to 100")
+        if self.generation is not None and [t.name for t in self.generation.types] != list(self.quotas):
+            raise ValueError("generation types must be the quota keys, in the same order")
         return self
 
     def check_answer(self, answer: AnswerEnvelope) -> None:
