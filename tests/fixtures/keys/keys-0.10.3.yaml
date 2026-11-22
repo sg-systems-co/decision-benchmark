@@ -4514,10 +4514,10 @@ keys:
   test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_6pct_from_1_jan_2026[2026-01-01-6-8-at_wrong1]
 - call: 1
   key:
-    answer_source: handover_by_construction
+    answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
-    decision: HAND_OVER
+    decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.3
     facts:
     - asset_type:
@@ -4531,22 +4531,28 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: K
-    findings: []
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '8'
+        expected: '6'
+        line: 1
+      tier: 3
     gl_account: 6150-100
     grader_truth:
       po_number: PO-1
       price_variance_pct: '0'
-      requires_supplier_contact: false
+      requires_supplier_contact: true
       supplier_id: S1
     reason_codes:
-    - CANNOT_SETTLE_FROM_RULES
+    - WRONG_TAX_RATE
     rules_version: v0.10
     tax_lines:
     - basis: MS-2
       gl_account: 6150-100
       line_no: 1
-      treatment: null
-    tax_treatment: null
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
   test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_6pct_from_1_jan_2026[2026-01-01-6-8-at_wrong1]
 - call: 0
   key:
@@ -4586,10 +4592,10 @@ keys:
   test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_6pct_from_1_jan_2026[2026-03-13-6-8-at_wrong2]
 - call: 1
   key:
-    answer_source: handover_by_construction
+    answer_source: rules
     buyer_actions: []
     case_id: ap-my-00001
-    decision: HAND_OVER
+    decision: REQUEST_CORRECTED_INVOICE
     engine_version: 0.10.3
     facts:
     - asset_type:
@@ -4603,22 +4609,28 @@ keys:
         - doc_id: INV-CASE-1
           path: lines[0].description
         value: K
-    findings: []
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '8'
+        expected: '6'
+        line: 1
+      tier: 3
     gl_account: 6150-100
     grader_truth:
       po_number: PO-1
       price_variance_pct: '0'
-      requires_supplier_contact: false
+      requires_supplier_contact: true
       supplier_id: S1
     reason_codes:
-    - CANNOT_SETTLE_FROM_RULES
+    - WRONG_TAX_RATE
     rules_version: v0.10
     tax_lines:
     - basis: MS-2
       gl_account: 6150-100
       line_no: 1
-      treatment: null
-    tax_treatment: null
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
   test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_6pct_from_1_jan_2026[2026-03-13-6-8-at_wrong2]
 - call: 0
   key:
@@ -4698,6 +4710,156 @@ keys:
       treatment: SST_WRONG_RATE
     tax_treatment: SST_WRONG_RATE
   test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_6pct_from_1_jan_2026[2026-03-14-6-8-at_wrong3]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: APPROVE
+    engine_version: 0.10.3
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2025-12-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2025-12-01'
+    findings: []
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: false
+      supplier_id: S1
+    reason_codes:
+    - MATCHED_WITHIN_TOLERANCE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MS-3
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_CORRECT
+    tax_treatment: SST_CORRECT
+  test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_8pct_by_the_period_provided_around_1_jan_2026[2025-12-01-2025-12-31-2026-02-02-8-expected0]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.3
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-01'
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '8'
+        expected: '6'
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - WRONG_TAX_RATE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
+  test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_8pct_by_the_period_provided_around_1_jan_2026[2026-01-01-2026-01-31-2026-02-02-8-expected1]
+- call: 0
+  key:
+    answer_source: rules
+    buyer_actions: []
+    case_id: ap-my-00001
+    decision: REQUEST_CORRECTED_INVOICE
+    engine_version: 0.10.3
+    facts:
+    - asset_type:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: machinery
+      line_no: 1
+      service_item:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: K
+      service_period_end:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-31'
+      service_period_start:
+        evidence:
+        - doc_id: INV-CASE-1
+          path: lines[0].description
+        value: '2026-01-01'
+    findings:
+    - code: WRONG_TAX_RATE
+      evidence:
+        charged: '8'
+        expected: '6'
+        line: 1
+      tier: 3
+    gl_account: 6150-100
+    grader_truth:
+      po_number: PO-1
+      price_variance_pct: '0'
+      requires_supplier_contact: true
+      supplier_id: S1
+    reason_codes:
+    - WRONG_TAX_RATE
+    rules_version: v0.10
+    tax_lines:
+    - basis: MS-2
+      gl_account: 6150-100
+      line_no: 1
+      treatment: SST_WRONG_RATE
+    tax_treatment: SST_WRONG_RATE
+  test: tests/rules/test_dates_ms1_ms6.py::test_ms2_rental_8pct_by_the_period_provided_around_1_jan_2026[2026-01-01-2026-01-31-2026-03-16-8-expected2]
 - call: 0
   key:
     answer_source: rules
@@ -7102,7 +7264,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7115,7 +7277,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -7260,7 +7422,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7273,7 +7435,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -7290,7 +7452,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7303,7 +7465,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -7320,7 +7482,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7333,7 +7495,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -7350,7 +7512,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7363,7 +7525,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -7418,7 +7580,7 @@ keys:
     - CANNOT_SETTLE_FROM_RULES
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: null
@@ -7435,7 +7597,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -7448,7 +7610,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -28646,7 +28808,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 5300-400
@@ -28659,7 +28821,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32213,7 +32375,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32226,7 +32388,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32243,7 +32405,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 5300-400
@@ -32256,7 +32418,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32273,7 +32435,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32286,7 +32448,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32303,7 +32465,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32316,7 +32478,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32333,7 +32495,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 5300-400
@@ -32346,7 +32508,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32363,7 +32525,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32376,7 +32538,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32401,7 +32563,7 @@ keys:
     - CANNOT_SETTLE_FROM_RULES
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: null
@@ -32426,7 +32588,7 @@ keys:
     - CANNOT_SETTLE_FROM_RULES
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: null
@@ -32451,7 +32613,7 @@ keys:
     - CANNOT_SETTLE_FROM_RULES
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: null
@@ -32543,7 +32705,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32556,7 +32718,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32573,7 +32735,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 5300-400
@@ -32586,7 +32748,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -32603,7 +32765,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 6160-000
@@ -32616,7 +32778,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 6160-000
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT
@@ -33009,7 +33171,7 @@ keys:
     findings:
     - code: TAX_SHOULD_BE_EXEMPT
       evidence:
-        basis: MS-10
+        basis: P-20
         line: 1
       tier: 3
     gl_account: 5300-400
@@ -33022,7 +33184,7 @@ keys:
     - TAX_SHOULD_BE_EXEMPT
     rules_version: v0.10
     tax_lines:
-    - basis: MS-10
+    - basis: P-20
       gl_account: 5300-400
       line_no: 1
       treatment: SST_SHOULD_BE_EXEMPT

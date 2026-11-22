@@ -265,9 +265,9 @@ def test_transitional_new_scope_2024_existing_registrant_taxed_from_1_mar_2024()
 
 @pytest.mark.parametrize("day, before, expected", [
     ("2024-02-25", None, (RCI, "SST_SHOULD_BE_EXEMPT", "MS-1")),     # G(n) not taxable before 26 Feb 2024
-    ("2024-03-31", False, (RCI, "SST_SHOULD_BE_EXEMPT", "MS-10")),   # newly liable: no tax to 31 Mar 2024
+    ("2024-03-31", False, (RCI, "SST_SHOULD_BE_EXEMPT", "P-20")),   # newly liable: no tax to 31 Mar 2024
     ("2024-04-01", False, TAXED),
-    ("2024-03-15", None, (HO, None, "MS-10")),                        # registration before 26 Feb not shown
+    ("2024-03-15", None, (HO, None, "P-20")),                        # registration before 26 Feb not shown
 ])
 def test_transitional_new_scope_2024_new_registrant_window(day, before, expected):
     r, c = one_line("maintenance_repair", rate="8", day=day)

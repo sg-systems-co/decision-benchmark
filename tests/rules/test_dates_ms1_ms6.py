@@ -69,13 +69,24 @@ def test_ms1_new_scope_taxable_from_1_jul_2025(category, rate, facts):
 
 @pytest.mark.parametrize("day, right, wrong, at_wrong", [
     ("2025-12-31", "8", "6", (RCI, WRONG, "MS-2")),
-    ("2026-01-01", "6", "8", (HO, None, "MS-2")),          # Q-R1: 8% invoiced 1 Jan-13 Mar 2026
-    ("2026-03-13", "6", "8", (HO, None, "MS-2")),
+    # 8% on rental from 1 Jan 2026 is a wrong rate whether invoiced before or after the 13 Mar 2026 gazette date
+    # (STP 2/2025 Amendment No. 5, Appendix B: the correction comes as a credit note).
+    ("2026-01-01", "6", "8", (RCI, WRONG, "MS-2")),
+    ("2026-03-13", "6", "8", (RCI, WRONG, "MS-2")),
     ("2026-03-14", "6", "8", (RCI, WRONG, "MS-2")),
 ])
 def test_ms2_rental_6pct_from_1_jan_2026(day, right, wrong, at_wrong):
     assert result(*rental(rate=right, day=day)) == (OK, CORRECT, "MS-2")
     assert result(*rental(rate=wrong, day=day)) == at_wrong
+
+
+@pytest.mark.parametrize("start, end, day, rate, expected", [
+    ("2025-12-01", "2025-12-31", "2026-02-02", "8", (OK, CORRECT, "MS-3")),   # December rental, invoiced in the gap: 8%
+    ("2026-01-01", "2026-01-31", "2026-02-02", "8", (RCI, WRONG, "MS-2")),    # January rental: 6%, invoiced before 13 Mar
+    ("2026-01-01", "2026-01-31", "2026-03-16", "8", (RCI, WRONG, "MS-2")),    # ... and after
+])
+def test_ms2_rental_8pct_by_the_period_provided_around_1_jan_2026(start, end, day, rate, expected):
+    assert result(*rental(rate=rate, day=day, service_period_start=start, service_period_end=end)) == expected
 
 
 # MS-3: "Services spanning a rate change are taxed by the part provided on each side of the date; payments received

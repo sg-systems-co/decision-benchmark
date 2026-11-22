@@ -20,8 +20,9 @@ GENERAL_RATE_FROM = date(2024, 3, 1)
 """8% for every service not on the 6% list (Rate of Tax (Amendment) Order 2024). Before: 6% for all."""
 RENTAL_SIX_FROM = date(2026, 1, 1)
 """Group K rental: 8% from 1 Jul 2025, 6% from 1 Jan 2026 [P.U. (A) 125/2026]."""
-RENTAL_SIX_GAZETTED = date(2026, 3, 13)
-"""P.U. (A) 125/2026 was gazetted on 13 Mar 2026: an 8% rental invoice dated 1 Jan-13 Mar 2026 is open question Q-R1."""
+"""8% charged on rental provided from 1 Jan 2026 is a wrong rate whenever the invoice was issued, before or after the
+order's gazette date of 13 Mar 2026: STP 2/2025 (Amendment No. 5) Appendix B treats it as overpaid; the correction
+comes as a credit note (rule sheet section 1, "Rental at 8% from 1 Jan 2026", settled 22 Nov 2026)."""
 RATE_CHANGES = (GENERAL_RATE_FROM, date(2025, 7, 1), RENTAL_SIX_FROM)
 """The dates on which a service's rate can change (MS-3); scope changes add scope.scope_dates (reg 3A)."""
 SIX_PERCENT_GROUPS = ("B", "J", "L", "M")
@@ -155,7 +156,5 @@ def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
             return ctx.exempt_part(part_basis)
         return ctx.wrong_rate(basis, rate)
     if line.tax_rate != rate:
-        if ctx.group == "K" and RENTAL_SIX_FROM <= ctx.day <= RENTAL_SIX_GAZETTED and rate == SIX and line.tax_rate == EIGHT:
-            raise NotSettled("MS-2", "Q-R1: rental due at 6% invoiced at 8% between 1 Jan and 13 Mar 2026")
         return ctx.wrong_rate(basis, rate)
     return Outcome(T.SST_CORRECT, basis)

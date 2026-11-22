@@ -45,12 +45,12 @@ def test_ms5_item6_labuan_from_1_jul_2025_end_to_end(day, expected):
                                             ("logistics_haulage", "6")])
 @pytest.mark.parametrize("day, before, expected", [
     ("2024-02-25", True, (RCI, EXEMPT, "MS-1")),        # not a taxable service yet
-    ("2024-02-26", True, (RCI, EXEMPT, "MS-10")),       # STP 1/2024: existing registrant, 26-29 Feb
-    ("2024-02-29", True, (RCI, EXEMPT, "MS-10")),
+    ("2024-02-26", True, (RCI, EXEMPT, "P-20")),       # STP 1/2024: existing registrant, 26-29 Feb
+    ("2024-02-29", True, (RCI, EXEMPT, "P-20")),
     ("2024-03-01", True, (OK, CORRECT, "MS-2")),
-    ("2024-03-31", False, (RCI, EXEMPT, "MS-10")),      # newly liable: to 31 Mar
+    ("2024-03-31", False, (RCI, EXEMPT, "P-20")),      # newly liable: to 31 Mar
     ("2024-04-01", False, (OK, CORRECT, "MS-2")),
-    ("2024-03-01", None, (HO, None, "MS-10")),
+    ("2024-03-01", None, (HO, None, "P-20")),
 ])
 def test_26_feb_2024_additions_and_stp_1_2024(category, rate, day, before, expected):
     r, c = one_line(category, rate=rate if day >= "2024-03-01" else "6", day=day)
@@ -65,7 +65,7 @@ def test_courier_before_26_feb_2024_old_item_6_up_to_30_kg(weight, expected):
     assert result(r, c) == expected
 
 
-@pytest.mark.parametrize("weight, expected", [("30.00", (OK, CORRECT, "MS-2")), ("31.00", (RCI, EXEMPT, "MS-10"))])
+@pytest.mark.parametrize("weight, expected", [("30.00", (OK, CORRECT, "MS-2")), ("31.00", (RCI, EXEMPT, "P-20"))])
 def test_courier_from_26_feb_2024_heavier_parcels_are_new_scope_under_stp_1_2024(weight, expected):
     r, c = one_line("courier_services", rate="6", day="2024-02-26", parcel_weight_kg=weight)
     supplier_facts(r, registered_before_2024_02_26=True)

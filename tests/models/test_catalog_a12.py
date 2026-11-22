@@ -23,7 +23,7 @@ def test_c1_group_relief_covers_maintenance():
 
 def test_c2_courier_has_no_30_kg_limit_from_26_feb_2024():
     # C2: courier is Group J item 1(d) with no weight limit; the 30 kg limit of the old Group I item 6 appears only as
-    # the rule before 26 Feb 2024 (rule sheet MS-10, "26 Feb 2024 additions"; engine 0.10.3).
+    # the rule before 26 Feb 2024 (rule sheet P-20, "26 Feb 2024 additions"; engine 0.10.3).
     assert "30 kg" not in (RELEASE_DIR / "categories.yaml").read_text(encoding="utf-8")
     readme = (RELEASE_DIR / "README.md").read_text(encoding="utf-8")
     for m in re.finditer("30 kg", readme):

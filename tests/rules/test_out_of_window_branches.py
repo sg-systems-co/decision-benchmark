@@ -40,7 +40,7 @@ def test_ms5_items_1_and_2_own_use_condition_from_1_jan_2020(day, expected):
 
 @pytest.mark.parametrize("day, expected", [
     ("2024-02-25", (RCI, "SST_SHOULD_BE_EXEMPT", "MS-1")),      # logistics not a taxable service before 26 Feb 2024
-    ("2024-02-29", (RCI, "SST_SHOULD_BE_EXEMPT", "MS-10")),     # STP 1/2024: no tax 26-29 Feb 2024
+    ("2024-02-29", (RCI, "SST_SHOULD_BE_EXEMPT", "P-20")),     # STP 1/2024: no tax 26-29 Feb 2024
     ("2024-03-01", (RCI, "SST_SHOULD_BE_EXEMPT", "MS-5")),
 ])
 def test_ms5_item5_logistics_from_1_mar_2024(day, expected):
