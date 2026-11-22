@@ -1,0 +1,14 @@
+family: exact_duplicate
+version: 1
+countries: [MY, SG]
+primary_type: duplicate
+weight: 1
+summary: The supplier sends an invoice whose number is already in the ledger.
+params:
+  days: {int_range: [5, 60]}
+ops:
+- op: add_history_duplicate
+  args: {days_before: "{days}"}
+expect:
+  decision: REJECT_DUPLICATE
+  findings: [DUPLICATE_INVOICE]

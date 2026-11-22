@@ -1,0 +1,13 @@
+family: wrong_rate
+version: 1
+countries: [MY, SG]
+primary_type: tax_problem
+weight: 1
+summary: "Starter tax family (B1-3): one line charges a rate the rules reject. B1-4 and B1-5 add a family per rule."
+params: {}
+ops:
+- op: set_wrong_rate
+  args: {line: 1}
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: [WRONG_TAX_RATE]

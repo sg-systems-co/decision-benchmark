@@ -138,6 +138,9 @@ class Generation(Model):
     """What shapes the data, for the pipeline hash (step 11 plan §8.1)."""
     lock_file: str | None = None
     """Absolute path of the dependency lock file, hashed with the pipeline when present."""
+    builder: str | None = None
+    """"module:function" that builds a split's cases: called as builder(generation, quotas, split, provenance=...,
+    check=False); the result has planting_report() and check_thresholds()."""
     countries: tuple[str, ...]
     windows: dict[str, tuple[date, date]]
     """Case dates per country (first and last day)."""

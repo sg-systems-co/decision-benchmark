@@ -1,0 +1,13 @@
+family: above_approval_limit
+version: 1
+countries: [MY, SG]
+primary_type: no_po_or_above_limit
+weight: 1
+summary: The PO's approver has a lower limit than the invoice amount.
+params: {}
+ops:
+- op: scale_above_approval_limit
+  args: {role: ops_manager}
+expect:
+  decision: ROUTE_FOR_APPROVAL
+  findings: [ABOVE_APPROVAL_LIMIT]

@@ -1,0 +1,12 @@
+family: no_po
+version: 1
+countries: [MY, SG]
+primary_type: no_po_or_above_limit
+weight: 1
+summary: The invoice has no PO and its category is not one the non-PO policy allows.
+params: {}
+ops:
+- op: remove_po_reference
+expect:
+  decision: ROUTE_FOR_APPROVAL
+  findings: [NO_PO]

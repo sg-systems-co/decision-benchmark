@@ -1,0 +1,14 @@
+family: price_above_po
+version: 1
+countries: [MY, SG]
+primary_type: price_mismatch
+weight: 1
+summary: The invoice bills a line above the PO price, beyond the 2% tolerance, with no approved PO amendment.
+params:
+  pct: {int_range: [4, 18]}
+ops:
+- op: raise_unit_price_pct
+  args: {line: 1, pct: "{pct}"}
+expect:
+  decision: DISPUTE_PRICE
+  findings: [PRICE_ABOVE_PO]

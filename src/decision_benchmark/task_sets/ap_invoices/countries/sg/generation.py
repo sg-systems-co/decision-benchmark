@@ -9,7 +9,7 @@ import random
 from datetime import date
 from decimal import Decimal
 
-from ...generator.country import CleanLine
+from ...generator.country import CleanLine, ProblemLine
 from ...models import Category
 from .models import SgTaxProfile, SgTaxTreatment as T
 from .rules.gst import rate_on
@@ -55,6 +55,16 @@ class SingaporeGeneration:
         gst = next(x["number"] for x in supplier["tax_registrations"] if x["scheme"] == "SG_GST")
         return {"country": "SG", "document_title": "Tax Invoice", "supplier_gst_no": gst,
                 "lines": [{"line_no": line["line_no"], **line["ext"]} for line in lines]}
+
+    def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
+        return ProblemLine(clean.rate + 1, T.GST_WRONGLY_CHARGED.value, "SG-3")    # above every allowed rate
+
+    def make_invalid(self, invoice: dict) -> tuple[list[str], tuple[str, str] | None]:
+        invoice["supplier_block"]["address"] = None    # an IRAS tax-invoice particular (SG-2)
+        return ["INVALID_TAX_INVOICE"], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
+
+    def refresh_einvoice(self, invoice: dict) -> None:
+        return None
 
 
 generation_part = SingaporeGeneration()

@@ -1,0 +1,12 @@
+family: invoice_particular_missing
+version: 1
+countries: [MY, SG]
+primary_type: invalid_invoice
+weight: 1
+summary: The invoice misses a particular the country requires (a MyInvois mandatory field; an IRAS tax-invoice particular).
+params: {}
+ops:
+- op: make_invoice_invalid
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

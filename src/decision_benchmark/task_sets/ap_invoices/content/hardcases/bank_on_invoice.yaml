@@ -1,0 +1,12 @@
+family: bank_on_invoice
+version: 1
+countries: [MY, SG]
+primary_type: bank_change
+weight: 2
+summary: The invoice prints a bank account that differs from the supplier record.
+params: {}
+ops:
+- op: change_invoice_bank
+expect:
+  decision: FRAUD_REVIEW
+  findings: [BANK_DETAILS_DIFFER_FROM_RECORD]

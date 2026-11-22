@@ -1,0 +1,14 @@
+family: near_duplicate
+version: 1
+countries: [MY, SG]
+primary_type: duplicate
+weight: 1
+summary: An invoice with a new number but the same amount, PO and period is already in the ledger.
+params:
+  days: {int_range: [5, 60]}
+ops:
+- op: add_near_duplicate
+  args: {days_before: "{days}"}
+expect:
+  decision: REJECT_DUPLICATE
+  findings: [NEAR_DUPLICATE]

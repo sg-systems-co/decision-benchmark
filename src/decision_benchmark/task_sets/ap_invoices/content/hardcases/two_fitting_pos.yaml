@@ -1,0 +1,12 @@
+family: two_fitting_pos
+version: 1
+countries: [MY, SG]
+primary_type: ambiguous
+weight: 1
+summary: "Starter hand-over family (B1-3): the invoice names no PO and two open POs fit it. B1-6 adds the missing-information (H3) families."
+params: {}
+ops:
+- op: add_second_fitting_po
+expect:
+  decision: HAND_OVER
+  findings: []
