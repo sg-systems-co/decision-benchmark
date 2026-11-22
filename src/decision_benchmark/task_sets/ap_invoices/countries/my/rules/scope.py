@@ -15,11 +15,31 @@ from ....findings import NotSettled
 from ....models.common import ZERO
 from .context import Exempt, LineCtx, Partial
 
+SST_FROM = date(2018, 9, 1)
+"""Service tax begins (Service Tax Act 2018; Service Tax Regulations 2018 [P.U. (A) 214/2018])."""
 NEW_SCOPE_FROM = date(2025, 7, 1)
-"""Groups H (finance), K (rental), L (construction), M (education) and private healthcare (I14-16) are
-taxable services from 1 Jul 2025 (2025 amendments; P-8 names the same new scope)."""
+"""Groups H items 2-4 (finance), K (rental), L (construction), M (education) and private healthcare (I14-16) are
+taxable services from 1 Jul 2025 (2025 amendments; P-8 names the same new scope). Group H item 1 (credit and charge
+cards) has been taxable since 1 Sep 2018 (the 2018 Regulations' Group H)."""
 NEW_SCOPE_GROUPS = ("H", "K", "L", "M")
 NEW_SCOPE_ITEMS = ("I14", "I15", "I16")
+CARD_ITEM = "H1"
+SCOPE_2024_FROM = date(2024, 2, 26)
+"""Service Tax (Amendment) Regulations 2024 [P.U. (A) 62/2024] para 1(2): "These Regulations come into operation on
+26 February 2024": karaoke centres (Group C item 1(e)), maintenance or repair (G(n)), brokering and underwriting other than
+financial (I12) and logistics (Group J)."""
+SCOPE_2024_ITEMS = ("C1(e)", "G(n)", "I12")
+WELLNESS_ITEM = "C2"
+WELLNESS_EXCLUSIONS_TO = date(2025, 6, 30)
+"""Group C item 2 excluded facilities until the 2025 amendments (from 1 Jul 2025 only healthcare supplied by Group I
+items 14-16 providers is excluded): private healthcare facilities (Act 586), Government healthcare facilities,
+university healthcare facilities, and T&CM practitioners' premises."""
+TCM_EXCLUSION_FROM = date(2024, 11, 27)
+"""P.U. (A) 354/2024 para 2(c) (in operation 27 Nov 2024) adds subitem (d): premises of a registered T&CM practitioner."""
+SCOPE_2024_GROUPS = ("J",)
+COURIER_ITEM = "J1(d)"
+OLD_COURIER_LIMIT_KG = Decimal(30)
+"""Before 26 Feb 2024 courier delivery was the old Group I item 6, parcels up to 30 kg (deleted by P.U. (A) 62/2024)."""
 HEALTHCARE_ITEMS = NEW_SCOPE_ITEMS
 EXCLUDED_CARRIAGE = ("outside_to_outside", "last_exit_to_outside", "outside_to_first_entry", "transshipment",
                      "to_licensed_warehouse")
@@ -41,13 +61,50 @@ EXCLUDED_SUPPLIER_KINDS = ("approved_rnd_company", "research_institute")
 """Group G (g): approved R&D companies, contract R&D companies and research institutes are excluded as persons."""
 
 
+def taxable_from(item: str) -> date:
+    """The first day the item is a taxable service in the First Schedule."""
+    if item == CARD_ITEM:
+        return SST_FROM
+    if item[0] in NEW_SCOPE_GROUPS or item in NEW_SCOPE_ITEMS:
+        return NEW_SCOPE_FROM
+    if item in SCOPE_2024_ITEMS or item[0] in SCOPE_2024_GROUPS:
+        return SCOPE_2024_FROM
+    return SST_FROM
+
+
 def in_schedule(item: str | None, day: date) -> bool:
     """MS-1 (a): the item is a taxable service in the First Schedule on the day."""
     if item is None:
         return False
-    if item[0] in NEW_SCOPE_GROUPS or item in NEW_SCOPE_ITEMS:
-        return day >= NEW_SCOPE_FROM
-    return True
+    return day >= taxable_from(item)
+
+
+def old_courier(ctx: LineCtx, day: date) -> bool:
+    """Courier delivery before 26 Feb 2024: taxable as the old Group I item 6 only for a parcel up to 30 kg."""
+    if ctx.item != COURIER_ITEM or not SST_FROM <= day < SCOPE_2024_FROM:
+        return False
+    return ctx.need("parcel_weight_kg", "MS-1") <= OLD_COURIER_LIMIT_KG
+
+
+def taxable_on(ctx: LineCtx, day: date) -> bool:
+    """MS-1 (a) for this line on a day, the old courier item included."""
+    return in_schedule(ctx.item, day) or old_courier(ctx, day)
+
+
+def not_taxable_basis(ctx: LineCtx, period: tuple[date, date] | None) -> str | None:
+    """MS-1 (a) with reg 3A (MS-3): None when the line is a taxable service for some part of its supply; else the
+    basis of the no-tax answer. A supply wholly before the item's start date is not taxed even when invoiced after it
+    (MS-3); with no service period the invoice date decides (MS-1)."""
+    if period is None:
+        return None if taxable_on(ctx, ctx.day) else "MS-1"
+    if taxable_on(ctx, period[1]):
+        return None
+    return "MS-3" if taxable_on(ctx, ctx.day) else "MS-1"
+
+
+def scope_dates(item: str) -> tuple[date, ...]:
+    """The dates on which the item's scope can change (reg 3A, MS-3)."""
+    return (taxable_from(item),) if taxable_from(item) > SST_FROM else ()
 
 
 def _outside(ctx: LineCtx) -> bool:
@@ -107,6 +164,11 @@ def exclusion(ctx: LineCtx) -> Exempt | Partial | None:
     elif group == "J":
         if ctx.fact("carriage", "domestic", "MS-4") in EXCLUDED_CARRIAGE:
             return out
+    elif item == WELLNESS_ITEM:
+        kind = ctx.fact("wellness_facility_kind", "none", "MS-4")
+        if kind != "none" and ctx.day <= WELLNESS_EXCLUSIONS_TO:
+            if kind != "tcm_practitioner_premises" or ctx.day >= TCM_EXCLUSION_FROM:
+                return out
     elif group == "K":
         if ctx.fact("asset_type", "other", "MS-4") in ("housing", "reading_material"):
             return out

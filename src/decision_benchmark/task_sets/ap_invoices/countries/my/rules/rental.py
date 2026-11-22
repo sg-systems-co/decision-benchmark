@@ -7,7 +7,7 @@ reading materials, financial leases) are in scope.py; the B2B sublet exemption (
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 from ....findings import NotSettled
@@ -65,10 +65,19 @@ def sme_tenant(ctx: LineCtx) -> bool:
     return ctx.day >= effective
 
 
+def one_year_on(day: date) -> date:
+    """The first day after "a period of 1 year starting from" day: the same calendar date a year on (1 Mar after
+    29 Feb)."""
+    try:
+        return day.replace(year=day.year + 1)
+    except ValueError:
+        return date(day.year + 1, 3, 1)
+
+
 def new_sme(ctx: LineCtx) -> bool:
     """K-2 (STP 2/2025 item 9)."""
     ssm = ctx.cf.msme.ssm_registered_on
-    if ssm is None or ctx.day < NEW_SME_FROM or not (ssm <= ctx.day < ssm + timedelta(days=365)):
+    if ssm is None or ctx.day < NEW_SME_FROM or not (ssm <= ctx.day < one_year_on(ssm)):
         return False
     return _mypmk(ctx, "K-2") is not None and _sme_conditions(ctx, "K-2")
 

@@ -231,6 +231,7 @@ Each limit is a test in `tests/generator/test_planting_limits.py`, run over ever
    - `sales_exempt` and `none` categories are never charged tax;
    - `group_relation: unclear` only on group-relief categories;
    - credit notes are clean only (step 11 Q12).
+7. **Every planted WH-2 line states its service period** (`service_period_start` and `service_period_end`), since the period of performance decides services outside Malaysia (engine 0.10.3, rule sheet WH-2); a WH-2 HAND_OVER happens only where B1 leaves the period out on purpose.
 
 B1-1 rewrites the catalog README's rules for the generator for v0.10 and links each rule to its test.
 
@@ -311,8 +312,8 @@ These branches are tested in the engine suite but never planted, because their w
 
 | Rule | Branch | Dates | Covered by |
 | --- | --- | --- | --- |
-| MS-5 | B2B items as they stood before the 2019 and 2020 amendments | before 2019–2020 | no test yet; B1-7 adds one |
-| MS-6 | Group relief before the 5% test of First Schedule para 8(2) | before 1 Jan 2020 | no test yet; B1-7 adds one |
+| MS-5 | The Order before it came into force; items 1 and 2 before the own-use condition; items 3 and 4 before they began | before 1 Jan 2019; before 1 Jan 2020 | `test_out_of_window_branches.py` (engine 0.10.3) |
+| MS-6 | Group relief before the 5% test of First Schedule para 8(2) | before 1 Jan 2020 | `test_out_of_window_branches.py` (engine 0.10.3) |
 | MS-7 | JDA exemption for the MTJA and JDA companies (Service Tax Policy 1/2021) | 1 May 2021 – 14 Aug 2022 | `test_my_areas.py` (JDA dates 30 Apr / 3 May 2021) |
 | MS-7 | Item 3 exclusions before 1 Jan 2020 (public premises only for educational, training or welfare purposes; no employer-accommodation exclusion) | before 1 Jan 2020 | `test_my_areas.py::test_ms7_item3_statutory_body_and_private_hei_premises` |
 | MS-7 | Item 3 before the words "in special areas" (232/2018) | 1–5 Sep 2018 | `test_my_areas.py` |
@@ -328,14 +329,17 @@ These branches are tested in the engine suite but never planted, because their w
 | ME-1 | Up-to-RM5m relaxation end, and implementation dates of new businesses after the window | 31 Dec 2027 and later | `test_my_einvoice.py` (engine 0.10.2, PR #21) |
 | L-1 | Non-reviewable contracts after the exemption ends | from 1 Jul 2027 | `test_my_construction.py` |
 | P-9 | MRO exemption after it ends | from 1 Jan 2028 | `test_my_policies.py` (P-9, 10 Jan 2028) |
-| WH-2 | Before the outside-Malaysia exemption and before no grossing-up | before 6 Sep 2017; before 5 Dec 2018 | no test yet; B1-7 adds one |
+| WH-2 | Services outside Malaysia before 17 Jan 2017 and 17 Jan – 5 Sep 2017; grossing-up before 5 Dec 2018 | before 6 Sep 2017; before 5 Dec 2018 | `test_out_of_window_branches.py`, `test_dates_sg_wh.py` (engine 0.10.3) |
 | SG-3 | GST at 7%, and the 7% → 8% change | before 1 Jan 2023 | `test_sg_gst.py` (7% on 20 Dec 2022) |
 | SG-6 | (u) advertising substantially outside Singapore | before 1 Jan 2022 | `test_sg_gst.py` (s21(3)(u) on 10 Nov 2021 and 10 Feb 2022) |
-| SG-6 | (c) insuring passenger transport, and (e) accommodation booking, before the 2023 changes | before 1 Jan 2023 | no test yet; B1-7 adds one |
+| SG-6 | (c) insuring passenger transport, and (e) accommodation booking, before the 2023 changes | before 1 Jan 2023 | `test_out_of_window_branches.py` (engine 0.10.3) |
+| MS-8 | No tax on imported services before 1 Jan 2019 | before 1 Jan 2019 | `test_scope_changes.py` (engine 0.10.3) |
+| ME-4 | Reg 10(1A) before its substitution on 1 Sep 2019 (the earlier text is not archived; nothing for the case data) | before 1 Sep 2019 | none: before both windows, not planted |
+| K-2 | The one-year new-SME exemption across 29 Feb 2028 | 2028 | `test_dates_mg_me.py` (engine 0.10.3) |
 | SG-8 | Reverse charge before low-value goods were included | before 1 Jan 2023 | `test_sg_claims.py` (low-value goods on 10 Nov 2022) |
 | SG-10 | Before the private-hire and third-party-car exceptions | before 1 Apr 2022; before 1 Jan 2023 | `test_sg_claims.py` (10 Mar 2022, 10 Dec 2022) |
 
-The "Covered by" column names the engine test, checked against main on 20 Nov 2026. Four branches have no test yet; B1-7 adds them before the table goes into the card, since the card says each branch is tested. In B1-7 a test re-parses the sheet's dated items and fails if one lies wholly outside a window without a row here. B1-7 also copies the table into the card draft as "rule branches dated outside the case window, tested in the engine suite but not planted".
+The "Covered by" column names the engine test (checked against main on 20 Nov 2026; the four branches without a test then got one in engine 0.10.3, 22 Nov 2026, with the full date sweep). Every row except ME-4 now has a test; the card says so. In B1-7 a test re-parses the sheet's dated items and fails if one lies wholly outside a window without a row here. B1-7 also copies the table into the card draft as "rule branches dated outside the case window, tested in the engine suite but not planted".
 
 ## 7. Build order
 

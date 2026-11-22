@@ -248,11 +248,17 @@ class MySupplierFacts(CountryBlock):
     msic_code: str | None = None
     registration_known: bool = True
     """False: the case can't show whether the supplier is registered for SST (MS-1, MG-1)."""
+    registered_before_2024_02_26: bool | None = None
+    """The supplier was registered for service tax (for other services) before 26 Feb 2024 (STP 1/2024). None: not
+    shown."""
     supplier_kind: SupplierKind = "company"
     group_company_id: str | None = None
     """The supplier's id in the buyer's group structure, if it is a group company."""
     external_share_within_5pct: bool | None = None
     """The supplier's supplies of the service to outsiders stay within 5% (First Schedule para 8(2)). None: not shown."""
+    no_external_supplies: bool | None = None
+    """The supplier made no supplies of the service to outsiders (First Schedule para 8 before para 8(2) began on
+    1 Jan 2020). None: not shown."""
     is_foreign_registered_person: bool = False
     frp_supplies_outsiders_in_my: bool | None = None
     pe_in_country: bool | None = None
@@ -297,8 +303,8 @@ class MyLineFacts(LineFacts):
     financial_charge: LineFact[Literal["fee_or_commission", "interest_or_profit", "penalty", "basic_banking", "insurance_premium", "reinsurance", "card_activation", "bursa_share_brokerage", "bursa_clearing_trading_fee", "listing_perusal_fee", "shariah_structure_fee", "asnb_fund_management", "government_securities_fee", "commodity_platform_fee", "tia_i_account_fee"]] | None = fact_field("classification", "MS-4", "P-1", "P-3", "P-5", "P-6", "P-2", "P-4", "P-7")
     asset_type: LineFact[Literal["housing", "reading_material", "aircraft", "drone", "vessel", "floating_storage", "vehicle", "machinery", "commercial_premises", "other"]] | None = fact_field("classification", "MS-4", "K-3")
     education_fee_item: LineFact[Literal["tuition", "books", "uniform", "food", "transport", "accommodation", "refundable_deposit", "pta_fee", "trip", "student_pass"]] | None = fact_field("classification", "MS-4", "P-16")
-    service_period_start: LineFact[date] | None = fact_field("time_and_rate", "MS-3")
-    service_period_end: LineFact[date] | None = fact_field("time_and_rate", "MS-3")
+    service_period_start: LineFact[date] | None = fact_field("time_and_rate", "MS-3", "WH-2")
+    service_period_end: LineFact[date] | None = fact_field("time_and_rate", "MS-3", "WH-2")
     amount_paid_before_change: LineFact[Money] | None = fact_field("time_and_rate", "MS-3")
     delivery_date: LineFact[date] | None = fact_field("time_and_rate", "MG-3")
     subject_outside_malaysia: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-4")
@@ -334,6 +340,7 @@ class MyLineFacts(LineFacts):
     place_of_performance: LineFact[Literal["in_country", "outside", "mixed"]] | None = fact_field("withholding", "WH-2")
     in_country_share: LineFact[Share] | None = fact_field("withholding", "WH-2")
     hotel_reimbursement: LineFact[Money] | None = fact_field("withholding", "WH-2")
+    tax_borne_by_payer: LineFact[bool] | None = fact_field("withholding", "WH-2")
     certificate_of_residence: LineFact[bool] | None = fact_field("withholding", "WH-1", "WH-2", "WH-4")
     manufactured_by_supplier: LineFact[bool] | None = fact_field("classification", "MG-1")
     export_related: LineFact[bool] | None = fact_field("scope_and_exemption", "MS-4", "P-1")
@@ -380,3 +387,5 @@ class MyLineFacts(LineFacts):
     educational_training_welfare_purpose: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
     non_commercial_religious_welfare: LineFact[bool] | None = fact_field("buyer_and_purpose", "MS-7")
     canteen_kind: LineFact[Literal["educational_institution", "religious_body", "none"]] | None = fact_field("scope_and_exemption", "MS-7")
+    parcel_weight_kg: LineFact[Money] | None = fact_field("scope_and_exemption", "MS-1")
+    wellness_facility_kind: LineFact[Literal["private_healthcare_facility", "government_healthcare_facility", "university_healthcare_facility", "tcm_practitioner_premises", "none"]] | None = fact_field("scope_and_exemption", "MS-4")

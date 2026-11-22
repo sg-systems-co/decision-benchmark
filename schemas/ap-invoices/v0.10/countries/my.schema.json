@@ -277,14 +277,14 @@
           "$ref": "../output.schema.json#/$defs/fact",
           "description": "First day of the service on this line.",
           "x-family": "time_and_rate",
-          "x-rules": ["MS-3"],
+          "x-rules": ["MS-3", "WH-2"],
           "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
         },
         "service_period_end": {
           "$ref": "../output.schema.json#/$defs/fact",
           "description": "Last day of the service on this line.",
           "x-family": "time_and_rate",
-          "x-rules": ["MS-3"],
+          "x-rules": ["MS-3", "WH-2"],
           "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
         },
         "amount_paid_before_change": {
@@ -574,6 +574,13 @@
           "x-family": "withholding",
           "x-rules": ["WH-2"],
           "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "tax_borne_by_payer": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "The payer bears the withholding tax under the contract (regrossing before 5 Dec 2018).",
+          "x-family": "withholding",
+          "x-rules": ["WH-2"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
         },
         "certificate_of_residence": {
           "$ref": "../output.schema.json#/$defs/fact",
@@ -1000,6 +1007,20 @@
           "x-family": "scope_and_exemption",
           "x-rules": ["MS-7"],
           "properties": {"value": {"enum": ["educational_institution", "religious_body", "none", null]}}
+        },
+        "parcel_weight_kg": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Weight of the parcel in kg, for courier delivery before 26 Feb 2024 (old Group I item 6: parcels up to 30 kg).",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-1"],
+          "properties": {"value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d{1,2})?$"}}
+        },
+        "wellness_facility_kind": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For Group C item 2 (health or wellness centre, massage parlour): an excluded facility before 1 Jul 2025 (private healthcare facility, government or university healthcare facility; T&CM practitioner premises from 27 Nov 2024), or none.",
+          "x-family": "scope_and_exemption",
+          "x-rules": ["MS-4"],
+          "properties": {"value": {"enum": ["private_healthcare_facility", "government_healthcare_facility", "university_healthcare_facility", "tcm_practitioner_premises", "none", null]}}
         }
       }
     },

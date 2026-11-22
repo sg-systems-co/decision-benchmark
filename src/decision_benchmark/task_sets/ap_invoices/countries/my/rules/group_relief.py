@@ -6,7 +6,8 @@ Control: more than 50% of the issued share capital, or 20-50% with power over th
 held directly, indirectly through subsidiaries, or both. So the supplier and the buyer are in one group when some
 company controls both of them (one of them, or a common parent). Nominee and fiduciary holdings don't count; an
 individual owner forms no group. Relief is lost when the supplier's supplies of the service to outsiders exceed
-5% (para 8(2), from 1 Jan 2020).
+5% (para 8(2), from 1 Jan 2020, P.U. (A) 357/2019 para 1(2)). Before then para 8 alone applied: any supply of the
+service to outsiders ended the relief, so the outside share must be shown as zero.
 """
 
 from __future__ import annotations
@@ -20,6 +21,8 @@ from ..constants import GROUP_RELIEF_ITEMS
 from ..models import GroupStructure
 from .context import Exempt, LineCtx
 
+FIVE_PCT_FROM = date(2020, 1, 1)
+"""Para 8(2), inserted by P.U. (A) 357/2019: "These Regulations come into operation on 1 January 2020"."""
 MAINTENANCE_RELIEF_FROM = date(2024, 5, 1)
 """G(n) is in group relief since 1 May 2024 [P.U. (A) 354/2024]."""
 CONTROL_PCT = Decimal(50)
@@ -64,7 +67,16 @@ def related(ctx: LineCtx, basis: str) -> bool:
 
 
 def within_5pct(ctx: LineCtx, basis: str) -> bool:
+    """The supplier's supplies to outsiders keep the relief: within 5% from 1 Jan 2020 (para 8(2)), none before
+    (para 8)."""
     share = ctx.sf.external_share_within_5pct
+    if ctx.day < FIVE_PCT_FROM:
+        if share is False:
+            return False                # above 5%, so not none
+        none = ctx.sf.no_external_supplies
+        if none is None:
+            raise NotSettled(basis, "before 1 Jan 2020: no supplies to outsiders not shown")
+        return none
     if share is None:
         raise NotSettled(basis, "supplies to outsiders within 5% not shown")
     return share

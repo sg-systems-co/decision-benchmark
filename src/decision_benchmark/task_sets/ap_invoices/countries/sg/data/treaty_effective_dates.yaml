@@ -1,0 +1,31 @@
+# Effective dates of Singapore tax treaties whose withholding rows take effect on or after 1 Jan 2023 (WH-5).
+# Sources: docs/sources/manifest.yaml, the IRAS treaty texts (ids iras-singapore-*-dta; each page header gives "Entry
+# into Force" and "Effective Date"). Before the effective date the domestic rate applies: Greece and Kenya had no
+# earlier treaty; the 1981 Taiwan agreement caps royalties at 15%, above the domestic rate, and has no interest article.
+# Protocols and MLI changes in effect from 2023 (Brazil, Cambodia second protocol, MLI) alter no rate row.
+source:
+- iras-singapore-greece-dta
+- iras-singapore-kenya-dta
+- iras-singapore-taiwan-dta
+rows:
+- country: GR
+  instrument: Singapore-Greece DTA
+  entry_into_force: 2022-03-14
+  effective_from: 2023-01-01
+  before: domestic_rate
+  note: 'IRAS text header: "Entry into Force: 14 March 2022 / Effective Date: 1 January 2023".'
+  source: iras-singapore-greece-dta
+- country: KE
+  instrument: Singapore-Kenya DTA (concluded 23 Sep 2024)
+  entry_into_force: 2026-04-20
+  effective_from: 2027-01-01
+  before: domestic_rate
+  note: 'IRAS text header: "Entry into Force: 20 April 2026 / Effective Date: 1 January 2027"; Art 29: withholding from 1 January of the next calendar year.'
+  source: iras-singapore-kenya-dta
+- country: TW
+  instrument: Singapore-Taiwan DTA (concluded 31 Dec 2025), replacing the 1981 agreement
+  entry_into_force: 2026-02-13
+  effective_from: 2027-01-01
+  before: domestic_rate
+  note: 'IRAS text header: "Entry into Force: 13 February 2026 / Effective Date: 1 January 2027"; Art 28: withholding from 1 January of the next calendar year.'
+  source: iras-singapore-taiwan-dta
