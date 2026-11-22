@@ -26,10 +26,6 @@ CLASSIFICATION = {"goods": "022", "service": "022"}
 """MyInvois classification code ("others") for every clean line."""
 
 
-def _digits(r: random.Random, n: int) -> str:
-    return "".join(str(r.randrange(10)) for _ in range(n))
-
-
 class MalaysiaGeneration:
     country = "MY"
     currency = "MYR"
@@ -40,22 +36,23 @@ class MalaysiaGeneration:
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(10_000, 99_999)}"
 
-    def registration_no(self, r: random.Random, start: date) -> str:
-        return f"{start.year}{r.randrange(10**8):08d}"
+    def registration_no(self, r: random.Random, start: date, ids) -> str:
+        return f"{start.year}{ids.digits(8)}"
 
-    def company_registrations(self, r: random.Random, start: date) -> list[dict]:
+    def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
+        sst = ids.digits(12)
         return [
-            {"scheme": "MY_TIN", "number": f"C{_digits(r, 10)}", "type": "tin"},
-            {"scheme": "MY_SST", "number": f"W10-{_digits(r, 4)}-{_digits(r, 8)}", "type": "sales",
-             "valid_from": str(date(2018, 9, 1))},
+            {"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"},
+            {"scheme": "MY_SST", "number": f"W10-{sst[:4]}-{sst[4:]}", "type": "sales", "valid_from": str(date(2018, 9, 1))},
         ]
 
     def company_facts(self, r: random.Random) -> dict | None:
         return {"country": "MY", "is_registered_manufacturer": True, "services_provided": []}
 
-    def supplier_registrations(self, r: random.Random, kinds: set[str], start: date) -> list[dict]:
-        regs = [{"scheme": "MY_TIN", "number": f"C{_digits(r, 10)}", "type": "tin"}]
-        number = f"W10-{_digits(r, 4)}-{_digits(r, 8)}"
+    def supplier_registrations(self, r: random.Random, kinds: set[str], start: date, ids) -> list[dict]:
+        regs = [{"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"}]
+        sst = ids.digits(12)
+        number = f"W10-{sst[:4]}-{sst[4:]}"
         for kind, sst in (("goods", "sales"), ("service", "service")):
             if kind in kinds:
                 regs.append({"scheme": "MY_SST", "number": number, "type": sst, "valid_from": str(start)})

@@ -2,14 +2,20 @@
 ledger history and background mail. Country neutral: registrations, party facts and the clean line come from the
 country pack's generation part; names come from content/names/<country>.yaml.
 
-Each company is built from its own derived seed, so adding a company never changes another. Names are drawn from the
-combinations of the name banks, the release train split from the even combinations and every other split from the odd
-ones, so train and test never share a company, supplier or person name. Company names are distinct across a split;
-supplier and person names are distinct within a company.
+Each company is built from its own derived seed. Splits are disjoint by construction: the name combinations and the
+identifiers are partitioned three ways (``partition``), train, test and every other split, so no company, supplier or
+person name, tax id, registration number or bank account can appear in two splits. A name belongs to the partition of
+its text (``name_partition``: sha256 of the name, mod 3), so the rule holds across countries and name banks; every
+generated identifier ends in a digit whose value mod 3 is the partition.
+
+Company names are distinct across a split; supplier and person names within a company. A supplier name drawn again at
+another company of the split is the same supplier: it keeps the identity first drawn for it (registrations, registration
+number, bank account, address, contact, categories), so a shared name never carries two tax ids.
 """
 
 from __future__ import annotations
 
+import hashlib
 import random
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -35,6 +41,9 @@ HISTORY_LEAD_DAYS = 365
 """Background history starts 12 months before the window (B1 plan section 6)."""
 BACKGROUND_MAIL = (4, 10)
 APPROVAL = (("ops_manager", Decimal("20000.00")), ("director", Decimal("200000.00")))
+PARTITIONS = {"train": 0, "test": 1}
+"""The release splits' partitions; every other split (a private one) uses partition 2."""
+N_PARTITIONS = 3
 GOODS_PRICE = (Decimal("5"), Decimal("400"))
 SERVICE_PRICE = (Decimal("150"), Decimal("4000"))
 
@@ -103,6 +112,35 @@ class CompanyWorld:
         return out
 
 
+def partition(split: SplitSpec) -> int:
+    return PARTITIONS.get(split.name, N_PARTITIONS - 1)
+
+
+def name_partition(text: str) -> int:
+    """The partition a name belongs to, from its text alone."""
+    return int.from_bytes(hashlib.sha256(text.encode("utf-8")).digest()[:8], "big") % N_PARTITIONS
+
+
+class Ids:
+    """Identifiers of one split: digit strings unique in the split whose last digit is the split's partition mod 3."""
+
+    def __init__(self, part: int, r: random.Random) -> None:
+        self.part, self.r = part, r
+        self.used: set[str] = set()
+
+    def digits(self, n: int) -> str:
+        for _ in range(10_000):
+            text = f"{self.r.randrange(10 ** n):0{n}d}"
+            if int(text[-1]) % N_PARTITIONS == self.part and text not in self.used:
+                self.used.add(text)
+                return text
+        raise ValueError("identifier space exhausted")
+
+    def account(self) -> str:
+        d = self.digits(12)
+        return f"{d[:4]} {d[4:8]} {d[8:]}"
+
+
 class _Names:
     """Distinct name combinations for one split and country."""
 
@@ -120,13 +158,9 @@ class _Names:
     def _pick(self, *pools: list[str], local: bool = False) -> str:
         used = self.local if local else self.used
         for _ in range(10_000):
-            parts = [self.r.randrange(len(p)) for p in pools]
-            index = 0
-            for i, p in zip(parts, pools):
-                index = index * len(p) + i
-            if index % 2 != self.partition:
+            text = " ".join(self.r.choice(p) for p in pools)
+            if name_partition(text) != self.partition:
                 continue
-            text = " ".join(p[i] for i, p in zip(parts, pools))
             if text not in used:
                 used.add(text)
                 return text
@@ -166,15 +200,18 @@ def build_world(gen: Generation, split: SplitSpec) -> dict[str, list[CompanyWorl
     total = gen.companies_for(split.n_cases)
     per_country = {c: total // len(gen.countries) + (i < total % len(gen.countries))
                    for i, c in enumerate(gen.countries)}
-    partition = 0 if split.name == "train" else 1
+    part = partition(split)
+    ids = Ids(part, rng(split.seed, "ids"))
     world: dict[str, list[CompanyWorld]] = {}
     for country, n in per_country.items():
-        namer = _Names(country, partition, rng(split.seed, "names", country))
-        world[country] = [_company(gen, split, country, k, namer) for k in range(n)]
+        namer = _Names(country, part, rng(split.seed, "names", country))
+        known: dict[str, dict] = {}
+        world[country] = [_company(gen, split, country, k, namer, ids, known) for k in range(n)]
     return world
 
 
-def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Names) -> CompanyWorld:
+def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Names, ids: Ids,
+             known: dict[str, dict]) -> CompanyWorld:
     r = rng(split.seed, "company", country, k)
     g = pack(country).generation
     bank = names(country)
@@ -211,9 +248,9 @@ def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Na
     start = lo - timedelta(days=HISTORY_LEAD_DAYS + 365 * r.randint(1, 6))
     company = {
         "company_id": cid, "split": split.name, "country": country, "legal_name": legal,
-        "registration_no": g.registration_no(r, start),
+        "registration_no": g.registration_no(r, start, ids),
         "address": _address(r, bank, country), "base_currency": currency, "industry": r.choice(bank["industries"]),
-        "tax_registrations": g.company_registrations(r, start), "people": people, "policy_pack": policy,
+        "tax_registrations": g.company_registrations(r, start, ids), "people": people, "policy_pack": policy,
     }
     facts = g.company_facts(r)
     if facts is not None:
@@ -221,44 +258,58 @@ def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Na
     cw = CompanyWorld(country, company, [], {}, account_for_role=accounts)
     cats = country_categories(country)
     for j in range(r.randint(*SUPPLIERS)):
-        cw_supplier(cw, r, namer, cats, j, foreign=r.random() < float(FOREIGN_SUPPLIER_SHARE), start=start)
+        cw_supplier(cw, r, namer, ids, known, cats, j, foreign=r.random() < float(FOREIGN_SUPPLIER_SHARE), start=start)
     _contracts(cw, r, lo)
-    _certificates(cw, r, lo)
+    _certificates(cw, r, lo, ids)
     _history(cw, r, lo - timedelta(days=HISTORY_LEAD_DAYS), hi)
     _background_mail(cw, r, lo, hi, domain)
     return cw
 
 
-def cw_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, cats: list[Category], j: int, foreign: bool,
-                start: date) -> None:
+def cw_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, known: dict[str, dict],
+                cats: list[Category], j: int, foreign: bool, start: date) -> None:
+    """Add supplier j. A name already used by another company of the split brings that supplier's identity."""
+    sid = f"S{j + 1:03d}"
+    name = namer.supplier()
+    identity = known.get(name)
+    if identity is None:
+        identity = known[name] = _supplier_identity(cw, r, namer, ids, cats, name, foreign, start)
+    supplier = {k: v for k, v in identity.items() if k not in ("categories", "residence_from")}
+    supplier |= {"supplier_id": sid, "company_id": cw.company_id,
+                 "contacts": [c | {"contact_id": f"{sid}-c{i + 1}"} for i, c in enumerate(identity["contacts"])]}
+    if identity.get("residence_from"):
+        cw.residence_certificates.append({
+            "certificate_id": f"COR-{cw.company_id}-{sid}", "supplier_id": sid, "country": identity["country"],
+            "valid_from": identity["residence_from"], "valid_to": None})
+    cw.suppliers.append(supplier)
+    cw.categories[sid] = list(identity["categories"])
+
+
+def _supplier_identity(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, cats: list[Category], name: str,
+                       foreign: bool, start: date) -> dict:
     g = pack(cw.country).generation
     bank = names(cw.country)
-    sid = f"S{j + 1:03d}"
     chosen = sorted({c.category for c in r.sample(cats, r.randint(1, 3))})
     kinds = {catalog().get(c).kind for c in chosen}
-    name = namer.supplier()
-    supplier = {
-        "supplier_id": sid, "company_id": cw.company_id, "name": name, "country": cw.country,
-        "address": _address(r, bank, cw.country), "registration_no": f"{start.year - r.randint(0, 10)}{r.randrange(10**8):08d}",
+    identity = {
+        "name": name, "country": cw.country, "address": _address(r, bank, cw.country),
+        "registration_no": g.registration_no(r, start - timedelta(days=365 * r.randint(0, 10)), ids),
         "currency": g.currency, "payment_terms_days": r.choice([30, 30, 45, 60]),
-        "contacts": [{"contact_id": f"{sid}-c1", "name": namer.person(), "email": f"billing@{_slug(name)}.example"}],
-        "bank_account": {"bank_name": r.choice(bank["banks"]), "account_name": name,
-                         "account_no": f"{r.randrange(1000, 9999)} {r.randrange(1000, 9999)} {r.randrange(1000, 9999)}"},
+        "contacts": [{"name": namer.person(), "email": f"billing@{_slug(name)}.example"}],
+        "bank_account": {"bank_name": r.choice(bank["banks"]), "account_name": name, "account_no": ids.account()},
+        "categories": chosen,
     }
     if foreign:
         home = r.choice(g.foreign_countries)
-        supplier |= {"country": home, "currency": "USD", "address": {"lines": ["Head office"], "country": home}}
+        identity |= {"country": home, "currency": "USD", "address": {"lines": ["Head office"], "country": home}}
         if r.random() < 0.5:
-            cw.residence_certificates.append({
-                "certificate_id": f"COR-{cw.company_id}-{sid}", "supplier_id": sid, "country": home,
-                "valid_from": str(date(start.year + 1, 1, 1)), "valid_to": None})
+            identity["residence_from"] = str(date(start.year + 1, 1, 1))
     else:
-        supplier["tax_registrations"] = g.supplier_registrations(r, kinds, start)
+        identity["tax_registrations"] = g.supplier_registrations(r, kinds, start, ids)
         facts = g.supplier_facts(r, kinds)
         if facts is not None:
-            supplier["tax_facts"] = facts
-    cw.suppliers.append(supplier)
-    cw.categories[sid] = chosen
+            identity["tax_facts"] = facts
+    return identity
 
 
 def _contracts(cw: CompanyWorld, r: random.Random, lo: date) -> None:
@@ -277,7 +328,7 @@ def _contracts(cw: CompanyWorld, r: random.Random, lo: date) -> None:
             "start": str(signed + timedelta(days=30)), "end": str(date(2029, 12, 31))})
 
 
-def _certificates(cw: CompanyWorld, r: random.Random, lo: date) -> None:
+def _certificates(cw: CompanyWorld, r: random.Random, lo: date, ids: Ids) -> None:
     """Exemption certificates the country allows for some companies (B1-4 plants the exempt lines; the clean base
     leaves the covered categories alone)."""
     eligible = sorted(c.category for c in country_categories(cw.country)
@@ -285,7 +336,7 @@ def _certificates(cw: CompanyWorld, r: random.Random, lo: date) -> None:
     facts = cw.company.get("tax_facts") or {}
     if eligible and facts.get("is_registered_manufacturer") and r.random() < 0.5:
         cw.company["policy_pack"]["exemption_certificates"].append({
-            "kind": "schedule_c", "number": f"SC-{cw.company_id}-{r.randrange(10**6):06d}",
+            "kind": "schedule_c", "number": f"SC-{ids.digits(8)}",
             "valid_from": str(lo - timedelta(days=r.randint(30, 400))), "valid_to": None,
             "categories": sorted(r.sample(eligible, min(2, len(eligible))))})
 

@@ -15,8 +15,9 @@ from .models import SgTaxProfile, SgTaxTreatment as T
 from .rules.gst import rate_on
 
 
-def _gst_no(r: random.Random) -> str:
-    return f"M{r.randrange(1, 10)}-{r.randrange(10**7):07d}-{chr(65 + r.randrange(26))}"
+def _gst_no(r: random.Random, ids) -> str:
+    d = ids.digits(8)
+    return f"M{d[0]}-{d[1:]}-{chr(65 + r.randrange(26))}"
 
 
 class SingaporeGeneration:
@@ -29,17 +30,17 @@ class SingaporeGeneration:
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(100_000, 829_999)}"
 
-    def registration_no(self, r: random.Random, start: date) -> str:
-        return f"{start.year}{r.randrange(10**5):05d}{chr(65 + r.randrange(26))}"
+    def registration_no(self, r: random.Random, start: date, ids) -> str:
+        return f"{start.year}{ids.digits(5)}{chr(65 + r.randrange(26))}"
 
-    def company_registrations(self, r: random.Random, start: date) -> list[dict]:
-        return [{"scheme": "SG_GST", "number": _gst_no(r), "type": "local", "valid_from": str(start)}]
+    def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
+        return [{"scheme": "SG_GST", "number": _gst_no(r, ids), "type": "local", "valid_from": str(start)}]
 
     def company_facts(self, r: random.Random) -> dict | None:
         return {"country": "SG", "input_tax_status": "fully_taxable", "non_business_receipts": False}
 
-    def supplier_registrations(self, r: random.Random, kinds: set[str], start: date) -> list[dict]:
-        return [{"scheme": "SG_GST", "number": _gst_no(r), "type": "local", "valid_from": str(start)}]
+    def supplier_registrations(self, r: random.Random, kinds: set[str], start: date, ids) -> list[dict]:
+        return [{"scheme": "SG_GST", "number": _gst_no(r, ids), "type": "local", "valid_from": str(start)}]
 
     def supplier_facts(self, r: random.Random, kinds: set[str]) -> dict | None:
         return None

@@ -169,18 +169,74 @@ def test_history_rates_are_right_for_their_dates():
                     assert clean is not None and str(clean.rate) == line["tax_rate"]
 
 
-def test_train_and_test_share_no_names_or_tax_ids():
-    def names(w):
-        out, ids = set(), set()
-        for companies in w.values():
-            for cw in companies:
-                out.add(cw.company["legal_name"])
-                out |= {s["name"] for s in cw.suppliers}
-                ids |= {r["number"] for party in (cw.company, *cw.suppliers) for r in party.get("tax_registrations", [])}
-                ids |= {s["bank_account"]["account_no"] for s in cw.suppliers}
-        return out, ids
+SPLITS = ("train", "test", "x300")
+"""One split per partition: train (0), test (1), any other split (2)."""
 
-    train, test = names(world("train")), names(world("test"))
-    assert not train[0] & test[0] and not train[1] & test[1]
-    legal = [cw.company["legal_name"] for cs in world("train").values() for cw in cs]
-    assert len(legal) == len(set(legal))
+
+def identities(w) -> dict[str, set[str]]:
+    """Everything that identifies a party in one split's world, by kind."""
+    out: dict[str, set[str]] = {k: set() for k in ("company", "supplier", "person", "tax_id", "registration_no",
+                                                   "bank_account", "certificate")}
+    for companies in w.values():
+        for cw in companies:
+            out["company"].add(cw.company["legal_name"])
+            out["person"] |= {p["name"] for p in cw.company["people"]}
+            out["registration_no"].add(cw.company["registration_no"])
+            out["certificate"] |= {c["number"] for c in cw.company["policy_pack"]["exemption_certificates"]}
+            for party in (cw.company, *cw.suppliers):
+                out["tax_id"] |= {r["number"] for r in party.get("tax_registrations", [])}
+            for s in cw.suppliers:
+                out["supplier"].add(s["name"])
+                out["person"] |= {c["name"] for c in s["contacts"]}
+                out["registration_no"].add(s["registration_no"])
+                out["bank_account"].add(s["bank_account"]["account_no"])
+    return out
+
+
+def test_no_name_or_identifier_appears_in_two_splits():
+    ids = {name: identities(world(name)) for name in SPLITS}
+    for i, a in enumerate(SPLITS):
+        for b in SPLITS[i + 1:]:
+            for kind in ids[a]:
+                assert not ids[a][kind] & ids[b][kind], (a, b, kind, sorted(ids[a][kind] & ids[b][kind])[:3])
+    for kind, values in ids["train"].items():
+        assert values, kind
+
+
+def test_every_name_and_identifier_is_in_its_splits_partition():
+    from decision_benchmark.task_sets.ap_invoices.generator.entities import N_PARTITIONS, name_partition, partition
+
+    for name in SPLITS:
+        part = partition(RELEASE.get(name) or SplitSpec(name=name, n_cases=300, seed=99))
+        assert part == SPLITS.index(name)
+        found = identities(world(name))
+        for kind in ("company", "supplier", "person"):
+            for value in found[kind]:
+                stem = value.removesuffix(" Sdn Bhd").removesuffix(" Pte Ltd")
+                assert name_partition(stem) == part, (kind, value)
+        for kind in ("tax_id", "registration_no", "bank_account", "certificate"):
+            for value in found[kind]:
+                assert int([ch for ch in value if ch.isdigit()][-1]) % N_PARTITIONS == part, (kind, value)
+
+
+def test_a_shared_supplier_name_is_one_supplier():
+    shared = 0
+    for name in SPLITS:
+        for companies in world(name).values():
+            seen: dict[str, dict] = {}
+            for cw in companies:
+                for s in cw.suppliers:
+                    key = {"regs": s.get("tax_registrations"), "registration_no": s["registration_no"],
+                           "bank": s["bank_account"], "country": s["country"], "categories": cw.categories[s["supplier_id"]],
+                           "facts": s.get("tax_facts")}
+                    if s["name"] in seen:
+                        shared += 1
+                        assert seen[s["name"]] == key, s["name"]
+                    seen[s["name"]] = key
+    assert shared > 100                                            # common suppliers do recur across companies
+
+
+def test_company_names_are_distinct_in_a_split():
+    for name in SPLITS:
+        legal = [cw.company["legal_name"] for cs in world(name).values() for cw in cs]
+        assert len(legal) == len(set(legal))
