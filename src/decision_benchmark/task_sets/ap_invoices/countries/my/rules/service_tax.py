@@ -17,7 +17,7 @@ from .context import Exempt, LineCtx, Outcome, Partial, Taxable
 LABELS = {"MS-5": "b2b"}
 """The finding label v0.9 keys use for an exemption (others use the rule ID)."""
 EXEMPTIONS = (policies.check, scope.exclusion, areas.service_check, rental.check,
-              construction.check, group_relief.check, b2b.check)
+              construction.check, group_relief.check, b2b.check, policies.transitional_2024)
 """The exclusion and exemption rules, in the order they are tried."""
 
 
@@ -36,8 +36,9 @@ def assess(ctx: LineCtx) -> Outcome:
         raise UnsupportedCase(f"sales tax on {ctx.line.category}, outside the planted v0.9 situations")
     if ctx.charged and not ctx.supplier_registered("service", "MS-1"):
         return ctx.not_registered("service", rental.registration_basis(ctx))
-    if not scope.in_schedule(ctx.item, ctx.day):
-        return ctx.exempt(Exempt("MS-1"), "not_taxable")
+    no_tax = scope.not_taxable_basis(ctx, rates.period(ctx))
+    if no_tax is not None:
+        return ctx.exempt(Exempt(no_tax), "not_taxable")
     partials: list[Partial] = []
     taxable_by: str | None = None
     for rule in EXEMPTIONS:

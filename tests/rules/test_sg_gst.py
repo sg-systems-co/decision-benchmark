@@ -99,7 +99,7 @@ def test_sg6_gst_on_a_zero_rated_service_is_wrongly_charged():
     ({"zero_rating_provision": "s21(3)(a)", "international_transport": True}, None),
     ({"zero_rating_provision": "s21(6)", "export_evidence": True}, None),
     ({"zero_rating_provision": "s21(3)(u)"}, "2021-11-10"),
-    ({"zero_rating_provision": "s21(3)(e)"}, None),
+    ({"zero_rating_provision": "s21(3)(e)", "accommodation_booking": False}, None),   # s21(4E) from 2023
 ])
 def test_sg6_zero_rated_line_shows_0_percent(facts, day):
     assert result(*sg_one_line("logistics_haulage", rate="0", day=day, **facts)) == (OK, "NO_GST", "SG-6")

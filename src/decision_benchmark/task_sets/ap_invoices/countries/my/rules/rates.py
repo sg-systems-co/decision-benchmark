@@ -7,20 +7,24 @@ v0.10 MS-2, MS-3.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from ....findings import NotSettled
 from ....models.common import CENT, ZERO
-from .context import LineCtx, Outcome, Partial
+from . import scope
+from .context import Exempt, LineCtx, Outcome, Partial
 from ..models import MyTaxTreatment as T
 
 GENERAL_RATE_FROM = date(2024, 3, 1)
 """8% for every service not on the 6% list (Rate of Tax (Amendment) Order 2024). Before: 6% for all."""
 RENTAL_SIX_FROM = date(2026, 1, 1)
 """Group K rental: 8% from 1 Jul 2025, 6% from 1 Jan 2026 [P.U. (A) 125/2026]."""
+"""8% charged on rental provided from 1 Jan 2026 is a wrong rate whenever the invoice was issued, before or after the
+order's gazette date of 13 Mar 2026: STP 2/2025 (Amendment No. 5) Appendix B treats it as overpaid; the correction
+comes as a credit note (rule sheet section 1, "Rental at 8% from 1 Jan 2026", settled 22 Nov 2026)."""
 RATE_CHANGES = (GENERAL_RATE_FROM, date(2025, 7, 1), RENTAL_SIX_FROM)
-"""The dates on which a service's rate can change (MS-3)."""
+"""The dates on which a service's rate can change (MS-3); scope changes add scope.scope_dates (reg 3A)."""
 SIX_PERCENT_GROUPS = ("B", "J", "L", "M")
 """Rate of Tax Order First Schedule: F&B (B), logistics (J), construction (L), education (M)."""
 SIX_PERCENT_ITEMS = ("I2", "I4", "I14", "I15", "I16")
@@ -44,9 +48,12 @@ def standard_rate(item: str, day: date) -> Decimal:
 
 
 def line_rate(ctx: LineCtx, day: date) -> Decimal:
-    """The rate for this line on a day: STP 3/2024 for what a Groups A-E operator sells, else the item's rate."""
+    """The rate for this line on a day: STP 3/2024 for what a Groups A-E operator sells, else the item's rate; 0 on
+    a day the line is not a taxable service (reg 3A scope changes, MS-3)."""
     item = ctx.item
     assert item is not None
+    if not scope.taxable_on(ctx, day):
+        return ZERO
     if day >= GENERAL_RATE_FROM and ctx.group in OPERATOR_GROUPS:
         if ctx.fact("package_single_price", False, "MS-2"):
             # A package sold at one price takes the group's rate.
@@ -95,6 +102,25 @@ def _spanning_tax(ctx: LineCtx, taxable: Decimal, old: Decimal, new: Decimal) ->
     return _tax(at_old, old) + _tax(taxable - at_old, new)
 
 
+def _paid_before_change(ctx: LineCtx, first_day: date, taxable: Decimal) -> Outcome | None:
+    """MS-3: a supply wholly on or after a change, part paid before it: the paid part keeps the rate before the change
+    (0 before a scope start, reg 3A). The change is the latest one on or before the supply's first day."""
+    paid = min(ctx.fact("amount_paid_before_change", ZERO, "MS-3"), taxable)
+    if paid <= ZERO:
+        return None
+    changes = sorted(set(RATE_CHANGES) | set(scope.scope_dates(ctx.item)), reverse=True)
+    for change in changes:
+        if change <= first_day and line_rate(ctx, change - timedelta(days=1)) != line_rate(ctx, change):
+            old, new = line_rate(ctx, change - timedelta(days=1)), line_rate(ctx, change)
+            expected = _tax(paid, old) + _tax(taxable - paid, new)
+            if _close(ctx.line.tax_amount, expected):
+                return Outcome(T.SST_CORRECT, "MS-3")
+            if expected == ZERO:
+                return ctx.exempt(Exempt("MS-3"), "not_taxable")
+            return ctx.wrong_rate("MS-3", new)
+    return None
+
+
 def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
     """Tax charged on a taxable line: right rate (and amount, where only part is taxable)?"""
     line = ctx.line
@@ -114,8 +140,14 @@ def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
                 return Outcome(T.SST_CORRECT, "MS-3")
             return ctx.wrong_rate("MS-3", new)
         rate, basis = old, ("MS-3" if old != line_rate(ctx, ctx.day) else "MS-2")
+        prepaid = _paid_before_change(ctx, start, taxable)
+        if prepaid is not None:
+            return prepaid
     else:
         rate, basis = line_rate(ctx, ctx.day), "MS-2"
+        prepaid = _paid_before_change(ctx, ctx.day, taxable)
+        if prepaid is not None:
+            return prepaid
     if partials:
         part_basis = partials[0].basis
         if _close(line.tax_amount, _tax(taxable, rate)):

@@ -1,0 +1,25 @@
+# Effective dates of Malaysian tax treaties whose withholding rows take effect on or after 1 Jan 2023 (WH-1, WH-2, WH-4).
+# Sources: docs/sources/manifest.yaml ids lhdn-comprehensive-dta-list (LHDN's list of comprehensive DTAs: signed, EiF,
+# EiE), my-poland-dta-2013 and my-russia-dta-2024 (the agreements). Before the effective date the domestic rate applies:
+# the earlier agreements give no rate lower than the domestic one (Poland 1977: interest 15%, royalties 15%, no
+# technical fees article; USSR 1987: interest 15%, royalties 10%/15%, no technical fees article; LHDN note (i)).
+# Every other row of dta_withholding_rates.yaml takes effect before 1 Jan 2023 (MLI changes alter no rate).
+source:
+- lhdn-comprehensive-dta-list
+- my-poland-dta-2013
+- my-russia-dta-2024
+rows:
+- country: PL
+  instrument: Malaysia-Poland agreement signed 8 Jul 2013 [P.U. (A) 168/2014], replacing the 1977 agreement
+  entry_into_force: 2023-01-12
+  effective_from: 2024-01-01
+  before: domestic_rate
+  note: 'LHDN list: "Poland In force Signed: 8 July 2013 EiF: 12 January 2023 EiE: 1 January 2024 P.U. (A) 168/2014".'
+  source: lhdn-comprehensive-dta-list
+- country: RU
+  instrument: Malaysia-Russia agreement signed 17 May 2024 [P.U. (A) 112/2025], replacing the 1987 USSR agreement
+  entry_into_force: 2025-09-03
+  effective_from: 2026-01-01
+  before: domestic_rate
+  note: 'LHDN list: "Russian Federation In force Signed: 17 May 2024 EiF: 3 September 2025 EiE: 1 January 2026"; Art 29 of the agreement: years of assessment from 1 January of the year after entry into force.'
+  source: lhdn-comprehensive-dta-list

@@ -19,6 +19,8 @@ CHAUFFEURED_FROM = date(2022, 4, 1)
 """Pay-per-trip chauffeured private hire car services are claimable from 1 Apr 2022."""
 THIRD_PARTY_CAR_FROM = date(2023, 1, 1)
 """A motor car used by a third party is claimable from 1 Jan 2023, on the IRAS conditions."""
+BSPV_REGISTERED_BEFORE = date(1998, 4, 1)
+"""Regulation 25(1): a business service passenger vehicle registered before 1 Apr 1998 is not a motor car."""
 ALWAYS_DISALLOWED = ("club_subscription", "family_benefit", "betting", "director_only_benefit", "third_party_csr")
 
 
@@ -42,6 +44,12 @@ def _regulations(ctx: LineCtx) -> Outcome | None:
             return Outcome(T.CLAIMABLE, "SG-10")
         if ctx.day >= THIRD_PARTY_CAR_FROM and ctx.fact("car_used_by_third_party", False, "SG-10"):
             return Outcome(T.CLAIMABLE, "SG-10")
+        if ctx.reader.value("vehicle_is_motor_car") is None:
+            registered = ctx.fact("vehicle_registered_on", None, "SG-10")
+            if registered is not None:
+                # A business service passenger vehicle: not a motor car if registered before 1 Apr 1998.
+                return Outcome(T.CLAIMABLE if registered < BSPV_REGISTERED_BEFORE else T.NOT_CLAIMABLE_DISALLOWED,
+                               "SG-10")
         return _depends(ctx, "vehicle_is_motor_car", "vehicle_regulation_25_1_unclear", disallowed_if=True)
     if cls == "staff_medical":
         return _depends(ctx, "staff_medical_obligatory", "staff_medical_obligation_unclear", disallowed_if=False)

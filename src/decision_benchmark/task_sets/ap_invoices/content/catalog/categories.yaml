@@ -1043,11 +1043,25 @@ categories:
   tax:
     MY:
       tax_class: service_8
-      service_item: C
+      service_item: C1(e)
   gl_role: staff_welfare
   sources:
   - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
-  note: Group C (karaoke from 26 Feb 2024), 8%.
+  note: "Group C item 1(e), a taxable service from 26 Feb 2024 (Service Tax (Amendment) Regulations 2024 [P.U. (A) 62/2024]); not taxable before. 8%. STP 1/2024 transitional exemption 26 Feb-31 Mar 2024 (P-20)."
+
+- category: wellness_centre_services
+  kind: service
+  label: Wellness centre or massage services for staff
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: C2
+  gl_role: staff_welfare
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf
+  note: "Group C item 2 (health or wellness centre, massage parlour), 8%. Before 1 Jul 2025 the excluded facilities are the line fact wellness_facility_kind: private healthcare facilities (Act 586), Government and university healthcare facilities, and (from 27 Nov 2024, P.U. (A) 354/2024) T&CM practitioners' premises."
 
 - category: private_club_services
   kind: service

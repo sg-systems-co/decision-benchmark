@@ -68,6 +68,22 @@ categories:
     MY: {tax_class: service_8, service_item: G(n), b2b_exempt: true, group_relief: true}
   gl_role: professional_fees
   sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/EN/Guide%20on%20Management%20Services%20%20V5%206.5.2026.pdf']
+- category: karaoke_event_venue
+  kind: service
+  label: Karaoke venue for a staff event
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: C1(e)}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf']
+- category: wellness_centre_services
+  kind: service
+  label: Wellness centre services for staff
+  countries: [MY]
+  tax:
+    MY: {tax_class: service_8, service_item: C2}
+  gl_role: professional_fees
+  sources: ['https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Industry%20Guides/MS/Panduan%20Kumpulan%20CDE_4.9.25.pdf']
 - category: recruitment_services
   kind: service
   label: Recruitment agency

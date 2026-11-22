@@ -10,8 +10,32 @@ from __future__ import annotations
 
 from datetime import date
 
+from ....findings import NotSettled
 from .context import Exempt, LineCtx, Taxable
-from .scope import HEALTHCARE_ITEMS, NEW_SCOPE_FROM
+from .scope import COURIER_ITEM, HEALTHCARE_ITEMS, NEW_SCOPE_FROM, OLD_COURIER_LIMIT_KG, SCOPE_2024_FROM, taxable_from
+
+EXISTING_REGISTRANT_TO = date(2024, 2, 29)
+NEW_REGISTRANT_TO = date(2024, 3, 31)
+"""STP 1/2024 paras 5.1(iii) and 5.2: on the services added on 26 Feb 2024, a supplier already registered before
+26 Feb 2024 neither charges nor collects tax for 26-29 Feb 2024; a supplier newly liable to register, for
+26 Feb-31 Mar 2024 (rule sheet P-20, expired dated exemptions; "26 Feb 2024 additions")."""
+
+
+def transitional_2024(ctx: LineCtx) -> Exempt | None:
+    """STP 1/2024: the transitional exemption on the services added on 26 Feb 2024 (by invoice date)."""
+    if ctx.foreign_supplier or not SCOPE_2024_FROM <= ctx.day <= NEW_REGISTRANT_TO:
+        return None
+    if taxable_from(ctx.item) != SCOPE_2024_FROM:
+        return None
+    if ctx.item == COURIER_ITEM and ctx.need("parcel_weight_kg", "MS-1") <= OLD_COURIER_LIMIT_KG:
+        return None                     # courier up to 30 kg was already taxable (old Group I item 6)
+    if ctx.day <= EXISTING_REGISTRANT_TO:
+        return Exempt("P-20")
+    before = ctx.sf.registered_before_2024_02_26
+    if before is None:
+        raise NotSettled("P-20", "STP 1/2024: whether the supplier was registered before 26 Feb 2024 is not shown")
+    return None if before else Exempt("P-20")
+
 
 FINANCIAL_USES_P1 = ("taxable_financial_services", "offshore_financial_services", "export_related_financial_services")
 TIA_I_FROM = date(2026, 6, 1)

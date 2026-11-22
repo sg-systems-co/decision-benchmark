@@ -13,7 +13,7 @@ Versioning rules:
 
 Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
 
-Engine: 0.10.2. Rules as of: 2026-11-20.
+Engine: 0.10.3. Rules as of: 2026-11-22.
 
 ### Engine (A12, build PRs #12, #14, #15, #17 and this one)
 
@@ -37,6 +37,21 @@ Engine: 0.10.2. Rules as of: 2026-11-20.
 - Correction: inside a supplier's interim relaxation period (to 31 Jan 2025, 30 Jun 2025 or 31 Dec 2025 by phase; to 31 Dec 2027 for the up-to-RM5m phase starting 1 Jan or 1 Jul 2026) an ordinary invoice raises no ME-1 finding, since the supplier may issue a consolidated e-invoice (Specific Guideline 16.2(a), (d)). Engine 0.10.1 raised the finding from the implementation date. Where Table 16.1 publishes no relaxation period for a supplier's implementation date (a new business commenced after 1 Jul 2026, or above RM5m), an invoice without a validated e-invoice is HAND_OVER.
 - The supplier record states the facts that fix the phase (`einvoice`: turnover band, turnover basis, commencement date, the date turnover reached RM1m) instead of a phase start date; the unused free-text `turnover_band` is gone. Three supplier kinds are added for the exempt persons (foreign diplomatic office, individual not conducting business, international organisation). A statutory body or local authority is exempt for supplies before 1 Jul 2025 and, after that, for statutory fees and charges only (the line fact `statutory_fee_amount`).
 - A validated e-invoice now settles ME-1 before the supplier's phase is looked at, so an unknown phase no longer hands over an invoice that has one; an unknown phase hands over only from 1 Feb 2025, when it can decide.
+
+### Engine 0.10.3: dated rule branches (date sweep)
+
+- Rule sheet v0.10 updated twice on 22 Nov 2026 after engine tests of the branches dated outside the B1 case windows found errors in all four areas tested; a sweep of every dated rule element (about 120 boundaries, each tested on both sides) found more. Every error below is fixed; no existing answer key changes its answer (three change only their gold facts, because their tests now state a fact the corrected rule reads).
+- Inside the case windows:
+  - Group H item 1 (credit and charge cards, RM25 per card) is a taxable service since 1 Sep 2018 (the 2018 Regulations' Group H); engine 0.10.2 taxed it only from 1 Jul 2025.
+  - The 26 Feb 2024 additions (karaoke centres, G(n) maintenance or repair, I12 brokering, Group J logistics; Service Tax (Amendment) Regulations 2024) are not taxable services before that date, and STP 1/2024's transitional exemptions apply 26-29 Feb 2024 (existing registrants) and 26 Feb-31 Mar 2024 (new registrants; supplier fact `registered_before_2024_02_26`), basis P-20. Before 26 Feb 2024 courier delivery is the old Group I item 6, parcels up to 30 kg (line fact `parcel_weight_kg`).
+  - MS-3 applies reg 3A to scope changes: a supply wholly before a service's start date is not taxed even when invoiced after it; across the date only the part from it; a payment received before it is not taxed.
+  - SG-6: from 1 Jan 2023, s21(3)(c) zero-rates only insuring passenger transport (and goods transport), and (e) excludes accommodation bookings (line facts `transport_service_kind`, `accommodation_booking`).
+  - MS-5 item 5 (logistics) applies from 1 Mar 2024; every B2B item is now dated from its amending order.
+  - L-1 follows STP 3/2025 Amendment No. 3 Appendix A (e) and (g): a contract ending on 1 Jul 2025 doesn't qualify; an extension of time qualifies only on an original contract that expired before 1 Jul 2025.
+  - Treaty rows take effect on their effective dates (`treaty_effective_dates.yaml`; MY Poland 1 Jan 2024, Russia 1 Jan 2026; SG Greece 1 Jan 2023, Kenya and Taiwan 1 Jan 2027): the domestic rate before. Three LHDN sources added to the manifest.
+  - 8% charged on rental provided from 1 Jan 2026 is `SST_WRONG_RATE` (REQUEST_CORRECTED_INVOICE; the correction comes as a credit note), whether invoiced before or after the 13 Mar 2026 gazette date (STP 2/2025 Amendment No. 5, Appendix B).
+- Before the windows: MS-5 before 1 Jan 2019 and items 1-4 before 1 Jan 2020; MS-6 before the 5% test (1 Jan 2020; supplier fact `no_external_supplies`); MS-8 before 1 Jan 2019 and STP 2/2020 before 1 Jan 2020; WH-2 by the period of performance (17 Jan and 6 Sep 2017) and grossing-up before 5 Dec 2018 (`tax_borne_by_payer`); the Group C wellness exclusions before 1 Jul 2025 (`wellness_facility_kind`); SG-10 vehicles registered before 1 Apr 1998 (`vehicle_registered_on`). After the windows: K-2's one year is a calendar year (across 29 Feb 2028).
+- New catalog category `wellness_centre_services` (Group C item 2); `karaoke_event_venue` is Group C item 1(e).
 
 ### Spec v0.10
 

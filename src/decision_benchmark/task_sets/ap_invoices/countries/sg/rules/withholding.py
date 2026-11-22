@@ -46,7 +46,7 @@ def _certified(ctx: LineCtx) -> bool:
 
 
 def _treaty_rate(ctx: LineCtx, column: str, domestic: Decimal) -> Decimal:
-    row = treaties.treaty(ctx.supplier.country)
+    row = treaties.treaty(ctx.supplier.country, ctx.day)
     if row is None:
         return domestic
     article = getattr(row, column)
@@ -91,7 +91,7 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
             if base is None:
                 raise _not_settled("work done in Singapore not split from work outside")
         if certified:
-            row = treaties.treaty(ctx.supplier.country)
+            row = treaties.treaty(ctx.supplier.country, ctx.day)
             article = row.technical_fees if row is not None else None
             if article is not None and article.confirmed:
                 rate = min(rate, article.rate)

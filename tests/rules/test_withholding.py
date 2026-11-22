@@ -90,10 +90,15 @@ def test_wh2_movable_property_rent_wherever_used():
     assert withheld(answer(*my_payee("movable_property_rent"))) == [(Decimal(10), "WH-2", Decimal("3200.00"))]
 
 
-@pytest.mark.parametrize("nature, facts", [("technical_advice", {"place_of_performance": "outside"}),
+PERFORMED_2026 = {"service_period_start": "2026-02-01", "service_period_end": "2026-02-28"}
+"""The period of performance decides services outside Malaysia (WH-2, PR 10/2019 §21); not shown -> HAND_OVER."""
+
+
+@pytest.mark.parametrize("nature, facts", [("technical_advice", {"place_of_performance": "outside", **PERFORMED_2026}),
                                            ("freight", {})])
 def test_wh2_near_miss_services_outside_malaysia_or_freight_alone(nature, facts):
-    assert withheld(answer(*my_payee(nature, **facts))) == []
+    a = answer(*my_payee(nature, **facts))
+    assert a.decision != HO and withheld(a) == []
 
 
 def test_wh2_unknown_place_is_a_hand_over_with_the_tax_set():
@@ -194,6 +199,7 @@ def test_wh3_contract_payment_without_a_pe_falls_back_to_wh2():
 
 
 def test_wh3_near_miss_contract_payment_without_a_pe_for_work_outside_malaysia():
-    r, c = my_payee("contract_payment", place_of_performance="outside")
+    r, c = my_payee("contract_payment", place_of_performance="outside", **PERFORMED_2026)
     supplier_facts(r, pe_in_country=False)
-    assert withheld(answer(r, c)) == []
+    a = answer(r, c)
+    assert a.decision != HO and withheld(a) == []

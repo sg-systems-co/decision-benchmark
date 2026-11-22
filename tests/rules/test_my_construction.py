@@ -54,12 +54,13 @@ def test_l1_variation_order_qualifies_on_its_own_terms():
 
 
 def test_l1_work_after_the_end_needs_qualifying_extensions_of_time():
+    # STP 3/2025 Amdt 3 Appendix A (g): the original contract expired before 1 Jul 2025.
     eot = {"signed_on": "2025-06-15", "stamped_on": "2025-10-01", "changes_value": False}
     r, c = works()
-    l_contract(r, end="2026-06-30", extensions_of_time=[eot])
+    l_contract(r, end="2025-06-30", extensions_of_time=[eot])
     assert result(r, c) == (RCI, "SST_SHOULD_BE_EXEMPT", "L-1")
     r, c = works()
-    l_contract(r, end="2026-06-30", extensions_of_time=[eot | {"stamped_on": "2026-02-01"}])
+    l_contract(r, end="2025-06-30", extensions_of_time=[eot | {"stamped_on": "2026-02-01"}])
     assert result(r, c) == (OK, "SST_CORRECT", "MS-2")
 
 

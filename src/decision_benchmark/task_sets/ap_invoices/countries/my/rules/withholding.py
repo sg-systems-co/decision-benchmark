@@ -19,8 +19,16 @@ from ....models.common import CENT, ZERO
 from .. import treaties
 from .context import LineCtx
 
+OUTSIDE_CHARGEABLE_FROM = date(2017, 1, 17)
+"""Public Ruling 10/2019 para 5.2: from 17.1.2017 (Finance Act 2017 s6) s4A (i) and (ii) income is chargeable
+whether the services are performed in or outside Malaysia; before, services performed outside were not."""
 OUTSIDE_EXEMPT_FROM = date(2017, 9, 6)
-"""Services under s4A (i) and (ii) performed outside Malaysia are exempt (Exemption (No. 9) Order 2017)."""
+"""Services under s4A (i) and (ii) performed outside Malaysia are exempt (Exemption (No. 9) Order 2017, deemed in
+operation on 6 September 2017). Public Ruling 10/2019 §21: the period of performance decides, whatever the contract
+or payment date (every row of its table)."""
+NO_GROSS_UP_FROM = date(2018, 12, 5)
+"""Public Ruling 10/2019 para 12.1 note: where the payer bears the s109B tax, it is computed on the gross amount paid
+(no regrossing) if the payment date agreed in the contract is on or after 5.12.2018."""
 CONTRACTOR_RATE, EMPLOYEES_RATE = Decimal(10), Decimal(3)
 """WH-3: s107A, 10% for the contractor and 3% for its employees."""
 SPECIAL_CLASSES_RATE = Decimal(10)
@@ -45,27 +53,63 @@ def _rate(ctx: LineCtx, basis: str, domestic: Decimal, column: str) -> Decimal:
     """The domestic rate, or the lower treaty rate with a certificate of residence (LHDN notes i, iii, iv)."""
     if not _certified(ctx, basis):
         return domestic
-    row = treaties.row(ctx.supplier.country)
+    row = treaties.row(ctx.supplier.country, ctx.day)
     if row is None:
         return domestic
     return min(domestic, getattr(row, column).for_payer(ctx.cf.industrial_undertaking))
 
 
+def _s109b(ctx: LineCtx, rate: Decimal, base: Decimal) -> BuyerAction:
+    """A WH-2 (s109B) withholding. Before 5 Dec 2018, where the payer bears the tax, the base is regrossed
+    (base x 100 / (100 - rate)); the agreed payment date is the invoice's due date, never before the invoice date."""
+    if ctx.day >= NO_GROSS_UP_FROM:
+        return _withhold(rate, "WH-2", base)          # paid on or after the invoice date
+    due = ctx.invoice.due_date if ctx.invoice is not None else None
+    if due is not None and due >= NO_GROSS_UP_FROM:
+        return _withhold(rate, "WH-2", base)
+    try:
+        borne = ctx.fact("tax_borne_by_payer", None, "WH-2")
+    except NotSettled as ns:
+        raise _not_settled(ns.basis, ns.reason) from None
+    if borne is None:
+        raise _not_settled("WH-2", "before 5 Dec 2018: whether the payer bears the tax is not shown")
+    if borne:
+        if due is None:
+            raise _not_settled("WH-2", "the payer bears the tax and the agreed payment date is not shown")
+        base = base * Decimal(100) / (Decimal(100) - rate)
+    return _withhold(rate, "WH-2", base)
+
+
+def _outside_chargeable(ctx: LineCtx) -> bool:
+    """Services under s4A (i), (ii) performed outside Malaysia are chargeable only when performed from 17 Jan 2017
+    to 5 Sep 2017 (Public Ruling 10/2019 para 5.2, §21). The service period shows when; a period across either date
+    has no apportionment fact, so it is not settled."""
+    start = ctx.fact("service_period_start", None, "WH-2")      # inside _special_services' try: a null fact
+    end = ctx.fact("service_period_end", None, "WH-2")          # is re-raised as non-tax
+    if start is None or end is None:
+        raise _not_settled("WH-2", "services performed outside Malaysia: the period of performance is not shown")
+    sides = {OUTSIDE_CHARGEABLE_FROM <= d < OUTSIDE_EXEMPT_FROM for d in (start, end)}
+    if len(sides) > 1 or (start < OUTSIDE_CHARGEABLE_FROM and end >= OUTSIDE_EXEMPT_FROM):
+        raise _not_settled("WH-2", "the period of performance spans 17 Jan 2017 or 6 Sep 2017")
+    return sides == {True}
+
+
 def _special_services(ctx: LineCtx, domestic: Decimal, gross: Decimal) -> tuple[BuyerAction, ...]:
-    """WH-2 (i), (ii): 10% of the Malaysian part (services performed outside Malaysia exempt from 6 Sep 2017; mixed
-    contracts apportioned; hotel accommodation left out of the reimbursed gross)."""
+    """WH-2 (i), (ii): 10% of the Malaysian part (services performed outside Malaysia chargeable only from 17 Jan to
+    5 Sep 2017; mixed contracts apportioned; hotel accommodation left out of the reimbursed gross)."""
     try:
         place = ctx.need("place_of_performance", "WH-2")
         share = WHOLE_SHARE
         if place == "outside":
-            return () if ctx.day >= OUTSIDE_EXEMPT_FROM else (
-                _withhold(_rate(ctx, "WH-2", domestic, "technical_fees"), "WH-2", gross),)
+            if not _outside_chargeable(ctx):
+                return ()
+            return (_s109b(ctx, _rate(ctx, "WH-2", domestic, "technical_fees"), gross),)
         if place == "mixed":
             share = ctx.need("in_country_share", "WH-2")
     except NotSettled as ns:
         raise _not_settled(ns.basis, ns.reason) from None
     hotel = ctx.fact("hotel_reimbursement", ZERO, "WH-2")
-    return (_withhold(_rate(ctx, "WH-2", domestic, "technical_fees"), "WH-2", (gross - hotel) * share),)
+    return (_s109b(ctx, _rate(ctx, "WH-2", domestic, "technical_fees"), (gross - hotel) * share),)
 
 
 def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
@@ -86,9 +130,9 @@ def actions(ctx: LineCtx) -> tuple[BuyerAction, ...]:
         # s4A (iii) applies wherever the property is used. Many treaties put the use of industrial, commercial or
         # scientific equipment inside the royalty definition (LHDN note v): with a certificate, HAND_OVER until the
         # treaty's royalty definition is read and confirmed; without one, the domestic rate.
-        if _certified(ctx, "WH-2") and treaties.row(ctx.supplier.country) is not None:
+        if _certified(ctx, "WH-2") and treaties.row(ctx.supplier.country, ctx.day) is not None:
             raise _not_settled("WH-2", "treaty royalty definition for rent of movable property not read")
-        return (_withhold(SPECIAL_CLASSES_RATE, "WH-2", gross),)
+        return (_s109b(ctx, SPECIAL_CLASSES_RATE, gross),)
     if nature == "contract_payment":
         pe = ctx.sf.pe_in_country
         if pe is None:

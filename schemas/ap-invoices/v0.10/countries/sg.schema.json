@@ -229,6 +229,20 @@
           "x-rules": ["SG-6"],
           "properties": {"value": {"type": ["boolean", "null"]}}
         },
+        "transport_service_kind": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For s21(3)(c) from 1 Jan 2023: insuring passenger transport, arranging passenger transport, or insuring or arranging goods transport.",
+          "x-family": "classification",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"enum": ["insuring_passenger", "arranging_passenger", "goods", null]}}
+        },
+        "accommodation_booking": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "For s21(3)(e) from 1 Jan 2023: the service arranges or facilitates the booking of accommodation (s21(4E)).",
+          "x-family": "classification",
+          "x-rules": ["SG-6"],
+          "properties": {"value": {"type": ["boolean", "null"]}}
+        },
         "staff_medical_obligatory": {
           "$ref": "../output.schema.json#/$defs/fact",
           "description": "An IRAS exception for staff medical expenses applies.",
@@ -256,6 +270,13 @@
           "x-family": "scope_and_exemption",
           "x-rules": ["SG-10"],
           "properties": {"value": {"type": ["boolean", "null"]}}
+        },
+        "vehicle_registered_on": {
+          "$ref": "../output.schema.json#/$defs/fact",
+          "description": "Registration date of a business service passenger vehicle (Regulation 25(1): one registered before 1 Apr 1998 is not a motor car).",
+          "x-family": "classification",
+          "x-rules": ["SG-10"],
+          "properties": {"value": {"type": ["string", "null"], "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}
         },
         "purchase_attribution": {
           "$ref": "../output.schema.json#/$defs/fact",

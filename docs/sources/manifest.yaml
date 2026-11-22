@@ -958,7 +958,7 @@ sources:
   - docs/tax-rules-v0.10.md#MS-5
   - docs/tax-rules-v0.10.md#MS-6
 - id: sales-tax-goods-exempted-amendment-order-2026
-  title: Sales Tax (Goods Exempted From Sales Tax) (Amendment) Order 2026
+  title: Sales Tax (Goods Exempted from Sales Tax) (Amendment) Order 2026
   authority: RMCD
   country: my
   official_url: https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/SST%20Orders/PUA%20276%20PERINTAH%20CUKAI%20JUALAN%20(ORANG%20YANG%20DIKECUALIKAN).pdf
@@ -971,7 +971,7 @@ sources:
   cited_by:
   - docs/tax-rules-v0.10.md#MG-2
   - docs/tax-rules-v0.10.md#MG-3
-  note: MySST lists this link under the Goods Exempted amendment 2026, but the file name is the Persons Exempted order (P.U. (A) 276).
+  note: P.U. (A) 276/2026, the Sales Tax (Goods Exempted from Sales Tax) (Amendment) Order 2026 (vessels of headings 89.01, 89.03-89.08; in operation 1 Aug 2026). Only the file name on MySST says Persons Exempted (ORANG YANG DIKECUALIKAN); the document is the Goods Exempted amendment.
 - id: sales-tax-goods-exempted-order-2025-amendment-1-2025
   title: Sales Tax (Goods Exempted From Sales Tax) Order 2025 — Amendment 1/2025
   authority: RMCD
@@ -5558,3 +5558,42 @@ sources:
   - docs/tax-rules-v0.10.md#G-3
   - docs/tax-rules-v0.10.md#MG-4
   note: Rule sheet v0.10 section 2 listed it among the Goods Exempted Order's amendments until 19 Nov 2026. In operation 1 Sep 2026; MySST's page shows 28/08/2026.
+- id: lhdn-comprehensive-dta-list
+  title: 'LHDN: Comprehensive Double Taxation Agreements (list with dates of entry into force and effect)'
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/en/antarabangsa/perjanjian-pengelakan-pencukaian-dua-kali-pppdk/pppdk-menyeluruh/
+  retrieved: '2026-11-22'
+  sha256: 0607d5f5774db4a223645c43d434bd5ab357207cf11423c7f4eecd098895ae61
+  bytes: 370218
+  content_type: text/html
+  archive_path: sources/my/lhdn/lhdn-comprehensive-dta-list/2026-11-22/pppdk-menyeluruh.html
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/data/treaty_effective_dates.yaml#WH-1
+- id: my-poland-dta-2013
+  title: 'Income Tax (Relief from Double Taxation) (Republic of Poland) Order [P.U. (A) 168/2014]: Malaysia-Poland agreement signed 8 Jul 2013'
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/wp-content/uploads/pu-a-168-perintah-pelepasan-cukai-dua-kali-kerajaan-republik-poland.pdf
+  retrieved: '2026-11-22'
+  sha256: cb18efa12020561ed744c495e17a7c4c57b6d4a72bedc215ce3212c338d14abf
+  bytes: 625164
+  content_type: application/pdf
+  archive_path: sources/my/lhdn/my-poland-dta-2013/2026-11-22/pu-a-168-perintah-pelepasan-cukai-dua-kali-kerajaan-republik-poland.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/data/treaty_effective_dates.yaml#WH-1
+- id: my-russia-dta-2024
+  title: 'Income Tax (Relief from Double Taxation) (Russian Federation) Order 2025 [P.U. (A) 112/2025]: Malaysia-Russia agreement signed 17 May 2024'
+  authority: LHDN
+  country: my
+  official_url: https://www.hasil.gov.my/wp-content/uploads/Russia-PUA-112.2025.pdf
+  retrieved: '2026-11-22'
+  sha256: f5331f4c2f7110c4e426aa582a0911c1b633997735da1f9f1801ad5f39365cc6
+  bytes: 788032
+  content_type: application/pdf
+  archive_path: sources/my/lhdn/my-russia-dta-2024/2026-11-22/Russia-PUA-112.2025.pdf
+  wayback_url: null
+  cited_by:
+  - src/decision_benchmark/task_sets/ap_invoices/countries/my/data/treaty_effective_dates.yaml#WH-1

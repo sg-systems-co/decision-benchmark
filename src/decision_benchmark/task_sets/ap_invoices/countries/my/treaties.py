@@ -6,6 +6,7 @@ industrial undertaking (iv)."""
 from __future__ import annotations
 
 import re
+from datetime import date
 from decimal import Decimal
 from functools import cache
 from pathlib import Path
@@ -13,9 +14,12 @@ from pathlib import Path
 import yaml
 from pydantic import field_validator
 
+from ...models import treaty_dates
 from ...models.common import Model
 
 TREATY_FILE = Path(__file__).resolve().parent / "data" / "dta_withholding_rates.yaml"
+TREATY_DATES_FILE = Path(__file__).resolve().parent / "data" / "treaty_effective_dates.yaml"
+"""Treaty rows that take effect on or after 1 Jan 2023: before the date, the domestic rate (engine 0.10.3)."""
 LHDN_COUNTRIES = {
     "Albania": "AL", "Argentina": "AR", "Australia": "AU", "Austria": "AT", "Bahrain": "BH", "Bangladesh": "BD",
     "Belgium": "BE", "Bosnia and Herzegovina": "BA", "Brunei": "BN", "Cambodia": "KH", "Canada": "CA", "Chile": "CL",
@@ -93,6 +97,9 @@ def table() -> LhdnTable:
     return LhdnTable.model_validate(yaml.safe_load(TREATY_FILE.read_text(encoding="utf-8")))
 
 
-def row(country: str) -> LhdnRow | None:
-    """The treaty row for a payee country (ISO code), or None: no agreement in LHDN's table."""
+def row(country: str, day: date | None = None) -> LhdnRow | None:
+    """The treaty row for a payee country (ISO code), or None: no agreement in LHDN's table, or (with a day) the
+    agreement not yet in effect on that day (treaty_effective_dates.yaml)."""
+    if day is not None and not treaty_dates.in_effect(TREATY_DATES_FILE, country, day):
+        return None
     return next((r for r in table().rows if LHDN_COUNTRIES[r.country] == country), None)

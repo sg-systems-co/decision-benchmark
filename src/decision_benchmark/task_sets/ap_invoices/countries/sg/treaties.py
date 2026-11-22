@@ -5,6 +5,7 @@ case that needs it is HAND_OVER (rule sheet §4A). The file is loaded as it stan
 
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 from functools import cache
 from pathlib import Path
@@ -12,9 +13,12 @@ from pathlib import Path
 import yaml
 from pydantic import field_validator
 
+from ...models import treaty_dates
 from ...models.common import Model
 
 SG_TREATY_FILE = Path(__file__).resolve().parent / "data" / "dta_withholding_rates.yaml"
+SG_TREATY_DATES_FILE = Path(__file__).resolve().parent / "data" / "treaty_effective_dates.yaml"
+"""Treaty rows that take effect on or after 1 Jan 2023: before the date, the domestic rate (engine 0.10.3)."""
 CONFIRMED_STATUS = "single rate in the article"
 IRAS_COUNTRIES = {
     "Albania": "AL", "Armenia": "AM", "Australia": "AU", "Austria": "AT", "Bahrain": "BH", "Bangladesh": "BD",
@@ -79,8 +83,11 @@ def sg_table() -> TreatyTable:
     return TreatyTable.model_validate(yaml.safe_load(SG_TREATY_FILE.read_text(encoding="utf-8")))
 
 
-def treaty(country: str) -> TreatyRow | None:
-    """The treaty row for a payee country (ISO code): the comprehensive DTA where there is also a limited one."""
+def treaty(country: str, day: date | None = None) -> TreatyRow | None:
+    """The treaty row for a payee country (ISO code): the comprehensive DTA where there is also a limited one. None:
+    no treaty, or (with a day) the treaty not yet in effect on that day (treaty_effective_dates.yaml)."""
+    if day is not None and not treaty_dates.in_effect(SG_TREATY_DATES_FILE, country, day):
+        return None
     rows = [r for r in sg_table().rows if IRAS_COUNTRIES[r.country] == country]
     rows.sort(key=lambda r: r.agreement != "DTA")
     return rows[0] if rows else None

@@ -245,6 +245,7 @@ def test_ms7_item6_entertainment_premises_food_from_1_september_2019():
 def test_ms7_item7_logistics_1_march_2024_to_29_may_2025(day, expected):
     rate = "6"
     r, c = svc("logistics_haulage", rate=rate, day=day, supplier="labuan", company="langkawi")
+    supplier_facts(r, registered_before_2024_02_26=True)   # STP 1/2024 doesn't decide from 1 Mar 2024
     out = result(r, c)
     assert out == ((RCI, "SST_SHOULD_BE_EXEMPT", "MS-7") if expected == EXEMPT else (OK, "SST_CORRECT", "MS-2"))
 

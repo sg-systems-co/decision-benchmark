@@ -54,13 +54,18 @@ def non_reviewable_contract(ctx: LineCtx) -> bool:
     states = (k.states_service, k.states_fixed_value, k.states_period)
     if None in states or k.end is None:
         raise NotSettled("L-1", "what the contract states not shown")
-    if clause or not all(states) or signed >= SIGNED_BEFORE or stamped >= STAMPED_BEFORE or k.end < SIGNED_BEFORE:
+    if clause or not all(states) or signed >= SIGNED_BEFORE or stamped >= STAMPED_BEFORE:
         return False
-    if ctx.day > k.end:
-        # Work after the contract's end falls under extensions of time; each must qualify.
-        if not k.extensions_of_time or not all(
-                _change_qualifies(x.signed_on, x.stamped_on, x.changes_value) for x in k.extensions_of_time):
+    # Appendix A (e): the contract remains in force after 1 Jul 2025 (one ending on 1 Jul 2025 doesn't). (g): an
+    # extension of time qualifies only on an original contract that expired before 1 Jul 2025, value unchanged, signed
+    # before 1 Jul 2025 and stamped before 31 Dec 2025. Work after the end of a contract in force after 1 Jul 2025
+    # has no qualifying extension.
+    if k.end > SIGNED_BEFORE:
+        if ctx.day > k.end:
             return False
+    elif k.end == SIGNED_BEFORE or not k.extensions_of_time or not all(
+            _change_qualifies(x.signed_on, x.stamped_on, x.changes_value) for x in k.extensions_of_time):
+        return False
     vo_signed = ctx.fact("variation_signed", None, "L-1")
     if vo_signed is not None:
         # The line bills a variation order: it qualifies only on the VO's own terms.

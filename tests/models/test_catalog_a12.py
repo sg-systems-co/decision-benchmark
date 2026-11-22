@@ -1,5 +1,6 @@
 """Release catalog for rule sheet v0.10 (A12 build PR 5, plan §6): fact defaults, regressions C1 and C2."""
 
+import re
 from pathlib import Path
 
 import pytest
@@ -20,9 +21,13 @@ def test_c1_group_relief_covers_maintenance():
     assert RELEASE.get("maintenance_repair").tax["MY"].group_relief
 
 
-def test_c2_courier_has_no_30_kg_limit():
-    for name in ("categories.yaml", "README.md"):
-        assert "30 kg" not in (RELEASE_DIR / name).read_text(encoding="utf-8"), name
+def test_c2_courier_has_no_30_kg_limit_from_26_feb_2024():
+    # C2: courier is Group J item 1(d) with no weight limit; the 30 kg limit of the old Group I item 6 appears only as
+    # the rule before 26 Feb 2024 (rule sheet P-20, "26 Feb 2024 additions"; engine 0.10.3).
+    assert "30 kg" not in (RELEASE_DIR / "categories.yaml").read_text(encoding="utf-8")
+    readme = (RELEASE_DIR / "README.md").read_text(encoding="utf-8")
+    for m in re.finditer("30 kg", readme):
+        assert "26 February 2024" in readme[max(0, m.start() - 120):m.start()], readme[m.start() - 120:m.end()]
 
 
 def test_every_fact_default_is_a_line_fact_of_its_country():

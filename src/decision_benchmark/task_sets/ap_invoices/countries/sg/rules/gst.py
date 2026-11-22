@@ -21,6 +21,9 @@ GST_RATE_CHANGES = ((date(2024, 1, 1), Decimal(9)), (date(2023, 1, 1), Decimal(8
 """9% from 1 Jan 2024, 8% in 2023, 7% before (IRAS current GST rates)."""
 EARLIEST_RATE = Decimal(7)
 ADVERTISING_ZERO_RATED_TO = date(2021, 12, 31)
+NARROWED_FROM = date(2023, 1, 1)
+"""Act 35 of 2022, wef 1 Jan 2023: s21(3)(c)(ii) zero-rates only insuring passenger transport and insuring or
+arranging goods transport; s21(4E) takes arranging or facilitating accommodation bookings out of (e)."""
 """s21(3)(u): advertising substantially outside Singapore, zero-rated only before 1 Jan 2022."""
 PROVISION = re.compile(r"^s21\(3\)\(([a-y])\)$")
 
@@ -48,8 +51,13 @@ def zero_rated(ctx: LineCtx) -> bool | None:
     if letter is None or letter in ("g", "h"):
         # Exports of goods (s21(6), (6A)), services on goods for export, financial services on exports.
         return bool(ctx.need("export_evidence", "SG-6"))
+    if letter == "c" and ctx.day >= NARROWED_FROM:
+        if ctx.need("transport_service_kind", "SG-6") == "arranging_passenger":
+            return False
     if letter in ("a", "b", "c"):
         return bool(ctx.need("international_transport", "SG-6"))
+    if letter == "e" and ctx.day >= NARROWED_FROM:
+        return not ctx.need("accommodation_booking", "SG-6")
     if letter in ("d", "f"):
         return bool(ctx.need("goods_outside_singapore", "SG-6"))
     if letter in ("j", "k"):
