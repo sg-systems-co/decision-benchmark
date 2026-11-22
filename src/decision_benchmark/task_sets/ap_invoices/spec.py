@@ -26,10 +26,11 @@ CONTENT = HERE / "content"
 TASK_DIR = HERE.relative_to(PACKAGE_ROOT).as_posix()
 PIPELINE_PATHS = (
     "core/generator", f"{TASK_DIR}/models", f"{TASK_DIR}/rules", f"{TASK_DIR}/countries", f"{TASK_DIR}/content",
+    f"{TASK_DIR}/generator",
     *(f"{TASK_DIR}/{name}" for name in ("__init__.py", "codes.py", "envelope.py", "fact_reader.py", "findings.py",
                                         "registry.py", "spec.py", "table_rows.py", "versions.py")),
 )
-"""What shapes the data (step 11 plan §8.1); B1-2 adds the task set's generator/, B3 render/."""
+"""What shapes the data (step 11 plan §8.1); B3 adds render/."""
 LOCK_FILE = PACKAGE_ROOT.parents[1] / "uv.lock"
 
 

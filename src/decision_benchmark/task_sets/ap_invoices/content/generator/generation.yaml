@@ -63,6 +63,12 @@ rule_floor:
 - {min_cases: 500, per_rule: 4, problem_per_family: 2}
 - {min_cases: 300, per_rule: 2}
 
+# B1 plan decision 3: buying companies per split (half per country).
+companies:
+- {min_cases: 2000, companies: 60}
+- {min_cases: 500, companies: 20}
+- {min_cases: 300, companies: 12}
+
 # B1 plan §3.4: date-boundary floor, 2 train and 1 test case within 31 days on each side of every boundary.
 boundary_floor:
 - {min_cases: 2000, per_side: 2, days: 31}

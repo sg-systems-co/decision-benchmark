@@ -121,6 +121,7 @@ Arithmetic: 320 + 40 + 640 = 1,000; 80 + 10 + 160 = 250; 48 + 6 + 96 = 150. Ever
 - **Q-A1 cases are not Ambiguous.** MG-5 step 2 settles them (no sales tax on the invoice). They go in ordinary slots, flagged `open_question: Q-A1`.
 - **One label per case.** A case may have more than one hard kind but counts once, under the label it was assigned. The scan-only cap counts every scan-only case, whatever its label.
 - **H1 spread:** in proportion to the exception types' shares, so scan-only says nothing about the decision.
+- **The Ambiguous exception (decision of 23 Nov 2026, review of B1-1):** Ambiguous is about 83% hard (H3 40 + H1 10 of 60 in train), outside the 30–70% band below. H3 can only sit in Ambiguous, and H1 stays proportional across every type, so the band applies to the types that take H2. `tests/generator/test_slots.py` checks the band on those types.
 - **H2 spread:**
   - H2 goes wherever a precedence pattern exists, with each exception type's hard share between 30% and 70%.
   - No precedence row takes more than 25% of a split's H2 cases (train at most 160, test at most 40, hidden at most 24). The nine rows give room for 225%.

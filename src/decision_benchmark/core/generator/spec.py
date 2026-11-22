@@ -113,6 +113,13 @@ class BoundaryTier(Model):
     days: int = 31
 
 
+class CompanyTier(Model):
+    """Companies built for splits of at least ``min_cases`` cases (the largest tier that fits applies)."""
+
+    min_cases: int
+    companies: int
+
+
 class Boundary(Model):
     country: str
     day: date
@@ -148,6 +155,8 @@ class Generation(Model):
     """Rule ids the floor doesn't count, with the reason (dispatchers, rules that aren't engine rules)."""
     boundary_floor: tuple[BoundaryTier, ...]
     boundaries: tuple[Boundary, ...]
+    companies: tuple[CompanyTier, ...] = ()
+    """Buying companies per split, split evenly over the countries."""
 
     @model_validator(mode="after")
     def _consistent(self) -> Generation:
@@ -181,6 +190,10 @@ class Generation(Model):
     def floor_for(self, n_cases: int) -> FloorTier:
         fits = [t for t in self.rule_floor if t.min_cases <= n_cases]
         return max(fits, key=lambda t: t.min_cases) if fits else FloorTier(min_cases=0, per_rule=0)
+
+    def companies_for(self, n_cases: int) -> int:
+        fits = [t for t in self.companies if t.min_cases <= n_cases]
+        return max(fits, key=lambda t: t.min_cases).companies if fits else len(self.countries)
 
     def boundary_floor_for(self, n_cases: int) -> BoundaryTier:
         fits = [t for t in self.boundary_floor if t.min_cases <= n_cases]

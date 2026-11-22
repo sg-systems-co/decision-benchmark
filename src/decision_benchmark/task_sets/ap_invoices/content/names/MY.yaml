@@ -1,0 +1,27 @@
+# Name banks for Malaysian companies, suppliers, people and addresses (B1-2 starter). All names are invented
+# combinations; any match with a real business is coincidental. Splits draw disjoint combinations (entities.py).
+company_first: [Teratai, Seri, Bintang, Cahaya, Delima, Kenanga, Melati, Mutiara, Nusa, Perdana, Puncak, Rimba,
+  Sinar, Suria, Tiara, Ufuk, Wangi, Zamrud, Anggerik, Bayu, Cempaka, Embun, Gemilang, Harmoni, Intan, Jati, Kasih,
+  Lestari, Mahkota, Nilam, Orkid, Permata, Rantau, Saujana, Tanjung, Utama, Wira, Yakin, Alam, Berlian]
+company_second: [Plastik, Logam, Kimia, Elektrik, Makanan, Tekstil, Kejuruteraan, Pembinaan, Automasi, Teknologi,
+  Perabot, Kertas, Pembungkusan, Getah, Optik, Peralatan, Bahan, Komponen, Mesin, Polimer]
+company_third: [Industri, Manufacturing, Industries, Holdings, Enterprise, Trading, Resources, Works]
+supplier_first: [Awan, Biru, Cekap, Dinamik, Elok, Fajar, Gagah, Halus, Indera, Jaya, Kilat, Laju, Mega, Nadi,
+  Optima, Pantas, Rapi, Serba, Tegas, Unggul, Vista, Waja, Arif, Bistari, Cergas, Damai, Era, Galak, Hijau, Ikhlas]
+supplier_second: [Systems, Solutions, Services, Supplies, Engineering, Logistics, Networks, Consulting, Technical,
+  Industrial, Trading, Equipment, Marketing, Facilities, Digital]
+suffix: Sdn Bhd
+given: [Aisyah, Ahmad, Siti, Muhammad, Nurul, Farid, Hafiz, Zainab, Kumar, Priya, Ravi, Lakshmi, Wei Ling, Chee Keong,
+  Mei Yee, Jun Hao, Hui Min, Kok Wai, Amirul, Syafiqah, Darren, Michelle, Jason, Rachel, Faizal, Nadia, Imran, Haziq,
+  Azlina, Suresh, Kavitha, Ganesh, Shu Fen, Yong Sheng, Li Ting, Boon Huat]
+family: [Abdullah, Rahman, Ismail, Hassan, Ibrahim, Ali, Othman, Yusof, Tan, Lim, Lee, Wong, Ng, Chong, Goh, Teoh,
+  Raj, Pillai, Subramaniam, Nair, Krishnan, Muthu, Ong, Chan, Yap, Low, Hamid, Salleh, Kassim, Aziz]
+streets: [Jalan Perusahaan, Jalan Industri, Jalan Teknologi, Jalan Utama, Jalan Bukit, Jalan Sungai, Jalan Damai,
+  Jalan Mawar, Jalan Kenari, Jalan Pelabur, Jalan Kilang, Jalan Puchong, Jalan Klang Lama, Jalan Ampang]
+cities: [Shah Alam, Petaling Jaya, Klang, Johor Bahru, Penang, Ipoh, Seremban, Melaka, Kuantan, Kota Kinabalu,
+  Kuching, Senai, Bayan Lepas, Nilai, Rawang]
+states: [Selangor, Johor, Pulau Pinang, Perak, Negeri Sembilan, Melaka, Pahang, Sabah, Sarawak, Kedah]
+banks: [Bank Seri Pertama, Bank Gemilang Berhad, Bank Rakyat Utama, Bank Nusantara, Bank Delima Berhad,
+  Bank Perdana Malaysia]
+industries: [plastics, electronics, food processing, metal fabrication, chemicals, packaging, furniture, textiles,
+  automotive parts, machinery]
