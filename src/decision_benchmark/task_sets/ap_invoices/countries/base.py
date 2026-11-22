@@ -50,6 +50,13 @@ class CountryPack:
 
     # -- models ---------------------------------------------------------------
 
+    @property
+    def generation(self):
+        """The pack's part of the generator (countries/<cc>/generation.py, B1), loaded on first use."""
+        from importlib import import_module
+
+        return import_module(f"{__package__}.{self.country.lower()}.generation").generation_part
+
     def check_company(self, company: Company) -> None:
         """Raise ValueError if the company's country fields don't fit this country."""
         if company.base_currency != self.currency:

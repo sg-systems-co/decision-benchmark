@@ -1,0 +1,27 @@
+# Name banks for Singaporean companies, suppliers, people and addresses (B1-2 starter). All names are invented
+# combinations; any match with a real business is coincidental. Splits draw disjoint combinations (entities.py).
+company_first: [Larkspur, Bayfront, Marina, Tanglin, Novena, Kallang, Raffles, Orchid, Merlion, Clementi, Serangoon,
+  Tampines, Bukit, Changi, Jurong, Kembangan, Punggol, Sentosa, Woodlands, Bishan, Pasir, Holland, Keppel, Lavender,
+  Newton, Redhill, Simei, Telok, Upper, Yishun, Aljunied, Boon, Dover, Eunos, Farrer, Geylang, Hougang, Joo, Kovan,
+  Lentor]
+company_second: [Precision, Engineering, Electronics, Biotech, Logistics, Marine, Foods, Chemicals, Instruments,
+  Packaging, Automation, Optics, Materials, Components, Systems, Medical, Semicon, Robotics, Polymers, Metals]
+company_third: [Engineering, Industries, Holdings, Manufacturing, Technologies, Group, Enterprises, International]
+supplier_first: [Kestrel, Harrier, Osprey, Heron, Kingfisher, Sparrow, Falcon, Egret, Plover, Swift, Lapwing, Merlin,
+  Raven, Wren, Finch, Robin, Starling, Tern, Pelican, Magpie, Oriole, Bulbul, Myna, Sunbird, Hornbill, Drongo, Barbet,
+  Minivet, Tailorbird, Shama]
+supplier_second: [Machine Parts, Supplies, Services, Solutions, Technical, Office, Facilities, Networks, Consulting,
+  Logistics, Trading, Equipment, Digital, Industrial, Maintenance]
+suffix: Pte Ltd
+given: [Wei Jie, Hui Ling, Jun Wei, Xin Yi, Kai Xiang, Shu Hui, Zhi Hao, Jia Hui, Darren, Rachel, Marcus, Nicole,
+  Ravi, Priya, Arjun, Divya, Farhan, Nurul, Hafiz, Siti, Benjamin, Sarah, Daniel, Michelle, Ethan, Chloe, Ryan, Megan,
+  Aaron, Grace, Isaac, Jasmine, Kelvin, Natalie, Ong Teck, Ser Min]
+family: [Tan, Lim, Lee, Ng, Ong, Wong, Goh, Chua, Chan, Koh, Teo, Ang, Yeo, Tay, Ho, Low, Toh, Sim, Chong, Seah,
+  Kumar, Nair, Pillai, Menon, Rahman, Ismail, Hassan, Abdullah, Fernandez, Pereira]
+streets: [Ang Mo Kio Industrial Park, Woodlands Loop, Ubi Avenue, Kallang Way, Tai Seng Street, Jurong West Street,
+  Loyang Way, Changi South Avenue, Kaki Bukit Road, Toa Payoh Lorong, Bukit Batok Crescent, Pandan Loop]
+cities: [Singapore]
+states: []
+banks: [Harbourfront Bank, Straits Commerce Bank, Lion City Bank, Marina Savings Bank, Orchard Merchant Bank]
+industries: [precision engineering, electronics, biomedical, logistics, food manufacturing, chemicals, marine,
+  semiconductors, packaging, instruments]

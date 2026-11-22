@@ -13,9 +13,9 @@ PKG = ROOT / "src/decision_benchmark"
 TASK = PKG / "task_sets/ap_invoices"
 SHARED = sorted(
     [*(TASK / "rules").glob("*.py"), *(TASK / "models").glob("*.py"), TASK / "findings.py", TASK / "envelope.py",
-     TASK / "registry.py", TASK / "fact_reader.py", *(PKG / "core").rglob("*.py")]
+     TASK / "registry.py", TASK / "fact_reader.py", *(PKG / "core").rglob("*.py"), *(TASK / "generator").glob("*.py")]
 )
-"""Shared code: the task set's country-neutral modules and all of core (B1-1: core names no country)."""
+"""Shared code: the task set's country-neutral modules, its generator (B1-2) and all of core (B1-1)."""
 COUNTRY_WORDS = re.compile(
     r"\b(MY|SG|TH|MYR|SGD|THB)\b|GST|SST|Malaysia|Singapore|Thai|MyInvois|PINT|Peppol|IRAS|Schedule C|Group G",
     re.IGNORECASE,

@@ -38,6 +38,13 @@ Engine: 0.10.3. Rules as of: 2026-11-22.
 - The supplier record states the facts that fix the phase (`einvoice`: turnover band, turnover basis, commencement date, the date turnover reached RM1m) instead of a phase start date; the unused free-text `turnover_band` is gone. Three supplier kinds are added for the exempt persons (foreign diplomatic office, individual not conducting business, international organisation). A statutory body or local authority is exempt for supplies before 1 Jul 2025 and, after that, for statutory fees and charges only (the line fact `statutory_fee_amount`).
 - A validated e-invoice now settles ME-1 before the supplier's phase is looked at, so an unknown phase no longer hands over an invoice that has one; an unknown phase hands over only from 1 Feb 2025, when it can decide.
 
+### Generator B1-2: entities and the clean base case
+
+- `task_sets/ap_invoices/generator/`: the buying companies of a split (60 / 20 / 12, half per country) with 4-8 people, a policy pack (chart of accounts covering every catalog GL role, approval matrix, tolerances, exemption certificates), 15-30 suppliers (registrations, party facts including the e-invoice status, bank accounts, contacts; about 15% foreign, some with certificates of residence), contracts for rental and construction suppliers, ledger history from 12 months before the window at the rates of its own dates, and background mail. Names come from `content/names/`; train and test share no company, supplier or person name.
+- The statement registry states each fact the rules read in its governing document and records path evidence (service periods from the invoice, delivery dates from the goods receipt). The clean base case: a PO, its receipt and a correct invoice; the generator plants the expected decision and per-line treatment and basis, the engine must find them, and any difference redraws the case (at most 20 attempts).
+- Country parts of generation live in each pack (`countries/<cc>/generation.py`): registrations, party facts, the e-invoice block and the clean line from the catalog and the rate tables. The task-set generator names no country (`test_shared_code.py`).
+- Acceptance: 500 clean cases per country with planted = found (no redraws), every gold fact's evidence resolves, `check_rules` reproduces every key from its gold facts, and 100 cases built twice are byte-identical.
+
 ### Generator B1-1: core framework and slot allocator
 
 - `core/generator/`: derived seeds, exact counts, the generic generation config (`TaskSetSpec.generation`), the slot allocator and the pipeline hash. `db-generate --task-set <id> --split train|test` (or `--split-spec`) writes the slot table and its report (`report/slots.json`) and provenance. No cases yet; B1-2 builds them.
