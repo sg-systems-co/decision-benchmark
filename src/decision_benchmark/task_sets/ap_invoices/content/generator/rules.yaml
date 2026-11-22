@@ -1,0 +1,88 @@
+# The rules the per-rule floor counts (B1 plan §3.4): 75 rules, 62 Malaysian and 13 Singaporean.
+# carrier: how the rule appears in an answer key (a line basis, a finding, a buyer action). problem_form: the rule can
+# decide a wrongly charged or undercharged line (52 Malaysian, 6 Singaporean; tests/generator/test_rule_table.py checks
+# this against the golden keys). types: the exception types whose cases can carry it (empty: any non-hand-over type).
+# foreign: it needs a foreign supplier.
+not_counted:
+  MS-10: dispatcher; met through P-1 to P-20
+  MG-6: dispatcher; met through G-1, G-3, G-4 and G-5
+  P-21: not an engine rule (domestic electricity is not a company purchase)
+  G-2: not an engine rule (imports)
+  G-6: not an engine rule (re-imports)
+  G-7: not an engine rule (refund windows)
+rules:
+- {id: MS-1, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-2, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-3, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-4, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-5, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-6, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-7, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: MS-8, country: MY, family: MS, carrier: line, foreign: true, note: 'imported services: foreign supplier'}
+- {id: MS-9, country: MY, family: MS, carrier: line, problem_form: true}
+- {id: P-1, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-2, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-3, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-4, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-5, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-6, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-7, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-8, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-9, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-10, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-11, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-12, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-13, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-14, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-15, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-16, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-17, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-18, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-19, country: MY, family: P, carrier: line, problem_form: true}
+- {id: P-20, country: MY, family: P, carrier: line, problem_form: true}
+- {id: K-1, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-2, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-3, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-4, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-5, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-6, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-7, country: MY, family: K, carrier: line, problem_form: true}
+- {id: K-8, country: MY, family: K, carrier: line, problem_form: true}
+- {id: L-1, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-2, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-3, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-4, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-5, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-6, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-7, country: MY, family: L, carrier: line, problem_form: true}
+- {id: L-8, country: MY, family: L, carrier: line, problem_form: true}
+- {id: MG-1, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: MG-2, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: MG-3, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: MG-4, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: MG-5, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: G-1, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: G-3, country: MY, family: MG, carrier: line, note: 'refund route: the invoice is correct (no problem form)'}
+- {id: G-4, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: G-5, country: MY, family: MG, carrier: line, problem_form: true}
+- {id: ME-1, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MISSING_MANDATORY_FIELD}
+- {id: ME-2, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MyInvois mandatory fields}
+- {id: ME-3, country: MY, family: ME, carrier: action, note: ISSUE_SELF_BILLED_EINVOICE}
+- {id: ME-4, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: SST invoice particulars}
+- {id: WH-1, country: MY, family: WH, carrier: action, foreign: true}
+- {id: WH-2, country: MY, family: WH, carrier: action, foreign: true}
+- {id: WH-3, country: MY, family: WH, carrier: action, foreign: true}
+- {id: WH-4, country: MY, family: WH, carrier: action, foreign: true}
+- {id: SG-1, country: SG, family: SG, carrier: line}
+- {id: SG-2, country: SG, family: SG, carrier: line, types: [invalid_invoice], note: 'valid tax invoice: an invalid invoice'}
+- {id: SG-3, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-4, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-5, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-6, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-7, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-8, country: SG, family: SG, carrier: line, foreign: true, note: 'reverse charge: imported services and low-value goods'}
+- {id: SG-9, country: SG, family: SG, carrier: line}
+- {id: SG-10, country: SG, family: SG, carrier: line}
+- {id: SG-11, country: SG, family: SG, carrier: finding, types: [duplicate], note: a duplicate claim is caught by the duplicate check}
+- {id: SG-12, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: WH-5, country: SG, family: WH, carrier: action, foreign: true}

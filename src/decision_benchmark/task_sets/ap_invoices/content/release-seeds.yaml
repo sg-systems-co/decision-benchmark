@@ -1,0 +1,10 @@
+# Public seeds for the release splits (step 11 plan §8.1). They ship with each release, so anyone can rebuild the
+# public data byte for byte from the tagged commit. Other splits are built with `db-generate --split-spec`.
+splits:
+  train:
+    n_cases: 2000
+    seed: 2026112201
+  test:
+    n_cases: 500
+    seed: 2026112202
+    id_start: 1

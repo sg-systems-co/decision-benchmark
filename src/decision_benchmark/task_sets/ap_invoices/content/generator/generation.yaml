@@ -1,0 +1,92 @@
+# Generator config for ap-invoices (B1 plan §3 and §6), read by spec.py into TaskSetSpec.generation.
+# Exception shares are TaskSetSpec.quotas; two-problem pairs are content/hardcases/pairs.yaml; rules are
+# content/generator/rules.yaml.
+
+countries: [MY, SG]
+
+# B1 plan §6 (decision 6): one window per country.
+windows:
+  MY: ['2024-01-02', '2026-10-31']
+  SG: ['2023-07-01', '2026-10-31']
+
+# Step 11 plan §5.2: priority tiers. Same order as TaskSetSpec.quotas.
+types:
+- {name: clean}
+- {name: tax_problem, tier: 3, tax: true}
+- {name: price_mismatch, tier: 4}
+- {name: quantity_mismatch, tier: 4}
+- {name: invalid_invoice, tier: 3}
+- {name: duplicate, tier: 2}
+- {name: not_received, tier: 4}
+- {name: no_po_or_above_limit, tier: 5}
+- {name: bank_change, tier: 1}
+- {name: ambiguous, handover: true}
+
+# B1 plan §3.2: half of every split is hard; scan-only 32% of the hard cases (320 / 80 / 48), capped at a third;
+# missing information is two thirds of the hand-over type (40 / 10 / 6); conflicting documents the rest.
+hard_cases:
+  share: '50'
+  scan_only_share_of_hard: '32'
+  scan_only_cap_of_hard: '1/3'
+  missing_share_of_handover: '2/3'
+  conflict_row_cap: '1/4'
+  type_hard_share_band: ['30', '70']
+  # B1 plan §3.2a. Every type except the hand-over type can carry a precedence pattern: the key's tax lines, findings
+  # and reason codes follow the governing document whatever the decision.
+  rows:
+  - {id: supplier_registration, countries: [MY, SG], types: &h2types [clean, tax_problem, price_mismatch, quantity_mismatch, invalid_invoice, duplicate, not_received, no_po_or_above_limit, bank_change]}
+  - {id: group_relation, countries: [MY], types: *h2types}
+  - {id: exemption_certificate, countries: [MY], types: *h2types}
+  - {id: zone, countries: [MY], types: *h2types}
+  - {id: contract_record, countries: [MY], types: *h2types}
+  - {id: time_of_supply, countries: [MY, SG], types: *h2types}
+  - {id: price, countries: [MY, SG], types: *h2types}
+  - {id: certificate_of_residence, countries: [MY, SG], types: *h2types}
+  - {id: partial_exemption, countries: [SG], types: *h2types}
+
+# B1 plan §3.3: at least 12% mixed (240 / 60 / 36), a third of them Malaysian §5-b split cases (80 / 20 / 12).
+mixed:
+  share: '12'
+  split_share: '1/3'
+  split_countries: [MY]
+
+# B1 plan §3.4: foreign-supplier lines carry MS-8, ME-3 and the withholding rules (15% of each country's cases).
+foreign_share: '15'
+
+# B1 plan §3.3: lines per case.
+lines: {'1': '45', '2': '30', '3': '15', '4-6': '10'}
+
+# B1 plan §3.4 (decision 5): 16 per rule in train with 2 problem forms per rule that has one; 4 in test with 2
+# problem lines per family; 2 in a 300-case split.
+rule_floor:
+- {min_cases: 2000, per_rule: 16, problem_per_rule: 2}
+- {min_cases: 500, per_rule: 4, problem_per_family: 2}
+- {min_cases: 300, per_rule: 2}
+
+# B1 plan §3.4: date-boundary floor, 2 train and 1 test case within 31 days on each side of every boundary.
+boundary_floor:
+- {min_cases: 2000, per_side: 2, days: 31}
+- {min_cases: 500, per_side: 1, days: 31}
+
+# B1 plan §6, plus the dated branches inside the window that engine 0.10.3 added (marked 0.10.3). `day` is the first
+# day of the new state. Pulau 1 (1 Dec 2024) isn't planted.
+boundaries:
+- {country: MY, day: '2024-02-26', note: '0.10.3: 26 Feb 2024 additions (karaoke, G(n), I12, Group J); STP 1/2024 starts'}
+- {country: MY, day: '2024-03-01', note: 'service tax 6% -> 8%; STP 1/2024 existing registrants charge from 1 Mar'}
+- {country: MY, day: '2024-04-01', note: '0.10.3: STP 1/2024 new registrants charge from 1 Apr'}
+- {country: MY, day: '2024-05-01', note: '0.10.3: G(n) in group relief (P.U. (A) 354/2024)'}
+- {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m'}
+- {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))'}
+- {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m'}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025'}
+- {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)'}
+- {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start'}
+- {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}
+- {country: MY, day: '2025-10-01', note: 'K-5 and L-7 local authorities end 30 Sep 2025'}
+- {country: MY, day: '2026-01-01', note: 'rental 6%; K-1 RM1m-1.5m; G-3; ME-1 up to RM5m and relaxation end 31 Dec 2025'}
+- {country: MY, day: '2026-05-01', note: 'P-15'}
+- {country: MY, day: '2026-06-01', note: 'P-7 TIA-i'}
+- {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses'}
+- {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7'}
+- {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations'}
+- {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)'}

@@ -38,6 +38,12 @@ Engine: 0.10.3. Rules as of: 2026-11-22.
 - The supplier record states the facts that fix the phase (`einvoice`: turnover band, turnover basis, commencement date, the date turnover reached RM1m) instead of a phase start date; the unused free-text `turnover_band` is gone. Three supplier kinds are added for the exempt persons (foreign diplomatic office, individual not conducting business, international organisation). A statutory body or local authority is exempt for supplies before 1 Jul 2025 and, after that, for statutory fees and charges only (the line fact `statutory_fee_amount`).
 - A validated e-invoice now settles ME-1 before the supplier's phase is looked at, so an unknown phase no longer hands over an invoice that has one; an unknown phase hands over only from 1 Feb 2025, when it can decide.
 
+### Generator B1-1: core framework and slot allocator
+
+- `core/generator/`: derived seeds, exact counts, the generic generation config (`TaskSetSpec.generation`), the slot allocator and the pipeline hash. `db-generate --task-set <id> --split train|test` (or `--split-spec`) writes the slot table and its report (`report/slots.json`) and provenance. No cases yet; B1-2 builds them.
+- ap-invoices: the generator config (`content/generator/generation.yaml`), the rule table the per-rule floor counts (`content/generator/rules.yaml`, 75 rules; problem forms checked against the golden keys), the two-problem pairs (`content/hardcases/pairs.yaml`) and the public release seeds (`content/release-seeds.yaml`).
+- The allocator reproduces every table of B1 plan section 3 for 2,000, 500 and 300 cases, and an infeasible demand stops the build with the demand named. Catalog README: the v0.10 planting limits, each with the test that enforces it.
+
 ### Engine 0.10.3: dated rule branches (date sweep)
 
 - Rule sheet v0.10 updated twice on 22 Nov 2026 after engine tests of the branches dated outside the B1 case windows found errors in all four areas tested; a sweep of every dated rule element (about 120 boundaries, each tested on both sides) found more. Every error below is fixed; no existing answer key changes its answer (three change only their gold facts, because their tests now state a fact the corrected rule reads).
