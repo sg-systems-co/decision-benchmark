@@ -66,6 +66,8 @@ class GeneratedCase:
     families: list[str]
     rules: list[str] = field(default_factory=list)
     """The rules planted: the families' and the slot's rule appearances."""
+    branch: str | None = None
+    """The dated branch the case plants, "<branch>:<side>" (generation.yaml boundaries)."""
 
     def export(self) -> dict:
         """The case as JSON-ready data: envelope, the records the case adds, the answer key, the generator truth."""
@@ -82,6 +84,7 @@ class GeneratedCase:
                         "findings": self.built.planted.findings, "buyer_actions": self.built.planted.buyer_actions},
             "families": self.families,
             "planted_rules": self.rules,
+            "branch": self.branch,
             "open_questions": self.built.planted.open_questions,
             "attempt": self.built.attempt,
         }
@@ -373,12 +376,13 @@ def build_clean(gen: Generation, quotas: dict, split: SplitSpec, provenance: Pro
 
 
 def _tally(build: Build, families: list[Template], planted: Planted, cause: str | None, diff: str,
-           rules: list[str] = ()) -> None:
+           rules: list[str] = (), extra: list[str] = ()) -> None:
     """Count an attempt for each family it uses (the drawn ones, and the family of each rule the slot plants) and each
     rule it plants: the slot's rules, the families' rules, and the rules the planted lines and buyer actions name."""
     names = [t.family for t in families] or ["clean_base"]
     names += [rule_families()[r].family for r in rules if r in rule_families()
               and rule_families()[r].family not in names]
+    names += [x for x in extra if x.startswith("branch:") and x not in names]
     for name in names:
         build.families.setdefault(name, _Tally()).add(cause, diff)
     named = {x[2] for x in planted.lines if x[2]} | {a[2] for a in planted.buyer_actions if a[2]} | set(rules)
@@ -418,6 +422,10 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     uses = [(x, PROBLEM) for x in family_rules] + [(u.rule, u.form) for u in floor]
     planted_rules = [x for x, _ in uses]
     needs = set().union(*(rules[x].needs for x in planted_rules if x in rules))
+    branch = None
+    boundary = _branch(gen, slot) if g.plants_rules else None
+    if boundary is not None:
+        needs |= set(boundary.needs)
     try:
         window = _window(gen, slot, [(rules[x], PROBLEM) for x in family_rules])
         built = clean_case(gen, split, cw, slot, attempt, need_taxed=requires_taxed_line(families), window=window,
@@ -432,9 +440,17 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
             for name, args in cs:
                 if OPS[name].early:
                     OPS[name].fn(d, **args)
-        _plant_floor(d, floor, first_line=2 if family_rules else 1)
+        taken = _plant_floor(d, floor, first_line=2 if family_rules else 1,
+                             own_line={r.id for r in gen.rules if r.takes_line or r.foreign})
+        if boundary is not None:
+            free = [k for k in range(1, len(d.invoice["lines"]) + 1)
+                    if k not in taken and not (family_rules and k == 1)]
+            if not free:
+                raise CannotPlant(f"no free line for the {boundary.branch} branch")
+            g.plant_branch(d, free[0], boundary.branch, slot.boundary[1])
+            branch = f"{boundary.branch}:{slot.boundary[1]}"
     except CannotPlant as e:
-        _tally(build, families, built.planted, "cannot plant", str(e), planted_rules)
+        _tally(build, families, built.planted, "cannot plant", str(e), planted_rules, _branch_names(boundary))
         return None, f"cannot plant: {e}", names
     apply(d, [(t, [c for c in cs if not OPS[c[0]].early]) for t, cs in calls])
     types = [slot.primary] + ([slot.secondary] if slot.secondary else [])
@@ -448,13 +464,14 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     try:
         answer = answer_case(records, env, catalog())
     except UnsupportedCase as e:
-        _tally(build, families, built.planted, "engine unsupported", str(e), planted_rules)
+        _tally(build, families, built.planted, "engine unsupported", str(e), planted_rules, _branch_names(boundary))
         return None, f"unsupported: {e}", names
     diffs = compare(built.planted, answer)
     if not diffs:
-        _tally(build, families, built.planted, None, "", planted_rules)
-        return GeneratedCase(built, env, records, answer, names, planted_rules), "", names
-    _tally(build, families, built.planted, cause_of(diffs, built.planted, answer), "; ".join(diffs), planted_rules)
+        _tally(build, families, built.planted, None, "", planted_rules, _branch_names(boundary))
+        return GeneratedCase(built, env, records, answer, names, planted_rules, branch), "", names
+    _tally(build, families, built.planted, cause_of(diffs, built.planted, answer), "; ".join(diffs), planted_rules,
+           _branch_names(boundary))
     return None, "; ".join(diffs), names
 
 
@@ -473,7 +490,19 @@ def _window(gen: Generation, slot: Slot, extra: list[tuple[RuleSpec, str]]) -> t
     return lo, hi
 
 
-def _plant_floor(d: Draft, uses: list, first_line: int) -> None:
+def _branch_names(boundary) -> list[str]:
+    return [f"branch:{boundary.branch}"] if boundary is not None else []
+
+
+def _branch(gen: Generation, slot: Slot):
+    """The dated boundary whose branch the slot carries, if any."""
+    if slot.boundary is None:
+        return None
+    day, _ = slot.boundary
+    return next((b for b in gen.boundaries if b.country == slot.country and b.day == day and b.branch), None)
+
+
+def _plant_floor(d: Draft, uses: list, first_line: int, own_line: set[str] = frozenset()) -> set[int]:
     """Plant the slot's other rule appearances: line rules on the next free lines, then findings and buyer actions
     (an action rule takes a line no line rule took, else one of an imported service, whose basis it keeps)."""
     n = first_line
@@ -489,4 +518,6 @@ def _plant_floor(d: Draft, uses: list, first_line: int) -> None:
         reuse = [k for k, rule in taken.items() if d.built.planted.lines[k - 1][2] == "MS-8"]
         line = (free or reuse or [len(d.invoice["lines"])])[0]
         plant_rule(d, line, u.rule, u.form)
-        taken[line] = u.rule
+        if u.rule in own_line:            # it set the line (others only add a finding or a phrase)
+            taken[line] = u.rule
+    return set(taken)

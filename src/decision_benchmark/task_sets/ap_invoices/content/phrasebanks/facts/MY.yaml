@@ -18,6 +18,7 @@ facts:
       bursa_share_brokerage: [Bursa Malaysia share brokerage]
       commodity_platform_fee: [commodity trading platform fee]
       reinsurance: [reinsurance premium]
+      tia_i_account_fee: [TIA-i account fee]
   financial_use:
     kind: enum
     values:
@@ -164,3 +165,7 @@ facts:
   service_period_end:
     kind: date
     templates: ["services until {value}"]
+  wellness_facility_kind:
+    kind: enum
+    values:
+      tcm_practitioner_premises: [at a registered T&CM practitioner's premises]

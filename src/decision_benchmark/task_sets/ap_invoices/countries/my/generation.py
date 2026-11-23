@@ -17,6 +17,7 @@ from datetime import date, datetime, time, timezone
 from decimal import Decimal
 
 from ...generator.country import CleanLine, ProblemLine
+from ...generator.entities import stated_rate
 from ...models import Category
 from . import planting
 from .constants import (
@@ -39,12 +40,18 @@ class MalaysiaGeneration:
     country = "MY"
     currency = "MYR"
 
-    foreign_countries = ("SG", "CN", "JP", "US", "DE", "IN")
-    """Where foreign suppliers of Malaysian companies are based (treaty partners)."""
+    foreign_countries = ("SG", "CN", "JP", "US", "GB", "IN")
+    """Where foreign suppliers of Malaysian companies are based."""
+    foreign_currencies = {"SG": "SGD", "CN": "CNY", "JP": "JPY", "US": "USD", "GB": "GBP", "IN": "INR"}
+    RATES = {"SGD": (Decimal("3.35"), 4), "CNY": (Decimal("0.62"), 4), "JPY": (Decimal("0.0295"), 6),
+             "USD": (Decimal("4.40"), 4), "GBP": (Decimal("5.70"), 4), "INR": (Decimal("0.0525"), 6)}
+    """Ringgit per unit, the centre of the stated rates (moved up to 5% by date), and the decimals printed."""
     company_kinds = planting.COMPANY_KINDS
     certificate_covers = ("wooden_pallets", "corrugated_cartons")
     """G-4 plants pallets under the company's Schedule C certificate; MG-4 cartons (taxed at 10% under every order, so
     a problem form exists on every date)."""
+    certificate_excludes = ("animal_feed_fishmeal", "animal_feed_premix")
+    """G-3 plants the critical raw materials, which a Schedule C certificate would exempt instead (MG-4)."""
     plants_rules = True
     """The rule recipes are in planting.py."""
 
@@ -98,7 +105,7 @@ class MalaysiaGeneration:
         if p.service_item is not None and p.service_item in provided:
             return None
         if supplier is not None and supplier["country"] != self.country:
-            return self._imported(category, day)
+            return self._imported(category, day, company)
         if kind == "group" and p.group_relief:
             return None
         if kind == "government" and p.service_item and (
@@ -110,12 +117,12 @@ class MalaysiaGeneration:
             return None
         return line
 
-    def _imported(self, category: Category, day: date) -> CleanLine | None:
+    def _imported(self, category: Category, day: date, company: dict | None) -> CleanLine | None:
         """An imported service: the overseas invoice shows no SST, the registered buyer accounts for it (MS-8), and
         self-bills the e-invoice once in its phase (ME-3)."""
         if category.category not in IMPORTED_CLEAN:
             return None
-        actions = (planting.IMPORTED_ACTION,) + ((planting.SELF_BILLED_ACTION,) if day >= planting.COMPANY_PHASE_START else ())
+        actions = (planting.IMPORTED_ACTION,) + (planting.self_billing(company, day) if company else ())
         return CleanLine(Decimal(0), {"classification_code": CLASSIFICATION["service"], "tax_type": NOT_APPLICABLE},
                          T.SST_BUYER_ACCOUNTS.value, "MS-8", actions)
 
@@ -194,18 +201,22 @@ class MalaysiaGeneration:
     def plant(self, d, line: int, rule: str, form: str) -> None:
         planting.plant(d, line, rule, form)
 
+    def plant_branch(self, d, line: int, branch: str, side: str) -> None:
+        planting.plant_branch(d, line, branch, side)
+
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         if kind:
-            return [cw.supplier(cw.special[kind])]
+            return [cw.supplier(sid) for sid in cw.special[kind]]
         if foreign:
-            pe = cw.special.get("foreign_pe")
-            return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] != pe]
+            pe = set(cw.special.get("foreign_pe", []))
+            return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] not in pe]
         if not needs:
             return None
         return [s for s in cw.ordinary_suppliers() if planting.supplier_fits(s, needs, day)]
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
-        return Decimal("4.40")           # an invoice's own stated rate; the rules read it as printed
+        base, places = self.RATES[currency]
+        return stated_rate(base, currency, day, places)       # an invoice's own stated rate; read as printed
 
     def refresh_einvoice(self, invoice: dict) -> None:
         by_type: dict[str, Decimal] = {}

@@ -63,13 +63,21 @@ rule_floor:
 - {min_cases: 500, per_rule: 4, problem_per_family: 2}
 - {min_cases: 300, per_rule: 2}
 
+# Suppliers of each special kind (rules.yaml supplier) per split: three in train, two in test, one in a 300-case split
+# (review of B1-4), so a rule that needs one doesn't always come with the same name, address and bank account.
+special_suppliers:
+- {min_cases: 2000, per_kind: 3}
+- {min_cases: 500, per_kind: 2}
+- {min_cases: 300, per_kind: 1}
+
 # The supplier kinds the rules need (rules.yaml supplier) and what each can't do (rules.yaml needs): the co-owner of a
 # rented property isn't registered and isn't in an e-invoicing phase (K-8); the Government exempts its 2025-scope
 # services itself (K-5, L-7, P-8); group relief (MS-6) and the transitional contracts (K-4, L-1) decide before the
 # B2B order (MS-5).
 supplier_lacks:
-  co_owner: [service, goods, phase, b2b]
+  co_owner: [service, goods, phase, phase1, b2b]
   government: [not_public_scope, b2b]
+  local_authority: [not_public_scope, b2b]
   group: [b2b]
   k4_landlord: [b2b]
   l1_contractor: [b2b]
@@ -86,24 +94,27 @@ boundary_floor:
 - {min_cases: 500, per_side: 1, days: 31}
 
 # B1 plan §6, plus the dated branches inside the window that engine 0.10.3 added (marked 0.10.3). `day` is the first
-# day of the new state. Pulau 1 (1 Dec 2024) isn't planted.
+# day of the new state. Pulau 1 (1 Dec 2024) isn't planted. branch: the recipe (countries/my/planting.py) for a line
+# whose answer turns on the date, planted on the boundary's slots on each side (review of B1-4); supplier, companies,
+# needs, types: what the branch line takes, as for a rule. 1 Sep 2025 (P-9 for foreign-company buyers) has none: the
+# buyers are Malaysian companies, so no case can turn on it.
 boundaries:
-- {country: MY, day: '2024-02-26', note: '0.10.3: 26 Feb 2024 additions (karaoke, G(n), I12, Group J); STP 1/2024 starts'}
-- {country: MY, day: '2024-03-01', note: 'service tax 6% -> 8%; STP 1/2024 existing registrants charge from 1 Mar'}
-- {country: MY, day: '2024-04-01', note: '0.10.3: STP 1/2024 new registrants charge from 1 Apr'}
-- {country: MY, day: '2024-05-01', note: '0.10.3: G(n) in group relief (P.U. (A) 354/2024)'}
-- {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m'}
-- {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))'}
-- {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m'}
-- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025'}
-- {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)'}
-- {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start'}
+- {country: MY, day: '2024-02-26', note: '0.10.3: 26 Feb 2024 additions (karaoke, G(n), I12, Group J); STP 1/2024 starts', branch: scope_2024, needs: [service]}
+- {country: MY, day: '2024-03-01', note: 'service tax 6% -> 8%; STP 1/2024 existing registrants charge from 1 Mar', branch: rate_2024, needs: [service]}
+- {country: MY, day: '2024-04-01', note: '0.10.3: STP 1/2024 new registrants charge from 1 Apr', branch: stp_new_registrant, supplier: new_registrant}
+- {country: MY, day: '2024-05-01', note: '0.10.3: G(n) in group relief (P.U. (A) 354/2024)', branch: gn_group_relief, supplier: group, companies: [it, fin, builder, plain]}
+- {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m', branch: me3_phase_1, companies: [it]}
+- {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))', branch: wellness_tcm, needs: [service]}
+- {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m', branch: me3_phase_2, companies: [fin]}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {before: [clean, tax_problem, price_mismatch, quantity_mismatch, duplicate, not_received, no_po_or_above_limit, bank_change], after: [invalid_invoice]}}
+- {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)', branch: ms7_items_5_7, needs: [service]}
+- {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start', branch: scope_2025, companies: [it, fin, plain, msme, new_sme], needs: [service, not_public_scope, b2b]}
 - {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}
-- {country: MY, day: '2025-10-01', note: 'K-5 and L-7 local authorities end 30 Sep 2025'}
-- {country: MY, day: '2026-01-01', note: 'rental 6%; K-1 RM1m-1.5m; G-3; ME-1 up to RM5m and relaxation end 31 Dec 2025'}
-- {country: MY, day: '2026-05-01', note: 'P-15'}
-- {country: MY, day: '2026-06-01', note: 'P-7 TIA-i'}
-- {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses'}
-- {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7'}
-- {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations'}
+- {country: MY, day: '2025-10-01', note: 'K-5 and L-7 local authorities end 30 Sep 2025', branch: local_authority_end, supplier: local_authority, companies: [it, fin, builder, plain]}
+- {country: MY, day: '2026-01-01', note: 'rental 6%; K-1 RM1m-1.5m; G-3; ME-1 up to RM5m and relaxation end 31 Dec 2025', branch: rental_rate_2026, companies: [it, fin, builder, plain], needs: [service, not_public_scope, b2b]}
+- {country: MY, day: '2026-05-01', note: 'P-15', branch: p15_taxable, needs: [service]}
+- {country: MY, day: '2026-06-01', note: 'P-7 TIA-i', branch: tia_i, needs: [service, not_public_scope]}
+- {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses', branch: k4_end, supplier: k4_landlord, companies: [it, fin, builder, plain]}
+- {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7', branch: g3_end, needs: [goods]}
+- {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations', branch: dgta_mro, supplier: dgta_mro, companies: [plain]}
 - {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)'}

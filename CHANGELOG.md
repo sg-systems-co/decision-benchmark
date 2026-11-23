@@ -47,6 +47,7 @@ Engine: 0.10.4. Rules as of: 2026-11-23.
 - Planted = found also on the open questions (Q-A1, flagged in the generator truth) and on the buyer actions of every line; `report/planting.json` counts every rule a case plants.
 - Reachability (`generator/reachability.py`): every Malaysian rule planted on 50 draws in each of its forms; the engine agrees on all 50 for every rule and form.
 - Planting limits 1-4, 6a-6d and 7 are tests over every generated case (`tests/generator/test_planting_limits.py`).
+- Review of B1-4: each company's turnover fits its kind (SME kinds below RM3m, never self-billing; the others over the four phases) and its self-billing follows its own phase (engine 0.10.4); only the companies P-9 needs are ship owners; three suppliers of each special kind in train, two in test; foreign invoices in their supplier's currency at a stated rate that varies by date; every dated boundary inside the Malaysian window has a branch recipe planted on both sides (2 per side in train), except 1 Sep 2025 (no foreign-company buyers).
 - Acceptance: the Malaysian floors are met in 2,000, 500 and 300 cases (16 / 4 / 2 per rule; 2 problem forms per rule in train, 2 per family in test); zero redraws in all three; the exception mix and the two-problem pairs still match plan section 3.1.
 
 ### Generator B1-3: ops, the non-tax families and two-problem pairs

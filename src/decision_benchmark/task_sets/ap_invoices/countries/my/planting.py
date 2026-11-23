@@ -52,14 +52,26 @@ COMPANY_KINDS = ("it", "msme", "fin", "new_sme", "builder", "plain")
 """Given to the Malaysian companies of a split in turn, so a split of 6 Malaysian companies has one of each."""
 PROVIDED = {"it": ["G(h)", "I8"], "builder": ["L", "G(f)"], "fin": ["H3", "H2"]}
 """First Schedule items each kind provides itself (the B2B order, MS-5; P-1; L-3)."""
-COMPANY_PHASE_START = date(2024, 8, 1)
-"""Every company is in the first e-invoicing phase (turnover above RM100m): it self-bills from 1 Aug 2024 (ME-3)."""
 SME_KINDS = ("msme", "new_sme")
+COMPANY_EINVOICE = {
+    "it": {"turnover_band": "above_100m", "turnover_basis": "fy2022_audited"},
+    "fin": {"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"},
+    "builder": {"turnover_band": "5m_to_25m", "turnover_basis": "fy2022_audited"},
+    "plain": {"turnover_band": "3m_to_5m", "turnover_basis": "fy2022_audited"},
+    "msme": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"},
+    "new_sme": {"turnover_band": "1m_to_3m", "turnover_basis": "new_business", "business_started_on": "2025-11-03"},
+}
+"""Each kind's turnover, which fixes its own e-invoicing phase (ME-3, by the ME-1 timeline): the SME kinds are below
+RM3m (exempt: they never self-bill), the others spread over the four phases (1 Aug 2024, 1 Jan 2025, 1 Jul 2025,
+1 Jan 2026)."""
+SHIP_OWNER_KINDS = ("plain",)
+"""The kinds registered as ship owners (P-9, MRO of ships). No other kind holds a status P-9 names."""
 
 
 def company_facts(kind: str) -> dict:
     facts = {"country": "MY", "is_registered_manufacturer": True, "services_provided": list(PROVIDED.get(kind, [])),
-             "einvoice_phase_start": str(COMPANY_PHASE_START), "buyer_kinds": ["registered_ship_owner"]}
+             "einvoice": dict(COMPANY_EINVOICE[kind]),
+             "buyer_kinds": ["registered_ship_owner"] if kind in SHIP_OWNER_KINDS else []}
     if kind == "msme":
         # K-1: declared sales below RM1m, registered in MyPMK; paid-up capital and group holding within the limits.
         facts["msme"] = {"mypmk_registered_on": "2025-03-14", "declared_sales_band": "below_1m",
@@ -72,20 +84,19 @@ def company_facts(kind: str) -> dict:
     return facts
 
 
-def link_company(company: dict, special: dict[str, dict]) -> None:
-    """The company's group: a holding company owns 60% of it and 75% of the group supplier (MS-6, K-6). An SME kind
+def link_company(company: dict, special: dict[str, list[dict]]) -> None:
+    """The company's group: a holding company owns 60% of it and 75% of each group supplier (MS-6, K-6). An SME kind
     belongs to no group (its K-1 / K-2 conditions say so)."""
     facts = company.setdefault("tax_facts", {"country": "MY"})
-    group = special.get("group")
-    if facts.get("msme") is not None or group is None:
+    groups = special.get("group", [])
+    if facts.get("msme") is not None or not groups:
         facts["group"] = {"shareholdings": []}
         return
-    gid = group["tax_facts"]["group_company_id"]
+    gids = [g["tax_facts"]["group_company_id"] for g in groups]
     parent = f"{company['company_id']}-holding"
-    facts["group"] = {"shareholdings": [
-        {"holder_id": parent, "held_id": company["company_id"], "pct": "60"},
-        {"holder_id": parent, "held_id": gid, "pct": "75"}]}
-    facts["group_companies"] = [gid]
+    facts["group"] = {"shareholdings": [{"holder_id": parent, "held_id": company["company_id"], "pct": "60"}] + [
+        {"holder_id": parent, "held_id": gid, "pct": "75"} for gid in gids]}
+    facts["group_companies"] = gids
 
 
 # -- special suppliers ---------------------------------------------------------------------------------------------
@@ -116,10 +127,16 @@ SPECIAL_SUPPLIERS = (
                     contract={"signed_on": "2023-02-01", "stamped_on": "2023-02-10", "has_price_review_clause": True,
                               "states_service": True, "states_fixed_value": True, "states_period": True,
                               "start": "2023-03-01", "end": "2029-02-28", "parties": ["co_owner_partner"]}),
-    SpecialSupplier("foreign_pe", ("imported_consultancy",), foreign=True, home="SG", facts={"pe_in_country": True}),
-    SpecialSupplier("foreign_cert", ("imported_consultancy", "foreign_digital_services"), foreign=True, home="JP",
-                    residence=True),
-    SpecialSupplier("foreign", ("imported_consultancy", "foreign_digital_services"), foreign=True, home="US"),
+    SpecialSupplier("new_registrant", ("parking",), registered_from="2024-03-01",
+                    facts={"registered_before_2024_02_26": False, **BIG}),
+    SpecialSupplier("local_authority", ("parking",), facts={"supplier_kind": "local_authority", **BIG}),
+    SpecialSupplier("dgta_mro", ("vehicle_servicing",), facts={"approvals": ["dgta_amo"], **BIG}),
+    SpecialSupplier("foreign_pe", ("imported_consultancy",), foreign=True, homes=("SG", "JP", "GB"),
+                    facts={"pe_in_country": True}),
+    SpecialSupplier("foreign_cert", ("imported_consultancy", "foreign_digital_services"), foreign=True,
+                    homes=("JP", "SG", "GB"), residence=True),
+    SpecialSupplier("foreign", ("imported_consultancy", "foreign_digital_services"), foreign=True,
+                    homes=("US", "CN", "IN")),
 )
 """One of each per split, shared by its Malaysian companies. categories: what the supplier's clean lines carry; the
 planted lines come from the recipes. The landlord (K-4) and the contractor (L-1) hold contracts signed and stamped before the transitional
@@ -246,8 +263,25 @@ def need_kind(d, rule: str, kind: str) -> None:
         raise CannotPlant(f"{rule} needs the {kind} supplier, not {d.supplier_kind or 'an ordinary one'}")
 
 
+def buyer_phase_start(company: dict) -> date | None:
+    """The company's own e-invoicing implementation date by the ME-1 timeline; None: exempt (below RM3m) or none."""
+    from .models import MyEinvoiceStatus
+
+    status = (company.get("tax_facts") or {}).get("einvoice")
+    if not status:
+        return None
+    s = MyEinvoiceStatus.model_validate(status)
+    return None if tl.exempt_band(s.turnover_band) else tl.implementation_date(s)
+
+
+def self_billing(company: dict, day: date) -> tuple:
+    """ME-3: the buyer self-bills from its own implementation date (relaxation period included)."""
+    start = buyer_phase_start(company)
+    return (SELF_BILLED_ACTION,) if start is not None and day >= start else ()
+
+
 def self_billed(d) -> tuple:
-    return (SELF_BILLED_ACTION,) if d.day >= COMPANY_PHASE_START else ()
+    return self_billing(d.cw.company, d.day)
 
 
 def certificate_categories(d) -> set[str]:
@@ -836,8 +870,8 @@ def _me2(d, n, form):
 def _me3(d, n, form):
     """Self-billing: on a foreign supplier's lines the buyer issues the e-invoice (every line already brings it); on a
     domestic line, an agent's commission (type (a))."""
-    if d.day < COMPANY_PHASE_START:
-        raise CannotPlant("ME-3 needs an invoice from 1 Aug 2024")
+    if not self_billing(d.cw.company, d.day):
+        raise CannotPlant("ME-3 needs a buyer in its e-invoicing phase on the day")
     if foreign(d):
         return
     d.state(n, "self_billing_type", "agents_dealers_distributors")
@@ -917,6 +951,205 @@ def _wh4(d, n, form):
     d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD, rate, "WH-4"),))
 
 
+# -- branches: a line whose answer turns on a dated boundary (generation.yaml boundaries) ----------------------------
+
+BEFORE, AFTER = "before", "after"
+BRANCHES: dict[str, Recipe] = {}
+
+
+def branch(name: str):
+    def wrap(fn: Recipe) -> Recipe:
+        BRANCHES[name] = fn
+        return fn
+    return wrap
+
+
+def _uncharged(d, n, category, basis, facts=None):
+    exempt(d, n, CORRECT, category, basis, facts)
+
+
+@branch("scope_2024")
+def _b_scope_2024(d, n, side):
+    """26 Feb 2024: maintenance or repair (G(n)) becomes taxable. Before: not a taxable service (MS-1); 26-29 Feb: the
+    STP 1/2024 transitional exemption for every registrant (P-20); from 1 Mar: taxed (the supplier was registered)."""
+    need_domestic(d, "scope_2024")
+    if side == BEFORE:
+        _uncharged(d, n, "maintenance_repair", "MS-1")
+    elif d.day <= date(2024, 2, 29):
+        _uncharged(d, n, "maintenance_repair", "P-20")
+    else:
+        taxed(d, n, "maintenance_repair", "MS-2")
+
+
+@branch("rate_2024")
+def _b_rate_2024(d, n, side):
+    """1 Mar 2024: 8% services go from 6% to 8%."""
+    need_domestic(d, "rate_2024")
+    taxed(d, n, pick(d, ["advertising", "security_guards", "legal_services", "audit_accounting"], "8% service"), "MS-2")
+
+
+@branch("stp_new_registrant")
+def _b_stp_new_registrant(d, n, side):
+    """1 Apr 2024: a supplier first liable to register for the 26 Feb 2024 services charges from 1 Apr (STP 1/2024)."""
+    need_kind(d, "stp_new_registrant", "new_registrant")
+    if side == BEFORE:
+        _uncharged(d, n, "maintenance_repair", "P-20")
+    else:
+        taxed(d, n, "maintenance_repair", "MS-2")
+
+
+@branch("gn_group_relief")
+def _b_gn_group_relief(d, n, side):
+    """1 May 2024: G(n) joins group relief (P.U. (A) 354/2024)."""
+    need_kind(d, "gn_group_relief", "group")
+    if side == BEFORE:
+        taxed(d, n, "maintenance_repair", "MS-2")
+    else:
+        _uncharged(d, n, "maintenance_repair", "MS-6")
+
+
+def _agent_commission(d, n):
+    """ME-3 type (a) on a domestic line: the buyer self-bills from its own phase start."""
+    need_domestic(d, "ME-3")
+    d.state(n, "self_billing_type", "agents_dealers_distributors")
+    d.add_actions(n, self_billed(d))
+
+
+@branch("me3_phase_1")
+def _b_me3_phase_1(d, n, side):
+    """1 Aug 2024: a buyer above RM100m starts its e-invoicing phase, and self-bills from then."""
+    _agent_commission(d, n)
+
+
+@branch("me3_phase_2")
+def _b_me3_phase_2(d, n, side):
+    """1 Jan 2025: a buyer of RM25m-100m starts its phase."""
+    _agent_commission(d, n)
+
+
+@branch("wellness_tcm")
+def _b_wellness_tcm(d, n, side):
+    """27 Nov 2024: wellness services at a T&CM practitioner's premises are excluded (to 30 Jun 2025)."""
+    need_domestic(d, "wellness_tcm")
+    facts = {"wellness_facility_kind": "tcm_practitioner_premises"}
+    if side == BEFORE:
+        taxed(d, n, "wellness_centre_services", "MS-2", facts)
+    else:
+        _uncharged(d, n, "wellness_centre_services", "MS-4", facts)
+
+
+@branch("me1_relaxation_end")
+def _b_me1_relaxation_end(d, n, side):
+    """31 Jan 2025: the relaxation period of the first phase ends. Before: an invoice that isn't a validated e-invoice
+    is fine (a consolidated e-invoice may follow); after: it misses the e-invoice (ME-1, on an invalid-invoice slot)."""
+    need_domestic(d, "me1_relaxation_end")
+    if side == BEFORE:
+        if not phase_one(d.supplier):
+            raise CannotPlant("me1_relaxation_end needs a first-phase supplier")
+        d.invoice["einvoice"].update(is_einvoice=False, uuid=None, validation_datetime=None)
+    else:
+        from decision_benchmark.core.generator.slots import RuleUse
+
+        _me1(d, n, CORRECT)
+        d.uses.append(RuleUse("ME-1", CORRECT, "finding"))   # the invalidity is ME-1's (not the default particular)
+
+
+@branch("ms7_items_5_7")
+def _b_ms7_items_5_7(d, n, side):
+    """30 May 2025: customs clearance on a designated island leaves item 7 (to 29 May 2025, taxed) for item 5, which
+    needs the agent's s90 licence: an unlicensed agent's clearance there is then not taxed (MS-7)."""
+    need_domestic(d, "ms7_items_5_7")
+    if (d.supplier.get("tax_facts") or {}).get("area_licences"):
+        raise CannotPlant("ms7_items_5_7 needs an agent without area licences")
+    facts = {"service_site_zone": d.r.choice(DA_ZONES)}
+    if side == BEFORE:
+        taxed(d, n, "customs_agent", "MS-2", facts)
+    else:
+        _uncharged(d, n, "customs_agent", "MS-7", facts)
+
+
+@branch("scope_2025")
+def _b_scope_2025(d, n, side):
+    """1 Jul 2025: construction becomes a taxable service."""
+    need_domestic(d, "scope_2025")
+    if side == BEFORE:
+        _uncharged(d, n, "construction_works", "MS-1")
+    else:
+        taxed(d, n, "construction_works", "MS-2")
+
+
+@branch("local_authority_end")
+def _b_local_authority_end(d, n, side):
+    """30 Sep 2025: a local authority's exemption on rental (K-5) ends."""
+    need_kind(d, "local_authority_end", "local_authority")
+    if side == BEFORE:
+        _uncharged(d, n, "commercial_premises_rental", "K-5")
+    else:
+        taxed(d, n, "commercial_premises_rental", "MS-2")
+
+
+@branch("rental_rate_2026")
+def _b_rental_rate_2026(d, n, side):
+    """1 Jan 2026: rental goes from 8% to 6%."""
+    need_domestic(d, "rental_rate_2026")
+    taxed(d, n, d.r.choice(["equipment_rental", "passenger_vehicle_rental"]), "MS-2")
+
+
+@branch("p15_taxable")
+def _b_p15_taxable(d, n, side):
+    """1 May 2026: health-examination management becomes taxable (P-15)."""
+    _p15(d, n, CORRECT)
+
+
+@branch("tia_i")
+def _b_tia_i(d, n, side):
+    """1 Jun 2026: TIA-i account fees are exempt (P-7)."""
+    need_domestic(d, "tia_i")
+    facts = {"financial_charge": "tia_i_account_fee"}
+    if side == BEFORE:
+        taxed(d, n, "bank_fees_commissions", "MS-2", facts)
+    else:
+        _uncharged(d, n, "bank_fees_commissions", "P-7", facts)
+
+
+@branch("k4_end")
+def _b_k4_end(d, n, side):
+    """30 Jun 2026: the transitional exemption for rental under non-reviewable contracts (K-4) ends."""
+    need_kind(d, "k4_end", "k4_landlord")
+    if side == BEFORE:
+        _uncharged(d, n, "commercial_premises_rental", "K-4")
+    else:
+        taxed(d, n, "commercial_premises_rental", "MS-2")
+
+
+@branch("g3_end")
+def _b_g3_end(d, n, side):
+    """31 Aug 2026: the refund route for critical raw materials (G-3) ends; without a Schedule B certificate the
+    ordinary rate applies (MG-2)."""
+    need_domestic(d, "g3_end")
+    cats = [c for c in ("animal_feed_fishmeal", "animal_feed_premix") if c not in certificate_categories(d)]
+    if not cats:
+        raise CannotPlant("g3_end: the company's certificate covers the raw materials")
+    taxed(d, n, d.r.choice(cats), "G-3" if side == BEFORE else "MG-2")
+
+
+@branch("dgta_mro")
+def _b_dgta_mro(d, n, side):
+    """22 Sep 2026: MRO by a DGTA-approved organisation for a ship owner is exempt (P-9)."""
+    need_kind(d, "dgta_mro", "dgta_mro")
+    if side == BEFORE:
+        taxed(d, n, "aircraft_ship_mro", "MS-2")
+    else:
+        _uncharged(d, n, "aircraft_ship_mro", "P-9")
+
+
+def plant_branch(d, n: int, name: str, side: str) -> None:
+    fn = BRANCHES.get(name)
+    if fn is None:
+        raise CannotPlant(f"no branch recipe {name}")
+    fn(d, n, side)
+
+
 # -- helpers the generation part uses -------------------------------------------------------------------------------
 
 
@@ -947,12 +1180,19 @@ def is_manufacturer(supplier: dict) -> bool:
     return bool((supplier.get("tax_facts") or {}).get("is_manufacturer"))
 
 
+def phase_one(supplier: dict) -> bool:
+    status = (supplier.get("tax_facts") or {}).get("einvoice") or {}
+    return status.get("turnover_band") == "above_100m" and status.get("turnover_basis") != "new_business"
+
+
 def supplier_fits(supplier: dict, needs: set[str], day: date) -> bool:
     if "service" in needs and not registered(supplier, "service", day):
         return False
     if "goods" in needs and not (registered(supplier, "sales", day) and is_manufacturer(supplier)):
         return False
     if "phase" in needs and not past_relaxation(supplier, day):
+        return False
+    if "phase1" in needs and not phase_one(supplier):
         return False
     return True
 

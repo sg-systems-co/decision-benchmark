@@ -468,12 +468,40 @@ class _Allocator:
                 if window[0] > window[1]:
                     raise InfeasibleDemand(f"boundary {b.country} {b.day}: no {side} days inside the window")
                 pool = [s for s in self.slots if s.country == b.country and s.key not in taken
-                        and max(window[0], s.window[0]) <= min(window[1], s.window[1])]
+                        and max(window[0], s.window[0]) <= min(window[1], s.window[1])
+                        and (not b.branch or self._takes_branch(s, b, side))]
                 for s in self._pick(pool, tier.per_side, f"boundary {b.country} {b.day} {side}", "boundary",
                                     b.country, b.day.isoformat(), side):
                     s.window = (max(window[0], s.window[0]), min(window[1], s.window[1]))
                     s.boundary = (b.day, side)
+                    if b.branch:
+                        s.supplier = s.supplier or b.supplier
+                        if b.companies:
+                            s.companies = tuple(sorted(set(b.companies) & set(s.companies or b.companies)))
                     taken.add(s.key)
+
+    def _takes_branch(self, s: Slot, b, side: str) -> bool:
+        """The slot can carry the boundary's branch line: a free line, its type, one supplier kind, the needs met,
+        a company kind both allow."""
+        if self.gen.type(s.primary).handover:
+            return False
+        if side in b.types and not set(b.types[side]) & set(s.types()):
+            return False
+        used = any(self.gen.type(t).tax for t in s.types()) + sum(
+            1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line)
+        if s.lines - used < 1:
+            return False
+        if b.supplier and s.supplier and b.supplier != s.supplier:
+            return False
+        kind = s.supplier or b.supplier
+        needs = set(b.needs).union(*(self._rule(u.rule).needs for u in s.rules))
+        if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if b.companies and s.companies is not None and not set(b.companies) & set(s.companies):
+            return False
+        if b.supplier and any(self._rule(u.rule).domestic for u in s.rules) and s.foreign:
+            return False
+        return not s.foreign
 
     # 5. final order
     def order(self) -> None:

@@ -40,8 +40,10 @@ class SpecialSupplier:
     facts: dict = field(default_factory=dict)
     contract: dict | None = None
     residence: bool = False
-    home: str | None = None
-    """A foreign supplier's country (None: the first of foreign_countries)."""
+    registered_from: str | None = None
+    """The date its tax registrations start (None: the usual, years before the window)."""
+    homes: tuple[str, ...] = ()
+    """A foreign supplier's countries, taken in turn by the suppliers of the kind (empty: drawn)."""
 
 
 class CannotPlant(ValueError):
@@ -61,10 +63,14 @@ class CountryGeneration(Protocol):
     country: str
     currency: str
     foreign_countries: tuple[str, ...]
+    foreign_currencies: dict[str, str]
+    """The currency a supplier based in each of foreign_countries invoices in."""
     company_kinds: tuple[str, ...]
     """Company kinds the rules name (rules.yaml ``companies``), given to the country's companies in turn."""
     certificate_covers: tuple[str, ...]
     """Categories every exemption certificate covers (a rule recipe plants them)."""
+    certificate_excludes: tuple[str, ...]
+    """Categories no exemption certificate covers (a rule recipe needs them uncovered)."""
     plants_rules: bool
     """The pack has rule recipes (plant): the slots' rule appearances are planted."""
 
@@ -112,12 +118,17 @@ class CountryGeneration(Protocol):
         the line, state the facts, and say what the engine must find (Draft.expect). CannotPlant if the draft can't
         take it."""
 
+    def plant_branch(self, d, line: int, branch: str, side: str) -> None:
+        """Plant line ``line`` so its answer turns on a dated boundary (generation.yaml ``branch``), on its 'before'
+        or 'after' side."""
+
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         """The suppliers a case may come from on the day: kind, the special supplier kind its rules need ('' any);
         needs, what its rules need the supplier to do (rules.yaml needs). None: the clean base's usual choice."""
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
-        """The rate an invoice in a foreign currency states, to the country's currency."""
+        """The rate an invoice in a foreign currency states, to the country's currency, on the day (it varies by
+        date; the rules read it as printed)."""
 
     def refresh_einvoice(self, invoice: dict) -> None:
         """Recompute the e-invoice block's totals after a family changed amounts."""

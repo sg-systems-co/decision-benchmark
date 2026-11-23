@@ -148,14 +148,14 @@ def test_company_records_are_complete_and_valid():
     for country, companies in world("test").items():
         for cw in companies:
             records = CompanyRecords.model_validate(cw.records())
-            special = len(pack(country).generation.special_suppliers())
+            special = len(pack(country).generation.special_suppliers()) * GEN.special_per_kind(500)
             assert 15 + special <= len(records.suppliers) <= 30 + special and 4 <= len(records.company.people) <= 8
             assert {p.approval_role for p in records.company.people} >= {"ops_manager", "director"}
             assert {a.role for a in records.company.policy_pack.chart_of_accounts} == roles
             assert records.ledger and not [e for e in records.emails if e.case_id or e.signals]
             lo = GEN.windows[country][0]
             assert min(e.invoice.issue_date for e in records.ledger) < lo     # history starts before the window
-            transitional = {cw.special[k] for k in ("k4_landlord", "l1_contractor") if k in cw.special}
+            transitional = {sid for k in ("k4_landlord", "l1_contractor") for sid in cw.special.get(k, [])}
             for k in records.contracts:
                 # Ordinary contracts have a price-review clause (no K-4 or L-1); the landlord and the contractor
                 # the K-4 and L-1 recipes use hold contracts signed and stamped before the transitional dates without.

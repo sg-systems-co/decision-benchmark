@@ -34,7 +34,7 @@ rules:
 - {id: P-6, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: P-7, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: P-8, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: government, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}}
-- {id: P-9, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: mro, windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}}
+- {id: P-9, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: mro, companies: [plain], windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}}
 - {id: P-10, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: jmb, windows: {problem: ['2026-07-01', '2026-10-31'], correct: ['2026-07-01', '2026-10-31']}}
 - {id: P-11, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}, needs: [service]}
 - {id: P-12, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
@@ -73,7 +73,7 @@ rules:
 - {id: G-5, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
 - {id: ME-1, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MISSING_MANDATORY_FIELD, domestic: true, windows: {correct: ['2025-02-01', '2026-10-31']}, needs: [phase]}
 - {id: ME-2, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MyInvois mandatory fields, domestic: true}
-- {id: ME-3, country: MY, family: ME, carrier: action, note: ISSUE_SELF_BILLED_EINVOICE, windows: {correct: ['2024-08-01', '2026-10-31']}}
+- {id: ME-3, country: MY, family: ME, carrier: action, note: ISSUE_SELF_BILLED_EINVOICE, companies: [it, fin, builder, plain], windows: {correct: ['2026-01-01', '2026-10-31']}}
 - {id: ME-4, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: 'SST invoice particulars: needs a line that charges tax', domestic: true, takes_line: true, needs: [service]}
 - {id: WH-1, country: MY, family: WH, carrier: action, foreign: true}
 - {id: WH-2, country: MY, family: WH, carrier: action, foreign: true}

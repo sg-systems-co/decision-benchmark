@@ -152,11 +152,26 @@ class CompanyTier(Model):
     companies: int
 
 
+class SpecialTier(Model):
+    """Suppliers of each special kind (a kind some rule needs) for splits of at least ``min_cases`` cases."""
+
+    min_cases: int
+    per_kind: int
+
+
 class Boundary(Model):
     country: str
     day: date
     """The first day of the new state (the after side starts here)."""
     note: str = ""
+    branch: str = ""
+    """The task set's recipe for a line whose answer turns on this date, planted on the boundary's slots ('' none)."""
+    supplier: str = ""
+    companies: tuple[str, ...] = ()
+    needs: tuple[str, ...] = ()
+    """As a rule's (RuleSpec): the supplier kind, company kinds and supplier needs the branch line takes."""
+    types: dict[str, tuple[str, ...]] = {}
+    """Per side ('before', 'after'): the exception types whose slots can carry the branch (absent: any non-hand-over)."""
 
 
 class Generation(Model):
@@ -192,6 +207,8 @@ class Generation(Model):
     boundaries: tuple[Boundary, ...]
     companies: tuple[CompanyTier, ...] = ()
     """Buying companies per split, split evenly over the countries."""
+    special_suppliers: tuple[SpecialTier, ...] = ()
+    """How many suppliers of each special kind a split has (the largest tier that fits; default one)."""
     supplier_lacks: dict[str, tuple[str, ...]] = {}
     """Supplier kind -> the rule needs it can't meet (a rule that needs one never joins a slot of that kind)."""
 
@@ -231,6 +248,10 @@ class Generation(Model):
     def companies_for(self, n_cases: int) -> int:
         fits = [t for t in self.companies if t.min_cases <= n_cases]
         return max(fits, key=lambda t: t.min_cases).companies if fits else len(self.countries)
+
+    def special_per_kind(self, n_cases: int) -> int:
+        fits = [t for t in self.special_suppliers if t.min_cases <= n_cases]
+        return max(fits, key=lambda t: t.min_cases).per_kind if fits else 1
 
     def boundary_floor_for(self, n_cases: int) -> BoundaryTier:
         fits = [t for t in self.boundary_floor if t.min_cases <= n_cases]

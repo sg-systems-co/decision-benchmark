@@ -10,6 +10,7 @@ from datetime import date
 from decimal import Decimal
 
 from ...generator.country import CannotPlant, CleanLine, ProblemLine
+from ...generator.entities import stated_rate
 from ...models import Category
 from .models import SgTaxProfile, SgTaxTreatment as T
 from .rules.gst import rate_on
@@ -26,8 +27,12 @@ class SingaporeGeneration:
 
     foreign_countries = ("MY", "CN", "JP", "US", "GB", "IN")
     """Where foreign suppliers of Singaporean companies are based (treaty partners)."""
+    foreign_currencies = {"MY": "MYR", "CN": "CNY", "JP": "JPY", "US": "USD", "GB": "GBP", "IN": "INR"}
+    RATES = {"MYR": (Decimal("0.30"), 4), "CNY": (Decimal("0.185"), 4), "JPY": (Decimal("0.0088"), 6),
+             "USD": (Decimal("1.32"), 4), "GBP": (Decimal("1.70"), 4), "INR": (Decimal("0.0157"), 6)}
     company_kinds: tuple[str, ...] = ()
     certificate_covers: tuple[str, ...] = ()
+    certificate_excludes: tuple[str, ...] = ()
     plants_rules = False
     """B1-5 adds the Singaporean rule recipes; until then the floor appearances of Singaporean rules are not planted."""
 
@@ -78,13 +83,17 @@ class SingaporeGeneration:
         return ["INVALID_TAX_INVOICE"], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
-        return Decimal("1.35")           # an invoice's own stated rate; the rules read it as printed
+        base, places = self.RATES[currency]
+        return stated_rate(base, currency, day, places)       # an invoice's own stated rate; read as printed
 
     def refresh_einvoice(self, invoice: dict) -> None:
         return None
 
     def plant(self, d, line: int, rule: str, form: str) -> None:
         raise CannotPlant(f"no Singaporean rule recipes yet (B1-5): {rule}")
+
+    def plant_branch(self, d, line: int, branch: str, side: str) -> None:
+        raise CannotPlant(f"no Singaporean branch recipes yet (B1-5): {branch}")
 
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         return None

@@ -83,7 +83,8 @@ def test_redraw_thresholds_hold(n):
 def test_planting_report_lists_every_family_with_attempts_redraws_and_causes():
     report = built(2000).planting_report()
     expected = {t.family for ts in templates().values() for t in ts} | set(
-        t.family for t in rule_families().values()) | {"clean_base"}
+        t.family for t in rule_families().values()) | {"clean_base"} | {
+        f"branch:{b.branch}" for b in GEN.boundaries if b.branch}
     assert set(report["families"]) - {"wrong_rate"} == expected - {"wrong_rate"}      # wrong_rate: Singapore (B1-5)
     for t in report["families"].values():
         assert {"attempts", "redraws", "redraw_rate", "causes", "first_diffs"} <= set(t) and t["attempts"] > 0

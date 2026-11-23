@@ -6,6 +6,7 @@ import json
 import random
 from collections import Counter
 from datetime import date
+from decimal import Decimal
 from functools import cache
 
 import pytest
@@ -171,6 +172,9 @@ def test_slots_keep_one_supplier_kind_and_a_common_date(n):
             assert a <= lo and hi <= b
             assert not (rules[u["rule"]].domestic and s["foreign"])
         allowed = [set(rules[u["rule"]].companies) for u in s["rules"] if rules[u["rule"]].companies]
+        if s["boundary"]:
+            b = next(x for x in GEN.boundaries if x.country == s["country"] and x.day.isoformat() == s["boundary"]["day"])
+            allowed += [set(b.companies)] if b.branch and b.companies else []
         assert not allowed or set(s["companies"]) == set.intersection(*allowed)
 
 
@@ -207,3 +211,119 @@ def test_planting_report_gives_every_malaysian_rule():
     for r in MY_RULES:
         t = report["rules"][r.id]
         assert t["attempts"] > 0 and {"redraws", "causes", "first_diffs"} <= set(t)
+
+
+# -- review of B1-4 ---------------------------------------------------------------------------------------------------
+
+
+def my_built(n):
+    return [g for g in built(n).cases if g.envelope.country == "MY"]
+
+
+def test_company_turnover_fits_its_kind_and_fixes_its_phase():
+    """SME kinds are below RM3m (exempt, never self-bill); the others spread over the four phases. The phase is the
+    ME-1 timeline applied to the company's own record (no stated phase start)."""
+    bands = {}
+    for cw in built(2000).world["MY"]:
+        facts = cw.company["tax_facts"]
+        assert "einvoice_phase_start" not in facts
+        bands[cw.kind] = facts["einvoice"]["turnover_band"]
+        assert (planting.buyer_phase_start(cw.company) is None) == (cw.kind in planting.SME_KINDS)
+    assert bands["msme"] == "below_1m" and bands["new_sme"] == "1m_to_3m"
+    assert sorted(bands[k] for k in ("it", "fin", "builder", "plain")) == sorted(
+        ["above_100m", "25m_to_100m", "5m_to_25m", "3m_to_5m"])
+
+
+def test_self_billing_follows_the_buyers_own_phase():
+    seen = Counter()
+    for n in sorted(FLOOR):
+        for g in my_built(n):
+            if g.records.supplier(g.envelope.payload.supplier_id).country == "MY":
+                continue
+            start = planting.buyer_phase_start(export_company(g))
+            billed = any(a.action == "ISSUE_SELF_BILLED_EINVOICE" for a in g.answer.buyer_actions)
+            day = g.envelope.payload.invoice.issue_date
+            assert billed == (start is not None and day >= start), g.built.case_id
+            seen[(start is None, billed)] += 1
+    assert seen[(True, False)] and seen[(False, True)] and seen[(False, False)]     # SMEs, in phase, not yet
+
+
+def export_company(g) -> dict:
+    return {"tax_facts": g.records.company.tax_facts.model_dump(mode="json")}
+
+
+def test_only_the_p9_companies_are_ship_owners():
+    for n in sorted(FLOOR):
+        for cw in built(n).world["MY"]:
+            kinds = cw.company["tax_facts"]["buyer_kinds"]
+            assert kinds == (["registered_ship_owner"] if cw.kind in planting.SHIP_OWNER_KINDS else [])
+    for g in my_built(2000):
+        if "P-9" in g.rules:
+            assert "registered_ship_owner" in g.records.company.tax_facts.buyer_kinds
+
+
+@pytest.mark.parametrize("n, per_kind", [(2000, 3), (500, 2), (300, 1)])
+def test_several_suppliers_of_each_special_kind(n, per_kind):
+    world = built(n).world["MY"]
+    for cw in world:
+        assert all(len(sids) == per_kind for sids in cw.special.values())
+    used: dict[str, set] = {}
+    for g in my_built(n):
+        sid = g.envelope.payload.supplier_id
+        kind = next(cw for cw in world if cw.company_id == g.built.company_id).kind_of(sid)
+        if kind and kind != "general":
+            used.setdefault(kind, set()).add(g.records.supplier(sid).name)
+    if per_kind > 1:
+        cases = Counter()
+        for g in my_built(n):
+            k = next(cw for cw in world if cw.company_id == g.built.company_id).kind_of(g.envelope.payload.supplier_id)
+            cases[k] += 1
+        for kind, names in used.items():
+            if cases[kind] >= 3 * per_kind:
+                assert len(names) == per_kind, kind                 # every supplier of the kind is used
+
+
+def test_foreign_invoices_state_their_own_currency_and_a_varying_rate():
+    g_my = pack("MY").generation
+    rates = {}
+    for n in sorted(FLOOR):
+        for g in my_built(n):
+            supplier = g.records.supplier(g.envelope.payload.supplier_id)
+            inv = g.envelope.payload.invoice
+            if supplier.country == "MY":
+                assert inv.currency == "MYR" and inv.exchange_rate is None
+                continue
+            assert inv.currency == g_my.foreign_currencies[supplier.country]
+            base, _ = g_my.RATES[inv.currency]
+            assert base * Decimal("0.95") <= inv.exchange_rate <= base * Decimal("1.05")
+            rates.setdefault(inv.currency, set()).add(inv.exchange_rate)
+    assert set(rates) == set(g_my.foreign_currencies.values())
+    assert all(len(v) > 1 for v in rates.values())                    # never one constant rate
+
+
+# -- in-window date branches --------------------------------------------------------------------------------------
+
+MY_BRANCHES = [b for b in GEN.boundaries if b.country == "MY" and b.branch]
+
+
+def test_every_in_window_boundary_has_a_branch_recipe_or_a_reason():
+    days = {b.day for b in GEN.boundaries if b.country == "MY"}
+    without = {b.day for b in GEN.boundaries if b.country == "MY" and not b.branch}
+    assert without == {date(2025, 9, 1)}                     # P-9 for foreign-company buyers: no foreign buyers
+    assert {b.branch for b in MY_BRANCHES} == set(planting.BRANCHES)
+    assert {date(2024, 2, 26), date(2024, 3, 1), date(2024, 4, 1), date(2025, 7, 1)} <= days - without
+
+
+@pytest.mark.parametrize("n, per_side", [(2000, 2), (500, 1)])
+def test_each_branch_is_planted_on_both_sides(n, per_side):
+    cases = Counter()
+    for g in my_built(n):
+        if g.branch:
+            name, side = g.branch.split(":")
+            b = next(x for x in MY_BRANCHES if x.branch == name)
+            day = g.envelope.payload.invoice.issue_date
+            assert (day < b.day) == (side == "before") and abs((day - b.day).days) <= 31, g.built.case_id
+            cases[(name, side)] += 1
+    for b in MY_BRANCHES:
+        for side in ("before", "after"):
+            assert cases[(b.branch, side)] >= per_side, (b.branch, side)
