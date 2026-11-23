@@ -190,10 +190,14 @@ class MyCompanyFacts(CountryBlock):
     group: GroupStructure | None = None
     zone: MyZone | None = None
     zone_known: bool = True
-    einvoice_phase_start: date | None = None
-    """When the company's mandatory e-invoicing phase starts (ME-3 self-billing). None: not in a mandatory phase."""
+    einvoice: MyEinvoiceStatus | None = None
+    """The facts that fix the company's own e-invoicing phase (ME-3 self-billing, by the ME-1 timeline): turnover band
+    and basis, commencement date. None: the record shows no mandatory phase."""
     einvoice_phase_known: bool = True
     """False: the case can't show the company's e-invoicing phase (ME-3)."""
+    person_kind: SupplierKind = "company"
+    """The kind of person the company is, where the e-Invoice Guideline exempts it (section 1.6.1: statutory bodies
+    and local authorities before 1 Jul 2025, international organisations, ...)."""
     industrial_undertaking: bool = False
     """An enterprise in an industrial undertaking (LHDN DTA note iv on 15/10 interest rows)."""
     labuan_fsa_regulated: bool = False

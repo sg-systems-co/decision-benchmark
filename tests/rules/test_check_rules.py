@@ -66,7 +66,7 @@ def test_missing_lists_the_facts_read_but_not_supplied():
 
 def test_buyer_actions_come_back_per_line():
     r, c = imported()
-    company_facts(r, einvoice_phase_start="2025-01-01")
+    company_facts(r, einvoice={"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"})
     out = run(r, c, [])
     assert [a.action for a in out.lines[0].buyer_actions] == ["ACCOUNT_IMPORTED_SERVICE_TAX", "ISSUE_SELF_BILLED_EINVOICE"]
 
