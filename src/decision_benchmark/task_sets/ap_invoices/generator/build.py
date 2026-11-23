@@ -2,8 +2,10 @@
 
 Every slot gets a clean base case and its families: the primary type's family, then the secondary's on a two-problem
 slot. The planted truth is the clean base's lines as the ops changed them, the primary family's decision and the union
-of the families' findings. The engine's answer is compared on the decision, the finding codes, each line's treatment and
-basis, and the buyer actions; a difference redraws the slot (next attempt number), at most 20 attempts.
+of the families' findings, and the facts the statement registry stated. The engine's answer is compared on the decision,
+the finding codes, each line's treatment and basis, the buyer actions (action, rate, basis) and every gold fact (it must
+equal the stated value, or be null where nothing stated it); a difference redraws the slot (next attempt number), at most
+20 attempts.
 
 ``planting_report`` (report/planting.json) gives attempts, redraws and their causes per family and per rule, with the
 first five diffs. The build stops (PlantingFailed) when a family or rule with at least 20 attempts redraws more than 5%,
@@ -40,7 +42,10 @@ FIRST_DIFFS = 5
 
 
 class PlantingFailed(RuntimeError):
-    """A slot still differs after MAX_ATTEMPTS draws, or a redraw threshold is crossed."""
+    """A slot still differs after MAX_ATTEMPTS draws, or a redraw threshold is crossed. ``report``: the planting report
+    up to the failing slot, when a slot stopped the build."""
+
+    report: dict | None = None
 
 
 @dataclass
@@ -99,6 +104,8 @@ class Build:
     families: dict[str, _Tally] = field(default_factory=dict)
     rules: dict[str, _Tally] = field(default_factory=dict)
     max_slot_attempts: int = 0
+    attempts: int = 0
+    """Every draw, including those of a slot that stopped the build."""
 
     @property
     def redraws(self) -> Counter:
@@ -108,7 +115,7 @@ class Build:
         return out
 
     def planting_report(self) -> dict:
-        attempts = sum(c.built.attempt + 1 for c in self.cases)
+        attempts = self.attempts
         redraws = attempts - len(self.cases)
         mix = Counter(c.built.case["exception_types"][0] if c.built.case["exception_types"] else "clean"
                       for c in self.cases)
@@ -164,6 +171,25 @@ class _Companies:
             "emails": base.emails + [Email.model_validate(x) for x in r.get("emails_add", [])]})
 
 
+def _action(a) -> tuple[str, str | None, str | None]:
+    return (a.action, None if a.rate is None else str(a.rate), a.basis)
+
+
+def stated_facts(case: dict) -> dict[tuple[int, str], object]:
+    """(line_no, fact) -> stated value, from the invoice lines as the statement registry wrote them."""
+    lines = (case.get("invoice") or {}).get("lines", [])
+    return {(line["line_no"], name): f["value"] for line in lines for name, f in (line.get("facts") or {}).items()}
+
+
+def planted_truth(built: BuiltCase, families: list[Template], d: Draft) -> Planted:
+    """The generator truth after the ops: the primary family's decision, every family's findings plus the ops' own,
+    the lines as the ops left them, and the stated facts."""
+    return Planted(
+        decision=families[0].expect.decision if families else "APPROVE", lines=built.planted.lines,
+        findings=sorted([f for t in families for f in t.expect.findings] + d.findings),
+        buyer_actions=built.planted.buyer_actions, facts=stated_facts(built.case))
+
+
 def compare(planted: Planted, answer: AnswerKey) -> list[str]:
     """Differences between what was planted and what the engine found (empty: planted = found)."""
     diffs = []
@@ -175,9 +201,17 @@ def compare(planted: Planted, answer: AnswerKey) -> list[str]:
     found_lines = [(t.line_no, t.treatment, t.basis) for t in answer.tax_lines]
     if found_lines != [tuple(x) for x in planted.lines]:
         diffs.append(f"lines {found_lines} != {planted.lines}")
-    found_actions = sorted(a.action for a in answer.buyer_actions)
-    if found_actions != sorted(planted.buyer_actions):
-        diffs.append(f"buyer actions {found_actions} != {sorted(planted.buyer_actions)}")
+    found_actions = sorted((_action(a) for a in answer.buyer_actions), key=repr)
+    want_actions = sorted((tuple(a) for a in planted.buyer_actions), key=repr)
+    if found_actions != want_actions:
+        diffs.append(f"buyer actions {found_actions} != {want_actions}")
+    for entry in answer.facts or []:
+        for name, fact in sorted(entry.items()):
+            if name == "line_no":
+                continue
+            key = (entry["line_no"], name)
+            if fact.get("value") != planted.facts.get(key):
+                diffs.append(f"fact line {key[0]} {name} {fact.get('value')!r} != stated {planted.facts.get(key)!r}")
     return diffs
 
 
@@ -195,6 +229,8 @@ def cause_of(diffs: list[str], planted: Planted, answer: AnswerKey) -> str:
         return "basis differs"
     if first.startswith("buyer"):
         return "action differs"
+    if first.startswith("fact"):
+        return "fact differs"
     return "decision differs"
 
 
@@ -243,7 +279,11 @@ def build_split(gen: Generation, quotas: dict, split: SplitSpec, provenance: Pro
                    key=lambda s: s.case_index)
     build = Build(split, allocation, world)
     for slot in slots[:limit]:
-        build.cases.append(_plant(gen, split, owner[slot.case_index], slot, companies, provenance, build))
+        try:
+            build.cases.append(_plant(gen, split, owner[slot.case_index], slot, companies, provenance, build))
+        except PlantingFailed as e:
+            e.report = build.planting_report()      # db-generate writes it: a stopped build still shows why
+            raise
     if check:
         build.check_thresholds()
     return build
@@ -264,10 +304,12 @@ def _tally(build: Build, families: list[Template], planted: Planted, cause: str 
 
 def _plant(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, companies: _Companies,
            provenance: Provenance | None, build: Build) -> GeneratedCase:
-    last = ""
+    last, names = "", ["clean_base"]
     for attempt in range(MAX_ATTEMPTS):
         build.max_slot_attempts = max(build.max_slot_attempts, attempt + 1)
+        build.attempts += 1
         families = choose_families(slot, attempt, split.seed)
+        names = [t.family for t in families] or ["clean_base"]
         try:
             built = clean_case(gen, split, cw, slot, attempt, need_taxed=requires_taxed_line(families))
         except NoCleanForm as e:
@@ -277,9 +319,7 @@ def _plant(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, comp
         d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt))
         apply(d, [(t, t.calls(rng(split.seed, "case", slot.case_index, "params", t.family, attempt))) for t in families])
         types = [slot.primary] + ([slot.secondary] if slot.secondary else [])
-        built.planted = Planted(
-            decision=families[0].expect.decision if families else "APPROVE", lines=built.planted.lines,
-            findings=sorted([f for t in families for f in t.expect.findings] + d.findings))
+        built.planted = planted_truth(built, families, d)
         built.case |= {"exception_types": [] if slot.primary == "clean" else types,
                        "families": [t.family for t in families] or ["clean_base"],
                        "two_problems": slot.secondary is not None}
@@ -299,7 +339,9 @@ def _plant(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, comp
         _tally(build, families, built.planted, cause_of(diffs, built.planted, answer), "; ".join(diffs))
         last = "; ".join(diffs)
     raise PlantingFailed(f"slot {slot.case_index} ({slot.country}, {slot.primary}"
-                         f"{'+' + slot.secondary if slot.secondary else ''}): {MAX_ATTEMPTS} attempts; last: {last}")
+                         f"{'+' + slot.secondary if slot.secondary else ''}): {MAX_ATTEMPTS} attempts, planted != found "
+                         f"on every one; last families {'+'.join(names)}: {last}")
 
 
-__all__ = ["Build", "GeneratedCase", "PlantingFailed", "build_clean", "build_split", "compare"]
+__all__ = ["Build", "GeneratedCase", "PlantingFailed", "build_clean", "build_split", "compare", "planted_truth",
+           "stated_facts"]

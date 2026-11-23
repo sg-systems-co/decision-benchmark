@@ -6,7 +6,8 @@
 The public splits use the task set's release seeds. Anyone else passes a split spec (name, n_cases, seed, id_start,
 canary); nothing here knows any particular private split. Writes ``<out>/<split>/report/slots.json``,
 ``provenance.json`` and, when the task set names a builder, ``planting.json`` (attempts, redraws and causes per family
-and rule); it exits non-zero if a redraw threshold is crossed. Writing the cases themselves comes with B1-7.
+and rule; also written when the builder stops mid-split, if it attaches its report so far); it exits non-zero if a
+redraw threshold is crossed or a slot can't be planted. Writing the cases themselves comes with B1-7.
 """
 
 from __future__ import annotations
@@ -55,8 +56,13 @@ def generate(spec: TaskSetSpec, split: SplitSpec, out: Path, version: str) -> Pa
                                             **provenance.model_dump()})
     if gen.builder:
         module, _, name = gen.builder.partition(":")
-        build = getattr(importlib.import_module(module), name)(gen, dict(spec.quotas), split, provenance=provenance,
-                                                               check=False)
+        try:
+            build = getattr(importlib.import_module(module), name)(gen, dict(spec.quotas), split,
+                                                                   provenance=provenance, check=False)
+        except Exception as e:      # a builder that stops mid-split may attach its report so far
+            if isinstance(getattr(e, "report", None), dict):
+                _write(report_dir / "planting.json", e.report)
+            raise
         _write(report_dir / "planting.json", build.planting_report())
         build.check_thresholds()     # raises after the report is written, so a failed build still shows why
     return report_dir

@@ -13,6 +13,7 @@ import random
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
+from typing import Any
 
 from decision_benchmark.core.generator.seeds import rng
 from decision_benchmark.core.generator.slots import Slot
@@ -42,7 +43,10 @@ class Planted:
     lines: list[tuple[int, str, str]]
     """(line_no, treatment, basis) per line."""
     findings: list[str] = field(default_factory=list)
-    buyer_actions: list[str] = field(default_factory=list)
+    buyer_actions: list[tuple[str, str | None, str | None]] = field(default_factory=list)
+    """(action, rate, basis) per buyer action."""
+    facts: dict[tuple[int, str], Any] = field(default_factory=dict)
+    """(line_no, fact) -> the value the statement registry stated; a fact stated nowhere is absent."""
 
 
 @dataclass
