@@ -1,0 +1,17 @@
+family: billed_above_received
+version: 1
+countries: [MY, SG]
+primary_type: quantity_mismatch
+weight: 1
+summary: Part of the order arrived; the invoice bills more than the goods receipt records.
+params:
+  qty: {int_range: [4, 40]}
+  short: {int_range: [1, 3]}
+ops:
+- op: set_line_qty
+  args: {line: 1, qty: "{qty}"}
+- op: short_receipt
+  args: {line: 1, units: "{short}"}
+expect:
+  decision: DISPUTE_QUANTITY
+  findings: [QUANTITY_ABOVE_RECEIVED]

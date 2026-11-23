@@ -13,7 +13,7 @@ import random
 from datetime import date, datetime, time, timezone
 from decimal import Decimal
 
-from ...generator.country import CleanLine
+from ...generator.country import CleanLine, ProblemLine
 from ...models import Category
 from .constants import SALES_TAX_ORDERS_2025_FROM, TAX_CLASS_RATE, TAX_TYPE_SALES, TAX_TYPE_SERVICE
 from .models import MyTaxProfile, MyTaxTreatment as T
@@ -119,6 +119,26 @@ class MalaysiaGeneration:
             "tax_total_by_type": {k: f"{v:.2f}" for k, v in by_type.items()} or {NOT_APPLICABLE: "0.00"},
             "lines": [{"line_no": line["line_no"], **line["ext"]} for line in lines],
         }
+
+    def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
+        if clean.rate == 0:
+            return None
+        other = {Decimal(8): Decimal(6), Decimal(6): Decimal(8), Decimal(10): Decimal(5), Decimal(5): Decimal(10)}
+        return ProblemLine(other[clean.rate], T.SST_WRONG_RATE.value, clean.basis)
+
+    def make_invalid(self, invoice: dict) -> tuple[list[str], tuple[str, str] | None]:
+        invoice["einvoice"]["buyer_tin"] = None        # a MyInvois mandatory field (ME-2)
+        return ["MISSING_MANDATORY_FIELD"], None
+
+    def refresh_einvoice(self, invoice: dict) -> None:
+        by_type: dict[str, Decimal] = {}
+        ext = {x["line_no"]: x for x in invoice["einvoice"]["lines"]}
+        for line in invoice["lines"]:
+            tax = Decimal(line["tax_amount"])
+            if tax > 0:
+                kind = ext[line["line_no"]]["tax_type"]
+                by_type[kind] = by_type.get(kind, Decimal(0)) + tax
+        invoice["einvoice"]["tax_total_by_type"] = {k: f"{v:.2f}" for k, v in by_type.items()} or {NOT_APPLICABLE: "0.00"}
 
 
 generation_part = MalaysiaGeneration()

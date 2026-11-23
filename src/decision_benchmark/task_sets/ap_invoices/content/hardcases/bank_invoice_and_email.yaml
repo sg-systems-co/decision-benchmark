@@ -1,0 +1,13 @@
+family: bank_invoice_and_email
+version: 1
+countries: [MY, SG]
+primary_type: bank_change
+weight: 1
+summary: The invoice prints a new account and an email asks to pay it.
+params: {}
+ops:
+- op: change_invoice_bank
+- op: add_bank_change_email
+expect:
+  decision: FRAUD_REVIEW
+  findings: [BANK_DETAILS_DIFFER_FROM_RECORD, BANK_CHANGE_BY_EMAIL_ONLY]

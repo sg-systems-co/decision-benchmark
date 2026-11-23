@@ -1,0 +1,12 @@
+family: not_received
+version: 1
+countries: [MY, SG]
+primary_type: not_received
+weight: 1
+summary: The invoice arrives before anything was received against the PO.
+params: {}
+ops:
+- op: remove_receipt
+expect:
+  decision: HOLD_NOT_RECEIVED
+  findings: [NOT_RECEIVED]

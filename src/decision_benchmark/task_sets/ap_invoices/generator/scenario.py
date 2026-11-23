@@ -13,6 +13,7 @@ import random
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
+from typing import Any
 
 from decision_benchmark.core.generator.seeds import rng
 from decision_benchmark.core.generator.slots import Slot
@@ -42,7 +43,10 @@ class Planted:
     lines: list[tuple[int, str, str]]
     """(line_no, treatment, basis) per line."""
     findings: list[str] = field(default_factory=list)
-    buyer_actions: list[str] = field(default_factory=list)
+    buyer_actions: list[tuple[str, str | None, str | None]] = field(default_factory=list)
+    """(action, rate, basis) per buyer action."""
+    facts: dict[tuple[int, str], Any] = field(default_factory=dict)
+    """(line_no, fact) -> the value the statement registry stated; a fact stated nowhere is absent."""
 
 
 @dataclass
@@ -65,7 +69,9 @@ def last_boundary(gen: Generation, country: str, day: date) -> date:
     return max(days, default=gen.windows[country][0])
 
 
-def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, attempt: int = 0) -> BuiltCase:
+def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, attempt: int = 0,
+               need_taxed: bool = False) -> BuiltCase:
+    """need_taxed: line 1 must carry tax (a family will plant a tax problem on it)."""
     r = rng(split.seed, "case", slot.case_index, "clean", attempt)
     g = pack(cw.country).generation
     lo, hi = slot.window or gen.windows[cw.country]
@@ -75,11 +81,12 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
     for s in cw.domestic_suppliers():
         cats = [c for c in cw.categories[s["supplier_id"]] if c not in covered
                 and g.clean_line(catalog().get(c), day) is not None]
-        if cats:
-            options.append((s, cats))
+        taxed = [c for c in cats if g.clean_line(catalog().get(c), day).rate > 0]
+        if cats and (taxed or not need_taxed):
+            options.append((s, cats, taxed))
     if not options:
         raise NoCleanForm(f"{cw.company_id} on {day}: no supplier with a clean category")
-    supplier, cats = r.choice(options)
+    supplier, cats, taxed = r.choice(options)
     sid = supplier["supplier_id"]
     anchor = max(last_boundary(gen, cw.country, day), day - timedelta(days=60))
     po_date = day - timedelta(days=r.randint(*PO_LEAD))
@@ -92,7 +99,7 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
 
     lines, po_lines, gr_lines, planted = [], [], [], []
     for n in range(1, slot.lines + 1):
-        cat = catalog().get(r.choice(cats))
+        cat = catalog().get(r.choice(taxed if need_taxed and n == 1 else cats))
         clean = g.clean_line(cat, day)
         assert clean is not None
         qty = r.randint(1, 40) if cat.kind == "goods" else r.randint(1, 2)

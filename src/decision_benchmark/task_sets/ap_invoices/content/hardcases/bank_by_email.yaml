@@ -1,0 +1,12 @@
+family: bank_by_email
+version: 1
+countries: [MY, SG]
+primary_type: bank_change
+weight: 2
+summary: An email asks to pay a new account; no verified change reached the supplier master.
+params: {}
+ops:
+- op: add_bank_change_email
+expect:
+  decision: FRAUD_REVIEW
+  findings: [BANK_CHANGE_BY_EMAIL_ONLY]

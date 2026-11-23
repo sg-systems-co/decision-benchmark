@@ -4,8 +4,10 @@
     db-generate --task-set <id> --split-spec spec.yaml --out build/
 
 The public splits use the task set's release seeds. Anyone else passes a split spec (name, n_cases, seed, id_start,
-canary); nothing here knows any particular private split. Writes ``<out>/<split>/report/slots.json`` and
-``<out>/<split>/report/provenance.json``. Later B1 PRs add the cases themselves.
+canary); nothing here knows any particular private split. Writes ``<out>/<split>/report/slots.json``,
+``provenance.json`` and, when the task set names a builder, ``planting.json`` (attempts, redraws and causes per family
+and rule; also written when the builder stops mid-split, if it attaches its report so far); it exits non-zero if a
+redraw threshold is crossed or a slot can't be planted. Writing the cases themselves comes with B1-7.
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from pathlib import Path
 import yaml
 
 from .. import task_set
+from ..case import Provenance
 from ..task_set import TaskSetSpec
 from .provenance import pipeline_hash
 from .slots import allocate
@@ -41,18 +44,32 @@ def build_hash(spec: TaskSetSpec) -> str:
 
 
 def generate(spec: TaskSetSpec, split: SplitSpec, out: Path, version: str) -> Path:
-    if spec.generation is None:
+    gen = spec.generation
+    if gen is None:
         raise SystemExit(f"task set {spec.id} has no generator config")
-    allocation = allocate(spec.generation, dict(spec.quotas), split)
+    allocation = allocate(gen, dict(spec.quotas), split)
     report_dir = out / split.name / "report"
     report_dir.mkdir(parents=True, exist_ok=True)
-    (report_dir / "slots.json").write_text(json.dumps(allocation.report(), indent=1, sort_keys=True) + "\n",
-                                           encoding="utf-8")
-    provenance = {"task_set": spec.id, "split": split.name, "n_cases": split.n_cases, "seed": split.seed,
-                  "generator_version": version, "pipeline_hash": build_hash(spec)}
-    (report_dir / "provenance.json").write_text(json.dumps(provenance, indent=1, sort_keys=True) + "\n",
-                                                encoding="utf-8")
+    _write(report_dir / "slots.json", allocation.report())
+    provenance = Provenance(generator_version=version, seed=split.seed, pipeline_hash=build_hash(spec))
+    _write(report_dir / "provenance.json", {"task_set": spec.id, "split": split.name, "n_cases": split.n_cases,
+                                            **provenance.model_dump()})
+    if gen.builder:
+        module, _, name = gen.builder.partition(":")
+        try:
+            build = getattr(importlib.import_module(module), name)(gen, dict(spec.quotas), split,
+                                                                   provenance=provenance, check=False)
+        except Exception as e:      # a builder that stops mid-split may attach its report so far
+            if isinstance(getattr(e, "report", None), dict):
+                _write(report_dir / "planting.json", e.report)
+            raise
+        _write(report_dir / "planting.json", build.planting_report())
+        build.check_thresholds()     # raises after the report is written, so a failed build still shows why
     return report_dir
+
+
+def _write(path: Path, data: dict) -> None:
+    path.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -76,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
             ap.error(f"unknown split {args.split!r}; release splits: {sorted(splits)}")
         split = splits[args.split]
     report = generate(spec, split, args.out, version)
-    print(f"{report}/slots.json: {split.n_cases} slots")
+    print(f"{report}: slots.json, provenance.json{', planting.json' if spec.generation.builder else ''}")
     return 0
 
 

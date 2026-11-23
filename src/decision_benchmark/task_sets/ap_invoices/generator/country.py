@@ -22,6 +22,15 @@ class CleanLine:
     basis: str = ""
 
 
+@dataclass(frozen=True)
+class ProblemLine:
+    """A line's tax after a family plants a problem on it: the rate charged and the treatment and basis to find."""
+
+    rate: Decimal
+    treatment: str
+    basis: str
+
+
 class CountryGeneration(Protocol):
     country: str
     currency: str
@@ -46,3 +55,14 @@ class CountryGeneration(Protocol):
 
     def einvoice(self, company: dict, supplier: dict, lines: list[dict], day: date, number: str) -> dict:
         """The country's e-invoice block for an invoice with these lines (each with its 'ext' fields)."""
+
+    def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
+        """A rate the rules reject for this clean line (finding WRONG_TAX_RATE), or None if it carries no tax."""
+
+    def make_invalid(self, invoice: dict) -> tuple[list[str], tuple[str, str] | None]:
+        """Make the invoice fail the country's invoice requirements: the finding codes, and the (treatment, basis) its
+        taxed lines take instead of their own (None: unchanged)."""
+
+    def refresh_einvoice(self, invoice: dict) -> None:
+        """Recompute the e-invoice block's totals after a family changed amounts."""
+

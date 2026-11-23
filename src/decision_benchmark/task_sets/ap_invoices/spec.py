@@ -44,6 +44,7 @@ def generation() -> Generation:
     return Generation(
         root=str(PACKAGE_ROOT), release_seeds=f"{TASK_DIR}/content/release-seeds.yaml",
         pipeline_paths=PIPELINE_PATHS, lock_file=str(LOCK_FILE),
+        builder="decision_benchmark.task_sets.ap_invoices.generator.build:build_split",
         two_problems=_yaml("hardcases/pairs.yaml"), rules=rules["rules"], not_counted=rules["not_counted"],
         **_yaml("generator/generation.yaml"),
     )

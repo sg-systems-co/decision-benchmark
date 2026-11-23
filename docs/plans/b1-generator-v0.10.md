@@ -359,6 +359,7 @@ B1 is split into PRs of reviewable size, as A12 was. Each PR is reviewed and mer
 **Later PRs, where v0.10 changes them:**
 
 - **B2 (text content):** fact expressers with value parsers for every line-fact field of both country parts in every language; a family per rule; the round-trip linter. The shortcut check adds hard-kind and rule features.
+  - From the B1-2 review: Singapore GST registration numbers use a random check letter (`countries/sg/generation.py`); B2 gives them the real check-character format.
 - **B3 (rendering and data alpha):** scan-only cases render without a structured record, as 40% scans, 30% photos and 30% PDFs only (decision 11); spans for scan-only evidence; the reference row as a release gate; the card states the hard share and the engine version; the release tag is `v0.10.0-alpha.N`.
 - **C (scorer):** the extra columns (per line, buyer actions, facts), the two lanes, the labelled reference row, `results.schema.json` v0.10.
 - **D1 (environment):** the `check_rules` MCP tool (variant b), tools for the company and contract records, the rule sheet in the policy folder.
