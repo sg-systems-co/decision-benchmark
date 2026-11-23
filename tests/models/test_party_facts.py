@@ -122,7 +122,7 @@ def test_msme_and_group_structure():
         "msme": {"mypmk_registered_on": "2026-03-01", "declared_sales_band": "1m_to_1_5m", "year_of_assessment": 2025,
                  "paid_up_capital": "2000000.00", "group_holding_pct": "15", "ssm_registered_on": "2019-02-01"},
         "group": {"shareholdings": [{"holder_id": "C-1", "held_id": "S-9", "pct": "35", "board_control": True}]},
-        "zone": "labuan", "einvoice_phase_start": "2025-07-01", "buyer_kinds": ["aoc_airline"]})
+        "zone": "labuan", "einvoice": {"turnover_band": "5m_to_25m", "turnover_basis": "fy2022_audited"}, "buyer_kinds": ["aoc_airline"]})
     assert facts.msme.declared_sales_band == "1m_to_1_5m"
     assert facts.group.shareholdings[0].board_control is True and facts.zone == "labuan"
 

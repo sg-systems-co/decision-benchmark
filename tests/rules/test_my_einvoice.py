@@ -196,7 +196,7 @@ def test_me1_timeline_dates_are_the_sheets():
 
 def test_me3_foreign_supplier_the_buyer_self_bills():
     r, c = imported()
-    company_facts(r, einvoice_phase_start="2025-01-01")
+    company_facts(r, einvoice={"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"})
     a = answer(r, c)
     assert (a.decision, a.tax_treatment) == (OK, "SST_BUYER_ACCOUNTS")
     assert actions(a) == ["ACCOUNT_IMPORTED_SERVICE_TAX", SELF_BILL]
@@ -209,21 +209,74 @@ def test_me3_foreign_supplier_the_buyer_self_bills():
 ])
 def test_me3_section_8_3_types_on_a_domestic_invoice(facts):
     r, c = one_line(**facts)
-    company_facts(r, einvoice_phase_start="2025-01-01")
+    company_facts(r, einvoice={"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"})
     assert actions(answer(r, c)) == [SELF_BILL]
 
 
+BAND_25M = {"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"}
+NOT_YET = {"turnover_band": "below_1m", "turnover_basis": "new_business", "business_started_on": "2026-03-01",
+           "turnover_reached_1m_on": "2026-06-01"}
+"""A business commenced in 2026 that reached RM1m in June 2026: in its phase from 1 Jan 2028."""
+
+
 @pytest.mark.parametrize("facts, phase", [
-    ({"self_billing_type": "interest_payment", "interest_exception": "public_lender"}, "2025-01-01"),
-    ({"self_billing_type": "interest_payment", "interest_exception": "late_payment_charge"}, "2025-01-01"),
-    ({"self_billing_type": "none"}, "2025-01-01"),
-    ({"self_billing_type": "agents_dealers_distributors"}, "2027-01-01"),   # buyer not yet in its phase
+    ({"self_billing_type": "interest_payment", "interest_exception": "public_lender"}, BAND_25M),
+    ({"self_billing_type": "interest_payment", "interest_exception": "late_payment_charge"}, BAND_25M),
+    ({"self_billing_type": "none"}, BAND_25M),
+    ({"self_billing_type": "agents_dealers_distributors"}, NOT_YET),   # buyer not yet in its phase
     ({"self_billing_type": "agents_dealers_distributors"}, None),
 ])
 def test_me3_near_miss_exception_or_buyer_not_in_its_phase(facts, phase):
     r, c = one_line(**facts)
-    company_facts(r, einvoice_phase_start=phase)
+    company_facts(r, einvoice=phase)
     assert actions(answer(r, c)) == []
+
+
+# ME-3 by the buyer's own phase (engine 0.10.4): the ME-1 timeline applied to the company's record.
+
+
+@pytest.mark.parametrize("band", ["below_1m", "1m_to_3m"])
+def test_me3_buyer_below_rm3m_never_self_bills(band):
+    """An MSME buyer is exempt from e-invoicing (the RM3m exemption): no self-billing on a foreign supplier's
+    invoice."""
+    r, c = imported()
+    company_facts(r, einvoice={"turnover_band": band, "turnover_basis": "fy2022_audited"})
+    a = answer(r, c)
+    assert (a.decision, a.tax_treatment) == (OK, "SST_BUYER_ACCOUNTS")
+    assert actions(a) == ["ACCOUNT_IMPORTED_SERVICE_TAX"]
+
+
+@pytest.mark.parametrize("day, billed", [("2025-06-30", False), ("2025-07-01", True), ("2025-09-15", True),
+                                         ("2025-12-31", True), ("2026-01-01", True)])
+def test_me3_rm5m_to_25m_buyer_self_bills_from_1_jul_2025(day, billed):
+    """The RM5m-25m phase starts on 1 Jul 2025; inside its relaxation period (to 31 Dec 2025) the buyer still
+    self-bills (Specific Guideline 16.2(b), consolidated allowed)."""
+    r, c = imported(day=day)
+    company_facts(r, einvoice={"turnover_band": "5m_to_25m", "turnover_basis": "fy2022_audited"})
+    assert ("ISSUE_SELF_BILLED_EINVOICE" in actions(answer(r, c))) is billed
+
+
+@pytest.mark.parametrize("day, hand_over", [("2024-07-31", False), ("2024-08-01", True), ("2025-01-31", True),
+                                            ("2025-02-01", True), ("2026-06-01", True)])
+def test_me3_buyer_phase_not_shown_hands_over_once_a_phase_can_apply(day, hand_over):
+    """No business is in a mandatory phase before 1 Aug 2024, so an unknown phase can't decide before then; from
+    then on, the phase-1 buyer self-bills (relaxation included), so not knowing the phase is HAND_OVER."""
+    r, c = imported(day=day)
+    company_facts(r, einvoice_phase_known=False)
+    a = answer(r, c)
+    assert (a.decision == HO) is hand_over and a.tax_treatment == "SST_BUYER_ACCOUNTS"
+
+
+@pytest.mark.parametrize("kind, day, billed", [
+    ("statutory_body", "2025-06-30", False), ("statutory_body", "2025-07-01", True),
+    ("international_organisation", "2025-06-30", False), ("foreign_diplomatic_office", "2026-06-01", False),
+])
+def test_me3_exempt_person_buyers(kind, day, billed):
+    """e-Invoice Guideline 1.6.1: an exempt person doesn't self-bill while its exemption lasts; after it ends, its
+    turnover phase applies."""
+    r, c = imported(day=day)
+    company_facts(r, person_kind=kind, einvoice={"turnover_band": "above_100m", "turnover_basis": "fy2022_audited"})
+    assert ("ISSUE_SELF_BILLED_EINVOICE" in actions(answer(r, c))) is billed
 
 
 def test_me3_unknown_phase_or_exception_is_a_hand_over_with_the_tax_set():
@@ -232,7 +285,7 @@ def test_me3_unknown_phase_or_exception_is_a_hand_over_with_the_tax_set():
     a = answer(r, c)
     assert (a.decision, a.tax_treatment) == (HO, "SST_BUYER_ACCOUNTS")
     r, c = one_line(self_billing_type="interest_payment", interest_exception=None)
-    company_facts(r, einvoice_phase_start="2025-01-01")
+    company_facts(r, einvoice={"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"})
     assert (answer(r, c).decision, answer(r, c).tax_treatment) == (HO, "SST_CORRECT")
 
 

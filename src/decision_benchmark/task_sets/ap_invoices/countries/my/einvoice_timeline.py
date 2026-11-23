@@ -76,6 +76,11 @@ def relaxation_end(start: date, band: EinvoiceBand) -> date | None:
     return next((r.to for r in timeline().of("relaxation") if start in r.starts and band in r.bands), None)
 
 
+def earliest_implementation_date() -> date:
+    """Before this day no business is in a mandatory phase."""
+    return min(r.start for r in timeline().of("phase") if r.start is not None)
+
+
 def earliest_relaxation_end() -> date:
     """Before this day no supplier can be past its relaxation period."""
     return min(r.to for r in timeline().of("relaxation") if r.to is not None)

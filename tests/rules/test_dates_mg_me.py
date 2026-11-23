@@ -380,5 +380,5 @@ def test_l7_local_authority_contractor_to_30_september_2025(day, expected):
                                           ("2027-12-31", ["ISSUE_SELF_BILLED_EINVOICE"])])
 def test_me3_from_the_buyers_phase_start_including_its_relaxation_period(day, actions):
     r, c = one_line(day=day, rate="8" if day >= "2024-03-01" else "6", self_billing_type="agents_dealers_distributors")
-    company_facts(r, einvoice_phase_start="2026-01-01")
+    company_facts(r, einvoice={"turnover_band": "3m_to_5m", "turnover_basis": "fy2022_audited"})
     assert [x.action for x in answer(r, c).buyer_actions] == actions

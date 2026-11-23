@@ -81,6 +81,25 @@ def supplier_phase(inv: Invoice, supplier: Supplier, sf: MySupplierFacts,
     return [finding(Code.MISSING_MANDATORY_FIELD, missing=missing, rule="ME-1")]
 
 
+def buyer_in_phase(cf: MyCompanyFacts, day) -> bool:
+    """ME-3: the buyer is in a mandatory e-invoicing phase on the day, by the ME-1 timeline applied to its own record:
+    an exempt person (e-Invoice Guideline 1.6.1) or a turnover below RM3m never is; otherwise from its implementation
+    date, relaxation period included (Specific Guideline 16.2(b): it may then issue a consolidated self-billed
+    e-invoice, but it still issues one). A phase not shown decides only from the first implementation date."""
+    if not cf.einvoice_phase_known:
+        if day < tl.earliest_implementation_date():
+            return False
+        raise NotSettled("ME-3", "company e-invoicing phase not shown", tax_related=False)
+    person = tl.exempt_person(cf.person_kind)
+    if person is not None and (person.to is None or day <= person.to):
+        return False
+    status = cf.einvoice
+    if status is None or tl.exempt_band(status.turnover_band):
+        return False
+    start = tl.implementation_date(status)
+    return start is not None and day >= start
+
+
 def self_billing(ctx: LineCtx) -> tuple[BuyerAction, ...]:
     """ME-3: the buyer issues the e-invoice itself for a section 8.3 transaction type, when it is in a mandatory
     phase on the transaction date. Interest (item (g)) under one of its exceptions: the supplier issues it."""
@@ -94,11 +113,7 @@ def self_billing(ctx: LineCtx) -> tuple[BuyerAction, ...]:
             raise NotSettled("ME-3", ns.reason, tax_related=False) from None
         if exception != "none":
             return ()
-    cf: MyCompanyFacts = ctx.cf
-    if not cf.einvoice_phase_known:
-        raise NotSettled("ME-3", "company e-invoicing phase not shown", tax_related=False)
-    start = cf.einvoice_phase_start
-    if start is None or ctx.day < start:
+    if not buyer_in_phase(ctx.cf, ctx.day):
         return ()
     return (BuyerAction(action=ISSUE_SELF_BILLED),)
 

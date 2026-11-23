@@ -13,7 +13,7 @@ Versioning rules:
 
 Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
 
-Engine: 0.10.3. Rules as of: 2026-11-22.
+Engine: 0.10.4. Rules as of: 2026-11-23.
 
 ### Engine (A12, build PRs #12, #14, #15, #17 and this one)
 
@@ -58,6 +58,12 @@ Engine: 0.10.3. Rules as of: 2026-11-22.
 - `core/generator/`: derived seeds, exact counts, the generic generation config (`TaskSetSpec.generation`), the slot allocator and the pipeline hash. `db-generate --task-set <id> --split train|test` (or `--split-spec`) writes the slot table and its report (`report/slots.json`) and provenance. No cases yet; B1-2 builds them.
 - ap-invoices: the generator config (`content/generator/generation.yaml`), the rule table the per-rule floor counts (`content/generator/rules.yaml`, 75 rules; problem forms checked against the golden keys), the two-problem pairs (`content/hardcases/pairs.yaml`) and the public release seeds (`content/release-seeds.yaml`).
 - The allocator reproduces every table of B1 plan section 3 for 2,000, 500 and 300 cases, and an infeasible demand stops the build with the demand named. Catalog README: the v0.10 planting limits, each with the test that enforces it.
+
+### Engine 0.10.4: ME-3 by the buyer's own e-invoicing phase
+
+- The company record states the facts that fix its own e-invoicing phase (`einvoice`: turnover band and basis, commencement date) and, where the e-Invoice Guideline exempts it, the kind of person it is (`person_kind`), instead of a phase start date. ME-3 applies the ME-1 timeline to them: a buyer below RM3m, or an exempt person while its exemption lasts, never self-bills; any other buyer self-bills from its implementation date, inside its relaxation period too (Specific Guideline 16.2(b): a consolidated self-billed e-invoice is allowed, but it is still issued). Engine 0.10.3 read only a stated phase start, so it couldn't apply the RM3m exemption or an exempt person's exemption to the buyer.
+- A buyer whose phase isn't shown is HAND_OVER from 1 Aug 2024, the first implementation date; before it, no business is in a phase, so the question can't decide (0.10.3 handed over on every date).
+- No existing answer key changes (tests/fixtures/keys/changes.md, 0.10.4).
 
 ### Engine 0.10.3: dated rule branches (date sweep)
 
