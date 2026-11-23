@@ -1,9 +1,10 @@
 """Named edit operations (step 11 plan §7.2): small typed functions that turn a clean base case into a family's case.
 
 A template is data: a list of ops with parameters, never an expression. Each op declares what it needs and what it
-removes (``requires``, ``removes``), so the loader rejects a pair of families that can't apply together. Ops that copy
-the finished invoice (the duplicates) run last (``late``), after every other family's ops. Country specifics (which
-rate is wrong, what makes an invoice invalid) come from the pack's generation part.
+removes (``requires``, ``removes``), so the loader rejects a pair of families that can't apply together. Ops that plant
+a rule's line (``early``) run first; ops that copy the finished invoice (the duplicates) run last (``late``), after every
+other family's ops. Country specifics (which rate is wrong, what makes an invoice invalid, how a rule is planted) come
+from the pack's generation part.
 """
 
 from __future__ import annotations
@@ -17,8 +18,10 @@ from decimal import Decimal
 from typing import Callable
 
 from ..countries import pack
-from .entities import CompanyWorld, catalog, money, tax_of
+from . import phrases
+from .entities import CompanyWorld, catalog, in_base, money, tax_of
 from .scenario import BuiltCase
+from .statements import Statements
 
 
 @dataclass
@@ -32,6 +35,10 @@ class Draft:
     """Finding codes the ops added on top of the templates' expect (country-specific ones)."""
     approver_pinned: bool = False
     """A family chose the PO approver on purpose (above_approval_limit); otherwise it follows the final amount."""
+    uses: list = field(default_factory=list)
+    """The slot's rule appearances (core.generator.slots.RuleUse) the case plants."""
+    planted_rules: list[str] = field(default_factory=list)
+    """Rules the ops planted (for the per-rule report)."""
 
     @property
     def invoice(self) -> dict:
@@ -61,6 +68,78 @@ class Draft:
     def planted_line(self, n: int, treatment: str, basis: str) -> None:
         lines = self.built.planted.lines
         lines[n - 1] = (n, treatment, basis)
+
+    # -- planting a rule's line (the pack's recipes call these) ---------------------------------------------------
+
+    @property
+    def supplier(self) -> dict:
+        return self.cw.supplier(self.built.case["supplier_id"])
+
+    @property
+    def supplier_kind(self) -> str:
+        return self.cw.kind_of(self.built.case["supplier_id"])
+
+    def set_line(self, n: int, category: str, rate: Decimal, ext: dict) -> None:
+        """Line n becomes a line of ``category`` charged at ``rate`` (0: no tax), with the country's e-invoice line
+        fields ``ext``; its facts are stated afresh (the delivery date or the invoice's service period)."""
+        cat = catalog().get(category)
+        x = self.line(n)
+        x["category"] = category
+        x["description"] = cat.label if cat.kind == "goods" else f"{cat.label}, {self.day:%B %Y}"
+        if catalog().get(x["category"]).kind == "goods":
+            x["uom"] = "unit"
+        elif x["uom"] == "unit":
+            x["uom"] = "job"
+            x["qty"] = min(int(x["qty"]), 2)
+        x["tax_rate"] = str(rate)
+        if self.po is not None:
+            p = self.po["lines"][n - 1]
+            p.update(category=category, description=x["description"], uom=x["uom"], qty=x["qty"],
+                     gl_account=self.cw.account_for_role[cat.gl_role])
+        if self.gr is not None:
+            self.gr["lines"][n - 1].update(uom=x["uom"], qty_received=x["qty"])
+            goods = any(catalog().get(y["category"]).kind == "goods" for y in self.invoice["lines"])
+            self.gr["kind"] = "goods" if goods else "service_confirmation"
+        block = self.invoice.get("einvoice") or {}
+        for e in block.get("lines", []):
+            if e["line_no"] == n:
+                for k in [k for k in e if k != "line_no"]:
+                    del e[k]
+                e.update(ext)
+        x.pop("facts", None)
+        fields = pack(self.cw.country).line_facts_model.model_fields
+        st = self.statements()
+        if cat.kind == "goods" and self.gr is not None and "delivery_date" in fields:
+            st.state(x, "delivery_date", self.gr["gr_number"], "gr_date")
+        if cat.kind == "service" and self.invoice.get("service_period_start"):
+            st.state(x, "service_period_start", self.invoice["invoice_id"], "service_period_start")
+            st.state(x, "service_period_end", self.invoice["invoice_id"], "service_period_end")
+        self.built.planted.line_actions[n] = []
+
+    def statements(self) -> Statements:
+        st = Statements()
+        st.docs = self.built.docs
+        return st
+
+    def state(self, n: int, fact: str, value) -> None:
+        """State a line fact as a phrasebank phrase in the invoice line's description."""
+        country = self.cw.country
+        phrase = phrases.express(country, fact, value, self.r)
+        self.statements().state_phrase(self.line(n), fact, phrases.json_value(country, fact, value), phrase,
+                                       self.invoice["invoice_id"], f"lines[{n - 1}].description")
+
+    def expect(self, n: int, treatment: str, basis: str, findings: tuple[str, ...] = (),
+               actions: tuple[tuple[str, str | None, str | None], ...] = ()) -> None:
+        """What the engine must find for line n: its treatment and basis, the findings and buyer actions it brings."""
+        self.planted_line(n, treatment, basis)
+        self.findings += list(findings)
+        self.built.planted.line_actions[n] = list(actions)
+
+    def add_actions(self, n: int, actions: tuple[tuple[str, str | None, str | None], ...]) -> None:
+        self.built.planted.line_actions.setdefault(n, []).extend(actions)
+
+    def line_kind(self, n: int) -> str:
+        return catalog().get(self.line(n)["category"]).kind
 
     def drop_facts_citing(self, doc_id: str) -> None:
         """Withdraw statements whose evidence is a document the case no longer has."""
@@ -92,7 +171,8 @@ class Draft:
         if self.po is None or self.approver_pinned:
             return
         matrix = sorted(self.cw.company["policy_pack"]["approval_matrix"], key=lambda a: Decimal(a["limit"]))
-        role = next((a["approval_role"] for a in matrix if self.gross() <= Decimal(a["limit"])), matrix[-1]["approval_role"])
+        gross = in_base(self.invoice, self.gross())
+        role = next((a["approval_role"] for a in matrix if gross <= Decimal(a["limit"])), matrix[-1]["approval_role"])
         self.po["approver_id"] = next(p["person_id"] for p in self.cw.company["people"] if p.get("approval_role") == role)
 
     def gross(self) -> Decimal:
@@ -107,16 +187,17 @@ class OpSpec:
     removes: frozenset[str]
     late: bool
     params: tuple[str, ...]
+    early: bool = False
 
 
 OPS: dict[str, OpSpec] = {}
 
 
-def op(requires: tuple[str, ...] = (), removes: tuple[str, ...] = (), late: bool = False):
+def op(requires: tuple[str, ...] = (), removes: tuple[str, ...] = (), late: bool = False, early: bool = False):
     """Register an op. requires / removes name case parts: 'po' (the PO and its receipt), 'receipt', 'taxed_line'."""
     def wrap(fn: Callable) -> Callable:
         params = tuple(p for p in inspect.signature(fn).parameters if p != "d")
-        OPS[fn.__name__] = OpSpec(fn.__name__, fn, frozenset(requires), frozenset(removes), late, params)
+        OPS[fn.__name__] = OpSpec(fn.__name__, fn, frozenset(requires), frozenset(removes), late, params, early)
         return fn
     return wrap
 
@@ -177,7 +258,7 @@ def scale_above_approval_limit(d: Draft, role: str) -> None:
     """The PO was approved by ``role``, whose limit the invoice exceeds: every quantity is scaled up whole."""
     d.refresh()
     limit = next(Decimal(a["limit"]) for a in d.cw.company["policy_pack"]["approval_matrix"] if a["approval_role"] == role)
-    factor = int(limit / d.gross()) + 1 + d.r.randint(0, 2)
+    factor = int(limit / in_base(d.invoice, d.gross())) + 1 + d.r.randint(0, 2)
     for n, x in enumerate(d.invoice["lines"], 1):
         x["qty"] = int(x["qty"]) * factor
         d.po["lines"][n - 1]["qty"] = int(d.po["lines"][n - 1]["qty"]) * factor
@@ -258,7 +339,7 @@ def add_near_duplicate(d: Draft, days_before: int) -> None:
 @op()
 def make_invoice_invalid(d: Draft) -> None:
     """The invoice misses a particular the country requires (the pack chooses which: an e-invoice field, a tax-invoice particular)."""
-    codes, override = pack(d.cw.country).generation.make_invalid(d.invoice)
+    codes, override = pack(d.cw.country).generation.make_invalid(d.invoice, [u.rule for u in d.uses])
     d.findings += codes
     if override is not None:
         for n, x in enumerate(d.invoice["lines"], 1):
@@ -276,6 +357,13 @@ def set_wrong_rate(d: Draft, line: int) -> None:
         raise ValueError("set_wrong_rate needs a taxed line")
     x["tax_rate"] = str(wrong.rate)
     d.planted_line(line, wrong.treatment, wrong.basis)
+
+
+@op(early=True)
+def plant_rule(d: Draft, line: int, rule: str, form: str) -> None:
+    """Line ``line`` shows the rule deciding it, in its problem or correct form (the pack's recipe for the rule)."""
+    pack(d.cw.country).generation.plant(d, line, rule, form)
+    d.planted_rules.append(rule)
 
 
 # -- rule hand-over --------------------------------------------------------------------------------------------------

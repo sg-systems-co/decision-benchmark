@@ -12,7 +12,8 @@ import pytest
 from decision_benchmark.core.generator.cli import release_splits
 from decision_benchmark.core.generator.spec import SplitSpec
 from decision_benchmark.core.model import export_dict
-from decision_benchmark.task_sets.ap_invoices.generator.build import build_clean, compare
+from decision_benchmark.task_sets.ap_invoices.countries import pack
+from decision_benchmark.task_sets.ap_invoices.generator.build import build_clean, compare, fact_parser
 from decision_benchmark.task_sets.ap_invoices.generator.entities import build_world, catalog
 from decision_benchmark.task_sets.ap_invoices.generator.statements import EvidenceError, Statements, check_evidence, resolve
 from decision_benchmark.task_sets.ap_invoices.models import CompanyRecords
@@ -82,7 +83,7 @@ def test_every_gold_fact_has_evidence_that_resolves():
     for g in b.cases:
         facts = g.answer.facts or []
         stated += sum(len(entry) - 1 for entry in facts)
-        assert not check_evidence(facts, case_docs(g)), g.built.case_id
+        assert not check_evidence(facts, case_docs(g), fact_parser(g.envelope.country)), g.built.case_id
     assert stated > 500                                          # the registry states facts the rules read
 
 
@@ -94,9 +95,12 @@ def test_reference_row_reproduces_every_key():
                 if name != "line_no":
                     entry[name] = {"value": fact["value"]}
         result = check_rules(g.records, g.envelope, lines, catalog())
-        got = [(x.line_no, x.treatment, x.basis, [a.model_dump() for a in x.buyer_actions]) for x in result.lines]
-        want = [(t.line_no, t.treatment, t.basis, []) for t in g.answer.tax_lines]
-        assert got == want, g.built.case_id
+        got = [(x.line_no, x.treatment, x.basis) for x in result.lines]
+        assert got == [(t.line_no, t.treatment, t.basis) for t in g.answer.tax_lines], g.built.case_id
+        actions = []
+        for x in result.lines:
+            actions += [a for a in x.buyer_actions if a not in actions]
+        assert actions == g.answer.buyer_actions, g.built.case_id
 
 
 def test_100_cases_built_twice_are_byte_identical():
@@ -144,14 +148,18 @@ def test_company_records_are_complete_and_valid():
     for country, companies in world("test").items():
         for cw in companies:
             records = CompanyRecords.model_validate(cw.records())
-            assert 15 <= len(records.suppliers) <= 30 and 4 <= len(records.company.people) <= 8
+            special = len(pack(country).generation.special_suppliers()) * GEN.special_per_kind(500)
+            assert 15 + special <= len(records.suppliers) <= 30 + special and 4 <= len(records.company.people) <= 8
             assert {p.approval_role for p in records.company.people} >= {"ops_manager", "director"}
             assert {a.role for a in records.company.policy_pack.chart_of_accounts} == roles
             assert records.ledger and not [e for e in records.emails if e.case_id or e.signals]
             lo = GEN.windows[country][0]
             assert min(e.invoice.issue_date for e in records.ledger) < lo     # history starts before the window
+            transitional = {sid for k in ("k4_landlord", "l1_contractor") for sid in cw.special.get(k, [])}
             for k in records.contracts:
-                assert k.has_price_review_clause and k.signed_on < date(2025, 6, 9)
+                # Ordinary contracts have a price-review clause (no K-4 or L-1); the landlord and the contractor
+                # the K-4 and L-1 recipes use hold contracts signed and stamped before the transitional dates without.
+                assert k.has_price_review_clause != (k.supplier_id in transitional) and k.signed_on < date(2025, 6, 9)
             foreign = {s.supplier_id for s in records.suppliers if s.country != country}
             assert {c.supplier_id for c in records.residence_certificates} <= foreign
 

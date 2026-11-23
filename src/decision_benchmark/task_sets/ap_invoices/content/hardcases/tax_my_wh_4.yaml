@@ -1,0 +1,18 @@
+# The family of rule WH-4 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_wh_4
+version: 1
+countries:
+- MY
+primary_type: null
+rule: WH-4
+summary: 'Other gains or a public entertainer: withhold.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: WH-4
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

@@ -13,7 +13,7 @@ import random
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import Any
+from typing import Any, Callable
 
 from decision_benchmark.core.generator.seeds import rng
 from decision_benchmark.core.generator.slots import Slot
@@ -21,7 +21,7 @@ from decision_benchmark.core.generator.spec import Generation, SplitSpec
 
 from ..countries import pack
 from .entities import (
-    APPROVAL, CENT, CompanyWorld, catalog, day_between, invoice_dict, money, price, tax_of,
+    APPROVAL, CENT, CompanyWorld, catalog, day_between, in_base, invoice_dict, money, price, tax_of,
 )
 from .statements import Statements
 
@@ -47,6 +47,10 @@ class Planted:
     """(action, rate, basis) per buyer action."""
     facts: dict[tuple[int, str], Any] = field(default_factory=dict)
     """(line_no, fact) -> the value the statement registry stated; a fact stated nowhere is absent."""
+    line_actions: dict[int, list[tuple[str, str | None, str | None]]] = field(default_factory=dict)
+    """line_no -> the buyer actions the line brings (the case's buyer_actions are these, each once, in line order)."""
+    open_questions: list[str] = field(default_factory=list)
+    """Open questions of the rule sheet the planted answer rests on (only Q-A1 is planted)."""
 
 
 @dataclass
@@ -70,18 +74,25 @@ def last_boundary(gen: Generation, country: str, day: date) -> date:
 
 
 def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, attempt: int = 0,
-               need_taxed: bool = False) -> BuiltCase:
-    """need_taxed: line 1 must carry tax (a family will plant a tax problem on it)."""
+               need_taxed: bool = False, window: tuple[date, date] | None = None,
+               suppliers: Callable[[date], list[dict]] | None = None) -> BuiltCase:
+    """need_taxed: line 1 must carry tax (a family will plant a tax problem on it). window: the invoice dates (default:
+    the slot's). suppliers: the suppliers the case may come from on a day (default: the company's ordinary domestic
+    suppliers)."""
     r = rng(split.seed, "case", slot.case_index, "clean", attempt)
     g = pack(cw.country).generation
-    lo, hi = slot.window or gen.windows[cw.country]
+    lo, hi = window or slot.window or gen.windows[cw.country]
     day = day_between(r, lo, hi)
     covered = cw.certificate_categories(day)
     options = []
-    for s in cw.domestic_suppliers():
-        cats = [c for c in cw.categories[s["supplier_id"]] if c not in covered
-                and g.clean_line(catalog().get(c), day) is not None]
-        taxed = [c for c in cats if g.clean_line(catalog().get(c), day).rate > 0]
+
+    def clean(c: str, s: dict):
+        return g.clean_line(catalog().get(c), day, cw.company, s, cw.kind_of(s["supplier_id"]))
+
+    pool = suppliers(day) if suppliers is not None else None
+    for s in (pool if pool is not None else cw.ordinary_suppliers()):
+        cats = [c for c in cw.categories[s["supplier_id"]] if c not in covered and clean(c, s) is not None]
+        taxed = [c for c in cats if clean(c, s).rate > 0]
         if cats and (taxed or not need_taxed):
             options.append((s, cats, taxed))
     if not options:
@@ -97,14 +108,17 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
     invoice_id = f"INV-{cc.upper()}-{slot.case_index:06d}"
     number = f"{supplier['name'][:3].upper()}-{day:%y%m}-{slot.case_index:05d}"
 
-    lines, po_lines, gr_lines, planted = [], [], [], []
+    lines, po_lines, gr_lines, planted, actions = [], [], [], [], {}
+    fx = None if supplier["currency"] == cw.company["base_currency"] else g.exchange_rate(supplier["currency"], day)
     for n in range(1, slot.lines + 1):
         cat = catalog().get(r.choice(taxed if need_taxed and n == 1 else cats))
-        clean = g.clean_line(cat, day)
+        clean = g.clean_line(cat, day, cw.company, supplier, cw.kind_of(sid))
         assert clean is not None
         qty = r.randint(1, 40) if cat.kind == "goods" else r.randint(1, 2)
         uom = "unit" if cat.kind == "goods" else ("month" if qty == 1 else "job")
         unit = price(r, cat.kind)
+        if fx is not None:                      # the same value, in the supplier's currency
+            unit = (unit / fx).quantize(CENT)
         net = (Decimal(qty) * unit).quantize(CENT)
         description = f"{cat.label}" if cat.kind == "goods" else f"{cat.label}, {day:%B %Y}"
         lines.append({"line_no": n, "description": description, "qty": qty, "uom": uom, "unit_price": money(unit),
@@ -114,9 +128,11 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
                          "unit_price": money(unit), "gl_account": cw.account_for_role[cat.gl_role]})
         gr_lines.append({"po_line_no": n, "qty_received": qty, "uom": uom})
         planted.append((n, clean.treatment, clean.basis))
+        actions[n] = list(clean.actions)
 
-    gross = sum(Decimal(x["net_amount"]) + Decimal(x["tax_amount"]) for x in lines)
-    role = next(role for role, limit in APPROVAL if gross <= limit)
+    invoice = invoice_dict(cw, supplier, lines, day, number, invoice_id, po_number)
+    gross = in_base(invoice, sum(Decimal(x["net_amount"]) + Decimal(x["tax_amount"]) for x in lines))
+    role = next((role for role, limit in APPROVAL if gross <= limit), APPROVAL[-1][0])
     approver = next(p for p in cw.company["people"] if p.get("approval_role") == role)
     requester = next(p for p in cw.company["people"] if p["role"] == "requester")
     po = {"po_number": po_number, "company_id": cw.company_id, "supplier_id": sid, "po_date": str(po_date),
@@ -126,7 +142,6 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
     gr = {"gr_number": gr_number, "po_number": po_number, "gr_date": str(gr_date),
           "kind": "goods" if has_goods else "service_confirmation", "received_by": requester["person_id"],
           "lines": gr_lines}
-    invoice = invoice_dict(cw, supplier, lines, day, number, invoice_id, po_number)
 
     st = Statements()
     st.document(po_number, po)
@@ -154,4 +169,5 @@ def clean_case(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot, 
             "exception_types": [], "families": ["clean_base"], "two_problems": False}
     records = cw.records() | {"purchase_orders": [po], "goods_receipts": [gr]}
     return BuiltCase(case_id=f"ap-{cc}-{slot.case_index:05d}", company_id=cw.company_id, records=records, case=case,
-                     planted=Planted(decision="APPROVE", lines=planted), docs=st.docs, attempt=attempt)
+                     planted=Planted(decision="APPROVE", lines=planted, line_actions=actions), docs=st.docs,
+                     attempt=attempt)

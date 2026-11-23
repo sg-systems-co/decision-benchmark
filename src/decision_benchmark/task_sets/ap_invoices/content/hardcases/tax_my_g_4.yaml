@@ -1,0 +1,18 @@
+# The family of rule G-4 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_g_4
+version: 1
+countries:
+- MY
+primary_type: tax_problem
+rule: G-4
+summary: 'One-way pallets under a Schedule C certificate charged; correct: no tax (returnable ones taxed).'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: G-4
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

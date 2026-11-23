@@ -9,7 +9,8 @@ import random
 from datetime import date
 from decimal import Decimal
 
-from ...generator.country import CleanLine, ProblemLine
+from ...generator.country import CannotPlant, CleanLine, ProblemLine
+from ...generator.entities import stated_rate
 from ...models import Category
 from .models import SgTaxProfile, SgTaxTreatment as T
 from .rules.gst import rate_on
@@ -26,6 +27,14 @@ class SingaporeGeneration:
 
     foreign_countries = ("MY", "CN", "JP", "US", "GB", "IN")
     """Where foreign suppliers of Singaporean companies are based (treaty partners)."""
+    foreign_currencies = {"MY": "MYR", "CN": "CNY", "JP": "JPY", "US": "USD", "GB": "GBP", "IN": "INR"}
+    RATES = {"MYR": (Decimal("0.30"), 4), "CNY": (Decimal("0.185"), 4), "JPY": (Decimal("0.0088"), 6),
+             "USD": (Decimal("1.32"), 4), "GBP": (Decimal("1.70"), 4), "INR": (Decimal("0.0157"), 6)}
+    company_kinds: tuple[str, ...] = ()
+    certificate_covers: tuple[str, ...] = ()
+    certificate_excludes: tuple[str, ...] = ()
+    plants_rules = False
+    """B1-5 adds the Singaporean rule recipes; until then the floor appearances of Singaporean rules are not planted."""
 
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(100_000, 829_999)}"
@@ -36,7 +45,7 @@ class SingaporeGeneration:
     def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
         return [{"scheme": "SG_GST", "number": _gst_no(r, ids), "type": "local", "valid_from": str(start)}]
 
-    def company_facts(self, r: random.Random) -> dict | None:
+    def company_facts(self, r: random.Random, kind: str = "") -> dict | None:
         return {"country": "SG", "input_tax_status": "fully_taxable", "non_business_receipts": False}
 
     def supplier_registrations(self, r: random.Random, kinds: set[str], start: date, ids) -> list[dict]:
@@ -45,7 +54,17 @@ class SingaporeGeneration:
     def supplier_facts(self, r: random.Random, kinds: set[str]) -> dict | None:
         return None
 
-    def clean_line(self, category: Category, day: date) -> CleanLine | None:
+    def special_suppliers(self) -> tuple:
+        return ()            # B1-5
+
+    def special_facts(self, kind: str, identity: dict) -> dict:
+        return {}
+
+    def link_company(self, company: dict, special: dict[str, dict]) -> None:
+        return None
+
+    def clean_line(self, category: Category, day: date, company: dict | None = None, supplier: dict | None = None,
+                   kind: str = "") -> CleanLine | None:
         p = category.tax.get("SG")
         if p is not None and (not isinstance(p, SgTaxProfile) or p.disallowed or p.facts):
             return None
@@ -59,11 +78,24 @@ class SingaporeGeneration:
     def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
         return ProblemLine(clean.rate + 1, T.GST_WRONGLY_CHARGED.value, "SG-3")    # above every allowed rate
 
-    def make_invalid(self, invoice: dict) -> tuple[list[str], tuple[str, str] | None]:
+    def make_invalid(self, invoice: dict, rules: list[str] = ()) -> tuple[list[str], tuple[str, str] | None]:
         invoice["supplier_block"]["address"] = None    # an IRAS tax-invoice particular (SG-2)
         return ["INVALID_TAX_INVOICE"], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
 
+    def exchange_rate(self, currency: str, day: date) -> Decimal:
+        base, places = self.RATES[currency]
+        return stated_rate(base, currency, day, places)       # an invoice's own stated rate; read as printed
+
     def refresh_einvoice(self, invoice: dict) -> None:
+        return None
+
+    def plant(self, d, line: int, rule: str, form: str) -> None:
+        raise CannotPlant(f"no Singaporean rule recipes yet (B1-5): {rule}")
+
+    def plant_branch(self, d, line: int, branch: str, side: str) -> None:
+        raise CannotPlant(f"no Singaporean branch recipes yet (B1-5): {branch}")
+
+    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         return None
 
 

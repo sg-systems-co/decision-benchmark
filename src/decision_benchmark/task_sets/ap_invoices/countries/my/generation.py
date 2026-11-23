@@ -4,7 +4,10 @@ The clean line follows the catalog and the rate tables only (B1 plan section 4: 
 independently): goods take their class on the day, services their First Schedule rate while the item is taxable.
 Categories the clean base leaves to the tax families (B1-4): any with catalog fact defaults; education (Group M) and
 private healthcare (Group I items 14-16), which have no ordinary value; courier before 26 Feb 2024 (the old 30 kg item
-needs the parcel weight); and the 26 Feb 2024 additions during the STP 1/2024 window.
+needs the parcel weight); the 26 Feb 2024 additions during the STP 1/2024 window; an item the company provides itself
+(the B2B order would decide it); a group-relief item from the group supplier; and what the Government supplier sells in
+the 2025 scope (K-5, L-7, P-8). A foreign supplier's clean line is an imported service the buyer accounts for (MS-8),
+with its self-billed e-invoice (ME-3). The rule recipes are in planting.py.
 """
 
 from __future__ import annotations
@@ -14,24 +17,43 @@ from datetime import date, datetime, time, timezone
 from decimal import Decimal
 
 from ...generator.country import CleanLine, ProblemLine
+from ...generator.entities import stated_rate
 from ...models import Category
-from .constants import SALES_TAX_ORDERS_2025_FROM, TAX_CLASS_RATE, TAX_TYPE_SALES, TAX_TYPE_SERVICE
+from . import planting
+from .constants import (
+    CLASSIFICATION_OTHERS, SALES_TAX_ORDERS_2025_FROM, TAX_CLASS_RATE, TAX_TYPE_NOT_APPLICABLE, TAX_TYPE_SALES,
+    TAX_TYPE_SERVICE,
+)
 from .models import MyTaxProfile, MyTaxTreatment as T
 from .rules import rates, scope
 from .rules.policies import NEW_REGISTRANT_TO
 
-NOT_APPLICABLE = "06"
-"""MyInvois tax type for a line with no tax."""
-CLASSIFICATION = {"goods": "022", "service": "022"}
-"""MyInvois classification code ("others") for every clean line."""
+CLASSIFICATION = {"goods": CLASSIFICATION_OTHERS, "service": CLASSIFICATION_OTHERS}
+"""MyInvois classification code for every clean line."""
+NOT_APPLICABLE = TAX_TYPE_NOT_APPLICABLE
+IMPORTED_CLEAN = ("imported_consultancy", "imported_it_services", "foreign_digital_services")
+"""The imported services a foreign supplier's clean line carries (no payment nature, so no withholding)."""
+GOVERNMENT_SCOPE = ("H", "K", "L", "M")
 
 
 class MalaysiaGeneration:
     country = "MY"
     currency = "MYR"
 
-    foreign_countries = ("SG", "CN", "JP", "US", "DE", "IN")
-    """Where foreign suppliers of Malaysian companies are based (treaty partners)."""
+    foreign_countries = ("SG", "CN", "JP", "US", "GB", "IN")
+    """Where foreign suppliers of Malaysian companies are based."""
+    foreign_currencies = {"SG": "SGD", "CN": "CNY", "JP": "JPY", "US": "USD", "GB": "GBP", "IN": "INR"}
+    RATES = {"SGD": (Decimal("3.35"), 4), "CNY": (Decimal("0.62"), 4), "JPY": (Decimal("0.0295"), 6),
+             "USD": (Decimal("4.40"), 4), "GBP": (Decimal("5.70"), 4), "INR": (Decimal("0.0525"), 6)}
+    """Ringgit per unit, the centre of the stated rates (moved up to 5% by date), and the decimals printed."""
+    company_kinds = planting.COMPANY_KINDS
+    certificate_covers = ("wooden_pallets", "corrugated_cartons")
+    """G-4 plants pallets under the company's Schedule C certificate; MG-4 cartons (taxed at 10% under every order, so
+    a problem form exists on every date)."""
+    certificate_excludes = ("animal_feed_fishmeal", "animal_feed_premix")
+    """G-3 plants the critical raw materials, which a Schedule C certificate would exempt instead (MG-4)."""
+    plants_rules = True
+    """The rule recipes are in planting.py."""
 
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(10_000, 99_999)}"
@@ -41,13 +63,24 @@ class MalaysiaGeneration:
 
     def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
         sst = ids.digits(12)
+        number = f"W10-{sst[:4]}-{sst[4:]}"
         return [
             {"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"},
-            {"scheme": "MY_SST", "number": f"W10-{sst[:4]}-{sst[4:]}", "type": "sales", "valid_from": str(date(2018, 9, 1))},
+            {"scheme": "MY_SST", "number": number, "type": "sales", "valid_from": str(date(2018, 9, 1))},
+            {"scheme": "MY_SST", "number": number, "type": "service", "valid_from": str(date(2018, 9, 1))},
         ]
 
-    def company_facts(self, r: random.Random) -> dict | None:
-        return {"country": "MY", "is_registered_manufacturer": True, "services_provided": []}
+    def company_facts(self, r: random.Random, kind: str = "") -> dict | None:
+        return planting.company_facts(kind)
+
+    def special_suppliers(self):
+        return planting.SPECIAL_SUPPLIERS
+
+    def special_facts(self, kind: str, identity: dict) -> dict:
+        return planting.special_facts(kind, identity)
+
+    def link_company(self, company: dict, special: dict[str, dict]) -> None:
+        planting.link_company(company, special)
 
     def supplier_registrations(self, r: random.Random, kinds: set[str], start: date, ids) -> list[dict]:
         regs = [{"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"}]
@@ -63,10 +96,37 @@ class MalaysiaGeneration:
         return {"country": "MY", "is_manufacturer": "goods" in kinds, "registered_before_2024_02_26": True,
                 "einvoice": {"turnover_band": band, "turnover_basis": "fy2022_audited"}}
 
-    def clean_line(self, category: Category, day: date) -> CleanLine | None:
+    def clean_line(self, category: Category, day: date, company: dict | None = None, supplier: dict | None = None,
+                   kind: str = "") -> CleanLine | None:
         p = category.tax.get("MY")
         if not isinstance(p, MyTaxProfile) or p.facts:
             return None
+        provided = set(((company or {}).get("tax_facts") or {}).get("services_provided", []))
+        if p.service_item is not None and p.service_item in provided:
+            return None
+        if supplier is not None and supplier["country"] != self.country:
+            return self._imported(category, day, company)
+        if kind == "group" and p.group_relief:
+            return None
+        if kind == "government" and p.service_item and (
+                p.service_item[0] in GOVERNMENT_SCOPE or p.service_item in scope.HEALTHCARE_ITEMS):
+            return None
+        line = self._domestic(category, p, day)
+        if line is not None and line.rate > 0 and supplier is not None and not planting.registered(
+                supplier, "sales" if category.kind == "goods" else "service", day):
+            return None
+        return line
+
+    def _imported(self, category: Category, day: date, company: dict | None) -> CleanLine | None:
+        """An imported service: the overseas invoice shows no SST, the registered buyer accounts for it (MS-8), and
+        self-bills the e-invoice once in its phase (ME-3)."""
+        if category.category not in IMPORTED_CLEAN:
+            return None
+        actions = (planting.IMPORTED_ACTION,) + (planting.self_billing(company, day) if company else ())
+        return CleanLine(Decimal(0), {"classification_code": CLASSIFICATION["service"], "tax_type": NOT_APPLICABLE},
+                         T.SST_BUYER_ACCOUNTS.value, "MS-8", actions)
+
+    def _domestic(self, category: Category, p: MyTaxProfile, day: date) -> CleanLine | None:
         if category.kind == "goods":
             cls = p.tax_class
             if day < SALES_TAX_ORDERS_2025_FROM:
@@ -100,6 +160,11 @@ class MalaysiaGeneration:
                          T.SST_CORRECT.value, "MS-2")
 
     def einvoice(self, company: dict, supplier: dict, lines: list[dict], day: date, number: str) -> dict:
+        if supplier["country"] != self.country:
+            # An overseas supplier issues no MyInvois e-invoice; the buyer self-bills (ME-3).
+            return {"country": "MY", "is_einvoice": False,
+                    "lines": [{"line_no": line["line_no"], **line["ext"]} for line in lines]}
+
         def reg(party, scheme, kinds=None):
             return next((x["number"] for x in party["tax_registrations"]
                          if x["scheme"] == scheme and (kinds is None or x["type"] in kinds)), None)
@@ -116,6 +181,7 @@ class MalaysiaGeneration:
             "supplier_tin": reg(supplier, "MY_TIN"), "supplier_brn": supplier["registration_no"],
             "supplier_sst_no": reg(supplier, "MY_SST"),
             "buyer_tin": reg(company, "MY_TIN"), "buyer_brn": company["registration_no"],
+            "buyer_sst_no": reg(company, "MY_SST", ("service",)),
             "tax_total_by_type": {k: f"{v:.2f}" for k, v in by_type.items()} or {NOT_APPLICABLE: "0.00"},
             "lines": [{"line_no": line["line_no"], **line["ext"]} for line in lines],
         }
@@ -126,9 +192,31 @@ class MalaysiaGeneration:
         other = {Decimal(8): Decimal(6), Decimal(6): Decimal(8), Decimal(10): Decimal(5), Decimal(5): Decimal(10)}
         return ProblemLine(other[clean.rate], T.SST_WRONG_RATE.value, clean.basis)
 
-    def make_invalid(self, invoice: dict) -> tuple[list[str], tuple[str, str] | None]:
+    def make_invalid(self, invoice: dict, rules: list[str] = ()) -> tuple[list[str], tuple[str, str] | None]:
+        if set(rules) & {"ME-1", "ME-2", "ME-4"}:
+            return [], None                             # the rule's recipe plants the invalidity itself
         invoice["einvoice"]["buyer_tin"] = None        # a MyInvois mandatory field (ME-2)
         return ["MISSING_MANDATORY_FIELD"], None
+
+    def plant(self, d, line: int, rule: str, form: str) -> None:
+        planting.plant(d, line, rule, form)
+
+    def plant_branch(self, d, line: int, branch: str, side: str) -> None:
+        planting.plant_branch(d, line, branch, side)
+
+    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
+        if kind:
+            return [cw.supplier(sid) for sid in cw.special[kind]]
+        if foreign:
+            pe = set(cw.special.get("foreign_pe", []))
+            return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] not in pe]
+        if not needs:
+            return None
+        return [s for s in cw.ordinary_suppliers() if planting.supplier_fits(s, needs, day)]
+
+    def exchange_rate(self, currency: str, day: date) -> Decimal:
+        base, places = self.RATES[currency]
+        return stated_rate(base, currency, day, places)       # an invoice's own stated rate; read as printed
 
     def refresh_einvoice(self, invoice: dict) -> None:
         by_type: dict[str, Decimal] = {}

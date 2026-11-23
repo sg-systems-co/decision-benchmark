@@ -1,0 +1,18 @@
+# The family of rule L-7 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_l_7
+version: 1
+countries:
+- MY
+primary_type: tax_problem
+rule: L-7
+summary: 'Construction by the Federal or State Government charged; correct: no tax.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: L-7
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

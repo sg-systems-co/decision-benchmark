@@ -1,0 +1,18 @@
+# The family of rule P-11 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_p_11
+version: 1
+countries:
+- MY
+primary_type: tax_problem
+rule: P-11
+summary: 'A residential sinking fund or warranty repair charged; correct: no tax.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: P-11
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

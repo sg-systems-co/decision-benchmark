@@ -1,0 +1,18 @@
+# The family of rule ME-1 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_me_1
+version: 1
+countries:
+- MY
+primary_type: null
+rule: ME-1
+summary: A supplier past its relaxation period sends an invoice that isn't a validated e-invoice.
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: ME-1
+    form: correct
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

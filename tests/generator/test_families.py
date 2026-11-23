@@ -12,10 +12,10 @@ import pytest
 from decision_benchmark.core.generator.cli import main
 from decision_benchmark.core.generator.spec import SplitSpec
 from decision_benchmark.task_sets.ap_invoices.generator.build import (
-    MAX_ATTEMPTS, Build, PlantingFailed, _Tally, build_split, compare,
+    MAX_ATTEMPTS, Build, PlantingFailed, _Tally, build_split, compare, fact_parser,
 )
 from decision_benchmark.task_sets.ap_invoices.generator.entities import catalog
-from decision_benchmark.task_sets.ap_invoices.generator.hardcases import Template, check_pairs, templates
+from decision_benchmark.task_sets.ap_invoices.generator.hardcases import Template, check_pairs, rule_families, templates
 from decision_benchmark.task_sets.ap_invoices.generator.statements import check_evidence
 from decision_benchmark.task_sets.ap_invoices.rules import check_rules
 from decision_benchmark.task_sets.ap_invoices.spec import SPEC
@@ -82,8 +82,10 @@ def test_redraw_thresholds_hold(n):
 
 def test_planting_report_lists_every_family_with_attempts_redraws_and_causes():
     report = built(2000).planting_report()
-    expected = {t.family for ts in templates().values() for t in ts} | {"clean_base"}
-    assert set(report["families"]) == expected
+    expected = {t.family for ts in templates().values() for t in ts} | set(
+        t.family for t in rule_families().values()) | {"clean_base"} | {
+        f"branch:{b.branch}" for b in GEN.boundaries if b.branch}
+    assert set(report["families"]) - {"wrong_rate"} == expected - {"wrong_rate"}      # wrong_rate: Singapore (B1-5)
     for t in report["families"].values():
         assert {"attempts", "redraws", "redraw_rate", "causes", "first_diffs"} <= set(t) and t["attempts"] > 0
     assert report["rules"] and set(report["thresholds"]) == {
@@ -140,7 +142,7 @@ def test_conflicting_families_are_never_paired():
 
 def test_evidence_and_reference_row_on_every_case():
     for g in built(500).cases:
-        assert not check_evidence(g.answer.facts or [], case_docs(g)), g.built.case_id
+        assert not check_evidence(g.answer.facts or [], case_docs(g), fact_parser(g.envelope.country)), g.built.case_id
         lines = [{k: (v if k == "line_no" else {"value": v["value"]}) for k, v in e.items()} for e in g.answer.facts or []]
         result = check_rules(g.records, g.envelope, lines, catalog())
         assert [(x.line_no, x.treatment, x.basis) for x in result.lines] == [

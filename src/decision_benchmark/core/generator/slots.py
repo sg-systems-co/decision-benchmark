@@ -49,7 +49,12 @@ class Slot:
     """None, 'lines' (lines with different outcomes) or 'split' (one line turns on a split)."""
     rules: list[RuleUse] = field(default_factory=list)
     window: tuple[date, date] | None = None
+    """Dates the case can take: the country window narrowed by its rules' windows and its boundary side."""
     boundary: tuple[date, str] | None = None
+    supplier: str = ""
+    """The supplier kind its rules need ('' any)."""
+    companies: tuple[str, ...] | None = None
+    """The company kinds that can carry all its rules (None: any)."""
     case_index: int = 0
 
     def types(self) -> tuple[str, ...]:
@@ -63,6 +68,8 @@ class Slot:
             "rules": [{"rule": u.rule, "form": u.form, "carrier": u.carrier} for u in self.rules],
             "window": [self.window[0].isoformat(), self.window[1].isoformat()] if self.window else None,
             "boundary": {"day": self.boundary[0].isoformat(), "side": self.boundary[1]} if self.boundary else None,
+            "supplier": self.supplier or None,
+            "companies": list(self.companies) if self.companies is not None else None,
         }
 
 
@@ -140,6 +147,16 @@ def allocate(gen: Generation, quotas: dict[str, object], split: SplitSpec) -> Al
     return Allocation(split, a.slots, gen, quotas)
 
 
+class _Lazy:
+    """A read-only mapping computed on access."""
+
+    def __init__(self, fn) -> None:
+        self.fn = fn
+
+    def __getitem__(self, key):
+        return self.fn(key)
+
+
 class _Allocator:
     def __init__(self, gen: Generation, quotas: dict[str, object], split: SplitSpec) -> None:
         if [t.name for t in gen.types] != list(quotas):
@@ -169,7 +186,8 @@ class _Allocator:
             raise InfeasibleDemand(f"the exception mix gives {sum(counts.values())} cases, not {self.n}")
         for t, by_country in halves(counts, self.gen.countries).items():
             for c, k in by_country.items():
-                cell = [Slot(key=len(self.slots) + i, country=c, primary=t) for i in range(k)]
+                cell = [Slot(key=len(self.slots) + i, country=c, primary=t, window=self.gen.windows[c])
+                        for i in range(k)]
                 self.slots += cell
                 self.cells[(t, c)] = cell
 
@@ -252,9 +270,13 @@ class _Allocator:
             pool = [s for s in self.slots if s.country == c]
             share = as_fraction(self.gen.foreign_share)
             k = apportion(len(pool), {"foreign": share, "domestic": 100 - share})["foreign"]
-            cells = {key: v for key, v in self.cells.items() if key[1] == c}
+            def can(slot: Slot) -> bool:
+                return all(self.gen.type(t).foreign for t in slot.types())
+
+            cells = {key: [s for s in v if can(s)] for key, v in self.cells.items() if key[1] == c}
+            cells = {key: v for key, v in cells.items() if v}
             for (t, cc), m in self._apportion_cells(k, cells).items():
-                for s in self._pick(self.cells[(t, cc)], m, f"foreign suppliers in {t}/{cc}", "foreign", t, cc):
+                for s in self._pick(cells[(t, cc)], m, f"foreign suppliers in {t}/{cc}", "foreign", t, cc):
                     s.foreign = True
 
     # 3b. lines per case
@@ -294,6 +316,7 @@ class _Allocator:
         if tier.per_rule == 0:
             return
         problem = {r.id: 0 for r in self.gen.rules}
+        correct = {r.id: 0 for r in self.gen.rules}
         if tier.problem_per_rule:
             for r in self.gen.rules:
                 if r.problem_form:
@@ -301,48 +324,118 @@ class _Allocator:
         if tier.problem_per_family:
             families: dict[tuple[str, str], list[str]] = {}
             for r in self.gen.rules:
-                if r.problem_form:
+                if r.problem_form and r.correct_form:  # a rule with only a problem form takes all its floor below
                     families.setdefault((r.country, r.family), []).append(r.id)
             for (c, fam), ids in families.items():
                 start = self._rng("family", c, fam).randrange(len(ids))
                 for i in range(tier.problem_per_family):
                     problem[ids[(start + i) % len(ids)]] += 1
+        for r in self.gen.rules:
+            if r.correct_form:
+                correct[r.id] = tier.per_rule - problem[r.id]
+            else:
+                problem[r.id] = tier.per_rule          # every appearance is a problem form
         rank = {s.key: i for i, s in enumerate(self._shuffled(self.slots, "rules"))}
-        free_lines = {s.key: s.lines for s in self.slots}
-        free_problem = {s.key: min(MAX_PROBLEM_LINES, s.lines) for s in self.slots}
+        # A tax slot keeps one line for its tax problem: the first problem form placed there, or else the problem its
+        # tax family plants. Correct forms get the other lines.
+        reserved = {s.key: any(self.gen.type(t).tax for t in s.types()) for s in self.slots}
+        free_lines = {s.key: s.lines - reserved[s.key] for s in self.slots}
+        problems = {s.key: 0 for s in self.slots}
+
+        def free_problem_of(key: int) -> int:
+            """Problem lines the slot can still take: the reserved line first, then free lines (at most two)."""
+            if not reserved[key] or problems[key] >= MAX_PROBLEM_LINES:
+                return 0
+            later = min(free_lines[key], MAX_PROBLEM_LINES - max(problems[key], 1))
+            return later + (problems[key] == 0)
+
+        free_problem = _Lazy(free_problem_of)
         free_finding = {s.key: 1 for s in self.slots}
         free_action = {s.key: s.lines for s in self.slots}
         demands = [(r, PROBLEM, problem[r.id]) for r in self.gen.rules if problem[r.id]]
-        demands += [(r, CORRECT, tier.per_rule - problem[r.id]) for r in self.gen.rules]
-        demands.sort(key=lambda d: (len(self._candidates(d[0], d[1])), d[1] != PROBLEM, d[0].id))
+        demands += [(r, CORRECT, correct[r.id]) for r in self.gen.rules if correct[r.id]]
+        # Most constrained first: fewest candidate slots, problem forms before correct ones, the rules with the most
+        # appearances (each needs a slot of its own), then those that can share a slot with the fewest other demands
+        # (a rule that pairs with none should take a slot no pair needs).
+        share = {(r.id, f): sum(self._can_share(r, f, r2, f2) for r2, f2, _ in demands if r2.id != r.id)
+                 for r, f, _ in demands}
+        demands.sort(key=lambda d: (len(self._candidates(d[0], d[1])), d[1] != PROBLEM, -d[2],
+                                    share[(d[0].id, d[1])], d[0].id))
         for rule, form, k in demands:
             candidates = self._candidates(rule, form)
             for i in range(k):
                 pool = [s for s in candidates
-                        if all(u.rule != rule.id for u in s.rules) and self._free(s, rule, form, free_lines,
-                                                                                   free_problem, free_finding,
-                                                                                   free_action) > 0]
+                        if all(u.rule != rule.id for u in s.rules) and self._fits(s, rule, form)
+                        and self._free(s, rule, form, free_lines, free_problem, free_finding, free_action) > 0]
                 if not pool:
                     raise InfeasibleDemand(f"rule floor: {rule.id} ({form}) placed {i} of {k}; no compatible slot "
                                            f"has room in a split of {self.n}")
-                s = max(pool, key=lambda s: (self._free(s, rule, form, free_lines, free_problem, free_finding,
-                                                        free_action), -rank[s.key]))
+                if form == PROBLEM:
+                    # Best fit: the slot with the least problem room that still fits (a second problem where one
+                    # can pair, a one-line slot for a rule that pairs with nothing), so no room is wasted.
+                    s = min(pool, key=lambda s: (free_problem[s.key], s.lines, rank[s.key]))
+                else:
+                    s = max(pool, key=lambda s: (self._free(s, rule, form, free_lines, free_problem, free_finding,
+                                                            free_action), -rank[s.key]))
                 s.rules.append(RuleUse(rule.id, form, rule.carrier))
+                s.window = self._narrowed(s, rule, form)
+                s.supplier = s.supplier or rule.supplier
+                if rule.companies:
+                    s.companies = tuple(sorted(set(rule.companies) & set(s.companies or rule.companies)))
                 if rule.carrier == "line":
-                    free_lines[s.key] -= 1
-                    if form == PROBLEM:
-                        free_problem[s.key] -= 1
+                    if form == PROBLEM and problems[s.key] == 0:
+                        problems[s.key] += 1             # takes the reserved line
+                    else:
+                        problems[s.key] += form == PROBLEM
+                        free_lines[s.key] -= 1
                 elif rule.carrier == "finding":
                     free_finding[s.key] -= 1
                 else:
                     free_action[s.key] -= 1
+                if rule.carrier != "line" and rule.takes_line:
+                    free_lines[s.key] -= 1
+
+    def _narrowed(self, s: Slot, rule: RuleSpec, form: str) -> tuple[date, date]:
+        lo, hi = rule.window(form, self.gen.windows[s.country])
+        assert s.window is not None
+        return max(lo, s.window[0]), min(hi, s.window[1])
+
+    def _can_share(self, a: RuleSpec, fa: str, b: RuleSpec, fb: str) -> bool:
+        """Two rule appearances could sit in one slot (same country, one supplier kind, needs met, common dates)."""
+        if a.country != b.country or (a.supplier and b.supplier and a.supplier != b.supplier):
+            return False
+        if (a.foreign and b.domestic) or (a.domestic and b.foreign):
+            return False
+        kind = a.supplier or b.supplier
+        if kind and (set(a.needs) | set(b.needs)) & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if a.companies and b.companies and not set(a.companies) & set(b.companies):
+            return False
+        wa, wb = a.window(fa, self.gen.windows[a.country]), b.window(fb, self.gen.windows[b.country])
+        return max(wa[0], wb[0]) <= min(wa[1], wb[1])
+
+    def _fits(self, s: Slot, rule: RuleSpec, form: str) -> bool:
+        """The rule can join the slot's rules: one supplier kind, a company kind both allow, a common date."""
+        if rule.supplier and s.supplier and rule.supplier != s.supplier:
+            return False
+        kind = s.supplier or rule.supplier
+        needs = set(rule.needs).union(*(self._rule(u.rule).needs for u in s.rules))
+        if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if rule.companies and s.companies is not None and not set(rule.companies) & set(s.companies):
+            return False
+        lo, hi = self._narrowed(s, rule, form)
+        return lo <= hi
+
+    def _rule(self, rule_id: str) -> RuleSpec:
+        return next(r for r in self.gen.rules if r.id == rule_id)
 
     def _candidates(self, rule: RuleSpec, form: str) -> list[Slot]:
         out = []
         for s in self.slots:
             if s.country != rule.country or self.gen.type(s.primary).handover:
                 continue
-            if rule.foreign and not s.foreign:
+            if (rule.foreign and not s.foreign) or (rule.domestic and s.foreign):
                 continue
             if form == PROBLEM:
                 if not any(self.gen.type(t).tax for t in s.types()):
@@ -355,14 +448,13 @@ class _Allocator:
     @staticmethod
     def _free(s, rule, form, free_lines, free_problem, free_finding, free_action) -> int:
         if rule.carrier == "line":
-            return min(free_lines[s.key], free_problem[s.key]) if form == PROBLEM else free_lines[s.key]
-        return free_finding[s.key] if rule.carrier == "finding" else free_action[s.key]
+            return free_problem[s.key] if form == PROBLEM else free_lines[s.key]
+        free = free_finding[s.key] if rule.carrier == "finding" else free_action[s.key]
+        return min(free, free_lines[s.key]) if rule.takes_line else free
 
     # 4c. date boundaries
     def boundaries(self) -> None:
         tier = self.gen.boundary_floor_for(self.n)
-        for s in self.slots:
-            s.window = self.gen.windows[s.country]
         if tier.per_side == 0:
             return
         taken: set[int] = set()
@@ -375,11 +467,41 @@ class _Allocator:
             for side, window in sides.items():
                 if window[0] > window[1]:
                     raise InfeasibleDemand(f"boundary {b.country} {b.day}: no {side} days inside the window")
-                pool = [s for s in self.slots if s.country == b.country and s.key not in taken]
+                pool = [s for s in self.slots if s.country == b.country and s.key not in taken
+                        and max(window[0], s.window[0]) <= min(window[1], s.window[1])
+                        and (not b.branch or self._takes_branch(s, b, side))]
                 for s in self._pick(pool, tier.per_side, f"boundary {b.country} {b.day} {side}", "boundary",
                                     b.country, b.day.isoformat(), side):
-                    s.window, s.boundary = window, (b.day, side)
+                    s.window = (max(window[0], s.window[0]), min(window[1], s.window[1]))
+                    s.boundary = (b.day, side)
+                    if b.branch:
+                        s.supplier = s.supplier or b.supplier
+                        if b.companies:
+                            s.companies = tuple(sorted(set(b.companies) & set(s.companies or b.companies)))
                     taken.add(s.key)
+
+    def _takes_branch(self, s: Slot, b, side: str) -> bool:
+        """The slot can carry the boundary's branch line: a free line, its type, one supplier kind, the needs met,
+        a company kind both allow."""
+        if self.gen.type(s.primary).handover:
+            return False
+        if side in b.types and not set(b.types[side]) & set(s.types()):
+            return False
+        used = any(self.gen.type(t).tax for t in s.types()) + sum(
+            1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line)
+        if s.lines - used < 1:
+            return False
+        if b.supplier and s.supplier and b.supplier != s.supplier:
+            return False
+        kind = s.supplier or b.supplier
+        needs = set(b.needs).union(*(self._rule(u.rule).needs for u in s.rules))
+        if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if b.companies and s.companies is not None and not set(b.companies) & set(s.companies):
+            return False
+        if b.supplier and any(self._rule(u.rule).domestic for u in s.rules) and s.foreign:
+            return False
+        return not s.foreign
 
     # 5. final order
     def order(self) -> None:

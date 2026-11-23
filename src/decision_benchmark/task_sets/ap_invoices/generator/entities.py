@@ -11,6 +11,11 @@ generated identifier ends in a digit whose value mod 3 is the partition.
 Company names are distinct across a split; supplier and person names within a company. A supplier name drawn again at
 another company of the split is the same supplier: it keeps the identity first drawn for it (registrations, registration
 number, bank account, address, contact, categories), so a shared name never carries two tax ids.
+
+Each company has a kind (the pack's ``company_kinds`` in turn) and, besides its ordinary suppliers, one supplier of each
+special kind the rules need (the pack's ``special_suppliers``: a government agency, a group company, a landlord under a
+transitional contract, a foreign supplier with a permanent establishment ...). The clean base uses the ordinary
+suppliers and the 'general' one; the rule recipes pick the special ones.
 """
 
 from __future__ import annotations
@@ -31,6 +36,7 @@ from decision_benchmark.core.generator.spec import Generation, SplitSpec
 from ..countries import pack
 from ..models import Catalog, Category, load_catalog
 from ..spec import CONTENT
+from .country import SpecialSupplier
 
 SUPPLIERS = (15, 30)
 PEOPLE = (4, 8)
@@ -41,6 +47,8 @@ HISTORY_LEAD_DAYS = 365
 """Background history starts 12 months before the window (B1 plan section 6)."""
 BACKGROUND_MAIL = (4, 10)
 APPROVAL = (("ops_manager", Decimal("20000.00")), ("director", Decimal("200000.00")))
+GENERAL = "general"
+"""The special supplier kind the clean base may also use: registered for goods and services, a manufacturer."""
 PARTITIONS = {"train": 0, "test": 1}
 """The release splits' partitions; every other split (a private one) uses partition 2."""
 N_PARTITIONS = 3
@@ -89,6 +97,10 @@ class CompanyWorld:
     contracts: list[dict] = field(default_factory=list)
     residence_certificates: list[dict] = field(default_factory=list)
     account_for_role: dict[str, str] = field(default_factory=dict)
+    kind: str = ""
+    """The company's kind (rules.yaml ``companies``)."""
+    special: dict[str, list[str]] = field(default_factory=dict)
+    """Special supplier kind -> its supplier_ids (the split's suppliers of that kind)."""
 
     @property
     def company_id(self) -> str:
@@ -102,6 +114,17 @@ class CompanyWorld:
 
     def domestic_suppliers(self) -> list[dict]:
         return [s for s in self.suppliers if s["country"] == self.country]
+
+    def ordinary_suppliers(self) -> list[dict]:
+        """The domestic suppliers the clean base draws from: the ordinary ones and the general special one."""
+        special = {sid for k, sids in self.special.items() if k != GENERAL for sid in sids}
+        return [s for s in self.domestic_suppliers() if s["supplier_id"] not in special]
+
+    def supplier(self, supplier_id: str) -> dict:
+        return next(s for s in self.suppliers if s["supplier_id"] == supplier_id)
+
+    def kind_of(self, supplier_id: str) -> str:
+        return next((k for k, sids in self.special.items() if supplier_id in sids), "")
 
     def certificate_categories(self, day: date) -> set[str]:
         out: set[str] = set()
@@ -252,14 +275,24 @@ def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Na
         "address": _address(r, bank, country), "base_currency": currency, "industry": r.choice(bank["industries"]),
         "tax_registrations": g.company_registrations(r, start, ids), "people": people, "policy_pack": policy,
     }
-    facts = g.company_facts(r)
+    kind = g.company_kinds[k % len(g.company_kinds)] if g.company_kinds else ""
+    facts = g.company_facts(r, kind)
     if facts is not None:
         company["tax_facts"] = facts
-    cw = CompanyWorld(country, company, [], {}, account_for_role=accounts)
+    cw = CompanyWorld(country, company, [], {}, account_for_role=accounts, kind=kind)
     cats = country_categories(country)
-    for j in range(r.randint(*SUPPLIERS)):
+    n = r.randint(*SUPPLIERS)
+    for j in range(n):
         cw_supplier(cw, r, namer, ids, known, cats, j, foreign=r.random() < float(FOREIGN_SUPPLIER_SHARE), start=start)
+    per_kind = gen.special_per_kind(split.n_cases)
+    j = n
+    for spec in g.special_suppliers():
+        for i in range(per_kind):
+            _special_supplier(cw, r, namer, ids, known, spec, i, j, start)
+            j += 1
+    g.link_company(cw.company, {k: [cw.supplier(sid) for sid in sids] for k, sids in cw.special.items()})
     _contracts(cw, r, lo)
+    _special_contracts(cw, g.special_suppliers())
     _certificates(cw, r, lo, ids)
     _history(cw, r, lo - timedelta(days=HISTORY_LEAD_DAYS), hi)
     _background_mail(cw, r, lo, hi, domain)
@@ -270,8 +303,11 @@ def cw_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, kno
                 cats: list[Category], j: int, foreign: bool, start: date) -> None:
     """Add supplier j. A name already used by another company of the split brings that supplier's identity."""
     sid = f"S{j + 1:03d}"
-    name = namer.supplier()
-    identity = known.get(name)
+    while True:
+        name = namer.supplier()
+        identity = known.get(name)
+        if identity is None or not identity.get("special"):
+            break                         # a special supplier's name stays its own
     if identity is None:
         identity = known[name] = _supplier_identity(cw, r, namer, ids, cats, name, foreign, start)
     supplier = {k: v for k, v in identity.items() if k not in ("categories", "residence_from")}
@@ -285,12 +321,70 @@ def cw_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, kno
     cw.categories[sid] = list(identity["categories"])
 
 
+def _special_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, known: dict[str, dict],
+                      spec: SpecialSupplier, index: int, j: int, start: date) -> None:
+    """Add supplier j: the split's supplier number ``index`` of this special kind (drawn at the first company, with a
+    name new to the split; every company of the split deals with the same ones)."""
+    g = pack(cw.country).generation
+    sid = f"S{j + 1:03d}"
+    identity = next((i for i in known.values() if i.get("special") == (spec.kind, index)), None)
+    if identity is not None:
+        name = identity["name"]
+        namer.local.add(name)
+    else:
+        while True:
+            name = namer.supplier()
+            if name not in known:
+                break
+        cats = [catalog().get(c) for c in spec.categories]
+        home = spec.homes[index % len(spec.homes)] if spec.homes else None
+        identity = _supplier_identity(cw, r, namer, ids, cats, name, spec.foreign, start, chosen=list(spec.categories),
+                                      home=home, registered_for=spec.registered_for)
+        identity["special"] = (spec.kind, index)
+        if spec.registered_from:
+            for reg in identity.get("tax_registrations", []):
+                if "valid_from" in reg:
+                    reg["valid_from"] = spec.registered_from
+        if spec.foreign:
+            identity.pop("residence_from", None)
+            if spec.residence:
+                identity["residence_from"] = str(date(start.year + 1, 1, 1))
+        facts = identity.get("tax_facts") or ({"country": cw.country} if spec.facts else None)
+        if facts is not None:
+            identity["tax_facts"] = facts | spec.facts | g.special_facts(spec.kind, identity)
+        known[name] = identity
+    supplier = {k: v for k, v in identity.items() if k not in ("categories", "residence_from", "special")}
+    supplier |= {"supplier_id": sid, "company_id": cw.company_id,
+                 "contacts": [c | {"contact_id": f"{sid}-c{i + 1}"} for i, c in enumerate(identity["contacts"])]}
+    if identity.get("residence_from"):
+        cw.residence_certificates.append({
+            "certificate_id": f"COR-{cw.company_id}-{sid}", "supplier_id": sid, "country": identity["country"],
+            "valid_from": identity["residence_from"], "valid_to": None})
+    cw.suppliers.append(supplier)
+    cw.categories[sid] = list(identity["categories"])
+    cw.special.setdefault(spec.kind, []).append(sid)
+
+
+def _special_contracts(cw: CompanyWorld, specs: tuple[SpecialSupplier, ...]) -> None:
+    """The contract records the special kinds carry (absolute dates from the pack)."""
+    for spec in specs:
+        if spec.contract is None:
+            continue
+        for i, sid in enumerate(cw.special[spec.kind]):
+            c = dict(spec.contract)
+            parties = [cw.special[k][i] for k in c.pop("parties", [])]
+            cw.contracts.append({"contract_id": f"K-{cw.company_id}-{sid}", "company_id": cw.company_id,
+                                 "supplier_id": sid, "parties": parties, **c})
+
+
 def _supplier_identity(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Ids, cats: list[Category], name: str,
-                       foreign: bool, start: date) -> dict:
+                       foreign: bool, start: date, chosen: list[str] | None = None, home: str | None = None,
+                       registered_for: tuple[str, ...] | None = None) -> dict:
     g = pack(cw.country).generation
     bank = names(cw.country)
-    chosen = sorted({c.category for c in r.sample(cats, r.randint(1, 3))})
-    kinds = {catalog().get(c).kind for c in chosen}
+    if chosen is None:
+        chosen = sorted({c.category for c in r.sample(cats, r.randint(1, 3))})
+    kinds = {catalog().get(c).kind for c in chosen} if registered_for is None else set(registered_for)
     identity = {
         "name": name, "country": cw.country, "address": _address(r, bank, cw.country),
         "registration_no": g.registration_no(r, start - timedelta(days=365 * r.randint(0, 10)), ids),
@@ -300,8 +394,9 @@ def _supplier_identity(cw: CompanyWorld, r: random.Random, namer: _Names, ids: I
         "categories": chosen,
     }
     if foreign:
-        home = r.choice(g.foreign_countries)
-        identity |= {"country": home, "currency": "USD", "address": {"lines": ["Head office"], "country": home}}
+        home = home or r.choice(g.foreign_countries)
+        identity |= {"country": home, "currency": g.foreign_currencies[home],
+                     "address": {"lines": ["Head office"], "country": home}}
         if r.random() < 0.5:
             identity["residence_from"] = str(date(start.year + 1, 1, 1))
     else:
@@ -315,7 +410,7 @@ def _supplier_identity(cw: CompanyWorld, r: random.Random, namer: _Names, ids: I
 def _contracts(cw: CompanyWorld, r: random.Random, lo: date) -> None:
     """A written contract with each supplier of rental or construction services: signed and stamped before the window,
     with a price-review clause, so no transitional contract exemption (K-4, L-1) applies in the clean base."""
-    for supplier in cw.domestic_suppliers():
+    for supplier in cw.ordinary_suppliers():
         sid = supplier["supplier_id"]
         items = {getattr(catalog().get(c).tax.get(cw.country), "service_item", None) for c in cw.categories[sid]}
         if not any(i and i[0] in ("K", "L") for i in items):
@@ -329,16 +424,20 @@ def _contracts(cw: CompanyWorld, r: random.Random, lo: date) -> None:
 
 
 def _certificates(cw: CompanyWorld, r: random.Random, lo: date, ids: Ids) -> None:
-    """Exemption certificates the country allows for some companies (B1-4 plants the exempt lines; the clean base
-    leaves the covered categories alone)."""
+    """An exemption certificate for each registered manufacturer, covering the categories the pack names (a rule
+    recipe needs them) and two more (B1-4 plants the exempt lines; the clean base leaves the covered categories
+    alone)."""
     eligible = sorted(c.category for c in country_categories(cw.country)
                       if getattr(c.tax.get(cw.country), "schedule_c_eligible", False))
     facts = cw.company.get("tax_facts") or {}
-    if eligible and facts.get("is_registered_manufacturer") and r.random() < 0.5:
+    if eligible and facts.get("is_registered_manufacturer"):
+        must = list(pack(cw.country).generation.certificate_covers)
+        never = set(pack(cw.country).generation.certificate_excludes)
+        rest = [c for c in eligible if c not in must and c not in never]
         cw.company["policy_pack"]["exemption_certificates"].append({
             "kind": "schedule_c", "number": f"SC-{ids.digits(8)}",
             "valid_from": str(lo - timedelta(days=r.randint(30, 400))), "valid_to": None,
-            "categories": sorted(r.sample(eligible, min(2, len(eligible))))})
+            "categories": sorted(must + r.sample(rest, min(2, len(rest))))})
 
 
 def _history(cw: CompanyWorld, r: random.Random, lo: date, hi: date) -> None:
@@ -346,13 +445,14 @@ def _history(cw: CompanyWorld, r: random.Random, lo: date, hi: date) -> None:
     g = pack(cw.country).generation
     for supplier in cw.domestic_suppliers():
         sid = supplier["supplier_id"]
+        kind = cw.kind_of(sid)
         day = lo + timedelta(days=r.randrange(60))
         n = 0
         while day <= hi:
             cats = [catalog().get(c) for c in cw.categories[sid]]
             lines = []
             for i, cat in enumerate(r.sample(cats, min(len(cats), r.randint(1, 2)))):
-                clean = g.clean_line(cat, day)
+                clean = g.clean_line(cat, day, cw.company, supplier, kind)
                 if clean is None:
                     continue
                 qty = r.randint(1, 40) if cat.kind == "goods" else r.randint(1, 2)
@@ -381,7 +481,8 @@ def invoice_dict(cw: CompanyWorld, supplier: dict, lines: list[dict], day: date,
     block = g.einvoice(cw.company, supplier, lines, day, number)
     clean_lines = [{k: v for k, v in x.items() if k != "ext"} for x in lines]
     company = cw.company
-    return {
+    rate = None if supplier["currency"] == company["base_currency"] else g.exchange_rate(supplier["currency"], day)
+    out = {
         "country": cw.country, "invoice_id": invoice_id, "invoice_number": number, "issue_date": str(day),
         "due_date": str(day + timedelta(days=supplier["payment_terms_days"])),
         "supplier_block": {"name": supplier["name"], "address": ", ".join(supplier["address"]["lines"])},
@@ -393,6 +494,23 @@ def invoice_dict(cw: CompanyWorld, supplier: dict, lines: list[dict], day: date,
                        "account_no": supplier["bank_account"]["account_no"]},
         "lines": clean_lines, "einvoice": block,
     }
+    if rate is not None:
+        out["exchange_rate"] = str(rate)
+    return out
+
+
+def stated_rate(base: Decimal, currency: str, day: date, places: int) -> Decimal:
+    """An exchange rate an invoice states: ``base`` moved by up to 5% either way, a fixed function of the currency and
+    the date (so the rate changes from day to day and is never a constant to ignore)."""
+    h = int.from_bytes(hashlib.sha256(f"{currency}|{day.isoformat()}".encode()).digest()[:4], "big")
+    factor = Decimal(95) + Decimal(h % 10_001) / Decimal(1000)        # 95.000 .. 105.000 percent
+    return (base * factor / 100).quantize(Decimal(1).scaleb(-places), ROUND_HALF_UP)
+
+
+def in_base(invoice: dict, amount: Decimal) -> Decimal:
+    """An invoice amount in the company's base currency, at the invoice's own rate."""
+    rate = invoice.get("exchange_rate")
+    return (amount * Decimal(rate)).quantize(CENT, ROUND_HALF_UP) if rate else amount
 
 
 def _background_mail(cw: CompanyWorld, r: random.Random, lo: date, hi: date, domain: str) -> None:

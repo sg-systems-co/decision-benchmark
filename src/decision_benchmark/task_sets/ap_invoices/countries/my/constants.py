@@ -32,6 +32,10 @@ RMCD Guide on Management Services, para 24."""
 
 TAX_TYPE_SALES = "01"
 TAX_TYPE_SERVICE = "02"
+TAX_TYPE_NOT_APPLICABLE = "06"
+"""MyInvois tax type for a line with no tax."""
+CLASSIFICATION_OTHERS = "022"
+"""MyInvois classification code "others" (every generated line)."""
 
 EINVOICE_MANDATORY_HEADER = (
     "supplier_tin",
