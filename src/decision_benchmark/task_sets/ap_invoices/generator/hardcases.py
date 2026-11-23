@@ -54,7 +54,10 @@ class Template(Model):
     family: str
     version: int
     countries: list[str]
-    primary_type: str
+    primary_type: str | None
+    """The exception type the family is drawn for; None: it is planted only where a slot names its rule."""
+    rule: str | None = None
+    """The rule a tax family plants (rules.yaml id)."""
     weight: int = 1
     summary: str
     params: dict[str, ParamSpec] = {}
@@ -110,7 +113,23 @@ def templates() -> dict[str, list[Template]]:
         t = Template.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
         if t.family != path.stem:
             raise ValueError(f"{path.name}: family {t.family} must match the file name")
-        out.setdefault(t.primary_type, []).append(t)
+        if t.primary_type is not None:
+            out.setdefault(t.primary_type, []).append(t)
+    return out
+
+
+@cache
+def rule_families() -> dict[str, Template]:
+    """The family of each rule (rule id -> template), drawn or not."""
+    out: dict[str, Template] = {}
+    for path in sorted((CONTENT / "hardcases").glob("*.yaml")):
+        if path.name == "pairs.yaml":
+            continue
+        t = Template.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+        if t.rule is not None:
+            if t.rule in out:
+                raise ValueError(f"rule {t.rule} has two families")
+            out[t.rule] = t
     return out
 
 
@@ -125,9 +144,14 @@ def check_pairs(pairs: tuple[tuple[str, str], ...]) -> list[str]:
 
 
 def apply(d: Draft, families: list[tuple[Template, list[tuple[str, dict]]]]) -> None:
-    """Apply the families' ops: primary first, then secondary; ops marked late (copies of the finished invoice) last."""
+    """Apply the families' ops: early ones (a rule's line) first, then primary, then secondary; ops marked late (copies
+    of the finished invoice) last."""
     calls = [call for _, cs in families for call in cs]
-    for name, args in [c for c in calls if not OPS[c[0]].late] + [c for c in calls if OPS[c[0]].late]:
+    early = [c for c in calls if OPS[c[0]].early]
+    late = [c for c in calls if OPS[c[0]].late]
+    rest = [c for c in calls if c not in early and c not in late]
+    d.refresh()                                   # amounts as the lines stand (a rule recipe changed rates)
+    for name, args in early + rest + late:
         OPS[name].fn(d, **args)
         d.refresh()
     d.finish()
@@ -137,4 +161,4 @@ def requires_taxed_line(families: list[Template]) -> bool:
     return any("taxed_line" in t.requires for t in families)
 
 
-__all__ = ["ParamSpec", "Template", "apply", "check_pairs", "requires_taxed_line", "templates"]
+__all__ = ["ParamSpec", "Template", "apply", "check_pairs", "requires_taxed_line", "rule_families", "templates"]

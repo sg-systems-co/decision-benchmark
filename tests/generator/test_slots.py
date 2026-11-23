@@ -169,11 +169,16 @@ def test_problem_form_floors():
     problem_rules = [r for r in GEN.rules if r.problem_form]
     assert sum(r.country == "MY" for r in problem_rules) == 52 and sum(r.country == "SG" for r in problem_rules) == 6
     assert all(train[r.id]["problem"] >= 2 for r in problem_rules)    # train: at least 2 per rule
-    assert sum(v["problem"] for v in train.values()) == 2 * 58          # 104 MY + 12 SG
+    only_problem = [r for r in GEN.rules if not r.correct_form]
+    assert sorted(r.id for r in only_problem) == ["K-8", "MS-9"]      # undercharged; the unregistered co-owner
+    assert all(train[r.id]["problem"] == 16 for r in only_problem)    # every appearance a problem form
+    assert sum(v["problem"] for v in train.values()) == 2 * 58 + 2 * 14  # 104 MY + 12 SG, plus 14 more each for both
     test = report(500)["rule_floor"]["problem_by_family"]
-    for fam in ("MY:MS", "MY:K", "MY:L", "MY:P", "MY:MG", "SG:SG"):
-        assert test[fam] == 2, fam                                     # test: 2 per family, 12 in all
-    assert sum(test.values()) == 12
+    for fam in ("MY:L", "MY:P", "MY:MG", "SG:SG"):
+        assert test[fam] == 2, fam                                     # test: 2 per family
+    assert test["MY:MS"] == test["MY:K"] == 2 + 4                     # MS-9 and K-8: all 4 of theirs are problems
+    report_500 = report(500)["rule_floor"]["rules"]
+    assert report_500["MS-9"]["problem"] == report_500["K-8"]["problem"] == 4
 
 
 @pytest.mark.parametrize("n", SIZES)

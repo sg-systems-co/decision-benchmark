@@ -1,0 +1,18 @@
+# The family of rule WH-2 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_wh_2
+version: 1
+countries:
+- MY
+primary_type: null
+rule: WH-2
+summary: 'Technical advice performed in Malaysia by a non-resident: withhold 10% (or the treaty rate).'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: WH-2
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

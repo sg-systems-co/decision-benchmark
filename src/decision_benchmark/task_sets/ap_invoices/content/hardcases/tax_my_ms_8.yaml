@@ -1,0 +1,18 @@
+# The family of rule MS-8 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_ms_8
+version: 1
+countries:
+- MY
+primary_type: null
+rule: MS-8
+summary: 'An imported service: no SST on the overseas invoice, the buyer accounts for it.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: MS-8
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

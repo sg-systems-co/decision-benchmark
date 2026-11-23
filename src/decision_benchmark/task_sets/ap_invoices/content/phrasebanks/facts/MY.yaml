@@ -1,0 +1,166 @@
+# Starter fact expressers, Malaysia, English (B1-4; B1-6 and B2 add variants and languages).
+#
+# A fact the rules read and no structured field holds is stated as a phrase in a document's text (the invoice line
+# description), and its evidence is that document and field path. The phrase reads back to the value: an enum or bool
+# fact by matching one of its value's phrases, a typed fact (date, money, share) by its template, where {value} is
+# 3 May 2025, 1234.50 or 60%. generator/phrases.py loads and checks this file: within a fact no phrase may occur inside
+# another value's phrase, so every phrase reads back to exactly one value.
+facts:
+  financial_charge:
+    kind: enum
+    values:
+      fee_or_commission: [banking fee and commission]
+      bursa_clearing_trading_fee: [Bursa Malaysia clearing and trading fee]
+      listing_perusal_fee: [Bursa Malaysia listing perusal fee]
+      shariah_structure_fee: [Shariah structuring fee]
+      asnb_fund_management: [ASNB unit trust fund management fee]
+      government_securities_fee: [Government securities transaction fee]
+      bursa_share_brokerage: [Bursa Malaysia share brokerage]
+      commodity_platform_fee: [commodity trading platform fee]
+      reinsurance: [reinsurance premium]
+  financial_use:
+    kind: enum
+    values:
+      taxable_financial_services: [used in providing our taxable financial services]
+      medical_life_family_cover: [medical, life and family takaful cover]
+  premises_use:
+    kind: enum
+    values:
+      residential: [at residential premises]
+      religious: [at a place of religious worship]
+      educational: [at educational premises]
+      agricultural: [at agricultural premises]
+  service_site_zone:
+    kind: enum
+    values:
+      langkawi: [provided on Langkawi]
+      labuan: [provided on Labuan]
+      tioman: [provided on Tioman]
+      pangkor: [provided on Pangkor]
+  delivery_zone:
+    kind: enum
+    values:
+      langkawi: [delivered to our Langkawi site]
+      labuan: [delivered to our Labuan site]
+      tioman: [delivered to our Tioman site]
+      pangkor: [delivered to our Pangkor site]
+  residential:
+    kind: bool
+    values:
+      true: [for a residential building]
+      false: [for a commercial building]
+  building_charge:
+    kind: enum
+    values:
+      maintenance: [maintenance charge]
+      sinking_fund: [sinking fund contribution]
+      warranty_repair: [repair under the developer's free warranty]
+  patient_category:
+    kind: enum
+    values:
+      foreign_worker_screening: [foreign worker medical screening]
+      diplomat_with_mofa_letter: [diplomat patient with a Wisma Putra letter]
+      newborn_with_citizen_parent: [newborn of a Malaysian parent]
+  referral_walk_in:
+    kind: bool
+    values:
+      true: [patient walked in after a referral]
+      false: [patient referred by another facility]
+  excluded_management_kind:
+    kind: enum
+    values:
+      health_examination_management: [management of staff health examinations]
+  education_fee_item:
+    kind: enum
+    values:
+      books: [textbooks]
+      uniform: [school uniform]
+      food: [school meals]
+      transport: [school transport]
+      accommodation: [student hostel]
+  oku_holder:
+    kind: bool
+    values:
+      true: [for a trainee holding an OKU card]
+  carriage:
+    kind: enum
+    values:
+      door_to_door_international: [door-to-door international shipment]
+      ocean_peninsula_east_malaysia: [ocean freight between Peninsular and East Malaysia]
+  digital_content_type:
+    kind: enum
+    values:
+      online_distance_learning: [online distance learning]
+      e_newspaper_journal_periodical: [e-newspaper subscription]
+  digital_payment_provider:
+    kind: enum
+    values:
+      bank: [digital banking service of a licensed bank]
+      non_bank: [e-wallet payment service]
+  asset_in_malaysia:
+    kind: bool
+    values:
+      false: [asset used beyond 12 nautical miles offshore]
+  residential_share:
+    kind: share
+    templates: ["residential share {value}"]
+  mixed_development_stated:
+    kind: bool
+    values:
+      true: [approved mixed development under the stamped contract]
+  design_and_build:
+    kind: bool
+    values:
+      true: [design-and-build project]
+  exemption_statement_on_invoice:
+    kind: bool
+    values:
+      true: [exempt under the construction services policy, contract and planning permission numbers shown]
+  place_of_worship:
+    kind: bool
+    values:
+      true: [building works for a place of worship]
+  completed_building:
+    kind: bool
+    values:
+      true: [work on a completed house]
+  client_established_in_malaysia:
+    kind: bool
+    values:
+      false: [for an offshore facility of a client not established in Malaysia]
+  manufactured_by_supplier:
+    kind: bool
+    values:
+      false: [traded goods, not of our manufacture]
+  drop_shipment_export:
+    kind: bool
+    values:
+      true: [shipped direct to the overseas buyer]
+  pallet_returnable:
+    kind: bool
+    values:
+      true: [returnable pallets]
+      false: [one-way pallets]
+  payment_nature:
+    kind: enum
+    values:
+      technical_advice: [technical advice and assistance]
+      contract_payment: [payment under the installation contract]
+      other_gain: [introducer's commission]
+      public_entertainer: [performance fee for the annual dinner]
+  place_of_performance:
+    kind: enum
+    values:
+      in_country: [performed in Malaysia]
+      outside: [performed outside Malaysia]
+  self_billing_type:
+    kind: enum
+    values:
+      agents_dealers_distributors: [agent's commission]
+      individual_not_in_business: [payment to an individual not in business]
+  service_period_start:
+    kind: date
+    templates: ["services from {value}"]
+  service_period_end:
+    kind: date
+    templates: ["services until {value}"]

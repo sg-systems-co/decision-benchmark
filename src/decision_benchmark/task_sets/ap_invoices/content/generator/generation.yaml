@@ -15,7 +15,7 @@ types:
 - {name: tax_problem, tier: 3, tax: true}
 - {name: price_mismatch, tier: 4}
 - {name: quantity_mismatch, tier: 4}
-- {name: invalid_invoice, tier: 3}
+- {name: invalid_invoice, tier: 3, foreign: false}   # the invoice requirements (e-invoice, SST particulars) bind domestic suppliers
 - {name: duplicate, tier: 2}
 - {name: not_received, tier: 4}
 - {name: no_po_or_above_limit, tier: 5}
@@ -62,6 +62,17 @@ rule_floor:
 - {min_cases: 2000, per_rule: 16, problem_per_rule: 2}
 - {min_cases: 500, per_rule: 4, problem_per_family: 2}
 - {min_cases: 300, per_rule: 2}
+
+# The supplier kinds the rules need (rules.yaml supplier) and what each can't do (rules.yaml needs): the co-owner of a
+# rented property isn't registered and isn't in an e-invoicing phase (K-8); the Government exempts its 2025-scope
+# services itself (K-5, L-7, P-8); group relief (MS-6) and the transitional contracts (K-4, L-1) decide before the
+# B2B order (MS-5).
+supplier_lacks:
+  co_owner: [service, goods, phase, b2b]
+  government: [not_public_scope, b2b]
+  group: [b2b]
+  k4_landlord: [b2b]
+  l1_contractor: [b2b]
 
 # B1 plan decision 3: buying companies per split (half per country).
 companies:

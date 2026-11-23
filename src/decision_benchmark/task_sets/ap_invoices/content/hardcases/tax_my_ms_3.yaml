@@ -1,0 +1,18 @@
+# The family of rule MS-3 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_ms_3
+version: 1
+countries:
+- MY
+primary_type: tax_problem
+rule: MS-3
+summary: 'A service provided wholly before 1 Mar 2024, invoiced after it, charged at the new rate; correct: the old rate.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: MS-3
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

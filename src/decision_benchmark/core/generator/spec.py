@@ -25,6 +25,8 @@ class ExceptionType(Model):
     """The type's cases are HAND_OVER (they never take a second problem, step 11 Q14)."""
     tax: bool = False
     """The type's problem is a tax problem (rule-floor problem forms go to these primaries and secondaries)."""
+    foreign: bool = True
+    """The type's cases can come from a foreign supplier (False: never chosen for the foreign-supplier share)."""
 
 
 class TwoProblems(Model):
@@ -85,6 +87,21 @@ class RuleSpec(Model):
     """Exception types whose cases can carry it. Empty: any type that isn't a hand-over type."""
     foreign: bool = False
     """It needs a foreign supplier."""
+    domestic: bool = False
+    """It needs a domestic supplier (never on a foreign-supplier slot)."""
+    correct_form: bool = True
+    """The rule can decide a correct line. False: every appearance is a problem form (e.g. undercharged)."""
+    supplier: str = ""
+    """The kind of supplier it needs, as the task set names it ('' any). A case has one supplier, so two rules that
+    need different kinds never share a slot."""
+    companies: tuple[str, ...] = ()
+    """Company kinds that can carry it, as the task set names them (empty: any)."""
+    takes_line: bool = False
+    """A finding or action rule that needs a line of its own (it can't ride on another rule's line)."""
+    needs: tuple[str, ...] = ()
+    """What the case's supplier must be able to do, as the task set names it (e.g. charge a tax)."""
+    windows: dict[str, tuple[date, date]] = {}
+    """Per form ('problem', 'correct'): the case dates the rule can be planted on (absent: the country window)."""
     note: str = ""
 
     @field_validator("carrier")
@@ -93,6 +110,21 @@ class RuleSpec(Model):
         if v not in ("line", "finding", "action"):
             raise ValueError(f"carrier {v!r}")
         return v
+
+    @model_validator(mode="after")
+    def _forms(self) -> RuleSpec:
+        if not (self.problem_form or self.correct_form):
+            raise ValueError(f"rule {self.id} has neither a problem nor a correct form")
+        if self.foreign and self.domestic:
+            raise ValueError(f"rule {self.id} needs both a foreign and a domestic supplier")
+        for form, (lo, hi) in self.windows.items():
+            if form not in ("problem", "correct") or lo > hi:
+                raise ValueError(f"rule {self.id}: bad window {form} {lo}..{hi}")
+        return self
+
+    def window(self, form: str, country_window: tuple[date, date]) -> tuple[date, date]:
+        lo, hi = self.windows.get(form, country_window)
+        return max(lo, country_window[0]), min(hi, country_window[1])
 
 
 class FloorTier(Model):
@@ -160,6 +192,8 @@ class Generation(Model):
     boundaries: tuple[Boundary, ...]
     companies: tuple[CompanyTier, ...] = ()
     """Buying companies per split, split evenly over the countries."""
+    supplier_lacks: dict[str, tuple[str, ...]] = {}
+    """Supplier kind -> the rule needs it can't meet (a rule that needs one never joins a slot of that kind)."""
 
     @model_validator(mode="after")
     def _consistent(self) -> Generation:

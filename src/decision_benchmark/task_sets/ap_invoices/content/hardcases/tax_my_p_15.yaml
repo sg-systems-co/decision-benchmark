@@ -1,0 +1,18 @@
+# The family of rule P-15 (B1-4): countries/my/planting.py plants it; the recipe adds its finding.
+family: tax_my_p_15
+version: 1
+countries:
+- MY
+primary_type: tax_problem
+rule: P-15
+summary: 'Health-examination management before 1 May 2026 charged; correct: no tax (taxable from 1 May 2026).'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: P-15
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []
