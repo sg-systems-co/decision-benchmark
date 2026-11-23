@@ -394,6 +394,15 @@ Choices made while building B1-4 that the plan didn't fix. None changes a rule o
 - **Dated branches.** Each dated boundary inside the Malaysian window (generation.yaml `boundaries`) carries a branch recipe: a line whose answer turns on the date, planted on the boundary's slots on each side (2 per side in train, 1 in test). 1 Sep 2025 (P-9 for foreign-company buyers) has none: the buyers are Malaysian companies.
 - **Tax slots keep a line for their problem.** The allocator reserves one line of a tax slot for its tax problem (a floor problem form or the family drawn), places the rules that can share a slot with the fewest others first, and gives each problem form the tightest slot that fits. Every Malaysian floor is met in 2,000, 500 and 300-case splits and in 38 allocation seeds tried.
 
+## 8c. Built in B1-5 (Singapore tax families, mixed invoices), for review
+
+- **SG-12 has no correct form** (GST left off a standard-rated supply appears only as a problem): its whole floor is problem forms, as for MS-9 and K-8.
+- **Singapore tax slots are domestic.** A Singapore tax problem needs a GST-registered supplier, except SG-4, which decides every line of the invoice and so can't carry the slot's other rules; generation.yaml `foreign_countries: [MY]` on the tax type.
+- **Invalid-invoice slots exclude the charged-line rules** SG-1, SG-3, SG-9, SG-10 and SG-4: a missing tax-invoice particular makes every Singapore line with GST SG-2, so those rules wouldn't decide their line there (rules.yaml `exclude_types`).
+- **Partially exempt buyers** state the attribution of each claimable purchase (SG-9); their claims are SG-9, not SG-1.
+- **Mixed quota.** Read as counts: at least 240 / 60 / 36 mixed cases and at least 80 / 20 / 12 Malaysian §5-b split cases (generation.yaml `mixed`). The built splits have 693 / 162 / 102 mixed cases (most from lines with different rules) and 124 / 32 / 19 split cases. If "a third of those" means a third of every mixed case, the split share would need raising to about 230 in train.
+- **Limit 5** has its own Ambiguous-slot family on foreign-supplier slots: 3 / 1 / 1 cases in 2,000 / 500 / 300.
+
 ## 8a. Questions as raised
 
 1. **H2 definition.** H2 means the counterfactual key differs, and H2 is planted only from the precedence table in section 3.2a. *Recommended: yes; Sebastian approves the table.*

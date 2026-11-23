@@ -8,7 +8,9 @@
 # absent: the country window). needs: what the case's supplier must be able to do: service (charge service tax),
 # goods (a manufacturer that charges sales tax), phase (past its e-invoicing relaxation period), not_public_scope (a
 # 2025-scope line the Federal or State Government would exempt instead, K-5, L-7, P-8), b2b (a supplier whose own
-# rule would decide first: group relief, a transitional contract).
+# rule would decide first: group relief, a transitional contract), gst (a supplier registered for GST). whole_case:
+# the rule decides every line of the invoice (SG-4), so the case isn't a mixed one. exclude_types: exception types whose
+# own problem would decide the rule's line (a missing tax-invoice particular makes every line with GST SG-2).
 not_counted:
   MS-10: dispatcher; met through P-1 to P-20
   MG-6: dispatcher; met through G-1, G-3, G-4 and G-5
@@ -40,7 +42,7 @@ rules:
 - {id: P-12, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: P-13, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: P-14, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
-- {id: P-15, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2026-04-30']}, note: 'health-examination management: exempt to 30 Apr 2026, taxable from 1 May 2026', needs: [service]}
+- {id: P-15, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2026-04-30']}, note: 'health-examination management: exempt to 30 Apr 2026, taxable from 1 May 2026 (group relief would exempt it from the group supplier)', needs: [service, b2b]}
 - {id: P-16, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: P-17, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: training}
 - {id: P-18, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}, needs: [service]}
@@ -73,22 +75,22 @@ rules:
 - {id: G-5, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
 - {id: ME-1, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MISSING_MANDATORY_FIELD, domestic: true, windows: {correct: ['2025-02-01', '2026-10-31']}, needs: [phase]}
 - {id: ME-2, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MyInvois mandatory fields, domestic: true}
-- {id: ME-3, country: MY, family: ME, carrier: action, note: ISSUE_SELF_BILLED_EINVOICE, companies: [it, fin, builder, plain], windows: {correct: ['2026-01-01', '2026-10-31']}}
+- {id: ME-3, country: MY, family: ME, carrier: action, takes_line: true, note: ISSUE_SELF_BILLED_EINVOICE, companies: [it, fin, builder, plain], windows: {correct: ['2026-01-01', '2026-10-31']}}
 - {id: ME-4, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: 'SST invoice particulars: needs a line that charges tax', domestic: true, takes_line: true, needs: [service]}
 - {id: WH-1, country: MY, family: WH, carrier: action, foreign: true}
 - {id: WH-2, country: MY, family: WH, carrier: action, foreign: true}
 - {id: WH-3, country: MY, family: WH, carrier: action, foreign: true, supplier: foreign_pe}
 - {id: WH-4, country: MY, family: WH, carrier: action, foreign: true}
-- {id: SG-1, country: SG, family: SG, carrier: line}
-- {id: SG-2, country: SG, family: SG, carrier: line, types: [invalid_invoice], note: 'valid tax invoice: an invalid invoice'}
-- {id: SG-3, country: SG, family: SG, carrier: line, problem_form: true}
-- {id: SG-4, country: SG, family: SG, carrier: line, problem_form: true}
-- {id: SG-5, country: SG, family: SG, carrier: line, problem_form: true}
-- {id: SG-6, country: SG, family: SG, carrier: line, problem_form: true}
-- {id: SG-7, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-1, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [plain, receipts], note: 'a partially exempt buyer''s claims are SG-9', exclude_types: [invalid_invoice]}
+- {id: SG-2, country: SG, family: SG, carrier: line, types: [invalid_invoice], domestic: true, needs: [gst], note: 'valid tax invoice: an invalid invoice'}
+- {id: SG-3, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst], windows: {correct: ['2024-01-01', '2024-03-31']}, note: 'correct: a service performed in 2023 invoiced in early 2024 at the old rate', exclude_types: [invalid_invoice]}
+- {id: SG-4, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [no_gst], whole_case: true, note: 'every line of the invoice: a supplier not registered for GST', exclude_types: [invalid_invoice]}
+- {id: SG-5, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
+- {id: SG-6, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
+- {id: SG-7, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
 - {id: SG-8, country: SG, family: SG, carrier: line, foreign: true, note: 'reverse charge: imported services and low-value goods'}
-- {id: SG-9, country: SG, family: SG, carrier: line}
-- {id: SG-10, country: SG, family: SG, carrier: line}
-- {id: SG-11, country: SG, family: SG, carrier: finding, types: [duplicate], note: a duplicate claim is caught by the duplicate check}
-- {id: SG-12, country: SG, family: SG, carrier: line, problem_form: true}
+- {id: SG-9, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [partial], exclude_types: [invalid_invoice]}
+- {id: SG-10, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], exclude_types: [invalid_invoice]}
+- {id: SG-11, country: SG, family: SG, carrier: finding, types: [duplicate], domestic: true, note: a duplicate claim is caught by the duplicate check}
+- {id: SG-12, country: SG, family: SG, carrier: line, problem_form: true, correct_form: false, domestic: true, needs: [gst], note: 'GST left off: only a problem form'}
 - {id: WH-5, country: SG, family: WH, carrier: action, foreign: true}

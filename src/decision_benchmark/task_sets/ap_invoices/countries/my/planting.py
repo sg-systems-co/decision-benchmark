@@ -20,7 +20,9 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import Callable
 
+from ...codes import Code
 from ...generator.country import CannotPlant, SpecialSupplier
+from ...models.answer import WITHHOLD_TAX
 from ...generator.entities import catalog, day_between
 from . import einvoice_timeline as tl
 from . import treaties
@@ -37,14 +39,7 @@ PROBLEM, CORRECT = "problem", "correct"
 
 IMPORTED_ACTION = (ACCOUNT_IMPORTED, None, None)
 SELF_BILLED_ACTION = (ISSUE_SELF_BILLED, None, None)
-WITHHOLD = "WITHHOLD_TAX"
 
-EXEMPT_FINDING = "TAX_SHOULD_BE_EXEMPT"
-WRONG_RATE_FINDING = "WRONG_TAX_RATE"
-UNDERCHARGED_FINDING = "TAX_UNDERCHARGED"
-NOT_REGISTERED_FINDING = "SUPPLIER_NOT_TAX_REGISTERED"
-TRADER_FINDING = "SALES_TAX_CHARGED_BY_TRADER"
-MISSING_FIELD = "MISSING_MANDATORY_FIELD"
 
 # -- companies -----------------------------------------------------------------------------------------------------
 
@@ -218,7 +213,7 @@ def exempt(d, n: int, form: str, category: str, basis: str, facts: dict | None =
     for fact, value in (facts or {}).items():
         d.state(n, fact, value)
     if form == PROBLEM:
-        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, basis, (EXEMPT_FINDING,))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, basis, (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         d.expect(n, T.NO_SST.value, basis)
     if open_question:
@@ -241,7 +236,7 @@ def wrong_rate(d, n: int, category: str, basis: str, right: Decimal, facts: dict
     d.set_line(n, category, rate, ext_for(category, rate))
     for fact, value in (facts or {}).items():
         d.state(n, fact, value)
-    d.expect(n, T.SST_WRONG_RATE.value, basis, (WRONG_RATE_FINDING,))
+    d.expect(n, T.SST_WRONG_RATE.value, basis, (Code.WRONG_TAX_RATE.value,))
 
 
 def foreign(d) -> bool:
@@ -341,7 +336,7 @@ def _ms1(d, n, form):
             c = pick(d, ["imported_consultancy", "foreign_digital_services"], "imported service")
             rate = standard_rate(c, d.day)
             d.set_line(n, c, rate, service_ext(rate))
-            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MS-1", (NOT_REGISTERED_FINDING,), self_billed(d))
+            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MS-1", (Code.SUPPLIER_NOT_TAX_REGISTERED.value,), self_billed(d))
         else:
             # Interest is no taxable service: no tax, nothing for the buyer to account for (WH-1 withholds).
             d.set_line(n, "loan_interest_non_resident", Decimal(0), service_ext(Decimal(0)))
@@ -353,7 +348,7 @@ def _ms1(d, n, form):
             raise CannotPlant("MS-1 problem needs an invoice before 1 Jul 2025")
         c = d.r.choice(["construction_works", "commercial_premises_rental"])
         d.set_line(n, c, Decimal(6), service_ext(Decimal(6)))
-        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-1", (EXEMPT_FINDING,))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-1", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         exempt(d, n, CORRECT, "water_supply", "MS-1")
 
@@ -387,7 +382,7 @@ def _ms3(d, n, form):
     if form == CORRECT:
         d.expect(n, T.SST_CORRECT.value, "MS-3")
     else:
-        d.expect(n, T.SST_WRONG_RATE.value, "MS-3", (WRONG_RATE_FINDING,))
+        d.expect(n, T.SST_WRONG_RATE.value, "MS-3", (Code.WRONG_TAX_RATE.value,))
 
 
 @recipe("MS-4")
@@ -442,7 +437,7 @@ def _ms9(d, n, form):
     need_domestic(d, "MS-9")
     c = pick(d, SERVICES_8 + SERVICES_6, "plain service")
     d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
-    d.expect(n, T.SST_UNDERCHARGED.value, "MS-9", (UNDERCHARGED_FINDING,))
+    d.expect(n, T.SST_UNDERCHARGED.value, "MS-9", (Code.TAX_UNDERCHARGED.value,))
 
 
 # P-1 to P-20: Service Tax Policies
@@ -644,7 +639,7 @@ def _k8(d, n, form):
         raise CannotPlant("K-8 has only a problem form")
     rate = standard_rate("commercial_premises_rental", d.day)
     d.set_line(n, "commercial_premises_rental", rate, service_ext(rate))
-    d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "K-8", (NOT_REGISTERED_FINDING,))
+    d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "K-8", (Code.SUPPLIER_NOT_TAX_REGISTERED.value,))
 
 
 # L-1 to L-8: construction
@@ -708,7 +703,7 @@ def _l8(d, n, form):
     else:
         rate = rates.standard_rate("L", d.day)
         d.set_line(n, c, rate, service_ext(rate))
-        d.expect(n, T.SST_WRONG_RATE.value, "L-8", (WRONG_RATE_FINDING,))
+        d.expect(n, T.SST_WRONG_RATE.value, "L-8", (Code.WRONG_TAX_RATE.value,))
 
 
 # MG-1 to MG-5, G-1 to G-5: sales tax
@@ -724,7 +719,7 @@ def _mg1(d, n, form):
         if form == PROBLEM:
             rate = standard_rate(c, d.day)
             d.set_line(n, c, rate, goods_ext(rate))
-            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MG-1", (NOT_REGISTERED_FINDING,), self_billed(d))
+            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MG-1", (Code.SUPPLIER_NOT_TAX_REGISTERED.value,), self_billed(d))
         else:
             d.set_line(n, c, Decimal(0), goods_ext(Decimal(0)))
             d.expect(n, T.NO_SST.value, "MG-1", (), self_billed(d))
@@ -733,7 +728,7 @@ def _mg1(d, n, form):
         rate = standard_rate(c, d.day)
         d.set_line(n, c, rate, goods_ext(rate))
         d.state(n, "manufactured_by_supplier", False)
-        d.expect(n, T.SST_NOT_CHARGEABLE_BY_TRADER.value, "MG-1", (TRADER_FINDING,))
+        d.expect(n, T.SST_NOT_CHARGEABLE_BY_TRADER.value, "MG-1", (Code.SALES_TAX_CHARGED_BY_TRADER.value,))
     else:
         exempt(d, n, CORRECT, c, "MG-1", {"manufactured_by_supplier": False})
 
@@ -763,7 +758,7 @@ def _mg3(d, n, form):
     rate = TAX_CLASS_RATE[profile(c).tax_class] if form == PROBLEM else Decimal(0)
     d.set_line(n, c, rate, goods_ext(rate))
     if form == PROBLEM:
-        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MG-3", (EXEMPT_FINDING,))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MG-3", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         d.expect(n, T.NO_SST.value, "MG-3")
 
@@ -781,7 +776,7 @@ def _mg4(d, n, form):
     rate = TAX_CLASS_RATE[goods_class(c, d.day)] if form == PROBLEM else Decimal(0)
     d.set_line(n, c, rate, goods_ext(rate))
     if form == PROBLEM:
-        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MG-4", (EXEMPT_FINDING,))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MG-4", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         d.expect(n, T.NO_SST.value, "MG-4")
 
@@ -831,7 +826,7 @@ def _g4(d, n, form):
     d.set_line(n, "wooden_pallets", rate, goods_ext(rate))
     d.state(n, "pallet_returnable", False)
     if form == PROBLEM:
-        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "G-4", (EXEMPT_FINDING,))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "G-4", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         d.expect(n, T.NO_SST.value, "G-4")
 
@@ -856,14 +851,14 @@ def _me1(d, n, form):
         raise CannotPlant("ME-1 needs a supplier past its relaxation period")
     e = d.invoice["einvoice"]
     e.update(is_einvoice=False, uuid=None, validation_datetime=None)
-    d.findings.append(MISSING_FIELD)
+    d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
 
 
 @recipe("ME-2")
 def _me2(d, n, form):
     need_domestic(d, "ME-2")
     d.invoice["einvoice"]["buyer_tin"] = None            # a MyInvois mandatory field
-    d.findings.append(MISSING_FIELD)
+    d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
 
 
 @recipe("ME-3")
@@ -885,7 +880,7 @@ def _me4(d, n, form):
     if not Decimal(d.line(n)["tax_rate"]) > 0:
         taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
     d.invoice["supplier_block"]["address"] = None
-    d.findings.append(MISSING_FIELD)
+    d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
 
 
 # WH-1 to WH-4: withholding on payments to non-residents (buyer actions)
@@ -905,7 +900,7 @@ def _withholding(d, nature: str) -> tuple:
         row = treaties.row(d.supplier["country"], d.day)
         if row is not None:
             rate = min(rate, getattr(row, column).for_payer(False))
-    return (WITHHOLD, str(rate), basis)
+    return (WITHHOLD_TAX, str(rate), basis)
 
 
 @recipe("WH-1")
@@ -939,7 +934,7 @@ def _wh3(d, n, form):
     d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
     d.state(n, "payment_nature", "contract_payment")
     d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (),
-             (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD, "10", "WH-3"), (WITHHOLD, "3", "WH-3")))
+             (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD_TAX, "10", "WH-3"), (WITHHOLD_TAX, "3", "WH-3")))
 
 
 @recipe("WH-4")
@@ -948,7 +943,7 @@ def _wh4(d, n, form):
     nature, rate = d.r.choice([("other_gain", "10"), ("public_entertainer", "15")])
     d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
     d.state(n, "payment_nature", nature)
-    d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD, rate, "WH-4"),))
+    d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD_TAX, rate, "WH-4"),))
 
 
 # -- branches: a line whose answer turns on a dated boundary (generation.yaml boundaries) ----------------------------
@@ -1141,6 +1136,67 @@ def _b_dgta_mro(d, n, side):
         taxed(d, n, "aircraft_ship_mro", "MS-2")
     else:
         _uncharged(d, n, "aircraft_ship_mro", "P-9")
+
+
+# -- §5-b splits and mixed lines -------------------------------------------------------------------------------------
+
+
+def plant_split(d, n: int) -> None:
+    """A line that turns on a §5-b split (B1 plan section 3.3): a package sold at one price (the group's rate, from
+    1 Mar 2024); from 1 Jul 2025 also construction whose materials and works aren't shown separately (L-8: the whole
+    is taxed), installation by a sales-tax manufacturer not shown separately (L-8), an itemised consultation fee or one
+    that isn't (P-12), or a school fee item other than tuition (P-16). Where the supplier can't charge tax, only the
+    uncharged ones."""
+    need_domestic(d, "split")
+    charges = registered(d.supplier, "service", d.day)
+    gov = d.supplier_kind in ("government", "local_authority")
+    builder = "L" in provided(d)
+    options = []
+    if charges and d.day >= rates.GENERAL_RATE_FROM:
+        options.append("package")
+    if d.day >= scope.NEW_SCOPE_FROM:
+        if not gov:
+            options += ["p12", "p16"]
+        if charges and not gov and not builder and d.supplier_kind not in ("l1_contractor", "k4_landlord"):
+            options.append("materials")
+        if registered(d.supplier, "sales", d.day) and is_manufacturer(d.supplier):
+            options.append("installation")
+    if not options:
+        raise CannotPlant("no split the supplier and the date allow")
+    choice = d.r.choice(options)
+    if choice == "package":
+        taxed(d, n, "catering", "MS-2", {"package_single_price": True})
+    elif choice == "materials":
+        taxed(d, n, "construction_works", "L-8", {"materials_works_separated": False})
+    elif choice == "installation":
+        _l8(d, n, CORRECT)
+    elif choice == "p12":
+        if charges and d.r.random() < 0.5:
+            # Not itemised: the whole invoice is taxed (P-12), for a non-citizen patient (a citizen's is excluded, MS-4).
+            taxed(d, n, "healthcare_consultation", "P-12",
+                  {"itemised_consultation_fee": False, "patient_category": "non_citizen"})
+        else:
+            exempt(d, n, CORRECT, "healthcare_consultation", "P-12")
+    else:
+        exempt(d, n, CORRECT, "staff_education_fees", "P-16", {"education_fee_item": d.r.choice(["books", "uniform"])})
+
+
+def mix_line(d, n: int) -> None:
+    """A line whose outcome differs from the others: water supply (not a taxable service, MS-1), else a taxed plain
+    service or goods; from a foreign supplier, imported goods (no SST on the invoice, MG-1) or an imported service."""
+    outcomes = {(t, b) for _, t, b in d.built.planted.lines}
+    if foreign(d):
+        if (T.NO_SST.value, "MG-1") not in outcomes:
+            _mg1(d, n, CORRECT)
+        else:
+            _ms8(d, n, CORRECT)
+        return
+    if (T.NO_SST.value, "MS-1") not in outcomes:
+        exempt(d, n, CORRECT, "water_supply", "MS-1")
+    elif registered(d.supplier, "service", d.day):
+        taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
+    else:
+        raise CannotPlant("no line that differs")
 
 
 def plant_branch(d, n: int, name: str, side: str) -> None:

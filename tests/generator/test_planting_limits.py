@@ -151,3 +151,23 @@ def test_limit_7_wh2_service_period():
                 assert facts is not None and facts.service_period_start and facts.service_period_end, g.built.case_id
                 lines += 1
     assert lines > 0
+
+
+def test_limit_5_unconfirmed_treaty_rows():
+    """A case that reads an unconfirmed Singapore treaty row is HAND_OVER with basis WH-5, in an Ambiguous slot. No
+    settled key reads one."""
+    planted = 0
+    for n in SIZES:
+        for g in built(n).cases:
+            if g.envelope.country != "SG":
+                continue
+            view = build_case_view(g.records, g.envelope)
+            result = view.pack.assess_tax(view, catalog())
+            unconfirmed = [u for u in result.unsettled if "not confirmed" in u.reason]
+            if unconfirmed:
+                assert g.answer.decision.value == "HAND_OVER", g.built.case_id
+                assert g.envelope.payload.exception_types == ["ambiguous"], g.built.case_id
+                planted += 1
+            else:
+                assert "unconfirmed_treaty" not in g.families
+    assert planted > 0

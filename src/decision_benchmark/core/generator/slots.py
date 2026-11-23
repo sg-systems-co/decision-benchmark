@@ -271,7 +271,9 @@ class _Allocator:
             share = as_fraction(self.gen.foreign_share)
             k = apportion(len(pool), {"foreign": share, "domestic": 100 - share})["foreign"]
             def can(slot: Slot) -> bool:
-                return all(self.gen.type(t).foreign for t in slot.types())
+                return all(self.gen.type(t).foreign and (self.gen.type(t).foreign_countries is None
+                                                         or slot.country in self.gen.type(t).foreign_countries)
+                           for t in slot.types())
 
             cells = {key: [s for s in v if can(s)] for key, v in self.cells.items() if key[1] == c}
             cells = {key: v for key, v in cells.items() if v}
@@ -302,11 +304,17 @@ class _Allocator:
         split = int(split_exact)
         ok = [s for s in self.slots if not self.gen.type(s.primary).handover]
         for c, k in apportion(split, {c: 1 for c in mx.split_countries}).items():
-            pool = [s for s in ok if s.country == c]
+            # A split case keeps a line of its own for the split (besides a tax slot's line for its problem).
+            pool = [s for s in ok if s.country == c and s.lines >= 1 + self._tax(s) and not s.foreign]
+            untaxed = [s for s in pool if not self._tax(s)]
+            pool = untaxed if len(untaxed) >= k else pool       # a tax slot's lines are the problem forms' room
             for s in self._pick(pool, k, f"split cases in {c}", "mixed-split", c):
                 s.mixed = "split"
+                if mx.split_window is not None:
+                    assert s.window is not None
+                    s.window = (max(s.window[0], mx.split_window[0]), min(s.window[1], mx.split_window[1]))
         for c, k in apportion(total - split, {c: 1 for c in self.gen.countries}).items():
-            pool = [s for s in ok if s.country == c and s.lines >= 2 and s.mixed is None]
+            pool = [s for s in ok if s.country == c and s.lines >= 2 and s.mixed is None and not s.foreign]
             for s in self._pick(pool, k, f"mixed lines in {c}", "mixed-lines", c):
                 s.mixed = "lines"
 
@@ -338,8 +346,8 @@ class _Allocator:
         rank = {s.key: i for i, s in enumerate(self._shuffled(self.slots, "rules"))}
         # A tax slot keeps one line for its tax problem: the first problem form placed there, or else the problem its
         # tax family plants. Correct forms get the other lines.
-        reserved = {s.key: any(self.gen.type(t).tax for t in s.types()) for s in self.slots}
-        free_lines = {s.key: s.lines - reserved[s.key] for s in self.slots}
+        reserved = {s.key: self._tax(s) for s in self.slots}
+        free_lines = {s.key: s.lines - reserved[s.key] - (s.mixed == "split") for s in self.slots}
         problems = {s.key: 0 for s in self.slots}
 
         def free_problem_of(key: int) -> int:
@@ -409,6 +417,8 @@ class _Allocator:
         kind = a.supplier or b.supplier
         if kind and (set(a.needs) | set(b.needs)) & set(self.gen.supplier_lacks.get(kind, ())):
             return False
+        if self.gen.needs_clash(set(a.needs) | set(b.needs)):
+            return False
         if a.companies and b.companies and not set(a.companies) & set(b.companies):
             return False
         wa, wb = a.window(fa, self.gen.windows[a.country]), b.window(fb, self.gen.windows[b.country])
@@ -418,14 +428,21 @@ class _Allocator:
         """The rule can join the slot's rules: one supplier kind, a company kind both allow, a common date."""
         if rule.supplier and s.supplier and rule.supplier != s.supplier:
             return False
+        if rule.whole_case and s.mixed:
+            return False
         kind = s.supplier or rule.supplier
         needs = set(rule.needs).union(*(self._rule(u.rule).needs for u in s.rules))
         if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if self.gen.needs_clash(needs):
             return False
         if rule.companies and s.companies is not None and not set(rule.companies) & set(s.companies):
             return False
         lo, hi = self._narrowed(s, rule, form)
         return lo <= hi
+
+    def _tax(self, s: Slot) -> bool:
+        return any(self.gen.type(t).tax for t in s.types())
 
     def _rule(self, rule_id: str) -> RuleSpec:
         return next(r for r in self.gen.rules if r.id == rule_id)
@@ -435,11 +452,15 @@ class _Allocator:
         for s in self.slots:
             if s.country != rule.country or self.gen.type(s.primary).handover:
                 continue
-            if (rule.foreign and not s.foreign) or (rule.domestic and s.foreign):
+            if (rule.foreign and not s.foreign) or ((rule.domestic or form in rule.domestic_forms) and s.foreign):
+                continue
+            if set(rule.exclude_types) & set(s.types()):
                 continue
             if form == PROBLEM:
                 if not any(self.gen.type(t).tax for t in s.types()):
                     continue
+            elif rule.whole_case and self._tax(s):
+                continue                 # it decides every line, so no tax problem could join it
             elif rule.types and not set(rule.types) & set(s.types()):
                 continue
             out.append(s)
@@ -487,7 +508,9 @@ class _Allocator:
             return False
         if side in b.types and not set(b.types[side]) & set(s.types()):
             return False
-        used = any(self.gen.type(t).tax for t in s.types()) + sum(
+        if set(b.exclude_types.get(side, ())) & set(s.types()):
+            return False
+        used = self._tax(s) + (s.mixed == "split") + sum(
             1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line)
         if s.lines - used < 1:
             return False
@@ -496,6 +519,8 @@ class _Allocator:
         kind = s.supplier or b.supplier
         needs = set(b.needs).union(*(self._rule(u.rule).needs for u in s.rules))
         if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
+            return False
+        if self.gen.needs_clash(needs):
             return False
         if b.companies and s.companies is not None and not set(b.companies) & set(s.companies):
             return False

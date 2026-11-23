@@ -16,7 +16,7 @@ import random
 from datetime import date, datetime, time, timezone
 from decimal import Decimal
 
-from ...generator.country import CleanLine, ProblemLine
+from ...generator.country import CannotPlant, CleanLine, ProblemLine
 from ...generator.entities import stated_rate
 from ...models import Category
 from . import planting
@@ -54,6 +54,8 @@ class MalaysiaGeneration:
     """G-3 plants the critical raw materials, which a Schedule C certificate would exempt instead (MG-4)."""
     plants_rules = True
     """The rule recipes are in planting.py."""
+    reusable_bases = ("MS-8",)
+    """A withholding rule may take a line planted for an imported service (it keeps that line's basis)."""
 
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(10_000, 99_999)}"
@@ -203,6 +205,18 @@ class MalaysiaGeneration:
 
     def plant_branch(self, d, line: int, branch: str, side: str) -> None:
         planting.plant_branch(d, line, branch, side)
+
+    def plant_handover(self, d, line: int, kind: str) -> None:
+        raise CannotPlant(f"no Malaysian hand-over recipe {kind}")
+
+    def plant_split(self, d, line: int) -> None:
+        planting.plant_split(d, line)
+
+    def mix_line(self, d, line: int) -> None:
+        planting.mix_line(d, line)
+
+    def finish_case(self, d) -> None:
+        return None
 
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         if kind:

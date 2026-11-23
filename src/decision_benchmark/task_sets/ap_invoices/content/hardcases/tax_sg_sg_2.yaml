@@ -1,0 +1,18 @@
+# The family of rule SG-2 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_2
+version: 1
+countries:
+- SG
+primary_type: null
+rule: SG-2
+summary: 'An invoice missing a tax-invoice particular: its GST can''t be claimed.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-2
+    form: correct
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

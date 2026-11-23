@@ -122,6 +122,21 @@ class CountryGeneration(Protocol):
         """Plant line ``line`` so its answer turns on a dated boundary (generation.yaml ``branch``), on its 'before'
         or 'after' side."""
 
+    reusable_bases: tuple[str, ...]
+    """Line bases an action rule may reuse a line of (an imported service it keeps the basis of)."""
+
+    def plant_handover(self, d, line: int, kind: str) -> None:
+        """Plant a line that raises a question the rules leave open (a hand-over family)."""
+
+    def plant_split(self, d, line: int) -> None:
+        """Plant a line that turns on a split (a mixed 'split' case)."""
+
+    def mix_line(self, d, line: int) -> None:
+        """Plant a line whose outcome differs from the invoice's clean lines (a mixed 'lines' case)."""
+
+    def finish_case(self, d) -> None:
+        """Facts the country states once every line is planted (e.g. a partially exempt buyer's attribution)."""
+
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
         """The suppliers a case may come from on the day: kind, the special supplier kind its rules need ('' any);
         needs, what its rules need the supplier to do (rules.yaml needs). None: the clean base's usual choice."""

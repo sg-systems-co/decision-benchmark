@@ -12,7 +12,7 @@ windows:
 # Step 11 plan §5.2: priority tiers. Same order as TaskSetSpec.quotas.
 types:
 - {name: clean}
-- {name: tax_problem, tier: 3, tax: true}
+- {name: tax_problem, tier: 3, tax: true, foreign_countries: [MY]}   # a Singapore tax problem needs a GST-registered (so domestic) supplier, except SG-4, which decides the whole invoice
 - {name: price_mismatch, tier: 4}
 - {name: quantity_mismatch, tier: 4}
 - {name: invalid_invoice, tier: 3, foreign: false}   # the invoice requirements (e-invoice, SST particulars) bind domestic suppliers
@@ -49,6 +49,9 @@ mixed:
   share: '12'
   split_share: '1/3'
   split_countries: [MY]
+  # The §5-b splits the recipes plant (packages, L-8, P-12, P-16) all decide from 1 Mar 2024 (packages) or later.
+  split_window: ['2024-03-01', '2026-10-31']
+  split_needs: [service]
 
 # B1 plan §3.4: foreign-supplier lines carry MS-8, ME-3 and the withholding rules (15% of each country's cases).
 foreign_share: '15'
@@ -78,9 +81,14 @@ supplier_lacks:
   co_owner: [service, goods, phase, phase1, b2b]
   government: [not_public_scope, b2b]
   local_authority: [not_public_scope, b2b]
+  sg_unregistered: [gst]
   group: [b2b]
   k4_landlord: [b2b]
   l1_contractor: [b2b]
+
+# Needs no one supplier meets together: registered for GST and not (SG-4).
+needs_conflict:
+- [gst, no_gst]
 
 # B1 plan decision 3: buying companies per split (half per country).
 companies:
@@ -106,15 +114,15 @@ boundaries:
 - {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m', branch: me3_phase_1, companies: [it]}
 - {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))', branch: wellness_tcm, needs: [service]}
 - {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m', branch: me3_phase_2, companies: [fin]}
-- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {before: [clean, tax_problem, price_mismatch, quantity_mismatch, duplicate, not_received, no_po_or_above_limit, bank_change], after: [invalid_invoice]}}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}}
 - {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)', branch: ms7_items_5_7, needs: [service]}
 - {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start', branch: scope_2025, companies: [it, fin, plain, msme, new_sme], needs: [service, not_public_scope, b2b]}
 - {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}
 - {country: MY, day: '2025-10-01', note: 'K-5 and L-7 local authorities end 30 Sep 2025', branch: local_authority_end, supplier: local_authority, companies: [it, fin, builder, plain]}
 - {country: MY, day: '2026-01-01', note: 'rental 6%; K-1 RM1m-1.5m; G-3; ME-1 up to RM5m and relaxation end 31 Dec 2025', branch: rental_rate_2026, companies: [it, fin, builder, plain], needs: [service, not_public_scope, b2b]}
-- {country: MY, day: '2026-05-01', note: 'P-15', branch: p15_taxable, needs: [service]}
+- {country: MY, day: '2026-05-01', note: 'P-15', branch: p15_taxable, needs: [service, b2b]}
 - {country: MY, day: '2026-06-01', note: 'P-7 TIA-i', branch: tia_i, needs: [service, not_public_scope]}
 - {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses', branch: k4_end, supplier: k4_landlord, companies: [it, fin, builder, plain]}
 - {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7', branch: g3_end, needs: [goods]}
 - {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations', branch: dgta_mro, supplier: dgta_mro, companies: [plain]}
-- {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)'}
+- {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)', branch: gst_rate_2024, needs: [gst], companies: [plain, receipts]}

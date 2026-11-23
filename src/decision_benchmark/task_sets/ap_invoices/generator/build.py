@@ -291,18 +291,26 @@ def _rules(gen: Generation) -> dict[str, RuleSpec]:
 
 def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> bool:
     """A drawn family's rule can join the slot: its problem form on the slot's dates, supplier and company."""
+    if t.foreign is not None and t.foreign != slot.foreign:
+        return False
+    if t.supplier and slot.supplier and t.supplier != slot.supplier:
+        return False
     if t.rule is None:
         return True
     r = _rules(gen).get(t.rule)
     if r is None or r.country != slot.country or any(u.rule == t.rule for u in slot.rules):
         return False
-    if (r.foreign and not slot.foreign) or (r.domestic and slot.foreign):
+    if (r.foreign and not slot.foreign) or ((r.domestic or PROBLEM in r.domestic_forms) and slot.foreign):
+        return False
+    if set(r.exclude_types) & set(slot.types()):
         return False
     if r.supplier and slot.supplier and r.supplier != slot.supplier:
         return False
     kind = slot.supplier or r.supplier
     needs = set(r.needs).union(*(_rules(gen)[u.rule].needs for u in slot.rules if u.rule in _rules(gen)))
     if kind and needs & set(gen.supplier_lacks.get(kind, ())):
+        return False
+    if gen.needs_clash(needs):
         return False
     if r.companies and cw.kind not in r.companies:
         return False
@@ -418,7 +426,8 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     g = pack(cw.country).generation
     floor = [u for u in slot.rules if u.rule not in family_rules] if g.plants_rules else []
     rules = _rules(gen)
-    kind = slot.supplier or next((rules[x].supplier for x in family_rules if rules[x].supplier), "")
+    kind = slot.supplier or next((rules[x].supplier for x in family_rules if rules[x].supplier), "") or next(
+        (t.supplier for t in families if t.supplier), "")
     uses = [(x, PROBLEM) for x in family_rules] + [(u.rule, u.form) for u in floor]
     planted_rules = [x for x, _ in uses]
     needs = set().union(*(rules[x].needs for x in planted_rules if x in rules))
@@ -426,6 +435,8 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     boundary = _branch(gen, slot) if g.plants_rules else None
     if boundary is not None:
         needs |= set(boundary.needs)
+    if slot.mixed == "split":
+        needs |= set(gen.mixed.split_needs)
     try:
         window = _window(gen, slot, [(rules[x], PROBLEM) for x in family_rules])
         built = clean_case(gen, split, cw, slot, attempt, need_taxed=requires_taxed_line(families), window=window,
@@ -434,6 +445,7 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         build.families.setdefault(names[0], _Tally()).add("no clean form", str(e))
         return None, str(e), names
     d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt), uses=list(slot.rules))
+    taken: set[int] = set()
     calls = [(t, t.calls(rng(split.seed, "case", slot.case_index, "params", t.family, attempt))) for t in families]
     try:
         for _, cs in calls:                                   # the families' rule lines (line 1)
@@ -449,6 +461,18 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
                 raise CannotPlant(f"no free line for the {boundary.branch} branch")
             g.plant_branch(d, free[0], boundary.branch, slot.boundary[1])
             branch = f"{boundary.branch}:{slot.boundary[1]}"
+            taken.add(free[0])
+        if slot.mixed == "split" and g.plants_rules:
+            free = [k for k in range(1, len(d.invoice["lines"]) + 1)
+                    if k not in taken and not (family_rules and k == 1)]
+            if not free:
+                raise CannotPlant("no free line for the split")
+            g.plant_split(d, free[0])
+            taken.add(free[0])
+        if g.plants_rules:
+            g.finish_case(d)
+        if slot.mixed == "lines" and g.plants_rules:          # before the families' ops, which scale amounts
+            _mix(d, g, taken | ({1} if family_rules else set()))
     except CannotPlant as e:
         _tally(build, families, built.planted, "cannot plant", str(e), planted_rules, _branch_names(boundary))
         return None, f"cannot plant: {e}", names
@@ -490,6 +514,19 @@ def _window(gen: Generation, slot: Slot, extra: list[tuple[RuleSpec, str]]) -> t
     return lo, hi
 
 
+def _mix(d: Draft, g, used: set[int]) -> None:
+    """A mixed 'lines' case: at least two lines with different outcomes; if the planted lines all agree, a line no
+    rule took becomes one that differs."""
+    if len({(t, b) for _, t, b in d.built.planted.lines}) >= 2:
+        return
+    free = [k for k in range(1, len(d.invoice["lines"]) + 1) if k not in used]
+    if not free:
+        raise CannotPlant("no free line to mix")
+    g.mix_line(d, free[-1])
+    if len({(t, b) for _, t, b in d.built.planted.lines}) < 2:
+        raise CannotPlant("the mixing line didn't change the outcome")
+
+
 def _branch_names(boundary) -> list[str]:
     return [f"branch:{boundary.branch}"] if boundary is not None else []
 
@@ -515,7 +552,8 @@ def _plant_floor(d: Draft, uses: list, first_line: int, own_line: set[str] = fro
         n += 1
     for u in [u for u in uses if u.carrier != "line"]:
         free = [k for k in range(1, len(d.invoice["lines"]) + 1) if k not in taken and k >= first_line]
-        reuse = [k for k, rule in taken.items() if d.built.planted.lines[k - 1][2] == "MS-8"]
+        bases = pack(d.cw.country).generation.reusable_bases
+        reuse = [k for k, rule in taken.items() if d.built.planted.lines[k - 1][2] in bases]
         line = (free or reuse or [len(d.invoice["lines"])])[0]
         plant_rule(d, line, u.rule, u.form)
         if u.rule in own_line:            # it set the line (others only add a finding or a phrase)

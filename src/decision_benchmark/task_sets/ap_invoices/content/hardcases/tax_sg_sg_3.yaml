@@ -1,0 +1,18 @@
+# The family of rule SG-3 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_3
+version: 1
+countries:
+- SG
+primary_type: tax_problem
+rule: SG-3
+summary: 'GST at a rate the time-of-supply rules don''t allow; correct: the old rate on a supply spanning 1 Jan 2024.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-3
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

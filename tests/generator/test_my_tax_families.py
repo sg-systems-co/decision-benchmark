@@ -57,8 +57,7 @@ def test_one_family_per_malaysian_rule():
         assert t.primary_type == ("tax_problem" if r.problem_form else None)          # drawn only for a problem
         assert t.ops[0].args["form"] == (PROBLEM if r.problem_form else CORRECT)
     assert set(planting.RECIPES) == {r.id for r in MY_RULES}
-    wrong_rate = next(t for t in templates()["tax_problem"] if t.family == "wrong_rate")
-    assert wrong_rate.countries == ["SG"]                                              # the placeholder is gone in MY
+    assert not [t for t in templates()["tax_problem"] if t.family == "wrong_rate"]      # the placeholder is gone
 
 
 # -- floors --------------------------------------------------------------------------------------------------------
@@ -124,7 +123,7 @@ def reach() -> dict:
 
 def test_every_malaysian_rule_is_reachable_on_50_draws():
     report = reach()
-    assert set(report) == {r.id for r in MY_RULES}
+    assert {r.id for r in MY_RULES} <= set(report)
     for r in MY_RULES:
         forms = report[r.id]
         assert set(forms) == {f for f, ok in ((PROBLEM, r.problem_form), (CORRECT, r.correct_form)) if ok}

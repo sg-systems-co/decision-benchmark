@@ -27,6 +27,8 @@ class ExceptionType(Model):
     """The type's problem is a tax problem (rule-floor problem forms go to these primaries and secondaries)."""
     foreign: bool = True
     """The type's cases can come from a foreign supplier (False: never chosen for the foreign-supplier share)."""
+    foreign_countries: tuple[str, ...] | None = None
+    """Where foreign is True: only in these countries (None: every country)."""
 
 
 class TwoProblems(Model):
@@ -71,6 +73,10 @@ class Mixed(Model):
     split_share: str
     """Fraction of the mixed cases that are split cases."""
     split_countries: tuple[str, ...]
+    split_window: tuple[date, date] | None = None
+    """The dates a split case can take (where the task set's splits decide)."""
+    split_needs: tuple[str, ...] = ()
+    """What a split case's supplier must be able to do (as a rule's needs)."""
 
 
 class RuleSpec(Model):
@@ -85,10 +91,14 @@ class RuleSpec(Model):
     """The rule can decide a problem line (wrongly charged or undercharged)."""
     types: tuple[str, ...] = ()
     """Exception types whose cases can carry it. Empty: any type that isn't a hand-over type."""
+    exclude_types: tuple[str, ...] = ()
+    """Exception types whose cases can't carry it (their own problem would decide its line)."""
     foreign: bool = False
     """It needs a foreign supplier."""
     domestic: bool = False
     """It needs a domestic supplier (never on a foreign-supplier slot)."""
+    domestic_forms: tuple[str, ...] = ()
+    """Forms that need a domestic supplier when the rule itself doesn't."""
     correct_form: bool = True
     """The rule can decide a correct line. False: every appearance is a problem form (e.g. undercharged)."""
     supplier: str = ""
@@ -96,6 +106,8 @@ class RuleSpec(Model):
     need different kinds never share a slot."""
     companies: tuple[str, ...] = ()
     """Company kinds that can carry it, as the task set names them (empty: any)."""
+    whole_case: bool = False
+    """The rule decides every line of the case (a mixed slot can't carry it)."""
     takes_line: bool = False
     """A finding or action rule that needs a line of its own (it can't ride on another rule's line)."""
     needs: tuple[str, ...] = ()
@@ -171,7 +183,9 @@ class Boundary(Model):
     needs: tuple[str, ...] = ()
     """As a rule's (RuleSpec): the supplier kind, company kinds and supplier needs the branch line takes."""
     types: dict[str, tuple[str, ...]] = {}
-    """Per side ('before', 'after'): the exception types whose slots can carry the branch (absent: any non-hand-over)."""
+    """Per side ('before', 'after'): a slot carrying the branch has one of these exception types (absent: any)."""
+    exclude_types: dict[str, tuple[str, ...]] = {}
+    """Per side: a slot carrying the branch has none of these exception types."""
 
 
 class Generation(Model):
@@ -210,6 +224,11 @@ class Generation(Model):
     special_suppliers: tuple[SpecialTier, ...] = ()
     """How many suppliers of each special kind a split has (the largest tier that fits; default one)."""
     supplier_lacks: dict[str, tuple[str, ...]] = {}
+    needs_conflict: tuple[tuple[str, str], ...] = ()
+    """Pairs of rule needs no one supplier meets together (e.g. registered and not registered)."""
+
+    def needs_clash(self, needs: set[str]) -> bool:
+        return any(a in needs and b in needs for a, b in self.needs_conflict)
     """Supplier kind -> the rule needs it can't meet (a rule that needs one never joins a slot of that kind)."""
 
     @model_validator(mode="after")

@@ -11207,7 +11207,7 @@ keys:
       line_no: 2
       treatment: SST_SHOULD_BE_EXEMPT
     tax_treatment: SST_SHOULD_BE_EXEMPT
-  test: tests/rules/test_mixed_invoices.py::test_5a_my_wrongly_charged_line_makes_the_whole_invoice_corrected
+  test: tests/rules/test_mixed_invoices.py::test_5a_my_wrongly_charged_line_makes_the_whole_case_corrected
 - call: 0
   key:
     answer_source: rules
@@ -15751,7 +15751,7 @@ keys:
       line_no: 1
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
-  test: tests/rules/test_my_construction.py::test_l8_materials_not_separated_tax_the_whole_invoice
+  test: tests/rules/test_my_construction.py::test_l8_materials_not_separated_tax_the_whole_case
 - call: 0
   key:
     answer_source: rules
@@ -19947,7 +19947,7 @@ keys:
       line_no: 1
       treatment: SST_CORRECT
     tax_treatment: SST_CORRECT
-  test: tests/rules/test_my_policies.py::test_p12_near_miss_not_itemised_the_whole_invoice_is_taxed
+  test: tests/rules/test_my_policies.py::test_p12_near_miss_not_itemised_the_whole_case_is_taxed
 - call: 0
   key:
     answer_source: rules

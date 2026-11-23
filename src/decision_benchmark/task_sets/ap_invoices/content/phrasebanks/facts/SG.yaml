@@ -1,0 +1,17 @@
+# Starter fact expressers, Singapore, English (B1-5; B1-6 and B2 add variants and languages). As
+# content/phrasebanks/facts/MY.yaml: a fact no structured field holds is stated as a phrase in the invoice line
+# description, and reads back to its value.
+facts:
+  purchase_attribution:
+    kind: enum
+    values:
+      taxable: [for our taxable supplies]
+      exempt: [for our exempt supplies]
+      residual: [for both taxable and exempt supplies]
+  delivery_date:
+    kind: date
+    templates: ["service performed on {value}"]
+  place_of_performance:
+    kind: enum
+    values:
+      in_country: [work done in Singapore]

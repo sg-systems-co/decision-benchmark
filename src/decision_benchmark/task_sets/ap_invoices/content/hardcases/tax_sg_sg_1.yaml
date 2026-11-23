@@ -1,0 +1,18 @@
+# The family of rule SG-1 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_1
+version: 1
+countries:
+- SG
+primary_type: null
+rule: SG-1
+summary: A standard-rated purchase the buyer claims.
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-1
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

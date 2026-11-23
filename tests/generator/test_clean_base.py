@@ -172,8 +172,10 @@ def test_history_rates_are_right_for_their_dates():
         for cw in companies[:3]:
             for entry in cw.ledger:
                 day = date.fromisoformat(entry["invoice"]["issue_date"])
+                supplier = cw.supplier(entry["supplier_id"])
                 for line in entry["invoice"]["lines"]:
-                    clean = g.clean_line(catalog().get(line["category"]), day)
+                    clean = g.clean_line(catalog().get(line["category"]), day, cw.company, supplier,
+                                         cw.kind_of(supplier["supplier_id"]))
                     assert clean is not None and str(clean.rate) == line["tax_rate"]
 
 

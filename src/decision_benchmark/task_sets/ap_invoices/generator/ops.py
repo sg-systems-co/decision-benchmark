@@ -366,6 +366,12 @@ def plant_rule(d: Draft, line: int, rule: str, form: str) -> None:
     d.planted_rules.append(rule)
 
 
+@op(early=True)
+def plant_handover(d: Draft, line: int, kind: str) -> None:
+    """Line ``line`` raises a question the rules leave open (the pack's recipe for ``kind``): the case is HAND_OVER."""
+    pack(d.cw.country).generation.plant_handover(d, line, kind)
+
+
 # -- rule hand-over --------------------------------------------------------------------------------------------------
 
 

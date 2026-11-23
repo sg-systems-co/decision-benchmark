@@ -1,0 +1,18 @@
+# The family of rule SG-7 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_7
+version: 1
+countries:
+- SG
+primary_type: tax_problem
+rule: SG-7
+summary: 'GST on prescribed goods above S$10,000; correct: customer accounting by the buyer.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-7
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []
