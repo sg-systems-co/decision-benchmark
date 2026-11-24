@@ -345,6 +345,12 @@ def _special_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Id
             for reg in identity.get("tax_registrations", []):
                 if "valid_from" in reg:
                     reg["valid_from"] = spec.registered_from
+        if spec.foreign and spec.registration_type:
+            from ..countries import scheme_types
+
+            identity["tax_registrations"] = [
+                reg | {"type": spec.registration_type} if spec.registration_type in scheme_types(reg["scheme"]) else reg
+                for reg in g.supplier_registrations(r, set(spec.registered_for), start, ids)]
         if spec.foreign:
             identity.pop("residence_from", None)
             if spec.residence:

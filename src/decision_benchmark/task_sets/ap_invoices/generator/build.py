@@ -40,7 +40,7 @@ from ..rules import answer_case
 from .country import CannotPlant
 from .entities import CompanyWorld, build_world, catalog
 from .hardcases import Template, apply, requires_taxed_line, rule_families, templates
-from .ops import OPS, Draft, plant_rule
+from .ops import OPS, Draft, Turns, plant_rule
 from .scenario import BuiltCase, NoCleanForm, Planted, clean_case
 
 MAX_ATTEMPTS = 20
@@ -68,6 +68,8 @@ class GeneratedCase:
     """The rules planted: the families' and the slot's rule appearances."""
     branch: str | None = None
     """The dated branch the case plants, "<branch>:<side>" (generation.yaml boundaries)."""
+    realized: dict[str, str] = field(default_factory=dict)
+    """A slot rule planted as one of its branches that another rule decides: slot rule -> the rule in the key."""
 
     def export(self) -> dict:
         """The case as JSON-ready data: envelope, the records the case adds, the answer key, the generator truth."""
@@ -121,6 +123,8 @@ class Build:
     rules: dict[str, _Tally] = field(default_factory=dict)
     max_slot_attempts: int = 0
     attempts: int = 0
+    turns: Counter = field(default_factory=Counter)
+    """How often each recipe's turn key was taken by a kept case (ops.Turns)."""
     """Every draw, including those of a slot that stopped the build."""
 
     @property
@@ -148,6 +152,12 @@ class Build:
             "rules": {k: v.export() for k, v in sorted(self.rules.items())},
             "causes": dict(sorted(self.redraws.items())),
         }
+
+    def branch_report(self, gen: Generation) -> dict:
+        """report/branches.json: every branch the engine can decide, per country, with the cases planting it."""
+        from .branches import coverage
+
+        return {"split": self.split.name, "cases": len(self.cases), "branches": coverage(gen, self.cases)}
 
     def check_thresholds(self) -> None:
         report = self.planting_report()
@@ -272,14 +282,15 @@ def cause_of(diffs: list[str], planted: Planted, answer: AnswerKey) -> str:
 
 def assign_companies(gen: Generation, slots: list[Slot], world: dict[str, list[CompanyWorld]]) -> dict[int, CompanyWorld]:
     """Slots to companies, round robin per country in case order among the companies of a kind the slot's rules
-    allow (each company gets an even share of what it can take)."""
+    allow (each company gets an even share of what it can take), foreign-supplier slots in a round of their own (so
+    every kind of buyer gets its share of the rules that turn on the buyer there)."""
     out: dict[int, CompanyWorld] = {}
     seen: Counter = Counter()
     for s in sorted(slots, key=lambda s: s.case_index):
         companies = [cw for cw in world[s.country] if s.companies is None or cw.kind in s.companies]
         if not companies:
             raise PlantingFailed(f"slot {s.case_index}: no {s.country} company of kind {s.companies}")
-        key = (s.country, s.companies)
+        key = (s.country, s.companies, s.foreign)
         out[s.case_index] = companies[seen[key] % len(companies)]
         seen[key] += 1
     return out
@@ -298,16 +309,30 @@ def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> b
     if t.rule is None:
         return True
     r = _rules(gen).get(t.rule)
-    if r is None or r.country != slot.country or any(u.rule == t.rule for u in slot.rules):
+    if r is None or r.country != slot.country or any(u.rule == t.rule and u.form == PROBLEM for u in slot.rules):
         return False
+    if any(u.rule == t.rule for u in slot.rules):
+        # A correct form of the rule on the slot gives way to the family (line 1), if the other rules keep a line each.
+        rules = _rules(gen)
+        own = sum(1 for u in slot.rules if u.rule != t.rule and u.rule in rules
+                  and (u.carrier == "line" or rules[u.rule].takes_line or rules[u.rule].foreign))
+        if slot.lines < 1 + own:
+            return False
     if (r.foreign and not slot.foreign) or ((r.domestic or PROBLEM in r.domestic_forms) and slot.foreign):
         return False
     if set(r.exclude_types) & set(slot.types()):
+        return False
+    if r.whole_case and slot.mixed:
+        return False                   # it decides every line, so the case can't be a mixed one
+    if slot.lines < r.min_lines.get(PROBLEM, 1):
         return False
     if r.supplier and slot.supplier and r.supplier != slot.supplier:
         return False
     kind = slot.supplier or r.supplier
     needs = set(r.needs).union(*(_rules(gen)[u.rule].needs for u in slot.rules if u.rule in _rules(gen)))
+    boundary = _branch(gen, slot)
+    if boundary is not None:
+        needs |= set(boundary.needs)           # the dated branch line the slot carries
     if kind and needs & set(gen.supplier_lacks.get(kind, ())):
         return False
     if gen.needs_clash(needs):
@@ -430,21 +455,30 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         (t.supplier for t in families if t.supplier), "")
     uses = [(x, PROBLEM) for x in family_rules] + [(u.rule, u.form) for u in floor]
     planted_rules = [x for x, _ in uses]
-    needs = set().union(*(rules[x].needs for x in planted_rules if x in rules))
+    # "shared": the case plants more than one rule, so a supplier pool one rule's branch needs (e.g. a supplier not
+    # yet registered) mustn't be offered (generator/country.py suppliers_for).
+    together = set(planted_rules)
+    shared = len(together) > 1 and not all(y in rules[x].alone_with for x in together for y in together
+                                            if x != y and x in rules)
+    shared = shared or slot.boundary is not None or slot.mixed is not None    # a branch or split line is planted too
+    needs = {"shared"} if shared else set()
+    needs |= set().union(*(rules[x].needs for x in planted_rules if x in rules),
+                        *(rules[x].form_needs.get(f, ()) for x, f in uses if x in rules))
     branch = None
     boundary = _branch(gen, slot) if g.plants_rules else None
     if boundary is not None:
         needs |= set(boundary.needs)
     if slot.mixed == "split":
         needs |= set(gen.mixed.split_needs)
+    turns = Turns(build.turns, attempt)
     try:
         window = _window(gen, slot, [(rules[x], PROBLEM) for x in family_rules])
         built = clean_case(gen, split, cw, slot, attempt, need_taxed=requires_taxed_line(families), window=window,
-                           suppliers=lambda day: g.suppliers_for(cw, kind, needs, slot.foreign, day))
+                           suppliers=lambda day: g.suppliers_for(cw, kind, needs, slot.foreign, day, turns))
     except (NoCleanForm, CannotPlant) as e:
         build.families.setdefault(names[0], _Tally()).add("no clean form", str(e))
         return None, str(e), names
-    d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt), uses=list(slot.rules))
+    d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt), uses=list(slot.rules), turns=turns)
     taken: set[int] = set()
     calls = [(t, t.calls(rng(split.seed, "case", slot.case_index, "params", t.family, attempt))) for t in families]
     try:
@@ -477,6 +511,12 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         _tally(build, families, built.planted, "cannot plant", str(e), planted_rules, _branch_names(boundary))
         return None, f"cannot plant: {e}", names
     apply(d, [(t, [c for c in cs if not OPS[c[0]].early]) for t, cs in calls])
+    if d.late:                                                # facts stated from the final amounts
+        for fn in d.late:
+            fn()
+        d.refresh()
+    for fn in d.final:                                        # edits the last refresh would undo
+        fn()
     types = [slot.primary] + ([slot.secondary] if slot.secondary else [])
     built.planted = planted_truth(built, families, d)
     built.case |= {"exception_types": [] if slot.primary == "clean" else types,
@@ -493,7 +533,9 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     diffs = compare(built.planted, answer)
     if not diffs:
         _tally(build, families, built.planted, None, "", planted_rules, _branch_names(boundary))
-        return GeneratedCase(built, env, records, answer, names, planted_rules, branch), "", names
+        turns.commit()
+        planted = list(dict.fromkeys(d.realized.get(x, x) for x in planted_rules))
+        return GeneratedCase(built, env, records, answer, names, planted, branch, dict(d.realized)), "", names
     _tally(build, families, built.planted, cause_of(diffs, built.planted, answer), "; ".join(diffs), planted_rules,
            _branch_names(boundary))
     return None, "; ".join(diffs), names
@@ -536,7 +578,8 @@ def _branch(gen: Generation, slot: Slot):
     if slot.boundary is None:
         return None
     day, _ = slot.boundary
-    return next((b for b in gen.boundaries if b.country == slot.country and b.day == day and b.branch), None)
+    return next((b for b in gen.boundaries if b.country == slot.country and b.day == day and b.branch
+                 and b.branch == (slot.branch or b.branch)), None)
 
 
 def _plant_floor(d: Draft, uses: list, first_line: int, own_line: set[str] = frozenset()) -> set[int]:
@@ -550,10 +593,11 @@ def _plant_floor(d: Draft, uses: list, first_line: int, own_line: set[str] = fro
         plant_rule(d, n, u.rule, u.form)
         taken[n] = u.rule
         n += 1
+    by_line_rules = set(taken)            # an action may reuse a line rule's line, never another action's
     for u in [u for u in uses if u.carrier != "line"]:
         free = [k for k in range(1, len(d.invoice["lines"]) + 1) if k not in taken and k >= first_line]
         bases = pack(d.cw.country).generation.reusable_bases
-        reuse = [k for k, rule in taken.items() if d.built.planted.lines[k - 1][2] in bases]
+        reuse = [k for k, rule in taken.items() if k in by_line_rules and d.built.planted.lines[k - 1][2] in bases]
         line = (free or reuse or [len(d.invoice["lines"])])[0]
         plant_rule(d, line, u.rule, u.form)
         if u.rule in own_line:            # it set the line (others only add a finding or a phrase)

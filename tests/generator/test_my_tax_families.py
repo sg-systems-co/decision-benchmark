@@ -98,7 +98,7 @@ def test_every_slot_rule_is_planted(n):
             continue
         rules, _ = appearances(g)
         slot = by_index[int(g.built.case_id.rsplit("-", 1)[1])]
-        assert {u.rule for u in slot.rules} <= rules, g.built.case_id
+        assert {g.realized.get(u.rule, u.rule) for u in slot.rules} <= rules, g.built.case_id
 
 
 @pytest.mark.parametrize("n", sorted(FLOOR))
@@ -172,7 +172,8 @@ def test_slots_keep_one_supplier_kind_and_a_common_date(n):
             assert not (rules[u["rule"]].domestic and s["foreign"])
         allowed = [set(rules[u["rule"]].companies) for u in s["rules"] if rules[u["rule"]].companies]
         if s["boundary"]:
-            b = next(x for x in GEN.boundaries if x.country == s["country"] and x.day.isoformat() == s["boundary"]["day"])
+            b = next(x for x in GEN.boundaries if x.country == s["country"] and x.day.isoformat() == s["boundary"]["day"]
+                     and x.branch == s["boundary"]["branch"])
             allowed += [set(b.companies)] if b.branch and b.companies else []
         assert not allowed or set(s["companies"]) == set.intersection(*allowed)
 
@@ -227,7 +228,8 @@ def test_company_turnover_fits_its_kind_and_fixes_its_phase():
         facts = cw.company["tax_facts"]
         assert "einvoice_phase_start" not in facts
         bands[cw.kind] = facts["einvoice"]["turnover_band"]
-        assert (planting.buyer_phase_start(cw.company) is None) == (cw.kind in planting.SME_KINDS)
+        ever = planting.buyer_in_phase(cw.company, GEN.windows["MY"][1])    # the engine's check, on the record
+        assert ever == (cw.kind not in planting.SME_KINDS)
     assert bands["msme"] == "below_1m" and bands["new_sme"] == "1m_to_3m"
     assert sorted(bands[k] for k in ("it", "fin", "builder", "plain")) == sorted(
         ["above_100m", "25m_to_100m", "5m_to_25m", "3m_to_5m"])
@@ -239,11 +241,12 @@ def test_self_billing_follows_the_buyers_own_phase():
         for g in my_built(n):
             if g.records.supplier(g.envelope.payload.supplier_id).country == "MY":
                 continue
-            start = planting.buyer_phase_start(export_company(g))
+            company = export_company(g)
+            exempt = not planting.buyer_in_phase(company, GEN.windows["MY"][1])
             billed = any(a.action == "ISSUE_SELF_BILLED_EINVOICE" for a in g.answer.buyer_actions)
             day = g.envelope.payload.invoice.issue_date
-            assert billed == (start is not None and day >= start), g.built.case_id
-            seen[(start is None, billed)] += 1
+            assert billed == planting.buyer_in_phase(company, day), g.built.case_id
+            seen[(exempt, billed)] += 1
     assert seen[(True, False)] and seen[(False, True)] and seen[(False, False)]     # SMEs, in phase, not yet
 
 

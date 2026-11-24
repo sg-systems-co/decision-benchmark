@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 import inspect
+from collections import Counter
 import random
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -22,6 +23,26 @@ from . import phrases
 from .entities import CompanyWorld, catalog, in_base, money, tax_of
 from .scenario import BuiltCase
 from .statements import Statements
+
+
+class Turns:
+    """Deterministic turns over a split: when k kept cases have asked for key, the next gets options[k % len(options)]. Only a
+    kept case counts (commit); a redraw moves on by its attempt number (offset), so a turn the slot can't take isn't
+    asked for twenty times. The build stays reproducible."""
+
+    def __init__(self, seen: Counter | None = None, offset: int = 0):
+        self.seen = seen if seen is not None else Counter()
+        self.taken: Counter = Counter()
+        self.offset = offset
+
+    def take(self, key: str, options: list):
+        k = self.seen[key] + self.taken[key] + self.offset
+        self.taken[key] += 1
+        return options[k % len(options)]
+
+    def commit(self) -> None:
+        self.seen.update(self.taken)
+        self.taken = Counter()
 
 
 @dataclass
@@ -39,6 +60,24 @@ class Draft:
     """The slot's rule appearances (core.generator.slots.RuleUse) the case plants."""
     planted_rules: list[str] = field(default_factory=list)
     """Rules the ops planted (for the per-rule report)."""
+    turns: Turns | None = None
+    """The split's turns (Turns.take): a recipe's branches in rotation rather than drawn."""
+    realized: dict = field(default_factory=dict)
+    """Rule -> the rule the key names for it, where a recipe plants one of its branches that another rule decides (an
+    imported service from a group company abroad is MS-8's branch, decided by group relief)."""
+    late: list = field(default_factory=list)
+    """Statements made once every op has run (amounts as final: a fact that is a share of a line's amount)."""
+    final: list = field(default_factory=list)
+    """Edits made after the last refresh (a document that prints no tax total, an e-invoice without its totals)."""
+    tax_due: dict = field(default_factory=dict)
+    """Line number -> tax(line) for a line whose tax isn't its rate on its net amount (part of it exempt, part paid
+    before a rate change, a fixed amount per unit); refresh recomputes it from the line's current amounts."""
+
+    def turn(self, key: str, options: list):
+        """The next of options for key, in turn over the split's cases (drawn when the draft has no turns)."""
+        if not options:
+            raise ValueError(f"no options for {key}")
+        return self.turns.take(key, options) if self.turns is not None else self.r.choice(options)
 
     @property
     def invoice(self) -> dict:
@@ -107,6 +146,7 @@ class Draft:
                     del e[k]
                 e.update(ext)
         x.pop("facts", None)
+        self.tax_due.pop(n, None)
         fields = pack(self.cw.country).line_facts_model.model_fields
         st = self.statements()
         if cat.kind == "goods" and self.gr is not None and "delivery_date" in fields:
@@ -156,7 +196,8 @@ class Draft:
         for line in self.invoice["lines"]:
             net = (Decimal(str(line["qty"])) * Decimal(line["unit_price"])).quantize(Decimal("0.01"))
             line["net_amount"] = money(net)
-            line["tax_amount"] = money(tax_of(net, Decimal(line["tax_rate"])))
+            due = self.tax_due.get(line["line_no"])
+            line["tax_amount"] = money(due(line) if due is not None else tax_of(net, Decimal(line["tax_rate"])))
         net = sum(Decimal(x["net_amount"]) for x in self.invoice["lines"])
         tax = sum(Decimal(x["tax_amount"]) for x in self.invoice["lines"])
         self.invoice["totals"] = {"net": money(net), "tax": money(tax), "gross": money(net + tax)}
@@ -339,7 +380,7 @@ def add_near_duplicate(d: Draft, days_before: int) -> None:
 @op()
 def make_invoice_invalid(d: Draft) -> None:
     """The invoice misses a particular the country requires (the pack chooses which: an e-invoice field, a tax-invoice particular)."""
-    codes, override = pack(d.cw.country).generation.make_invalid(d.invoice, [u.rule for u in d.uses])
+    codes, override = pack(d.cw.country).generation.make_invalid(d.invoice, [u.rule for u in d.uses], d)
     d.findings += codes
     if override is not None:
         for n, x in enumerate(d.invoice["lines"], 1):

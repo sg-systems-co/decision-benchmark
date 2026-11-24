@@ -44,6 +44,9 @@ class SpecialSupplier:
     """The date its tax registrations start (None: the usual, years before the window)."""
     homes: tuple[str, ...] = ()
     """A foreign supplier's countries, taken in turn by the suppliers of the kind (empty: drawn)."""
+    registration_type: str | None = None
+    """A foreign supplier registered in the buyer's country under this registration type (e.g. an overseas vendor
+    scheme); None: a foreign supplier holds no registration there."""
 
 
 class CannotPlant(ValueError):
@@ -108,10 +111,11 @@ class CountryGeneration(Protocol):
     def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
         """A rate the rules reject for this clean line (finding WRONG_TAX_RATE), or None if it carries no tax."""
 
-    def make_invalid(self, invoice: dict, rules: list[str] = ()) -> tuple[list[str], tuple[str, str] | None]:
+    def make_invalid(self, invoice: dict, rules: list[str] = (), d=None) -> tuple[list[str], tuple[str, str] | None]:
         """Make the invoice fail the country's invoice requirements: the finding codes, and the (treatment, basis) its
         taxed lines take instead of their own (None: unchanged). rules: the slot's rule appearances (a rule the pack
-        plants as the invalidity itself makes this a no-op)."""
+        plants as the invalidity itself makes this a no-op). d: the draft (ops.Draft), whose turns pick which
+        requirement fails and whose final hooks make edits the last refresh would undo."""
 
     def plant(self, d, line: int, rule: str, form: str) -> None:
         """Plant the rule on line ``line`` of the draft (generator/ops.Draft) in its 'problem' or 'correct' form: set
@@ -137,9 +141,11 @@ class CountryGeneration(Protocol):
     def finish_case(self, d) -> None:
         """Facts the country states once every line is planted (e.g. a partially exempt buyer's attribution)."""
 
-    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
+    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date,
+                      turns=None) -> list[dict] | None:
         """The suppliers a case may come from on the day: kind, the special supplier kind its rules need ('' any);
-        needs, what its rules need the supplier to do (rules.yaml needs). None: the clean base's usual choice."""
+        needs, what its rules need the supplier to do (rules.yaml needs). None: the clean base's usual choice. turns
+        (ops.Turns): where a rule's branches turn on the supplier, the pool for this case's turn."""
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
         """The rate an invoice in a foreign currency states, to the country's currency, on the day (it varies by

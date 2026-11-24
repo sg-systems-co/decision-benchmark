@@ -6,7 +6,8 @@
 The public splits use the task set's release seeds. Anyone else passes a split spec (name, n_cases, seed, id_start,
 canary); nothing here knows any particular private split. Writes ``<out>/<split>/report/slots.json``,
 ``provenance.json`` and, when the task set names a builder, ``planting.json`` (attempts, redraws and causes per family
-and rule; also written when the builder stops mid-split, if it attaches its report so far); it exits non-zero if a
+and rule; also written when the builder stops mid-split, if it attaches its report so far) and, where the builder
+gives one, ``branches.json`` (every branch the rules engine can decide and the cases planting it); it exits non-zero if a
 redraw threshold is crossed or a slot can't be planted. Writing the cases themselves comes with B1-7.
 """
 
@@ -64,6 +65,8 @@ def generate(spec: TaskSetSpec, split: SplitSpec, out: Path, version: str) -> Pa
                 _write(report_dir / "planting.json", e.report)
             raise
         _write(report_dir / "planting.json", build.planting_report())
+        if hasattr(build, "branch_report"):
+            _write(report_dir / "branches.json", build.branch_report(gen))
         build.check_thresholds()     # raises after the report is written, so a failed build still shows why
     return report_dir
 
@@ -93,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
             ap.error(f"unknown split {args.split!r}; release splits: {sorted(splits)}")
         split = splits[args.split]
     report = generate(spec, split, args.out, version)
-    print(f"{report}: slots.json, provenance.json{', planting.json' if spec.generation.builder else ''}")
+    print(f"{report}: slots.json, provenance.json{', planting.json, branches.json' if spec.generation.builder else ''}")
     return 0
 
 

@@ -51,6 +51,8 @@ class Slot:
     window: tuple[date, date] | None = None
     """Dates the case can take: the country window narrowed by its rules' windows and its boundary side."""
     boundary: tuple[date, str] | None = None
+    branch: str = ""
+    """The boundary's branch the slot carries (two boundaries may share a day)."""
     supplier: str = ""
     """The supplier kind its rules need ('' any)."""
     companies: tuple[str, ...] | None = None
@@ -67,7 +69,8 @@ class Slot:
             "lines": self.lines, "mixed": self.mixed,
             "rules": [{"rule": u.rule, "form": u.form, "carrier": u.carrier} for u in self.rules],
             "window": [self.window[0].isoformat(), self.window[1].isoformat()] if self.window else None,
-            "boundary": {"day": self.boundary[0].isoformat(), "side": self.boundary[1]} if self.boundary else None,
+            "boundary": {"day": self.boundary[0].isoformat(), "side": self.boundary[1], "branch": self.branch}
+            if self.boundary else None,
             "supplier": self.supplier or None,
             "companies": list(self.companies) if self.companies is not None else None,
         }
@@ -293,6 +296,16 @@ class _Allocator:
         order = self._shuffled(self.slots, "lines")
         for s, k in zip(order, counts, strict=True):
             s.lines = k
+        # Three in four one-line tax slots swap counts with an untaxed slot of more lines (same country), so the problem
+        # forms (at most two lines a slot) have room; the split's line counts stay the plan's.
+        single = [s for i, s in enumerate(x for x in order if self._tax(x) and x.lines == 1) if i % 4]
+        longer = [s for s in self._shuffled(self.slots, "lines swap") if not self._tax(s) and s.lines >= 2]
+        for s in single:
+            other = next((o for o in longer if o.country == s.country), None)
+            if other is None:
+                continue
+            longer.remove(other)
+            s.lines, other.lines = other.lines, s.lines
 
     # 4a. mixed cases
     def mixed(self) -> None:
@@ -334,15 +347,21 @@ class _Allocator:
             for r in self.gen.rules:
                 if r.problem_form and r.correct_form:  # a rule with only a problem form takes all its floor below
                     families.setdefault((r.country, r.family), []).append(r.id)
+            branched = {r.id: r.branches.get(PROBLEM, 0) * tier.per_branch for r in self.gen.rules}
             for (c, fam), ids in families.items():
+                # The family's problem lines: those its rules' branches already need count towards it.
+                need = max(0, tier.problem_per_family - sum(branched[x] for x in ids))
                 start = self._rng("family", c, fam).randrange(len(ids))
-                for i in range(tier.problem_per_family):
+                for i in range(need):
                     problem[ids[(start + i) % len(ids)]] += 1
         for r in self.gen.rules:
             if r.correct_form:
                 correct[r.id] = tier.per_rule - problem[r.id]
             else:
                 problem[r.id] = tier.per_rule          # every appearance is a problem form
+            # A rule whose recipe takes several branches in turn: each at least per_branch times.
+            problem[r.id] = max(problem[r.id], r.branches.get(PROBLEM, 0) * tier.per_branch)
+            correct[r.id] = max(correct[r.id], r.branches.get(CORRECT, 0) * tier.per_branch)
         rank = {s.key: i for i, s in enumerate(self._shuffled(self.slots, "rules"))}
         # A tax slot keeps one line for its tax problem: the first problem form placed there, or else the problem its
         # tax family plants. Correct forms get the other lines.
@@ -369,12 +388,18 @@ class _Allocator:
                  for r, f, _ in demands}
         demands.sort(key=lambda d: (len(self._candidates(d[0], d[1])), d[1] != PROBLEM, -d[2],
                                     share[(d[0].id, d[1])], d[0].id))
-        for rule, form, k in demands:
-            candidates = self._candidates(rule, form)
+        for base, form, k in demands:
+            candidates = self._candidates(base, form)
             for i in range(k):
+                rule = base
+                if base.window_turns.get(form):          # this appearance's date window, in turn
+                    turns = base.window_turns[form]
+                    rule = base.model_copy(update={"windows": {**base.windows, form: turns[i % len(turns)]}})
                 pool = [s for s in candidates
                         if all(u.rule != rule.id for u in s.rules) and self._fits(s, rule, form)
                         and self._free(s, rule, form, free_lines, free_problem, free_finding, free_action) > 0]
+                if rule.alternate_foreign:          # in turn foreign and domestic, where both can still take it
+                    pool = [s for s in pool if s.foreign == bool(i % 2)] or pool
                 if not pool:
                     raise InfeasibleDemand(f"rule floor: {rule.id} ({form}) placed {i} of {k}; no compatible slot "
                                            f"has room in a split of {self.n}")
@@ -400,7 +425,7 @@ class _Allocator:
                     free_finding[s.key] -= 1
                 else:
                     free_action[s.key] -= 1
-                if rule.carrier != "line" and rule.takes_line:
+                if rule.carrier != "line" and (rule.takes_line or rule.foreign):   # a foreign action sets its line
                     free_lines[s.key] -= 1
 
     def _narrowed(self, s: Slot, rule: RuleSpec, form: str) -> tuple[date, date]:
@@ -430,6 +455,13 @@ class _Allocator:
             return False
         if rule.whole_case and s.mixed:
             return False
+        if s.lines < rule.min_lines.get(form, 1):
+            return False
+        if s.rules and (form in rule.alone or any(u.form in self._rule(u.rule).alone for u in s.rules)):
+            if not all(u.rule in rule.alone_with and rule.id in self._rule(u.rule).alone_with for u in s.rules):
+                return False              # a rule that plants alone shares its case only with its alone_with rules
+        if form in rule.alone and form != PROBLEM and (self._tax(s) or s.mixed):
+            return False                  # nor with a tax problem its slot's family would plant, nor a mixing line
         kind = s.supplier or rule.supplier
         needs = set(rule.needs).union(*(self._rule(u.rule).needs for u in s.rules))
         if kind and needs & set(self.gen.supplier_lacks.get(kind, ())):
@@ -471,7 +503,7 @@ class _Allocator:
         if rule.carrier == "line":
             return free_problem[s.key] if form == PROBLEM else free_lines[s.key]
         free = free_finding[s.key] if rule.carrier == "finding" else free_action[s.key]
-        return min(free, free_lines[s.key]) if rule.takes_line else free
+        return min(free, free_lines[s.key]) if rule.takes_line or rule.foreign else free
 
     # 4c. date boundaries
     def boundaries(self) -> None:
@@ -489,12 +521,15 @@ class _Allocator:
                 if window[0] > window[1]:
                     raise InfeasibleDemand(f"boundary {b.country} {b.day}: no {side} days inside the window")
                 pool = [s for s in self.slots if s.country == b.country and s.key not in taken
+                        and not any(u.form in self._rule(u.rule).alone for u in s.rules)
+                        and not (s.mixed == "lines" and s.lines - sum(u.carrier == "line" for u in s.rules) < 2)
                         and max(window[0], s.window[0]) <= min(window[1], s.window[1])
                         and (not b.branch or self._takes_branch(s, b, side))]
                 for s in self._pick(pool, tier.per_side, f"boundary {b.country} {b.day} {side}", "boundary",
                                     b.country, b.day.isoformat(), side):
                     s.window = (max(window[0], s.window[0]), min(window[1], s.window[1]))
                     s.boundary = (b.day, side)
+                    s.branch = b.branch
                     if b.branch:
                         s.supplier = s.supplier or b.supplier
                         if b.companies:
@@ -510,6 +545,8 @@ class _Allocator:
             return False
         if set(b.exclude_types.get(side, ())) & set(s.types()):
             return False
+        if side in b.findings and any(u.carrier == "finding" for u in s.rules):
+            return False                  # one finding per code: the branch's would hide the slot's
         used = self._tax(s) + (s.mixed == "split") + sum(
             1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line)
         if s.lines - used < 1:

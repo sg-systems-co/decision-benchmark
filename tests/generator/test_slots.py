@@ -158,9 +158,19 @@ def test_mixed_cases_and_lines(n):
 def test_rule_floor_is_the_plan_table(n, per_rule, my, sg):
     f = report(n)["rule_floor"]
     assert f["per_rule"] == per_rule
-    assert all(v["total"] == per_rule for v in f["rules"].values())
-    assert f["by_country"] == {"MY": my, "SG": sg}                     # §3.4: 248 / 52 test, 992 / 208 train
-    assert f["total"] == 75 * per_rule                                 # 300 test, 1,200 train
+    tier = GEN.floor_for(n)
+    rules = {r.id: r for r in GEN.rules}
+    for rid, v in f["rules"].items():
+        r = rules[rid]
+        if not r.branches:
+            assert v["total"] == per_rule, rid                         # §3.4: the floor
+        else:                                                          # review of B1-5: each branch per_branch times
+            assert v["total"] >= per_rule, rid
+            assert v["problem"] >= r.branches.get("problem", 0) * tier.per_branch, rid
+            assert v["total"] - v["problem"] >= r.branches.get("correct", 0) * tier.per_branch, rid
+    assert f["by_country"]["MY"] >= my and f["by_country"]["SG"] >= sg   # §3.4: 248 / 52 test, 992 / 208 train
+    plain = sum(per_rule for r in GEN.rules if not r.branches)
+    assert f["total"] == plain + sum(f["rules"][r.id]["total"] for r in GEN.rules if r.branches)
     assert len(f["rules"]) == 75
 
 
@@ -172,11 +182,13 @@ def test_problem_form_floors():
     only_problem = [r for r in GEN.rules if not r.correct_form]
     assert sorted(r.id for r in only_problem) == ["K-8", "MS-9", "SG-12"]   # undercharged (both); the unregistered co-owner
     assert all(train[r.id]["problem"] == 16 for r in only_problem)    # every appearance a problem form
-    assert sum(v["problem"] for v in train.values()) == 2 * 58 + 3 * 14  # 104 MY + 12 SG, plus 14 more for each of the 3
+    for r in problem_rules:                                           # 2 each, or 2 per branch (review of B1-5)
+        if r.correct_form:
+            assert train[r.id]["problem"] == max(2, 2 * r.branches.get("problem", 0)), r.id
     test = report(500)["rule_floor"]["problem_by_family"]
-    for fam in ("MY:L", "MY:P", "MY:MG"):
-        assert test[fam] == 2, fam                                     # test: 2 per family
-    assert test["MY:MS"] == test["MY:K"] == test["SG:SG"] == 2 + 4    # MS-9, K-8, SG-12: all 4 of theirs are problems
+    for fam in ("MY:L", "MY:P", "MY:MG", "MY:MS", "MY:K", "SG:SG"):
+        assert test[fam] >= 2, fam                                     # test: at least 2 per family
+    assert test["MY:P"] == 2                                           # (no P rule has problem branches)
     report_500 = report(500)["rule_floor"]["rules"]
     assert report_500["MS-9"]["problem"] == report_500["K-8"]["problem"] == 4
 
@@ -205,9 +217,10 @@ def test_rule_appearances_fit_their_slots(n):
 @pytest.mark.parametrize("n, per_side", [(2000, 2), (500, 1), (300, 0)])
 def test_date_boundary_floor(n, per_side):
     r = report(n)
-    for b in GEN.boundaries:
+    days = Counter(f"{b.country}:{b.day.isoformat()}" for b in GEN.boundaries)    # a day may carry two branches
+    for key, k in days.items():
         for side in ("before", "after"):
-            assert r["date_boundaries"].get(f"{b.country}:{b.day.isoformat()}:{side}", 0) == per_side
+            assert r["date_boundaries"].get(f"{key}:{side}", 0) == per_side * k
     lo_hi = {c: (str(a), str(b)) for c, (a, b) in GEN.windows.items()}
     for s in r["slots"]:
         lo, hi = s["window"]

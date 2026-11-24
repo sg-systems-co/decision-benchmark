@@ -112,8 +112,24 @@ class RuleSpec(Model):
     """A finding or action rule that needs a line of its own (it can't ride on another rule's line)."""
     needs: tuple[str, ...] = ()
     """What the case's supplier must be able to do, as the task set names it (e.g. charge a tax)."""
+    form_needs: dict[str, tuple[str, ...]] = {}
+    """Per form: what the supplier must do on top of needs (the pool the case's supplier comes from)."""
+    min_lines: dict[str, int] = {}
+    """Per form: the fewest lines a case carrying it needs (a whole-case rule's branch on another line)."""
+    alternate_foreign: bool = False
+    """Its appearances alternate between foreign- and domestic-supplier cases (its branches differ between them)."""
+    alone: tuple[str, ...] = ()
+    """Forms whose case plants no other rule (a branch that needs a supplier no other rule's line could take)."""
+    alone_with: tuple[str, ...] = ()
+    """Rules it may share such a case with (their branches take the same supplier)."""
+    window_turns: dict[str, tuple[tuple[date, date], ...]] = {}
+    """Per form: date windows its floor appearances take in turn (a rule whose branches sit near different dates),
+    each inside the form's window."""
     windows: dict[str, tuple[date, date]] = {}
     """Per form ('problem', 'correct'): the case dates the rule can be planted on (absent: the country window)."""
+    branches: dict[str, int] = {}
+    """Per form: the deciding branches the rule's recipe takes in turn (review of B1-5: each branch planted at least
+    ``per_branch`` times), so the floor gives the form at least branches x per_branch appearances."""
     note: str = ""
 
     @field_validator("carrier")
@@ -132,6 +148,14 @@ class RuleSpec(Model):
         for form, (lo, hi) in self.windows.items():
             if form not in ("problem", "correct") or lo > hi:
                 raise ValueError(f"rule {self.id}: bad window {form} {lo}..{hi}")
+        for form, turns in self.window_turns.items():
+            lo, hi = self.windows.get(form, (date.min, date.max))
+            if form not in ("problem", "correct") or any(a > b or a < lo or b > hi for a, b in turns):
+                raise ValueError(f"rule {self.id}: bad window_turns {form}")
+        for form, k in self.branches.items():
+            if form not in ("problem", "correct") or k < 1 or not (self.problem_form if form == "problem"
+                                                                     else self.correct_form):
+                raise ValueError(f"rule {self.id}: bad branches {form}: {k}")
         return self
 
     def window(self, form: str, country_window: tuple[date, date]) -> tuple[date, date]:
@@ -148,6 +172,8 @@ class FloorTier(Model):
     """Problem forms per rule that has one."""
     problem_per_family: int = 0
     """Problem forms per family (when a per-rule problem floor can't hold)."""
+    per_branch: int = 0
+    """Appearances per deciding branch a rule declares (RuleSpec.branches)."""
 
 
 class BoundaryTier(Model):
@@ -186,6 +212,8 @@ class Boundary(Model):
     """Per side ('before', 'after'): a slot carrying the branch has one of these exception types (absent: any)."""
     exclude_types: dict[str, tuple[str, ...]] = {}
     """Per side: a slot carrying the branch has none of these exception types."""
+    findings: tuple[str, ...] = ()
+    """Sides whose branch line brings a finding-carrier rule (the slot then carries no other finding rule)."""
 
 
 class Generation(Model):

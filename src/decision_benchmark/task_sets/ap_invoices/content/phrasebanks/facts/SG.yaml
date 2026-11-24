@@ -15,3 +15,36 @@ facts:
     kind: enum
     values:
       in_country: [work done in Singapore]
+  business_purpose:
+    kind: bool
+    values:
+      true: [for our business]
+      false: ["for personal use, not for the business"]
+  low_value_goods:
+    kind: bool
+    values:
+      true: ["low-value goods, S$400 or less"]
+      false: [goods above the low-value threshold]
+  car_used_by_third_party:
+    kind: bool
+    values:
+      true: ["car used by a third party, under the IRAS conditions"]
+      false: [car kept for our own staff]
+  vehicle_registered_on:
+    kind: date
+    templates: ["business service passenger vehicle first registered on {value}"]
+  vehicle_is_motor_car:
+    kind: bool
+    values:
+      true: [a passenger motor car]
+      false: [a licensed taxi, a car registered for school transport, a goods vehicle]
+  staff_medical_obligatory:
+    kind: bool
+    values:
+      true: [required under the Work Injury Compensation Act, required under our collective agreement, treatment for a work-related health risk under written law]
+      false: [a voluntary staff benefit]
+  insurance_obligatory:
+    kind: bool
+    values:
+      true: [cover obligatory under the Work Injury Compensation Act, cover obligatory under our collective agreement]
+      false: [voluntary cover for staff]

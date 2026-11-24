@@ -60,10 +60,11 @@ foreign_share: '15'
 lines: {'1': '45', '2': '30', '3': '15', '4-6': '10'}
 
 # B1 plan §3.4 (decision 5): 16 per rule in train with 2 problem forms per rule that has one; 4 in test with 2
-# problem lines per family; 2 in a 300-case split.
+# problem lines per family; 2 in a 300-case split. Review of B1-5: a rule whose recipe takes several deciding branches
+# in turn (rules.yaml branches) gets 2 appearances per branch in train and 1 in test.
 rule_floor:
-- {min_cases: 2000, per_rule: 16, problem_per_rule: 2}
-- {min_cases: 500, per_rule: 4, problem_per_family: 2}
+- {min_cases: 2000, per_rule: 16, problem_per_rule: 2, per_branch: 2}
+- {min_cases: 500, per_rule: 4, problem_per_family: 2, per_branch: 1}
 - {min_cases: 300, per_rule: 2}
 
 # Suppliers of each special kind (rules.yaml supplier) per split: three in train, two in test, one in a 300-case split
@@ -85,6 +86,9 @@ supplier_lacks:
   group: [b2b]
   k4_landlord: [b2b]
   l1_contractor: [b2b]
+  einv_small: [goods, phase, phase1]
+  einv_unknown: [goods, phase, phase1]
+  einv_3m5m: [goods, phase, phase1]
 
 # Needs no one supplier meets together: registered for GST and not (SG-4).
 needs_conflict:
@@ -114,7 +118,7 @@ boundaries:
 - {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m', branch: me3_phase_1, companies: [it]}
 - {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))', branch: wellness_tcm, needs: [service]}
 - {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m', branch: me3_phase_2, companies: [fin]}
-- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}, findings: [after]}
 - {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)', branch: ms7_items_5_7, needs: [service]}
 - {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start', branch: scope_2025, companies: [it, fin, plain, msme, new_sme], needs: [service, not_public_scope, b2b]}
 - {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}
@@ -125,4 +129,8 @@ boundaries:
 - {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses', branch: k4_end, supplier: k4_landlord, companies: [it, fin, builder, plain]}
 - {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7', branch: g3_end, needs: [goods]}
 - {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations', branch: dgta_mro, supplier: dgta_mro, companies: [plain]}
+- {country: MY, day: '2024-08-01', note: 'ME-1 first phase starts: a supplier below RM1m is exempt either side (review of B1-5)', branch: me1_small, supplier: einv_small, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2025-02-01', note: 'ME-1: no supplier past its relaxation period before 1 Feb 2025, so a phase not shown decides nothing (review of B1-5)', branch: me1_unknown_phase, supplier: einv_unknown, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2025-07-01', note: 'ME-1: statutory bodies and local authorities exempt to 30 Jun 2025, then for statutory fees only (review of B1-5)', branch: me1_public_body, supplier: local_authority, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2026-01-01', note: 'ME-1: RM3m-5m phase starts, relaxation to 31 Dec 2027 (review of B1-5)', branch: me1_phase_3m5m, supplier: einv_3m5m, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
 - {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)', branch: gst_rate_2024, needs: [gst], companies: [plain, receipts]}

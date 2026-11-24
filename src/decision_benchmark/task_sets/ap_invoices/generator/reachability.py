@@ -50,7 +50,7 @@ def check(gen: Generation, split: SplitSpec, draws: int = DRAWS) -> dict:
                 if form == PROBLEM:
                     slot.rules = [RuleUse(rule.id, PROBLEM, rule.carrier)]
                 case, last, _ = attempt_slot(gen, split, pool[draw % len(pool)], slot, companies, None, build, draw)
-                if case is not None and (rule.id in case.rules):
+                if case is not None and (rule.id in case.rules or rule.id in case.realized):
                     agreed += 1
                 else:
                     causes[last.split(":")[0] if last else "rule not planted"] += 1

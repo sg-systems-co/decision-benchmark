@@ -11,6 +11,13 @@
 # rule would decide first: group relief, a transitional contract), gst (a supplier registered for GST). whole_case:
 # the rule decides every line of the invoice (SG-4), so the case isn't a mixed one. exclude_types: exception types whose
 # own problem would decide the rule's line (a missing tax-invoice particular makes every line with GST SG-2).
+# branches: per form, the deciding branches the rule's recipe takes in turn (review of B1-5), so the floor gives the
+# form 2 appearances per branch in train and 1 in test. form_needs: per form, what the supplier must do on top of
+# needs (not_entitled: a supplier not entitled to charge GST, SG-4). min_lines: per form, the fewest lines its case needs.
+# alternate_foreign: its appearances alternate between foreign and domestic suppliers. alone: forms whose case plants
+# no other rule (a branch's supplier no other rule's line could take); alone_with: the rules it may share one with.
+# window_turns: per form, date windows its appearances take in turn (branches near different dates). Supplier pool
+# needs (late_turn_*, zone_turn_*, foreign_turn) and the branch turns are in the country's generation.py.
 not_counted:
   MS-10: dispatcher; met through P-1 to P-20
   MG-6: dispatcher; met through G-1, G-3, G-4 and G-5
@@ -19,15 +26,15 @@ not_counted:
   G-6: not an engine rule (re-imports)
   G-7: not an engine rule (refund windows)
 rules:
-- {id: MS-1, country: MY, family: MS, carrier: line, problem_form: true, windows: {problem: ['2024-01-02', '2025-06-30']}, note: 'problem: a new-scope service charged before 1 Jul 2025, or SST on a foreign supplier''s invoice', needs: [service]}
-- {id: MS-2, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, needs: [service]}
-- {id: MS-3, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-03-01', '2024-05-31'], correct: ['2024-03-01', '2024-05-31']}, note: 'service period wholly before the 1 Mar 2024 rate change, invoiced after it', needs: [service]}
-- {id: MS-4, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, needs: [service]}
-- {id: MS-5, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, companies: [it, builder], note: 'B2B order: the buyer provides the same item', needs: [service, b2b]}
+- {id: MS-1, country: MY, family: MS, carrier: line, problem_form: true, windows: {problem: ['2024-01-02', '2025-06-30']}, note: 'problem: a new-scope service charged before 1 Jul 2025, or SST on a foreign supplier''s invoice', needs: [service], form_needs: {problem: [late_turn_ms1_problem], correct: [late_turn_ms1_correct]}, alternate_foreign: true, alone: [problem, correct], alone_with: [MG-1], branches: {problem: 4, correct: 6}}
+- {id: MS-2, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, needs: [service], branches: {problem: 3, correct: 2}}
+- {id: MS-3, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-03-01', '2025-09-30'], correct: ['2024-03-01', '2025-09-30']}, window_turns: {problem: [['2024-03-01', '2024-05-31'], ['2024-03-01', '2024-05-31'], ['2025-07-01', '2025-09-30']], correct: [['2024-03-01', '2024-05-31'], ['2024-03-01', '2024-05-31'], ['2024-03-01', '2024-05-31'], ['2024-03-01', '2024-05-31'], ['2025-07-01', '2025-09-30']]}, branches: {problem: 6, correct: 5}, note: 'in turn at the 1 Mar 2024 rate change (provided wholly before it, part paid before it, a period across it) and the 1 Jul 2025 scope start (provided or paid wholly before it)', needs: [service]}
+- {id: MS-4, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, needs: [service, not_public_scope], window_turns: {correct: [['2025-07-01', '2026-10-31']]}, branches: {correct: 5}, note: 'in turn: premises cleaning, a statutory fee part, the education exclusions (from 1 Jul 2025)'}
+- {id: MS-5, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, companies: [it, builder], note: 'B2B order: the buyer provides the same item', needs: [service, b2b], window_turns: {problem: [['2025-07-01', '2026-10-31']], correct: [['2025-07-01', '2026-10-31']]}, branches: {correct: 3}}
 - {id: MS-6, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, supplier: group, companies: [it, fin, builder, plain]}
 - {id: MS-7, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, needs: [service]}
-- {id: MS-8, country: MY, family: MS, carrier: line, foreign: true, note: 'imported services: foreign supplier'}
-- {id: MS-9, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, correct_form: false, note: 'a taxable service not charged: only a problem form', needs: [service]}
+- {id: MS-8, country: MY, family: MS, carrier: line, foreign: true, needs: [foreign_turn], alone: [correct], window_turns: {correct: [['2024-01-02', '2026-10-31'], ['2025-07-01', '2026-10-31']]}, branches: {correct: 18}, note: 'imported services: foreign supplier; in turn the branches that turn on the supplier (an FRP, a group company abroad) or the buyer'}
+- {id: MS-9, country: MY, family: MS, carrier: line, problem_form: true, domestic: true, correct_form: false, note: 'a taxable service not charged: only a problem form', needs: [service, goods], branches: {problem: 2}}
 - {id: P-1, country: MY, family: P, carrier: line, problem_form: true, domestic: true, companies: [fin], windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: P-2, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: P-3, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
@@ -41,13 +48,13 @@ rules:
 - {id: P-11, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}, needs: [service]}
 - {id: P-12, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: P-13, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
-- {id: P-14, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
+- {id: P-14, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope], branches: {correct: 3}}
 - {id: P-15, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2026-04-30']}, note: 'health-examination management: exempt to 30 Apr 2026, taxable from 1 May 2026 (group relief would exempt it from the group supplier)', needs: [service, b2b]}
-- {id: P-16, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
+- {id: P-16, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope], branches: {correct: 3}}
 - {id: P-17, country: MY, family: P, carrier: line, problem_form: true, domestic: true, supplier: training}
 - {id: P-18, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-04-01', '2026-10-31'], correct: ['2024-04-01', '2026-10-31']}, needs: [service]}
 - {id: P-19, country: MY, family: P, carrier: line, problem_form: true, domestic: true, needs: [service]}
-- {id: P-20, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2025-07-31'], correct: ['2024-01-02', '2025-07-31']}, note: 'digital services by a bank, exempt to 31 Jul 2025', needs: [service]}
+- {id: P-20, country: MY, family: P, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2025-07-31'], correct: ['2024-01-02', '2025-07-31']}, window_turns: {problem: [['2024-01-02', '2025-07-31'], ['2024-02-26', '2024-02-29']], correct: [['2024-01-02', '2025-07-31'], ['2024-01-02', '2025-07-31'], ['2024-02-26', '2024-02-29']]}, branches: {correct: 4}, note: 'digital services by a bank or a non-bank provider, exempt to 31 Jul 2025; the STP 1/2024 transitional exemption, 26-29 Feb 2024', needs: [service]}
 - {id: K-1, country: MY, family: K, carrier: line, problem_form: true, domestic: true, companies: [msme], windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: K-2, country: MY, family: K, carrier: line, problem_form: true, domestic: true, companies: [new_sme], windows: {problem: ['2026-01-01', '2026-10-31'], correct: ['2026-01-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: K-3, country: MY, family: K, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
@@ -57,40 +64,40 @@ rules:
 - {id: K-7, country: MY, family: K, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: K-8, country: MY, family: K, carrier: line, problem_form: true, domestic: true, supplier: co_owner, correct_form: false, windows: {problem: ['2025-07-01', '2026-10-31']}, note: 'co-owners: the unregistered party that invoices: only a problem form'}
 - {id: L-1, country: MY, family: L, carrier: line, problem_form: true, domestic: true, supplier: l1_contractor, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}}
-- {id: L-2, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
+- {id: L-2, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope], branches: {correct: 3}}
 - {id: L-3, country: MY, family: L, carrier: line, problem_form: true, domestic: true, companies: [builder], windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service]}
 - {id: L-4, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
-- {id: L-5, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
+- {id: L-5, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope], branches: {correct: 2}}
 - {id: L-6, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [service, not_public_scope]}
 - {id: L-7, country: MY, family: L, carrier: line, problem_form: true, domestic: true, supplier: government, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}}
-- {id: L-8, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [goods]}
-- {id: MG-1, country: MY, family: MG, carrier: line, problem_form: true, note: 'problem: sales tax charged by a trader, or on a foreign supplier''s invoice', needs: [goods]}
+- {id: L-8, country: MY, family: L, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [goods], branches: {problem: 4}}
+- {id: MG-1, country: MY, family: MG, carrier: line, problem_form: true, note: 'problem: sales tax charged by a trader, or on a foreign supplier''s invoice', needs: [goods], form_needs: {problem: [late_turn_mg1_problem]}, alternate_foreign: true, alone: [problem], alone_with: [MS-1],  branches: {problem: 4, correct: 2}}
 - {id: MG-2, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
-- {id: MG-3, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2025-06-30'], correct: ['2024-01-02', '2025-06-30']}, needs: [goods]}
+- {id: MG-3, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2024-01-02', '2025-06-30'], correct: ['2024-01-02', '2025-12-31']}, window_turns: {correct: [['2024-01-02', '2025-06-30'], ['2025-07-01', '2025-12-31']]}, needs: [goods], branches: {correct: 2}, note: 'correct in turn: goods exempt only under the earlier orders; in Jul-Dec 2025, raw materials Sales Tax Policy 1/2026 covers only from 1 Jan 2026'}
 - {id: MG-4, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
-- {id: MG-5, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
+- {id: MG-5, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods], form_needs: {correct: [zone_turn_correct]}, alone: [correct], branches: {correct: 6}, note: 'in turn: delivered to a designated area or a free zone; from a manufacturer on Langkawi, in a free zone or in the JDA'}
 - {id: G-1, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, windows: {problem: ['2025-07-01', '2026-10-31'], correct: ['2025-07-01', '2026-10-31']}, needs: [goods]}
 - {id: G-3, country: MY, family: MG, carrier: line, note: 'refund route: the invoice is correct (no problem form)', domestic: true, windows: {correct: ['2026-01-01', '2026-08-31']}, needs: [goods]}
-- {id: G-4, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
+- {id: G-4, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods], branches: {correct: 2}}
 - {id: G-5, country: MY, family: MG, carrier: line, problem_form: true, domestic: true, needs: [goods]}
 - {id: ME-1, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MISSING_MANDATORY_FIELD, domestic: true, windows: {correct: ['2025-02-01', '2026-10-31']}, needs: [phase]}
 - {id: ME-2, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: MyInvois mandatory fields, domestic: true}
 - {id: ME-3, country: MY, family: ME, carrier: action, takes_line: true, note: ISSUE_SELF_BILLED_EINVOICE, companies: [it, fin, builder, plain], windows: {correct: ['2026-01-01', '2026-10-31']}}
-- {id: ME-4, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: 'SST invoice particulars: needs a line that charges tax', domestic: true, takes_line: true, needs: [service]}
+- {id: ME-4, country: MY, family: ME, carrier: finding, types: [invalid_invoice], note: 'SST invoice particulars: needs a line that charges tax', domestic: true, takes_line: true, needs: [service], branches: {correct: 8}}
 - {id: WH-1, country: MY, family: WH, carrier: action, foreign: true}
-- {id: WH-2, country: MY, family: WH, carrier: action, foreign: true}
+- {id: WH-2, country: MY, family: WH, carrier: action, foreign: true, branches: {correct: 2}, note: 'in turn: technical advice performed in Malaysia, rent of movable property'}
 - {id: WH-3, country: MY, family: WH, carrier: action, foreign: true, supplier: foreign_pe}
-- {id: WH-4, country: MY, family: WH, carrier: action, foreign: true}
-- {id: SG-1, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [plain, receipts], note: 'a partially exempt buyer''s claims are SG-9', exclude_types: [invalid_invoice]}
+- {id: WH-4, country: MY, family: WH, carrier: action, foreign: true, branches: {correct: 2}}
+- {id: SG-1, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [plain, receipts, de_minimis, group, group_dm], branches: {correct: 2}, note: 'a partially exempt buyer''s claims are SG-9; in turn claimable or bought for no business purpose', exclude_types: [invalid_invoice]}
 - {id: SG-2, country: SG, family: SG, carrier: line, types: [invalid_invoice], domestic: true, needs: [gst], note: 'valid tax invoice: an invalid invoice'}
-- {id: SG-3, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst], windows: {correct: ['2024-01-01', '2024-03-31']}, note: 'correct: a service performed in 2023 invoiced in early 2024 at the old rate', exclude_types: [invalid_invoice]}
-- {id: SG-4, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [no_gst], whole_case: true, note: 'every line of the invoice: a supplier not registered for GST', exclude_types: [invalid_invoice]}
+- {id: SG-3, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst], branches: {problem: 2}, windows: {correct: ['2024-01-01', '2024-03-31']}, note: 'correct: a service performed in 2023 invoiced in early 2024 at the old rate', exclude_types: [invalid_invoice]}
+- {id: SG-4, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [no_gst], form_needs: {problem: [not_entitled]}, branches: {problem: 3}, min_lines: {problem: 2}, whole_case: true, note: 'every line of the invoice (a problem case has a second line, which carries no GST); problem in turn: not registered, GST number not the registered one, an OVR vendor', exclude_types: [invalid_invoice]}
 - {id: SG-5, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
 - {id: SG-6, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
-- {id: SG-7, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst]}
-- {id: SG-8, country: SG, family: SG, carrier: line, foreign: true, note: 'reverse charge: imported services and low-value goods'}
-- {id: SG-9, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [partial], exclude_types: [invalid_invoice]}
-- {id: SG-10, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], exclude_types: [invalid_invoice]}
+- {id: SG-7, country: SG, family: SG, carrier: line, problem_form: true, domestic: true, needs: [gst], branches: {problem: 2}, note: 'problem in turn: GST charged, or no customer accounting statement; a quantity family resets line 1 below the S$10,000 threshold', exclude_types: [quantity_mismatch]}
+- {id: SG-8, country: SG, family: SG, carrier: line, foreign: true, branches: {correct: 6}, note: 'in turn, for buyers entitled to full credit and not: an imported service, low-value goods, other imported goods'}
+- {id: SG-9, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], companies: [partial], branches: {correct: 3}, note: 'attribution in turn: exempt, residual, taxable', exclude_types: [invalid_invoice]}
+- {id: SG-10, country: SG, family: SG, carrier: line, domestic: true, needs: [gst], branches: {correct: 11}, note: 'in turn: the classes with no exception, the motor-car exceptions and exclusions, staff medical and insurance obligatory or not', exclude_types: [invalid_invoice]}
 - {id: SG-11, country: SG, family: SG, carrier: finding, types: [duplicate], domestic: true, note: a duplicate claim is caught by the duplicate check}
 - {id: SG-12, country: SG, family: SG, carrier: line, problem_form: true, correct_form: false, domestic: true, needs: [gst], note: 'GST left off: only a problem form'}
 - {id: WH-5, country: SG, family: WH, carrier: action, foreign: true}

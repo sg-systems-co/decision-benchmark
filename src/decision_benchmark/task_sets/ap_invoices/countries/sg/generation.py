@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import random
 from datetime import date
+from pathlib import Path
 from decimal import Decimal
 
 from ...generator.country import CannotPlant, CleanLine, ProblemLine
@@ -43,6 +44,15 @@ class SingaporeGeneration:
     """The rule recipes are in planting.py."""
     reusable_bases = ("SG-8",)
     """A withholding rule may take a line planted for an imported service (it keeps that line's basis)."""
+
+    # Branch coverage (generator/branches.py): the engine's files, its outcome helpers, the functions whose returns are
+    # a rule's deciding paths, and the deciding facts it reads on a shared line of code.
+    engine_files = (*sorted((Path(__file__).parent / "rules").glob("*.py")), Path(__file__).parent / "validity.py")
+    branch_calls = ("wrongly_charged", "undercharged")
+    branch_hand_overs = ("_not_settled",)
+    branch_functions = {"rules._not_entitled": "SG-4", "reverse_charge.full_credit": "SG-8"}
+    branch_facts = planting.SG_BRANCH_FACTS
+    branch_case_facts = planting.SG_CASE_FACTS
 
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(100_000, 829_999)}"
@@ -97,8 +107,8 @@ class SingaporeGeneration:
     def wrong_rate(self, category: Category, day: date, clean: CleanLine) -> ProblemLine | None:
         return ProblemLine(clean.rate + 1, T.GST_WRONGLY_CHARGED.value, "SG-3")    # above every allowed rate
 
-    def make_invalid(self, invoice: dict, rules: list[str] = ()) -> tuple[list[str], tuple[str, str] | None]:
-        invoice["supplier_block"]["address"] = None    # an IRAS tax-invoice particular (SG-2)
+    def make_invalid(self, invoice: dict, rules: list[str] = (), d=None) -> tuple[list[str], tuple[str, str] | None]:
+        planting.drop_particular(invoice, d)           # an IRAS tax-invoice particular (SG-2), in turn
         return ["INVALID_TAX_INVOICE"], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
@@ -131,13 +141,21 @@ class SingaporeGeneration:
     def mix_line(self, d, line: int) -> None:
         planting.mix_line(d, line)
 
-    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
+    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date,
+                      turns=None) -> list[dict] | None:
         if kind:
             return [cw.supplier(sid) for sid in cw.special[kind]]
         if foreign:
             sids = cw.special.get("sg_foreign", []) + cw.special.get("sg_foreign_my", [])
             return [cw.supplier(sid) for sid in sids]
-        if "no_gst" in needs:
+        if "not_entitled" in needs and "shared" not in needs:
+            # SG-4's problem form: the kinds of supplier not entitled to charge GST, in turn.
+            which = turns.take("SG-4 supplier", list(planting.SG4_SUPPLIERS)) if turns is not None else "not_registered"
+            if which == "ovr":
+                return [cw.supplier(sid) for sid in cw.special.get("sg_ovr", [])]
+            if which == "number_mismatch":
+                return [s for s in cw.ordinary_suppliers() if planting.registered(s, day)]
+        if "no_gst" in needs or "not_entitled" in needs:
             return [cw.supplier(sid) for sid in cw.special.get("sg_unregistered", [])]
         ordinary = [s for s in cw.ordinary_suppliers() if planting.registered(s, day)]
         return [s for s in ordinary if planting.supplier_fits(s, needs, day)]

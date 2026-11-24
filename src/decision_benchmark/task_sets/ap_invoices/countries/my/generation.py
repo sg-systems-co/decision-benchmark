@@ -15,6 +15,7 @@ from __future__ import annotations
 import random
 from datetime import date, datetime, time, timezone
 from decimal import Decimal
+from pathlib import Path
 
 from ...generator.country import CannotPlant, CleanLine, ProblemLine
 from ...generator.entities import stated_rate
@@ -56,6 +57,16 @@ class MalaysiaGeneration:
     """The rule recipes are in planting.py."""
     reusable_bases = ("MS-8",)
     """A withholding rule may take a line planted for an imported service (it keeps that line's basis)."""
+
+    # Branch coverage (generator/branches.py): the engine's files, its outcome helpers, the functions whose returns are
+    # a rule's deciding paths.
+    engine_files = tuple(sorted((Path(__file__).parent / "rules").glob("*.py")))
+    branch_calls = ("wrongly_charged", "undercharged", "wrong_rate", "not_registered", "exempt_part", "_withhold",
+                    "_buyer_accounts")
+    branch_hand_overs = ("_not_settled",)
+    branch_functions = {"einvoice.buyer_in_phase": "ME-3", "einvoice.supplier_phase": "ME-1"}
+    branch_facts: tuple = ()
+    branch_case_facts = planting.MY_CASE_FACTS
 
     def postcode(self, r: random.Random) -> str:
         return f"{r.randrange(10_000, 99_999)}"
@@ -107,26 +118,41 @@ class MalaysiaGeneration:
         if p.service_item is not None and p.service_item in provided:
             return None
         if supplier is not None and supplier["country"] != self.country:
-            return self._imported(category, day, company)
+            return self._imported(category, day, company, kind)
         if kind == "group" and p.group_relief:
             return None
         if kind == "government" and p.service_item and (
                 p.service_item[0] in GOVERNMENT_SCOPE or p.service_item in scope.HEALTHCARE_ITEMS):
             return None
+        zone = ((supplier or {}).get("tax_facts") or {}).get("zone")
+        if category.kind == "goods" and zone in planting.MAKER_ZONES:
+            # A manufacturer in a designated area, a free zone or the JDA selling to the principal customs area: no
+            # sales tax (MG-5 steps 3-4); from a free zone only uncharged (charged: Q-A3, never planted).
+            return CleanLine(Decimal(0), {"classification_code": CLASSIFICATION["goods"], "tax_type": NOT_APPLICABLE},
+                             T.NO_SST.value, "MG-5")
         line = self._domestic(category, p, day)
         if line is not None and line.rate > 0 and supplier is not None and not planting.registered(
                 supplier, "sales" if category.kind == "goods" else "service", day):
-            return None
+            # A supplier not registered on the day charges nothing: no tax (MS-1 for a service, MG-1 for goods).
+            return CleanLine(Decimal(0), {"classification_code": CLASSIFICATION[category.kind],
+                                          "tax_type": NOT_APPLICABLE},
+                             T.NO_SST.value, "MG-1" if category.kind == "goods" else "MS-1")
         return line
 
-    def _imported(self, category: Category, day: date, company: dict | None) -> CleanLine | None:
+    def _imported(self, category: Category, day: date, company: dict | None, kind: str = "") -> CleanLine | None:
         """An imported service: the overseas invoice shows no SST, the registered buyer accounts for it (MS-8), and
-        self-bills the e-invoice once in its phase (ME-3)."""
+        self-bills the e-invoice once in its phase (ME-3). From a foreign registered person not charging: the buyer
+        accounts under B2B order item 3 (MS-5); from a company in the buyer's group (Group G items, or an FRP that
+        supplies no outsiders here): no tax (MS-6)."""
         if category.category not in IMPORTED_CLEAN:
             return None
-        actions = (planting.IMPORTED_ACTION,) + (planting.self_billing(company, day) if company else ())
-        return CleanLine(Decimal(0), {"classification_code": CLASSIFICATION["service"], "tax_type": NOT_APPLICABLE},
-                         T.SST_BUYER_ACCOUNTS.value, "MS-8", actions)
+        billed = planting.self_billing(company, day) if company else ()
+        ext = {"classification_code": CLASSIFICATION["service"], "tax_type": NOT_APPLICABLE}
+        grouped = company is not None and planting.in_group(company)
+        if kind in ("frp_group", "foreign_group") and grouped:
+            return CleanLine(Decimal(0), ext, T.NO_SST.value, "MS-6", billed)
+        basis = "MS-5" if kind in ("frp", "frp_group") else "MS-8"
+        return CleanLine(Decimal(0), ext, T.SST_BUYER_ACCOUNTS.value, basis, (planting.IMPORTED_ACTION,) + billed)
 
     def _domestic(self, category: Category, p: MyTaxProfile, day: date) -> CleanLine | None:
         if category.kind == "goods":
@@ -194,10 +220,10 @@ class MalaysiaGeneration:
         other = {Decimal(8): Decimal(6), Decimal(6): Decimal(8), Decimal(10): Decimal(5), Decimal(5): Decimal(10)}
         return ProblemLine(other[clean.rate], T.SST_WRONG_RATE.value, clean.basis)
 
-    def make_invalid(self, invoice: dict, rules: list[str] = ()) -> tuple[list[str], tuple[str, str] | None]:
+    def make_invalid(self, invoice: dict, rules: list[str] = (), d=None) -> tuple[list[str], tuple[str, str] | None]:
         if set(rules) & {"ME-1", "ME-2", "ME-4"}:
             return [], None                             # the rule's recipe plants the invalidity itself
-        invoice["einvoice"]["buyer_tin"] = None        # a MyInvois mandatory field (ME-2)
+        planting.drop_einvoice_field(invoice, d)       # a MyInvois mandatory field (ME-2), in turn
         return ["MISSING_MANDATORY_FIELD"], None
 
     def plant(self, d, line: int, rule: str, form: str) -> None:
@@ -218,12 +244,32 @@ class MalaysiaGeneration:
     def finish_case(self, d) -> None:
         return None
 
-    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date) -> list[dict] | None:
+    def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date,
+                      turns=None) -> list[dict] | None:
         if kind:
             return [cw.supplier(sid) for sid in cw.special[kind]]
+        special = lambda k: [cw.supplier(sid) for sid in cw.special.get(k, [])]   # noqa: E731
+        alone = "shared" not in needs        # one rule planted: a pool only its branch needs may be offered
         if foreign:
-            pe = set(cw.special.get("foreign_pe", []))
-            return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] not in pe]
+            if alone and "foreign_turn" in needs and turns is not None and cw.kind in planting.GROUP_BUYERS:
+                # MS-8's branches that turn on the overseas supplier, for a buyer with a group (an SME has none; an IT
+                # or financial provider takes its own branch with an ordinary supplier).
+                return special(turns.take("MS-8 supplier", ["foreign_group", "frp_group", "frp", "frp"]))
+            skip = set().union(*(cw.special.get(k, []) for k in ("foreign_pe", *planting.OFFERED_IN_TURN)))
+            return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] not in skip]
+        zone = next((x for x in sorted(needs) if x.startswith("zone_turn")), None)
+        if alone and zone and turns is not None:
+            # MG-5's branches that turn on where the manufacturer is, in turn with ordinary suppliers (per form).
+            which = turns.take(zone, ["", "fz_maker", "da_maker", "", "fz_maker", "jda_maker"])
+            if which:
+                return special(which)
+        late = next((x for x in sorted(needs) if x.startswith("late_turn")), None)
+        if alone and late and turns is not None and day < planting.LATE_REGISTRATION:
+            # A supplier not yet registered (MS-1, MG-1), in turn with ordinary ones (per rule and form).
+            order = ["late_registrant", ""] if late.endswith("problem") else ["", "", "late_registrant"]
+            if turns.take(late, order):
+                return special("late_registrant")
+        needs = {x for x in needs if x not in ("shared", "foreign_turn") and not x.startswith(("zone_turn", "late_turn"))}
         if not needs:
             return None
         return [s for s in cw.ordinary_suppliers() if planting.supplier_fits(s, needs, day)]

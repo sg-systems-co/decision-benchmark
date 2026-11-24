@@ -34,6 +34,7 @@ from .rules.einvoice import ISSUE_SELF_BILLED
 from .rules.imported import ACCOUNT_IMPORTED
 from .models import MyTaxProfile, MyTaxTreatment as T
 from .rules import rates, scope
+from .rules.withholding import SPECIAL_CLASSES_RATE
 
 PROBLEM, CORRECT = "problem", "correct"
 
@@ -83,7 +84,7 @@ def link_company(company: dict, special: dict[str, list[dict]]) -> None:
     """The company's group: a holding company owns 60% of it and 75% of each group supplier (MS-6, K-6). An SME kind
     belongs to no group (its K-1 / K-2 conditions say so)."""
     facts = company.setdefault("tax_facts", {"country": "MY"})
-    groups = special.get("group", [])
+    groups = [g for kind in GROUP_KINDS for g in special.get(kind, [])]
     if facts.get("msme") is not None or not groups:
         facts["group"] = {"shareholdings": []}
         return
@@ -132,17 +133,70 @@ SPECIAL_SUPPLIERS = (
                     homes=("JP", "SG", "GB"), residence=True),
     SpecialSupplier("foreign", ("imported_consultancy", "foreign_digital_services"), foreign=True,
                     homes=("US", "CN", "IN")),
+    # Review of B1-5 (branch coverage): suppliers some branches need, offered only to the rule that plants them
+    # (generation.py suppliers_for, in turn).
+    SpecialSupplier("late_registrant", ("advertising", "business_consultancy", "hand_tools"),
+                    registered_from="2025-10-01", facts=dict(BIG)),
+    SpecialSupplier("frp", ("foreign_digital_services",), foreign=True, homes=("SG", "US", "GB"),
+                    registered_for=("service",), registration_type="service",
+                    facts={"is_foreign_registered_person": True, "frp_supplies_outsiders_in_my": True}),
+    SpecialSupplier("frp_group", ("foreign_digital_services",), foreign=True, homes=("SG", "JP", "GB"),
+                    registered_for=("service",), registration_type="service",
+                    facts={"is_foreign_registered_person": True, "frp_supplies_outsiders_in_my": False}),
+    SpecialSupplier("foreign_group", ("imported_consultancy",), foreign=True, homes=("SG", "JP", "CN"),
+                    facts={"pe_in_country": False}),
+    SpecialSupplier("einv_unknown", ("advertising", "business_consultancy"), registered_for=("service",),
+                    facts={"is_manufacturer": False, "einvoice_phase_known": False}),
+    SpecialSupplier("einv_small", ("advertising", "business_consultancy"), registered_for=("service",),
+                    facts={"is_manufacturer": False,
+                           "einvoice": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"}}),
+    SpecialSupplier("einv_3m5m", ("advertising", "business_consultancy"), registered_for=("service",),
+                    facts={"is_manufacturer": False,
+                           "einvoice": {"turnover_band": "3m_to_5m", "turnover_basis": "fy2022_audited"}}),
+    SpecialSupplier("da_maker", ("hand_tools", "bearings"), registered_for=("goods",), facts={**BIG, "zone": "langkawi"}),
+    SpecialSupplier("fz_maker", ("hand_tools", "bearings"), registered_for=("goods",), facts={**BIG, "zone": "free_zone"}),
+    SpecialSupplier("jda_maker", ("hand_tools", "bearings"), registered_for=("goods",), facts={**BIG, "zone": "jda"}),
 )
 """One of each per split, shared by its Malaysian companies. categories: what the supplier's clean lines carry; the
 planted lines come from the recipes. The landlord (K-4) and the contractor (L-1) hold contracts signed and stamped before the transitional
-dates, without a price-review clause; the co-owner (K-8) isn't registered and its contract names its partner."""
+dates, without a price-review clause; the co-owner (K-8) isn't registered and its contract names its partner. The
+late registrant registers for SST only on 1 Oct 2025 (MS-1, MG-1: a supplier not registered); the foreign registered
+persons (FRP) supply digital services, one to outsiders in Malaysia too, one within the buyer's group only (MS-8,
+MS-6); the foreign group company is in the buyer's group (MS-6); the e-invoicing suppliers don't show their phase,
+are below RM1m, or are RM3m-5m (implementation 1 Jan 2026) (ME-1); the manufacturers are on Langkawi, in a free zone
+and in the JDA (MG-5)."""
 SPECIAL_KINDS = tuple(s.kind for s in SPECIAL_SUPPLIERS)
+OFFERED_IN_TURN = ("late_registrant", "frp", "frp_group", "foreign_group", "einv_unknown", "einv_small", "einv_3m5m",
+                   "da_maker", "fz_maker", "jda_maker")
+"""Kinds offered only to the rule whose branch needs them (never in a pool of ordinary or foreign suppliers)."""
+ZONE_MAKERS = ("da_maker", "fz_maker", "jda_maker")
+MAKER_ZONES = ("langkawi", "free_zone", "jda")
+LATE_REGISTRATION = date(2025, 10, 1)
+"""The late registrant's SST registrations start on this day."""
+G3_FROM = date(2026, 1, 1)
+"""Sales Tax Policy 1/2026 (G-3) applies from this day."""
+FIRST_RELAXATION_END = date(2025, 1, 31)
+"""No supplier is past its relaxation period before 1 Feb 2025 (ME-1)."""
 
 
 def special_facts(kind: str, identity: dict) -> dict:
-    if kind == "group":
+    if kind in GROUP_KINDS:
         return {"group_company_id": f"GRP-{identity['registration_no']}"}
     return {}
+
+
+GROUP_KINDS = ("group", "foreign_group", "frp_group")
+"""Suppliers in the buyer's group (link_company)."""
+
+
+GROUP_BUYERS = ("builder", "plain")
+"""Company kinds offered the overseas suppliers MS-8's branches need: they have a group and no MS-8 branch of their
+own."""
+
+
+def in_group(company: dict) -> bool:
+    """The company has a group (an SME kind has none: link_company)."""
+    return bool((company.get("tax_facts") or {}).get("group_companies"))
 
 
 # -- lines ---------------------------------------------------------------------------------------------------------
@@ -258,21 +312,18 @@ def need_kind(d, rule: str, kind: str) -> None:
         raise CannotPlant(f"{rule} needs the {kind} supplier, not {d.supplier_kind or 'an ordinary one'}")
 
 
-def buyer_phase_start(company: dict) -> date | None:
-    """The company's own e-invoicing implementation date by the ME-1 timeline; None: exempt (below RM3m) or none."""
-    from .models import MyEinvoiceStatus
+def buyer_in_phase(company: dict, day: date) -> bool:
+    """ME-3: the company is in a mandatory e-invoicing phase on the day, by the engine's own check on its record
+    (rules/einvoice.buyer_in_phase; the B1-4 review: no copy of it here)."""
+    from .models import MyCompanyFacts
+    from .rules.einvoice import buyer_in_phase as in_phase
 
-    status = (company.get("tax_facts") or {}).get("einvoice")
-    if not status:
-        return None
-    s = MyEinvoiceStatus.model_validate(status)
-    return None if tl.exempt_band(s.turnover_band) else tl.implementation_date(s)
+    return in_phase(MyCompanyFacts.model_validate(company.get("tax_facts") or {"country": "MY"}), day)
 
 
 def self_billing(company: dict, day: date) -> tuple:
     """ME-3: the buyer self-bills from its own implementation date (relaxation period included)."""
-    start = buyer_phase_start(company)
-    return (SELF_BILLED_ACTION,) if start is not None and day >= start else ()
+    return (SELF_BILLED_ACTION,) if buyer_in_phase(company, day) else ()
 
 
 def self_billed(d) -> tuple:
@@ -342,12 +393,31 @@ def _ms1(d, n, form):
             d.set_line(n, "loan_interest_non_resident", Decimal(0), service_ext(Decimal(0)))
             d.expect(n, T.NO_SST.value, "MS-1", (), self_billed(d) + (_withholding(d, "interest"),))
         return
+    if not registered(d.supplier, "service", d.day):
+        # A supplier not registered for service tax on the day (it registers on 1 Oct 2025): tax it charges is
+        # charged by a non-registered person; charging none is right.
+        c = pick(d, ["advertising", "business_consultancy"], "plain service")
+        if form == PROBLEM:
+            rate = standard_rate(c, d.day)
+            d.set_line(n, c, rate, service_ext(rate))
+            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MS-1", (Code.SUPPLIER_NOT_TAX_REGISTERED.value,))
+        else:
+            d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
+            d.expect(n, T.NO_SST.value, "MS-1")
+        return
     if form == PROBLEM:
-        # A service that becomes taxable only on 1 Jul 2025 (Group K, L) charged before then.
-        if d.day >= scope.NEW_SCOPE_FROM:
-            raise CannotPlant("MS-1 problem needs an invoice before 1 Jul 2025")
-        c = d.r.choice(["construction_works", "commercial_premises_rental"])
-        d.set_line(n, c, Decimal(6), service_ext(Decimal(6)))
+        options = ["service_tax_on_goods", "service_tax_on_goods"] + (["new_scope"] if d.day < scope.NEW_SCOPE_FROM else [])
+        if d.turn("MS-1 problem", options) == "new_scope":
+            # A service that becomes taxable only on 1 Jul 2025 (Group K, L) charged before then.
+            c = d.r.choice(["construction_works", "commercial_premises_rental"])
+            d.set_line(n, c, Decimal(6), service_ext(Decimal(6)))
+        else:
+            # Service tax charged on goods: goods are no taxable service.
+            cats = goods_on(d)
+            if not cats:
+                raise CannotPlant("MS-1: no goods on the day")
+            rate = Decimal(8) if d.day >= rates.GENERAL_RATE_FROM else Decimal(6)
+            d.set_line(n, d.r.choice(cats), rate, service_ext(rate))
         d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-1", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         exempt(d, n, CORRECT, "water_supply", "MS-1")
@@ -355,7 +425,31 @@ def _ms1(d, n, form):
 
 @recipe("MS-2")
 def _ms2(d, n, form):
+    """A plain service at its rate, or in turn a card's activation fee: service tax of RM25 per card, not a rate
+    (Group H)."""
     need_domestic(d, "MS-2")
+    variant = d.turn(f"MS-2 {form}", ["plain", "card"] + (["part_wrong_rate"] if form == PROBLEM else []))
+    if variant == "card" and d.supplier_kind in ("government", "local_authority"):
+        variant = "plain"                      # the Government exempts its own Group H services (P-8)
+    professional = [c for c in ["legal_services", "audit_accounting", "engineering_consultancy"]
+                    if item_of(c) not in provided(d) and not (d.supplier_kind == "group" and profile(c).group_relief)]
+    if variant == "part_wrong_rate" and not professional:
+        variant = "plain"
+    if variant == "part_wrong_rate":
+        # A professional fee with a statutory fee part (MS-4 leaves the rest taxable), charged at the wrong rate on the
+        # whole: neither the taxable part's tax nor the whole's at the right rate (wrong rate, MS-2).
+        c = d.r.choice(professional)
+        wrong_rate(d, n, c, "MS-2", standard_rate(c, d.day))
+        _late_amount(d, n, "statutory_fee_amount", Decimal("0.2"))
+        return
+    if variant == "card":
+        d.set_line(n, "card_activation", Decimal(8), service_ext(Decimal(8)))
+        if form == PROBLEM:            # 8% on the fee instead of RM25 a card
+            d.expect(n, T.SST_WRONG_RATE.value, "MS-2", (Code.WRONG_TAX_RATE.value,))
+            return
+        d.tax_due[n] = lambda x: rates.CARD_TAX * Decimal(str(x["qty"]))
+        d.expect(n, T.SST_CORRECT.value, "MS-2")
+        return
     c = pick(d, SERVICES_8 + SERVICES_6, "plain service")
     right = standard_rate(c, d.day)
     if form == PROBLEM:
@@ -364,30 +458,163 @@ def _ms2(d, n, form):
         taxed(d, n, c, "MS-2")
 
 
+MS3_SERVICES = ["advertising", "security_guards", "legal_services", "audit_accounting", "business_consultancy"]
+"""8% services (6% before 1 Mar 2024)."""
+MS3_EARLY = ["wholly_before", "paid_before_period", "paid_before", "spanning"]
+"""MS-3's branches at the 1 Mar 2024 rate change (6% -> 8%), in turn: a service provided wholly before it; part paid
+before it (with a service period after it, or none); a service period across it, with the value provided before it."""
+MS3_LATE = {CORRECT: ["scope_period"], PROBLEM: ["paid_before_scope_period", "paid_before_scope"]}
+"""At the 1 Jul 2025 scope start (construction): a service period wholly before it; paid in full before it (with a
+period after it, or none). Paid before it and charged nothing is not planted (the engine answers MS-9 there; report)."""
+
+
 @recipe("MS-3")
 def _ms3(d, n, form):
-    """A service provided wholly in February 2024 at 6%, invoiced on or after 1 Mar 2024 when the item is 8%: the
-    rate in force when the service was provided applies (reg 3A)."""
+    """Reg 3A: the rate in force when the service was provided, or for the part paid before a change, applies."""
     need_domestic(d, "MS-3")
-    if not rates.GENERAL_RATE_FROM <= d.day:
+    if d.day < rates.GENERAL_RATE_FROM:
         raise CannotPlant("MS-3 needs an invoice on or after 1 Mar 2024")
-    c = pick(d, ["advertising", "security_guards", "legal_services", "audit_accounting", "business_consultancy"],
-             "8% service")
-    start = day_between(d.r, date(2024, 2, 1), date(2024, 2, 15))
-    end = day_between(d.r, start + timedelta(days=7), date(2024, 2, 29))
-    rate = Decimal(6) if form == CORRECT else Decimal(8)
-    d.set_line(n, c, rate, service_ext(rate))
-    d.state(n, "service_period_start", start)
-    d.state(n, "service_period_end", end)
+    if d.day >= scope.NEW_SCOPE_FROM:
+        variant = d.turn(f"MS-3 {form} late", MS3_LATE[form])
+    elif d.day <= date(2024, 5, 31):
+        variant = d.turn(f"MS-3 {form} early", MS3_EARLY)
+    else:
+        variant = d.turn(f"MS-3 {form} between", ["paid_before_period", "paid_before"])
+    if variant == "spanning" and d.day < date(2024, 3, 3):
+        variant = "wholly_before"
+    if variant.startswith("paid_before_scope") or variant == "scope_period":
+        _ms3_scope(d, n, form, variant)
+        return
+    c = pick(d, MS3_SERVICES, "8% service")
+    if variant == "wholly_before":
+        start = day_between(d.r, date(2024, 2, 1), date(2024, 2, 15))
+        end = day_between(d.r, start + timedelta(days=7), date(2024, 2, 29))
+        rate = Decimal(6) if form == CORRECT else Decimal(8)
+        d.set_line(n, c, rate, service_ext(rate))
+        _period(d, n, start, end)
+    elif variant == "spanning":
+        start = day_between(d.r, date(2024, 2, 5), date(2024, 2, 25))
+        end = day_between(d.r, date(2024, 3, 2), min(d.day, date(2024, 3, 28)))
+        d.set_line(n, c, Decimal(8), service_ext(Decimal(8)))
+        _period(d, n, start, end)
+        held = _late_amount(d, n, "value_provided_before_change", Decimal("0.4"))
+        if form == CORRECT:
+            d.tax_due[n] = lambda x, h=held: _split_tax(x, _amount(h, x, Decimal("0.4")), Decimal(6), Decimal(8))
+    else:                                     # part paid before 1 Mar 2024
+        d.set_line(n, c, Decimal(8), service_ext(Decimal(8)))
+        if variant == "paid_before_period":
+            first = max(date(2024, 3, 1), d.day - timedelta(days=40))
+            _period(d, n, first, d.day)
+        else:
+            _period(d, n, None, None)
+        held = _late_amount(d, n, "amount_paid_before_change", Decimal("0.3"))
+        if form == CORRECT:
+            d.tax_due[n] = lambda x, h=held: _split_tax(x, _amount(h, x, Decimal("0.3")), Decimal(6), Decimal(8))
     if form == CORRECT:
         d.expect(n, T.SST_CORRECT.value, "MS-3")
     else:
         d.expect(n, T.SST_WRONG_RATE.value, "MS-3", (Code.WRONG_TAX_RATE.value,))
 
 
+def _ms3_scope(d, n, form, variant):
+    """A service taxable from 1 Jul 2025 (construction; rental for a builder, whose own construction purchases the B2B
+    order exempts), invoiced after it: provided wholly before it, or paid in full before it."""
+    c = "commercial_premises_rental" if "L" in provided(d) else "construction_works"
+    rate = standard_rate(c, d.day) if form == PROBLEM else Decimal(0)
+    d.set_line(n, c, rate, service_ext(rate))
+    if variant == "scope_period":
+        start = day_between(d.r, date(2025, 5, 1), date(2025, 6, 10))
+        _period(d, n, start, day_between(d.r, start + timedelta(days=7), date(2025, 6, 30)))
+    else:
+        if variant == "paid_before_scope_period":
+            _period(d, n, max(scope.NEW_SCOPE_FROM, d.day - timedelta(days=30)), d.day)
+        else:
+            _period(d, n, None, None)
+        _late_amount(d, n, "amount_paid_before_change", Decimal(1))
+    if form == PROBLEM:
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-3", (Code.TAX_SHOULD_BE_EXEMPT.value,))
+    else:
+        d.expect(n, T.NO_SST.value, "MS-3")
+
+
+def _period(d, n: int, start, end) -> None:
+    """Line n's service period: stated (start, end), or none (the invoice's own period withdrawn from the line)."""
+    facts = d.line(n).get("facts") or {}
+    for name in ("service_period_start", "service_period_end"):
+        facts.pop(name, None)
+    if not facts:
+        d.line(n).pop("facts", None)
+    if start is not None:
+        d.state(n, "service_period_start", start)
+        d.state(n, "service_period_end", end)
+
+
+def _part(d, n: int, share: Decimal) -> Decimal:
+    """An amount that is about share of line n's net amount (whole ringgit)."""
+    return (Decimal(d.line(n)["net_amount"]) * share).quantize(Decimal("1"))
+
+
+def _late_amount(d, n: int, fact: str, share: Decimal) -> dict:
+    """State fact on line n as share of its final net amount, once every op has run (Draft.late); the returned
+    holder's "v" is the amount (until then, tax_due reads share of the current amount)."""
+    holder: dict = {}
+
+    def state() -> None:
+        holder["v"] = (Decimal(d.line(n)["net_amount"]) * share).quantize(Decimal("0.01"))
+        d.state(n, fact, holder["v"])
+    d.late.append(state)
+    return holder
+
+
+def _amount(holder: dict, line: dict, share: Decimal) -> Decimal:
+    return holder.get("v", Decimal(line["net_amount"]) * share)
+
+
+def _split_tax(line: dict, before: Decimal, old: Decimal, new: Decimal) -> Decimal:
+    """Tax at the old rate on the part before a change and the new rate on the rest (reg 3A)."""
+    net = Decimal(line["net_amount"])
+    part = min(before, net)
+    return rates._tax(part, old) + rates._tax(net - part, new)
+
+
+MS4_EDUCATION = {
+    "private_school_disabled": {"education_provider_kind": "private_school", "student_category": "disabled_citizen"},
+    "private_school_fees": {"education_provider_kind": "private_school", "annual_fee_per_student": Decimal("38000.00")},
+    "higher_education_citizen": {"education_provider_kind": "higher_education", "student_category": "citizen"},
+}
+"""Group M education (MS-4, Service Tax Order): a private school's fees for a disabled citizen, or up to RM60,000 a
+year per student; higher education for a citizen student."""
+
+
 @recipe("MS-4")
 def _ms4(d, n, form):
+    """In turn: cleaning of residential or educational premises; a professional fee part paid as a statutory fee
+    (only the rest is taxable: the problem form charges the whole); the education exclusions."""
     need_domestic(d, "MS-4")
+    # Education is taxable from 1 Jul 2025, and a Government supplier exempts it itself (P-8).
+    later = d.day >= scope.NEW_SCOPE_FROM and d.supplier_kind not in ("government", "local_authority")
+    variant = d.turn(f"MS-4 {form} {later}", ["cleaning", "statutory_fee", *(MS4_EDUCATION if later else ())])
+    professional = [c for c in ["legal_services", "audit_accounting", "engineering_consultancy", "architectural_services"]
+                    if item_of(c) not in provided(d) and not (d.supplier_kind == "group" and profile(c).group_relief)]
+    if variant == "statutory_fee" and not professional:
+        variant = "cleaning"                   # the group supplier's professional services are group relief (MS-6)
+    if variant == "statutory_fee":
+        c = d.r.choice(professional)
+        rate = standard_rate(c, d.day)
+        d.set_line(n, c, rate, service_ext(rate))
+        held = _late_amount(d, n, "statutory_fee_amount", Decimal("0.2"))
+        if form == PROBLEM:
+            d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-4", (Code.TAX_SHOULD_BE_EXEMPT.value,))
+        else:
+            d.tax_due[n] = lambda x, h=held, r=rate: rates._tax(
+                Decimal(x["net_amount"]) - _amount(h, x, Decimal("0.2")), r)
+            d.expect(n, T.SST_CORRECT.value, "MS-4")
+        return
+    if variant in MS4_EDUCATION:
+        if "M" in provided(d) or d.day < scope.NEW_SCOPE_FROM:
+            raise CannotPlant("MS-4 education: a 2025-scope service, bought by a company that doesn't provide it")
+        exempt(d, n, form, "staff_education_fees", "MS-4", dict(MS4_EDUCATION[variant]))
+        return
     exempt(d, n, form, "commercial_cleaning", "MS-4", {"premises_use": d.r.choice(["residential", "educational"])})
 
 
@@ -402,9 +629,25 @@ def _ms5(d, n, form):
     cats = [c for item in provided(d) for c in options.get(item, [])]
     if not cats:
         raise CannotPlant("MS-5 needs a company that provides a B2B item")
-    c = d.r.choice(cats)
-    exempt(d, n, form, c, "MS-5")
-    if form == CORRECT:
+    variants = ["same_item"] + (["sublet_whole", "sublet_part"] if d.day >= scope.NEW_SCOPE_FROM else [])
+    variant = d.turn(f"MS-5 {form} {d.day >= scope.NEW_SCOPE_FROM}", variants)
+    if variant != "same_item":
+        # Item 8 (2025): a registered person renting an asset to sublet it, for the sublet part only.
+        c = "equipment_rental"
+        share = Decimal(1) if variant == "sublet_whole" else Decimal("0.6")
+        facts = {"same_service_as_buyer": True, "sublet": True, "sublet_share": share}
+        if variant == "sublet_part" and form == CORRECT:
+            rate = standard_rate(c, d.day)
+            d.set_line(n, c, rate, service_ext(rate))
+            for fact, value in facts.items():
+                d.state(n, fact, value)
+            d.tax_due[n] = lambda x, r=rate, s=share: rates._tax(Decimal(x["net_amount"]) * (1 - s), r)
+            d.expect(n, T.SST_CORRECT.value, "MS-5")
+        else:
+            exempt(d, n, form, c, "MS-5", facts)
+    else:
+        exempt(d, n, form, d.r.choice(cats), "MS-5")
+    if form == CORRECT and variant != "sublet_part":
         # Reg 10(1A): the exempt line shows why (ME-4).
         _ext(d, n)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
 
@@ -426,17 +669,82 @@ def _ms7(d, n, form):
 
 @recipe("MS-8")
 def _ms8(d, n, form):
+    """An imported service the buyer accounts for; in turn the branches that turn on the overseas supplier or the
+    buyer: a foreign registered person charging SST correctly (or not charging: B2B order item 3, MS-5); a group
+    company abroad (MS-6); an excluded service (consultancy on a matter outside Malaysia, MS-4); a registered IT
+    provider reselling the same IT service (B2B item 4, MS-5); the same service resold, the supplier paid (STP 2/2020);
+    a financial service for the buyer's own financial services (STP 1/2025 item 6)."""
     need_foreign(d, "MS-8")
-    c = pick(d, ["imported_consultancy", "foreign_digital_services", "imported_it_services"], "imported service")
-    d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
-    d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d))
+    kind = d.supplier_kind
+    billed = self_billed(d)
+    if kind in ("frp", "frp_group"):
+        c = "foreign_digital_services"
+        if kind == "frp_group" and not in_group(d.cw.company):
+            kind = "frp"                       # an SME belongs to no group: an ordinary FRP to it
+        if kind == "frp_group":                # an FRP in the buyer's group that supplies no outsiders here
+            d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
+            d.expect(n, T.NO_SST.value, "MS-6", (), billed)
+            d.realized["MS-8"] = "MS-6"
+        elif d.turn("MS-8 frp", ["charged", "not_charged"]) == "charged":
+            rate = standard_rate(c, d.day)
+            d.set_line(n, c, rate, service_ext(rate))
+            d.expect(n, T.SST_CORRECT.value, "MS-8", (), billed)
+        else:
+            d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
+            d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-5", (), (IMPORTED_ACTION,) + billed)
+            d.realized["MS-8"] = "MS-5"            # B2B order item 3
+        return
+    if kind == "foreign_group":                # imported Group G item (a)-(i), (l) from a group company abroad
+        d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
+        if in_group(d.cw.company):
+            d.expect(n, T.NO_SST.value, "MS-6", (), billed)
+            d.realized["MS-8"] = "MS-6"
+        else:                                  # an SME belongs to no group: an ordinary imported service
+            d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + billed)
+        return
+    company = d.cw.kind
+    if company == "it" and d.day >= date(2020, 1, 1):
+        variant = "it_resale"                   # the IT provider's branch whenever it buys
+    elif company == "fin" and d.day >= scope.NEW_SCOPE_FROM:
+        variant = "financial_use"               # the financial provider's, from 1 Jul 2025
+    else:
+        variant = d.turn("MS-8", ["excluded", "resold", "accounts"])
+    if variant == "it_resale" and d.day >= date(2020, 1, 1):
+        d.set_line(n, "imported_it_services", Decimal(0), service_ext(Decimal(0)))
+        d.expect(n, T.NO_SST.value, "MS-5", (), billed)
+        d.realized["MS-8"] = "MS-5"                # B2B order item 4
+    elif variant == "financial_use":
+        d.set_line(n, "imported_financial_services", Decimal(0), service_ext(Decimal(0)))
+        d.state(n, "financial_use", "taxable_financial_services")
+        d.expect(n, T.NO_SST.value, "MS-8", (), billed)
+    elif variant == "excluded":
+        d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
+        d.state(n, "subject_outside_malaysia", True)
+        d.expect(n, T.NO_SST.value, "MS-4", (), billed)
+        d.realized["MS-8"] = "MS-4"
+    elif variant == "resold" and "G(g)" not in provided(d):
+        # STP 2/2020: the same service, sold on to the buyer's customers, the overseas supplier paid.
+        d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
+        d.state(n, "same_service_as_buyer", True)
+        d.state(n, "supplier_paid", True)
+        d.expect(n, T.NO_SST.value, "MS-8", (), billed)
+    else:
+        c = pick(d, ["imported_consultancy", "foreign_digital_services", "imported_it_services"], "imported service")
+        d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
+        d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + billed)
 
 
 @recipe("MS-9")
 def _ms9(d, n, form):
+    """A taxable service, or in turn goods the registered manufacturer made, without the tax due."""
     need_domestic(d, "MS-9")
-    c = pick(d, SERVICES_8 + SERVICES_6, "plain service")
-    d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
+    goods = goods_on(d)
+    if d.turn("MS-9", ["service", "goods"]) == "goods" and goods and is_manufacturer(d.supplier) \
+            and registered(d.supplier, "sales", d.day):
+        d.set_line(n, d.r.choice(goods), Decimal(0), goods_ext(Decimal(0)))
+    else:
+        c = pick(d, SERVICES_8 + SERVICES_6, "plain service")
+        d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
     d.expect(n, T.SST_UNDERCHARGED.value, "MS-9", (Code.TAX_UNDERCHARGED.value,))
 
 
@@ -526,8 +834,15 @@ def _p13(d, n, form):
 
 @recipe("P-14")
 def _p14(d, n, form):
+    """A facility-to-facility referral (exempt); in turn for the correct form, a patient who walked in to the second
+    facility or one under a medical aid scheme (taxable, STP 6/2025)."""
     need_domestic(d, "P-14")
-    exempt(d, n, form, "staff_medical_treatment", "P-14", {"referral_walk_in": False})
+    variant = d.turn("P-14", ["referral", "walk_in", "medical_aid"]) if form == CORRECT else "referral"
+    if variant == "referral":
+        exempt(d, n, form, "staff_medical_treatment", "P-14", {"referral_walk_in": False})
+    else:
+        facts = {"referral_walk_in": True} if variant == "walk_in" else {"medical_aid": True}
+        taxed(d, n, "staff_medical_treatment", "P-14", {**facts, "patient_category": "non_citizen"})
 
 
 @recipe("P-15")
@@ -545,9 +860,13 @@ def _p15(d, n, form):
 
 @recipe("P-16")
 def _p16(d, n, form):
+    """In turn: a fee item other than tuition, fees fully sponsored, a diplomat's child (STP 4/2025 (Amdt 2))."""
     need_domestic(d, "P-16")
-    exempt(d, n, form, "staff_education_fees", "P-16",
-           {"education_fee_item": d.r.choice(["books", "uniform", "food", "transport", "accommodation"])})
+    variant = d.turn(f"P-16 {form}", ["fee_item", "sponsored", "diplomat_child"])
+    facts = {"fee_item": {"education_fee_item": d.r.choice(["books", "uniform", "food", "transport", "accommodation"])},
+             "sponsored": {"fully_sponsored": True},
+             "diplomat_child": {"student_category": "diplomat_child"}}[variant]
+    exempt(d, n, form, "staff_education_fees", "P-16", facts)
 
 
 @recipe("P-17")
@@ -576,7 +895,13 @@ def _p20(d, n, form):
     need_domestic(d, "P-20")
     if d.day > date(2025, 7, 31):
         raise CannotPlant("P-20 needs an invoice by 31 Jul 2025")
-    exempt(d, n, form, "telecoms", "P-20", {"digital_payment_provider": d.r.choice(["bank", "non_bank"])})
+    if date(2024, 2, 26) <= d.day <= date(2024, 2, 29) and registered(d.supplier, "service", date(2024, 2, 25)):
+        # STP 1/2024: on a service added on 26 Feb 2024, a supplier already registered neither charges nor collects
+        # tax for 26-29 Feb 2024 (a planted date window, rules.yaml window_turns).
+        exempt(d, n, form, "maintenance_repair", "P-20")
+        return
+    exempt(d, n, form, "telecoms", "P-20",
+           {"digital_payment_provider": d.turn(f"P-20 {form}", ["non_bank", "bank"])})
 
 
 # K-1 to K-8: rental
@@ -654,7 +979,21 @@ def _l1(d, n, form):
 @recipe("L-2")
 def _l2(d, n, form):
     need_domestic(d, "L-2")
-    exempt(d, n, form, "construction_works", "L-2", {"residential_share": Decimal(1), "mixed_development_stated": True})
+    # A part exemption leaves the rest to the later rules: a builder's own construction purchase is then B2B (MS-5).
+    if d.turn(f"L-2 {form}", ["part", "whole"]) == "whole" or "L" in provided(d):
+        exempt(d, n, form, "construction_works", "L-2", {"residential_share": Decimal(1), "mixed_development_stated": True})
+        return
+    # A mixed development: the residential 70% exempt, the commercial rest taxable (problem: the whole charged).
+    share, c = Decimal("0.7"), "construction_works"
+    rate = standard_rate(c, d.day)
+    d.set_line(n, c, rate, service_ext(rate))
+    d.state(n, "residential_share", share)
+    d.state(n, "mixed_development_stated", True)
+    if form == PROBLEM:
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "L-2", (Code.TAX_SHOULD_BE_EXEMPT.value,))
+    else:
+        d.tax_due[n] = lambda x, r=rate, s=share: rates._tax(Decimal(x["net_amount"]) * (1 - s), r)
+        d.expect(n, T.SST_CORRECT.value, "L-2")
 
 
 @recipe("L-3")
@@ -675,7 +1014,13 @@ def _l4(d, n, form):
 @recipe("L-5")
 def _l5(d, n, form):
     need_domestic(d, "L-5")
-    exempt(d, n, form, "construction_works", "L-5", {"residential": True, "completed_building": True})
+    facts = {"residential": True, "completed_building": True}
+    if form == CORRECT and d.turn("L-5", ["named", "not_named"]) == "not_named" and "L" not in provided(d):
+        # The invoice doesn't show the recipient's address: the work stays taxable (STP 2/2026).
+        taxed(d, n, "construction_works", "L-5", facts)
+        d.invoice["buyer_block"]["address"] = None
+        return
+    exempt(d, n, form, "construction_works", "L-5", facts)
 
 
 @recipe("L-6")
@@ -700,6 +1045,23 @@ def _l8(d, n, form):
         rate = d.r.choice([Decimal(10), Decimal(5)])
         d.set_line(n, c, rate, goods_ext(rate))
         d.expect(n, T.SST_CORRECT.value, "L-8")
+        return
+    variant = d.turn("L-8 problem", ["service_tax", "uncharged", "sales_on_construction", "service_on_materials"])
+    if variant == "uncharged":                 # sales tax due on the whole value, none charged
+        d.set_line(n, c, Decimal(0), goods_ext(Decimal(0)))
+        d.expect(n, T.SST_UNDERCHARGED.value, "L-8", (Code.TAX_UNDERCHARGED.value,))
+    elif variant == "sales_on_construction":   # a platform the company elected to treat as construction
+        d.set_line(n, c, Decimal(10), goods_ext(Decimal(10)))
+        d.state(n, "ship_platform_election", "construction")
+        d.expect(n, T.SST_WRONG_RATE.value, "L-8", (Code.WRONG_TAX_RATE.value,))
+    elif variant == "service_on_materials":    # service tax on materials shown apart from the works
+        cats = goods_on(d)
+        if not cats:
+            raise CannotPlant("L-8: no goods on the day")
+        rate = rates.standard_rate("L", d.day)
+        d.set_line(n, d.r.choice(cats), rate, service_ext(rate))
+        d.state(n, "materials_works_separated", True)
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "L-8", (Code.TAX_SHOULD_BE_EXEMPT.value,))
     else:
         rate = rates.standard_rate("L", d.day)
         d.set_line(n, c, rate, service_ext(rate))
@@ -723,6 +1085,16 @@ def _mg1(d, n, form):
         else:
             d.set_line(n, c, Decimal(0), goods_ext(Decimal(0)))
             d.expect(n, T.NO_SST.value, "MG-1", (), self_billed(d))
+        return
+    if not registered(d.supplier, "sales", d.day):
+        # A supplier not registered for sales tax on the day (it registers on 1 Oct 2025).
+        if form == PROBLEM:
+            rate = standard_rate(c, d.day)
+            d.set_line(n, c, rate, goods_ext(rate))
+            d.expect(n, T.SST_SUPPLIER_NOT_REGISTERED.value, "MG-1", (Code.SUPPLIER_NOT_TAX_REGISTERED.value,))
+        else:
+            d.set_line(n, c, Decimal(0), goods_ext(Decimal(0)))
+            d.expect(n, T.NO_SST.value, "MG-1")
         return
     if form == PROBLEM:
         rate = standard_rate(c, d.day)
@@ -750,6 +1122,14 @@ def _mg2(d, n, form):
 def _mg3(d, n, form):
     """Goods exempt under the 2018/2022 orders, taxed under the 2025 orders, invoiced before 1 Jul 2025."""
     need_domestic(d, "MG-3")
+    if form == CORRECT and d.day >= SALES_TAX_ORDERS_2025_FROM:
+        # Sales Tax Policy 1/2026 (G-3) covers these raw materials only from 1 Jan 2026: in Jul-Dec 2025 they are taxed
+        # at their class under the 2025 orders, and the policy's start decides (MG-3).
+        cats = [c for c in ("animal_feed_fishmeal", "animal_feed_premix") if c not in certificate_categories(d)]
+        if d.day >= G3_FROM or not cats:
+            raise CannotPlant("MG-3 after 1 Jul 2025 needs raw materials before 1 Jan 2026, outside a certificate")
+        taxed(d, n, d.r.choice(cats), "MG-3")
+        return
     cats = [c for c in goods_on(d, taxable=False) if goods_class(c, d.day) == "sales_exempt"
             and profile(c).tax_class != "sales_exempt"]
     if d.day >= SALES_TAX_ORDERS_2025_FROM or not cats:
@@ -786,6 +1166,23 @@ def _mg5(d, n, form):
     """Goods delivered from a principal customs area manufacturer to a designated island. A quarter are goods the DA
     order lists (motor vehicles into Tioman or Pangkor): MG-5 step 2 exempts them, resting on Q-A1 (flagged)."""
     need_domestic(d, "MG-5")
+    kind = d.supplier_kind
+    if kind in ZONE_MAKERS:
+        # A manufacturer on Langkawi or in the JDA selling to the principal customs area (steps 3-4); from a free
+        # zone, uncharged to the principal customs area (charged: Q-A3, not planted) or into a designated area.
+        cats = goods_on(d)
+        if not cats:
+            raise CannotPlant("MG-5: no taxable goods on the day")
+        into_area = kind == "fz_maker" and (form == PROBLEM or d.turn("MG-5 free zone maker", ["pca", "area"]) == "area")
+        facts = {"delivery_zone": d.r.choice(DA_ZONES)} if into_area else {}
+        exempt(d, n, form, d.r.choice(cats), "MG-5", facts)
+        return
+    if d.turn(f"MG-5 {form}", ["designated_area", "free_zone"]) == "free_zone":
+        cats = goods_on(d)
+        if not cats:
+            raise CannotPlant("MG-5: no taxable goods on the day")
+        exempt(d, n, form, d.r.choice(cats), "MG-5", {"delivery_zone": "free_zone"})
+        return
     listed = "motorcycles_50_150cc"
     if d.r.random() < 0.25 and (form == CORRECT or goods_class(listed, d.day) not in (None, "sales_exempt")):
         c, zone, question = listed, d.r.choice(["tioman", "pangkor"]), "Q-A1"
@@ -819,7 +1216,7 @@ def _g4(d, n, form):
     need_domestic(d, "G-4")
     if "wooden_pallets" not in certificate_categories(d):
         raise CannotPlant("G-4 needs a certificate covering pallets")
-    if form == CORRECT and d.r.random() < 0.5:
+    if form == CORRECT and d.turn("G-4", ["returnable", "one_way"]) == "returnable":
         taxed(d, n, "wooden_pallets", "G-4", {"pallet_returnable": True})
         return
     rate = standard_rate("wooden_pallets", d.day) if form == PROBLEM else Decimal(0)
@@ -857,8 +1254,25 @@ def _me1(d, n, form):
 @recipe("ME-2")
 def _me2(d, n, form):
     need_domestic(d, "ME-2")
-    d.invoice["einvoice"]["buyer_tin"] = None            # a MyInvois mandatory field
+    drop_einvoice_field(d.invoice, d)                   # a MyInvois mandatory field
     d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
+
+
+ME2_HEADER = ("supplier_tin", "buyer_tin", "supplier_brn", "buyer_brn", "einvoice_type_code")
+"""MyInvois header fields an e-invoice may lack (the currency and the lines' unit prices the invoice model requires)."""
+
+
+def drop_einvoice_field(invoice: dict, d=None) -> None:
+    """ME-2 (validity.check), in turn: a header field, a line field (the classification code), or the tax totals by
+    type (removed after the last refresh, which recomputes them)."""
+    which = d.turn("ME-2 field", ["header", "line", "totals"]) if d is not None else "header"
+    e = invoice["einvoice"]
+    if which == "header":
+        e[d.r.choice(ME2_HEADER) if d is not None else "buyer_tin"] = None
+    elif which == "line":                             # at the end: a later recipe may set the line afresh
+        d.final.append(lambda: d.invoice["einvoice"]["lines"][0].update(classification_code=None))
+    else:
+        d.final.append(lambda: d.invoice["einvoice"].update(tax_total_by_type=None))   # the case's invoice then
 
 
 @recipe("ME-3")
@@ -873,17 +1287,59 @@ def _me3(d, n, form):
     d.add_actions(n, (SELF_BILLED_ACTION,))
 
 
+ME4_SUPPLIER = ("supplier_name", "supplier_address", "supplier_sst_no")
+"""Reg 10(1), in turn: what an invoice charging SST must show (the supplier's name, address and SST number). A line
+without a description is not planted: it misses a MyInvois field too, and the key names that finding (ME-2)."""
+ME4_B2B = ("buyer_sst_no", "tax_exemption_reason", "buyer_name", "buyer_address")
+"""Reg 10(1A), in turn for a buyer that provides a B2B item: what an invoice exempting it under the B2B order must
+show (the exemption reason on the line, the buyer's name, address and SST number)."""
+
+
 @recipe("ME-4")
 def _me4(d, n, form):
-    """An SST invoice without the supplier's address (reg 10(1)). Line n (its own) charges tax as normal."""
+    """An invoice without a particular reg 10 requires. Line n is its own: it charges tax as normal, or for a B2B buyer
+    it is exempt under the B2B order."""
     need_domestic(d, "ME-4")
-    if not Decimal(d.line(n)["tax_rate"]) > 0:
-        taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
-    d.invoice["supplier_block"]["address"] = None
+    b2b = _b2b_categories(d)
+    if b2b:
+        which = d.turn("ME-4 b2b", ["buyer", "tax_exemption_reason"])
+        exempt(d, n, CORRECT, d.r.choice(b2b), "MS-5")
+        if which == "buyer":
+            # The buyer's particulars left off: its SST number, and its name and address unless L-5 reads them.
+            _ext(d, n)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
+            d.invoice["einvoice"]["buyer_sst_no"] = None
+            if not any(u.rule == "L-5" for u in d.uses):
+                d.invoice["buyer_block"].update(name=None, address=None)
+    else:
+        which = d.turn("ME-4", list(ME4_SUPPLIER))
+        if not Decimal(d.line(n)["tax_rate"]) > 0:
+            taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
+        if which == "supplier_sst_no":
+            d.invoice["einvoice"]["supplier_sst_no"] = None
+        else:
+            d.invoice["supplier_block"]["name" if which == "supplier_name" else "address"] = None
     d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
 
 
+def _b2b_categories(d) -> list[str]:
+    """Categories the B2B order exempts for this buyer on the day (it provides the same item: MS-5)."""
+    options = {"G(h)": ["it_services", "software_development"], "I8": ["advertising"],
+               "G(f)": ["architectural_services"]}
+    if d.day >= scope.NEW_SCOPE_FROM:
+        options["L"] = ["construction_works"]
+    if d.supplier_kind in ("group", "government", "local_authority"):
+        return []
+    return [c for item in provided(d) for c in options.get(item, [])]
+
+
 # WH-1 to WH-4: withholding on payments to non-residents (buyer actions)
+
+
+def _has_certificate(d) -> bool:
+    sid = d.built.case["supplier_id"]
+    return any(c["supplier_id"] == sid and date.fromisoformat(c["valid_from"]) <= d.day
+               and (c.get("valid_to") is None or d.day <= date.fromisoformat(c["valid_to"]))
+               for c in d.cw.residence_certificates)
 
 
 def _withholding(d, nature: str) -> tuple:
@@ -917,8 +1373,20 @@ def _wh1(d, n, form):
 
 @recipe("WH-2")
 def _wh2(d, n, form):
-    """Technical advice performed in Malaysia (s4A (ii)); the line states its service period (planting limit 7)."""
+    """Technical advice performed in Malaysia (s4A (ii)); the line states its service period (planting limit 7). In
+    turn: rent of movable property (s4A (iii)) paid to a payee without a certificate of residence, at the special
+    classes rate (with one, the treaty's royalty definition decides: not planted)."""
     need_foreign(d, "WH-2")
+    if not d.invoice.get("service_period_start"):
+        raise CannotPlant("WH-2 needs the invoice's service period")
+    if d.turn("WH-2", ["technical_advice", "movable_rent"]) == "movable_rent" and not _has_certificate(d):
+        d.set_line(n, "equipment_rental_from_abroad", Decimal(0), service_ext(Decimal(0)))
+        withhold = ((WITHHOLD_TAX, str(SPECIAL_CLASSES_RATE), "WH-2"),)
+        if d.day < scope.NEW_SCOPE_FROM:       # rental is a taxable service from 1 Jul 2025 only
+            d.expect(n, T.NO_SST.value, "MS-1", (), self_billed(d) + withhold)
+        else:
+            d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d) + withhold)
+        return
     if not d.invoice.get("service_period_start"):
         raise CannotPlant("WH-2 needs the invoice's service period")
     d.set_line(n, "technical_services_from_abroad", Decimal(0), service_ext(Decimal(0)))
@@ -940,10 +1408,41 @@ def _wh3(d, n, form):
 @recipe("WH-4")
 def _wh4(d, n, form):
     need_foreign(d, "WH-4")
-    nature, rate = d.r.choice([("other_gain", "10"), ("public_entertainer", "15")])
+    nature, rate = d.turn("WH-4", [("other_gain", "10"), ("public_entertainer", "15")])
     d.set_line(n, "imported_consultancy", Decimal(0), service_ext(Decimal(0)))
     d.state(n, "payment_nature", nature)
     d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d) + ((WITHHOLD_TAX, rate, "WH-4"),))
+
+
+# -- branch coverage: the particulars an invoice misses (generator/branches.py) --------------------------------------
+
+def _missing_field(tax, rule: str, item: str) -> bool:
+    return any(f.code.value == "MISSING_MANDATORY_FIELD" and (f.evidence or {}).get("rule") == rule
+               and any(m == item or m.endswith(f".{item}") for m in (f.evidence or {}).get("missing", []))
+               for f in tax.findings)
+
+
+def _einvoice_gap(case, kind: str) -> bool:
+    from .validity import check
+
+    missing = [m for f in check(case.envelope.payload.invoice) for m in (f.evidence or {}).get("missing", [])]
+    if kind == "header":
+        return any(m in ME2_HEADER for m in missing)
+    if kind == "line":
+        return any(m.startswith("line") for m in missing)
+    return "tax_total_by_type" in missing
+
+
+MY_CASE_FACTS = tuple(
+    ("ME-4", f"missing {item}", f"an SST invoice without the {item.replace('_', ' ')} (einvoice.particulars)",
+     lambda c, n, tax, item=item: _missing_field(tax, "ME-4", item))
+    for item in (*ME4_SUPPLIER, "description", "ringgit_amounts", *ME4_B2B)
+) + tuple(
+    ("ME-2", f"missing {kind}", f"an e-invoice without a mandatory {label} (validity.check)",
+     lambda c, n, tax, kind=kind: _einvoice_gap(c, kind))
+    for kind, label in (("header", "header field"), ("line", "line field"), ("totals", "tax total by type"))
+)
+"""Case-level: (rule, name, what it is, holds(case, None, tax result))."""
 
 
 # -- branches: a line whose answer turns on a dated boundary (generation.yaml boundaries) ----------------------------
@@ -1047,6 +1546,47 @@ def _b_me1_relaxation_end(d, n, side):
 
         _me1(d, n, CORRECT)
         d.uses.append(RuleUse("ME-1", CORRECT, "finding"))   # the invalidity is ME-1's (not the default particular)
+
+
+def _paper_invoice(d) -> None:
+    d.invoice["einvoice"].update(is_einvoice=False, uuid=None, validation_datetime=None)
+
+
+@branch("me1_small")
+def _b_me1_small(d, n, side):
+    """ME-1: a supplier with turnover below RM1m is exempt from e-invoicing on either side of the first phase start
+    (1 Aug 2024): its ordinary invoice raises no finding."""
+    need_kind(d, "me1_small", "einv_small")
+    _paper_invoice(d)
+
+
+@branch("me1_unknown_phase")
+def _b_me1_unknown_phase(d, n, side):
+    """ME-1, 31 Jan 2025: before it no supplier is past its relaxation period, so an ordinary invoice from a supplier
+    whose record doesn't show its phase raises no finding; after it the phase decides (the invoice is a validated
+    e-invoice here: a missing phase there would be a hand-over)."""
+    need_kind(d, "me1_unknown_phase", "einv_unknown")
+    if side == BEFORE:
+        _paper_invoice(d)
+
+
+@branch("me1_public_body")
+def _b_me1_public_body(d, n, side):
+    """ME-1, 30 Jun 2025: a local authority is exempt from e-invoicing for supplies to then; from 1 Jul 2025 only for
+    statutory payments, fees and charges (each line states it is one)."""
+    need_kind(d, "me1_public_body", "local_authority")
+    _paper_invoice(d)
+    if side == AFTER:
+        for k in range(1, len(d.invoice["lines"]) + 1):
+            _late_amount(d, k, "statutory_fee_amount", Decimal(1))
+
+
+@branch("me1_phase_3m5m")
+def _b_me1_phase_3m5m(d, n, side):
+    """ME-1, 1 Jan 2026: a supplier of RM3m-5m enters its phase, with a relaxation period to 31 Dec 2027: before, not
+    yet in a phase; after, inside the relaxation period. Either way an ordinary invoice raises no finding."""
+    need_kind(d, "me1_phase_3m5m", "einv_3m5m")
+    _paper_invoice(d)
 
 
 @branch("ms7_items_5_7")

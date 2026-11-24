@@ -150,8 +150,8 @@ Anything outside the table isn't planted as H2. An example is a supplier email "
 
 A case counts as mixed when at least two of its lines have different treatments or bases, or one line turns on a §5-b split.
 
-- At least 12% of each split: 240 / 60 / 36.
-- At least a third of those are Malaysian §5-b cases: L-8 materials and works, L-8 installation by a sales-tax manufacturer, P-12 consultation fees, P-16 education fee items, MS-2 packages.
+- At least 240 / 60 / 36 mixed cases (12% of each split).
+- Of those, at least 80 / 20 / 12 are Malaysian §5-b split cases (a third of the 12% floor, not of every mixed case built): L-8 materials and works, L-8 installation by a sales-tax manufacturer, P-12 consultation fees, P-16 education fee items, MS-2 packages. These are floors; a split may build more of either (review of B1-5).
 - Lines may book to different GL accounts (spec clarification, 18 Nov 2026), so step 11 Q6 (one GL account per invoice) no longer applies.
 
 Lines per invoice: 1 line 45%, 2 lines 30%, 3 lines 15%, 4–6 lines 10%. The mean is about 2.0.
@@ -402,6 +402,17 @@ Choices made while building B1-4 that the plan didn't fix. None changes a rule o
 - **Partially exempt buyers** state the attribution of each claimable purchase (SG-9); their claims are SG-9, not SG-1.
 - **Mixed quota.** Read as counts: at least 240 / 60 / 36 mixed cases and at least 80 / 20 / 12 Malaysian §5-b split cases (generation.yaml `mixed`). The built splits have 693 / 162 / 102 mixed cases (most from lines with different rules) and 124 / 32 / 19 split cases. If "a third of those" means a third of every mixed case, the split share would need raising to about 230 in train.
 - **Limit 5** has its own Ambiguous-slot family on foreign-supplier slots: 3 / 1 / 1 cases in 2,000 / 500 / 300.
+
+### Review of B1-5: every branch the engine decides, planted or explained
+
+- **Branch table.** `generator/branches.py` reads every branch off each country's engine code (the files and helpers the pack names): a decision (a call that builds an outcome naming its rule, one row per conditional outcome and per call site of a helper), a hand-over (`NotSettled`, and one "fact not shown" row per rule), a path (each return of a function the pack names as a rule's deciding function: SG-4's reasons, SG-8's credit test, ME-1's phase, ME-3's buyer phase) and a fact path (a deciding fact read on a shared line of code, or an invoice particular a finding names). Re-running the engine on each built case under a tracer counts the cases planting each one. `db-generate` writes it to `report/branches.json`.
+- **Floor.** Each in-window branch: at least 2 cases in train and 1 in test. A rule whose recipe takes several branches in turn declares them (rules.yaml `branches`), and the floor gives it 2 / 1 appearances per branch. Deterministic turns (`ops.Turns`) spread the branches evenly; a redraw moves on by its attempt number.
+- **Below the floor** (`content/generator/branch_reasons.yaml`, kept current by `tests/generator/test_branch_coverage.py`): 16 Malaysian and 1 Singaporean branch, none planted. Ten are outside the case window (imported services before 2019, Labuan to 2021, WH-2 before 5 Dec 2018, an FRP before B2B item 3); four need company facts no generated company has (a Labuan FSA buyer, a buyer not registered for service tax, a company record without its phase, a company exempt from e-invoicing); three are invoices the generator doesn't build or the key can't show (a domestic invoice in another currency in each country, and a line without a description, whose finding the key names ME-2). Hand-over branches are HAND_OVER only.
+- **Allocator additions** (generic): per-branch floors, date windows taken in turn (`window_turns`), appearances alternating foreign and domestic (`alternate_foreign`), cases a rule plants alone (`alone`, `alone_with`), the fewest lines (`min_lines`), per-form supplier needs (`form_needs`); a boundary branch that brings a finding avoids slots with a finding rule; a foreign action rule counts a line of its own; three in four one-line tax slots swap line counts with an untaxed slot (the plan's line counts are unchanged), so the problem branches have room.
+- **Singapore (A-D).** SG-4: not registered, a GST number that isn't the registration, an OVR vendor (new supplier kind), in turn; a registration ended before the invoice date is the engine's not-registered path. SG-8: imported services, low-value goods and other imported goods; three new company kinds (meeting de minimis; in a GST group without full credit, fully taxable or meeting de minimis). SG-9: a de minimis buyer states its attribution and claims in full (the engine names SG-1). SG-10: eleven branches, the always-disallowed classes and each claimable exception and its disallowed side.
+- **Malaysia.** Branches added to MS-1 to MS-5, MS-8, MS-9, P-14, P-16, P-20 (the 26-29 Feb 2024 transitional exemption), L-2, L-5, L-8, MG-1, MG-3, MG-5, G-4, WH-2, WH-4, ME-2 and ME-4, with new special suppliers (a late registrant, foreign registered persons in and out of the group, a group company abroad, three e-invoicing statuses, manufacturers on Langkawi, in a free zone and in the JDA) and four ME-1 boundaries (an ordinary invoice that needs no e-invoice yet).
+- **Engine stop, not planted.** MS-3: a line charging no tax for a service paid in full before the 1 Jul 2025 scope start. Sheet MS-3 (reg 3A) says that payment is not taxed; the engine answers MS-9 (undercharged), because `service_tax.assess` checks prepayments only on a line that charges tax. The charged form (no tax was due) is planted.
+- **The generator calls the engine's `buyer_in_phase`** for self-billing instead of its own copy.
 
 ## 8a. Questions as raised
 
