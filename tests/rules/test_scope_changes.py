@@ -11,6 +11,7 @@ from decision_benchmark.task_sets.ap_invoices.models import Decision as D
 from .factory import answer
 from .my_cases import company_facts, one_line, result, sg_one_line, supplier_facts
 from .test_my_exemptions import imported
+from .test_my_rental import rental
 
 RCI, OK, HO = D.REQUEST_CORRECTED_INVOICE, D.APPROVE, D.HAND_OVER
 EXEMPT, CORRECT = "SST_SHOULD_BE_EXEMPT", "SST_CORRECT"
@@ -177,3 +178,81 @@ def test_ms8_stp_2_2020_from_1_jan_2020(day, expected):
     r, c = imported(day=day, supplier_paid=True)
     company_facts(r, services_provided=["G(i)"])
     assert result(r, c) == expected
+
+
+# -- MS-3 reg 3A, the uncharged form (engine 0.10.5): paid before the service became taxable, no tax due -------------
+
+NO_SST, UNDER = "NO_SST", "SST_UNDERCHARGED"
+_APRIL_2024 = {"service_period_start": "2024-04-01", "service_period_end": "2024-04-30"}
+_SPAN_26_FEB_2024 = {"service_period_start": "2024-02-01", "service_period_end": "2024-04-30"}
+_JULY_2025 = {"service_period_start": "2025-07-01", "service_period_end": "2025-07-31"}
+_SPAN_1_JUL_2025 = {"service_period_start": "2025-06-16", "service_period_end": "2025-07-15"}
+_SPAN_1_MAR_2024 = {"service_period_start": "2024-02-16", "service_period_end": "2024-03-15"}
+
+
+def maintenance(day="2024-05-02", **facts):
+    r, c = one_line("maintenance_repair", rate="0", day=day, **facts)
+    supplier_facts(r, registered_before_2024_02_26=True)
+    return r, c
+
+
+def rental_line(day="2025-08-04", **facts):
+    return rental(rate="0", day=day, **facts)
+
+
+@pytest.mark.parametrize("facts, expected", [
+    ({"amount_paid_before_change": "3200.00"}, (OK, NO_SST, "MS-3")),      # paid in full before 26 Feb 2024
+    ({"value_provided_before_change": "3200.00"}, (OK, NO_SST, "MS-3")),   # provided in full before it
+    ({"amount_paid_before_change": "1000.00"}, (HO, None, "MS-3")),        # part paid, the rest's split not shown
+    ({"value_provided_before_change": "1000.00"}, (RCI, UNDER, "MS-9")),   # the part from 26 Feb bears tax
+    ({}, (HO, None, "MS-3")),                                              # spanning, split not shown
+])
+def test_reg_3a_uncharged_maintenance_spanning_26_feb_2024(facts, expected):
+    # 26 Feb-29 Feb 2024 alone falls in STP 1/2024's window (P-20), so the 26 Feb start is seen on a spanning supply.
+    assert result(*maintenance(**_SPAN_26_FEB_2024, **facts)) == expected
+
+
+@pytest.mark.parametrize("paid, expected", [
+    ("3200.00", (OK, NO_SST, "MS-3")),
+    ("1600.00", (RCI, UNDER, "MS-9")),
+    ("0.00", (RCI, UNDER, "MS-9")),
+])
+def test_reg_3a_uncharged_rental_paid_before_1_jul_2025(paid, expected):
+    assert result(*rental_line(**_JULY_2025, amount_paid_before_change=paid)) == expected
+
+
+@pytest.mark.parametrize("category, facts", [
+    ("construction_works", {}),
+    ("it_services", {"service_item": "H3", "financial_charge": "fee_or_commission"}),
+])
+def test_reg_3a_uncharged_other_1_jul_2025_additions_paid_before_it(category, facts):
+    paid = one_line(category, rate="0", day="2025-08-04", amount_paid_before_change="3200.00", **_JULY_2025, **facts)
+    assert result(*paid) == (OK, NO_SST, "MS-3")
+    unpaid = one_line(category, rate="0", day="2025-08-04", **_JULY_2025, **facts)
+    assert result(*unpaid)[:2] == (RCI, UNDER)
+
+
+def test_reg_3a_uncharged_without_a_service_period_reads_the_invoice_date():
+    # Invoice on 4 Aug 2025 for rental paid in full on 20 Jun 2025: reg 3A, no tax due.
+    assert result(*rental_line(amount_paid_before_change="3200.00")) == (OK, NO_SST, "MS-3")
+
+
+@pytest.mark.parametrize("facts, expected", [
+    ({}, (HO, None, "MS-3")),                                              # spanning, split not shown
+    ({"value_provided_before_change": "1600.00"}, (RCI, UNDER, "MS-9")),   # the July part bears tax
+    ({"value_provided_before_change": "3200.00"}, (OK, NO_SST, "MS-3")),   # all of it provided before
+    ({"amount_paid_before_change": "3200.00"}, (OK, NO_SST, "MS-3")),      # all of it paid before
+])
+def test_reg_3a_uncharged_rental_spanning_1_jul_2025(facts, expected):
+    assert result(*rental_line(day="2025-07-20", **_SPAN_1_JUL_2025, **facts)) == expected
+
+
+@pytest.mark.parametrize("facts", [{}, {"amount_paid_before_change": "3200.00"}])
+def test_reg_3a_near_miss_the_1_mar_2024_rate_change_leaves_tax_due(facts):
+    # 1 Mar 2024 is a rate change (6% -> 8%), not a scope start: paid before it, the line still bears 6%.
+    assert result(*maintenance(day="2024-04-02", **_APRIL_2024, **facts)) == (RCI, UNDER, "MS-9")
+    it = one_line("it_services", rate="0", day="2024-04-02", **_APRIL_2024, **facts)
+    assert result(*it) == (RCI, UNDER, "MS-9")
+    # Spanning the rate change: tax is due on both sides whatever the split, so no hand-over.
+    assert result(*one_line("it_services", rate="0", day="2024-03-20", **_SPAN_1_MAR_2024, **facts)) == (
+        RCI, UNDER, "MS-9")

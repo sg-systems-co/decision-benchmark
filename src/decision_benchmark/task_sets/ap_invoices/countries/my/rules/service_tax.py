@@ -2,7 +2,7 @@
 
 Order: a supplier that charges service tax must be registered (MS-1 (b)); the service must be in the
 First Schedule on the invoice date (MS-1 (a)); then each exclusion or exemption rule in turn; a taxable
-line with no tax is undercharged (MS-9); else the rate (MS-2, MS-3).
+line with no tax is undercharged (MS-9) unless it was paid before the service became taxable (MS-3, reg 3A); else the rate (MS-2, MS-3).
 """
 
 from __future__ import annotations
@@ -54,6 +54,10 @@ def assess(ctx: LineCtx) -> Outcome:
             return Outcome(T.NO_SST, partials[0].basis)
         if not ctx.supplier_registered("service", "MS-1"):
             return Outcome(T.NO_SST, "MS-1")
+        taxable = ctx.net - sum((ctx.net - p.taxable for p in partials), ZERO)
+        if rates.uncharged_due(ctx, taxable) is False:
+            # Reg 3A (MS-3): paid before the service became taxable, so no tax is due and the line is right.
+            return ctx.exempt(Exempt("MS-3"), "not_taxable")
         return ctx.undercharged("MS-9", "service")
     out = rates.check_rate(ctx, partials)
     if out.code == T.SST_CORRECT and taxable_by is not None and out.basis == "MS-2":

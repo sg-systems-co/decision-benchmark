@@ -4,7 +4,8 @@ SG-10: Regulations 26/27 and the related IRAS rules (club fees, staff medical an
 exceptions, motor cars with the Regulation 25(1) exclusions and the chauffeured and third-party exceptions,
 family benefits, betting, benefits for directors only, CSR for third parties). SG-9: a partially exempt buyer
 (de minimis not met) can't claim input tax directly attributable to exempt supplies; residual input tax is
-apportioned. SG-1 condition 8 (missing-trader fraud) is not modelled (A12 decision 6).
+apportioned; a buyer that meets the de minimis rule claims them in full, by SG-9 (engine 0.10.5; a line used for
+taxable supplies stays SG-1). SG-1 condition 8 (missing-trader fraud) is not modelled (A12 decision 6).
 """
 
 from __future__ import annotations
@@ -69,9 +70,13 @@ def _partial_exemption(ctx: LineCtx) -> Outcome | None:
     status = ctx.cf.input_tax_status
     if status is None:
         raise NotSettled("SG-9", "buyer's input-tax status not shown")
-    if status != "partially_exempt":
+    if status == "fully_taxable":
         return None
     attribution = ctx.need("purchase_attribution", "SG-9")
+    if status == "de_minimis_met":
+        # The de minimis rule (SG-9) lets the buyer claim input tax on exempt and residual purchases in full; a
+        # purchase used for taxable supplies is claimable by SG-1. Not shown: the basis isn't settled -> HAND_OVER.
+        return None if attribution == "taxable" else Outcome(T.CLAIMABLE, "SG-9")
     if attribution == "exempt":
         return Outcome(T.NOT_CLAIMABLE_EXEMPT_USE, "SG-9")
     if attribution == "residual":
