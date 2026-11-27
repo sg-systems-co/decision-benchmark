@@ -386,8 +386,13 @@ class _Allocator:
         # (a rule that pairs with none should take a slot no pair needs).
         share = {(r.id, f): sum(self._can_share(r, f, r2, f2) for r2, f2, _ in demands if r2.id != r.id)
                  for r, f, _ in demands}
-        demands.sort(key=lambda d: (len(self._candidates(d[0], d[1])), d[1] != PROBLEM, -d[2],
-                                    share[(d[0].id, d[1])], d[0].id))
+        def room(rule: RuleSpec, form: str) -> int:
+            """Candidate slots, the narrowest appearance turn's side counted alone (it must find its slot first)."""
+            cands = self._candidates(rule, form)
+            sides = [t.foreign for t in rule.appearance_turns.get(form, ()) if t.foreign is not None]
+            return min([len(cands)] + [sum(s.foreign == side for s in cands) for side in sides])
+
+        demands.sort(key=lambda d: (room(d[0], d[1]), d[1] != PROBLEM, -d[2], share[(d[0].id, d[1])], d[0].id))
         for base, form, k in demands:
             candidates = self._candidates(base, form)
             for i in range(k):
@@ -400,10 +405,19 @@ class _Allocator:
                         and self._free(s, rule, form, free_lines, free_problem, free_finding, free_action) > 0]
                 if rule.alternate_foreign:          # in turn foreign and domestic, where both can still take it
                     pool = [s for s in pool if s.foreign == bool(i % 2)] or pool
+                # Appearance turns plant branches, so they apply where the split has a branch floor.
+                turns_on = tier.per_branch > 0 and base.appearance_turns.get(form)
+                turn = base.appearance_turns[form][i % len(base.appearance_turns[form])] if turns_on else None
+                if turn is not None or base.appearance_turns.get(form):
+                    pool = [s for s in pool if self._turn_fits(s, rule, form, turn)]
                 if not pool:
                     raise InfeasibleDemand(f"rule floor: {rule.id} ({form}) placed {i} of {k}; no compatible slot "
                                            f"has room in a split of {self.n}")
-                if form == PROBLEM:
+                if turn is not None and turn.companies and set(turn.companies) <= set(self.gen.reserved_companies):
+                    # A reserved company's case takes no other rule: the slot with the fewest lines, so the least
+                    # room is closed to the others.
+                    s = min(pool, key=lambda s: (s.lines, free_problem[s.key] if form == PROBLEM else 0, rank[s.key]))
+                elif form == PROBLEM:
                     # Best fit: the slot with the least problem room that still fits (a second problem where one
                     # can pair, a one-line slot for a rule that pairs with nothing), so no room is wasted.
                     s = min(pool, key=lambda s: (free_problem[s.key], s.lines, rank[s.key]))
@@ -413,8 +427,9 @@ class _Allocator:
                 s.rules.append(RuleUse(rule.id, form, rule.carrier))
                 s.window = self._narrowed(s, rule, form)
                 s.supplier = s.supplier or rule.supplier
-                if rule.companies:
-                    s.companies = tuple(sorted(set(rule.companies) & set(s.companies or rule.companies)))
+                kinds = (turn.companies if turn is not None and turn.companies else ()) or rule.companies
+                if kinds:
+                    s.companies = tuple(sorted(set(kinds) & set(s.companies or kinds)))
                 if rule.carrier == "line":
                     if form == PROBLEM and problems[s.key] == 0:
                         problems[s.key] += 1             # takes the reserved line
@@ -470,8 +485,26 @@ class _Allocator:
             return False
         if rule.companies and s.companies is not None and not set(rule.companies) & set(s.companies):
             return False
+        if s.companies is not None and set(s.companies) <= set(self.gen.reserved_companies) and not (
+                set(rule.companies) | {k for t in rule.appearance_turns.get(form, ()) for k in t.companies}) & set(
+                s.companies):
+            return False                  # a reserved company's case takes only the rules that name its kind
         lo, hi = self._narrowed(s, rule, form)
         return lo <= hi
+
+    def _turn_fits(self, s: Slot, rule: RuleSpec, form: str, turn) -> bool:
+        """An appearance turn's own needs: the supplier side it names (else the rule's), and its company kinds."""
+        foreign = turn.foreign if turn is not None and turn.foreign is not None else (
+            True if rule.foreign else False if (rule.domestic or form in rule.domestic_forms) else None)
+        if foreign is not None and s.foreign != foreign:
+            return False
+        kinds = set(turn.companies if turn is not None else ()) or set(rule.companies)
+        if kinds and s.companies is not None and not kinds & set(s.companies):
+            return False
+        if s.companies is not None and set(s.companies) <= set(self.gen.reserved_companies) and not kinds & set(
+                s.companies):
+            return False
+        return True
 
     def _tax(self, s: Slot) -> bool:
         return any(self.gen.type(t).tax for t in s.types())
@@ -484,7 +517,9 @@ class _Allocator:
         for s in self.slots:
             if s.country != rule.country or self.gen.type(s.primary).handover:
                 continue
-            if (rule.foreign and not s.foreign) or ((rule.domestic or form in rule.domestic_forms) and s.foreign):
+            turned = any(t.foreign is not None for t in rule.appearance_turns.get(form, ()))
+            if not turned and ((rule.foreign and not s.foreign)
+                               or ((rule.domestic or form in rule.domestic_forms) and s.foreign)):
                 continue
             if set(rule.exclude_types) & set(s.types()):
                 continue
@@ -524,6 +559,7 @@ class _Allocator:
                         and not any(u.form in self._rule(u.rule).alone for u in s.rules)
                         and not (s.mixed == "lines" and s.lines - sum(u.carrier == "line" for u in s.rules) < 2)
                         and max(window[0], s.window[0]) <= min(window[1], s.window[1])
+                        and (side == "before" or s.window[0] <= b.day)      # the after side starts on the day
                         and (not b.branch or self._takes_branch(s, b, side))]
                 for s in self._pick(pool, tier.per_side, f"boundary {b.country} {b.day} {side}", "boundary",
                                     b.country, b.day.isoformat(), side):
@@ -561,6 +597,9 @@ class _Allocator:
             return False
         if b.companies and s.companies is not None and not set(b.companies) & set(s.companies):
             return False
+        if s.companies is not None and set(s.companies) <= set(self.gen.reserved_companies) and not set(
+                b.companies) & set(s.companies):
+            return False                  # a reserved company's case takes only what names its kind
         if b.supplier and any(self._rule(u.rule).domestic for u in s.rules) and s.foreign:
             return False
         return not s.foreign

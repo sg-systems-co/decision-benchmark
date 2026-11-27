@@ -77,15 +77,22 @@ special_suppliers:
 # The supplier kinds the rules need (rules.yaml supplier) and what each can't do (rules.yaml needs): the co-owner of a
 # rented property isn't registered and isn't in an e-invoicing phase (K-8); the Government exempts its 2025-scope
 # services itself (K-5, L-7, P-8); group relief (MS-6) and the transitional contracts (K-4, L-1) decide before the
-# B2B order (MS-5).
+# B2B order (MS-5); both, and the Government, decide a 2025-scope line before reg 3A (MS-3: reg_3a).
+# Company kinds that take only the cases whose rule appearances name them (rules.yaml appearance_turns): a buyer not
+# registered for service tax (MS-9 through an FRP's digital service) and one regulated by Labuan FSA (MS-5, B2B order
+# item 6), which most rules' recipes don't fit.
+reserved_companies: [unregistered, labuan, phase_unknown]
+# A company whose record doesn't show its e-invoicing phase takes a quarter of the Malaysian hand-over slots (review of
+# the B1-5 fixes, within the 3% share): its families (hardcases/einvoice_phase_unknown.yaml) hand over on ME-3.
+handover_companies: {phase_unknown: '1/4'}
 supplier_lacks:
   co_owner: [service, goods, phase, phase1, b2b]
-  government: [not_public_scope, b2b]
-  local_authority: [not_public_scope, b2b]
+  government: [not_public_scope, b2b, reg_3a]
+  local_authority: [not_public_scope, b2b, reg_3a]
   sg_unregistered: [gst]
   group: [b2b]
-  k4_landlord: [b2b]
-  l1_contractor: [b2b]
+  k4_landlord: [b2b, reg_3a]
+  l1_contractor: [b2b, reg_3a]
   einv_small: [goods, phase, phase1]
   einv_unknown: [goods, phase, phase1]
   einv_3m5m: [goods, phase, phase1]

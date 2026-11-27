@@ -62,6 +62,8 @@ class Draft:
     """Rules the ops planted (for the per-rule report)."""
     turns: Turns | None = None
     """The split's turns (Turns.take): a recipe's branches in rotation rather than drawn."""
+    types: tuple[str, ...] = ()
+    """The slot's exception types (primary first)."""
     realized: dict = field(default_factory=dict)
     """Rule -> the rule the key names for it, where a recipe plants one of its branches that another rule decides (an
     imported service from a group company abroad is MS-8's branch, decided by group relief)."""

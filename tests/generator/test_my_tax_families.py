@@ -169,7 +169,15 @@ def test_slots_keep_one_supplier_kind_and_a_common_date(n):
         for u in s["rules"]:
             a, b = rules[u["rule"]].window(u["form"], GEN.windows[s["country"]])
             assert a <= lo and hi <= b
-            assert not (rules[u["rule"]].domestic and s["foreign"])
+            assert not (rules[u["rule"]].domestic and s["foreign"]
+                        and not any(t.foreign for ts in rules[u["rule"]].appearance_turns.values() for t in ts))
+        # A rule's company kinds, or one of its appearance turns' (rules.yaml appearance_turns).
+        turned = [{k for ts in rules[u["rule"]].appearance_turns.values() for t in ts for k in t.companies}
+                  for u in s["rules"]]
+        if any(turned) and s["companies"]:
+            assert all(set(s["companies"]) <= set(rules[u["rule"]].companies) | t for u, t in zip(s["rules"], turned)
+                       if rules[u["rule"]].companies or t)
+            continue
         allowed = [set(rules[u["rule"]].companies) for u in s["rules"] if rules[u["rule"]].companies]
         if s["boundary"]:
             b = next(x for x in GEN.boundaries if x.country == s["country"] and x.day.isoformat() == s["boundary"]["day"]
@@ -182,7 +190,8 @@ def test_each_company_has_the_special_suppliers():
     for cw in built(300).world["MY"]:
         assert set(cw.special) == {s.kind for s in pack("MY").generation.special_suppliers()}
     kinds = Counter(cw.kind for cw in built(300).world["MY"])
-    assert set(kinds) == set(planting.COMPANY_KINDS)                                  # 6 companies, one of each
+    # 6 companies, one of each ordinary kind; the reserved kinds come last and need a larger split.
+    assert set(kinds) == set(planting.COMPANY_KINDS) - set(GEN.reserved_companies)
 
 
 # -- phrases -------------------------------------------------------------------------------------------------------
@@ -227,10 +236,13 @@ def test_company_turnover_fits_its_kind_and_fixes_its_phase():
     for cw in built(2000).world["MY"]:
         facts = cw.company["tax_facts"]
         assert "einvoice_phase_start" not in facts
+        if cw.kind in planting.PHASE_UNKNOWN:                 # its record doesn't show the phase (ME-3 hand-over)
+            assert facts["einvoice"] is None and facts["einvoice_phase_known"] is False
+            continue
         bands[cw.kind] = facts["einvoice"]["turnover_band"]
         ever = planting.buyer_in_phase(cw.company, GEN.windows["MY"][1])    # the engine's check, on the record
-        assert ever == (cw.kind not in planting.SME_KINDS)
-    assert bands["msme"] == "below_1m" and bands["new_sme"] == "1m_to_3m"
+        assert ever == (cw.kind not in planting.SME_KINDS + planting.UNREGISTERED)
+    assert bands["msme"] == "below_1m" and bands["new_sme"] == "1m_to_3m" and bands["unregistered"] == "below_1m"
     assert sorted(bands[k] for k in ("it", "fin", "builder", "plain")) == sorted(
         ["above_100m", "25m_to_100m", "5m_to_25m", "3m_to_5m"])
 
@@ -242,6 +254,9 @@ def test_self_billing_follows_the_buyers_own_phase():
             if g.records.supplier(g.envelope.payload.supplier_id).country == "MY":
                 continue
             company = export_company(g)
+            if not g.records.company.tax_facts.einvoice_phase_known:
+                assert g.answer.decision.value == "HAND_OVER", g.built.case_id       # ME-3, phase not shown
+                continue
             exempt = not planting.buyer_in_phase(company, GEN.windows["MY"][1])
             billed = any(a.action == "ISSUE_SELF_BILLED_EINVOICE" for a in g.answer.buyer_actions)
             day = g.envelope.payload.invoice.issue_date
@@ -280,8 +295,9 @@ def test_several_suppliers_of_each_special_kind(n, per_kind):
         for g in my_built(n):
             k = next(cw for cw in world if cw.company_id == g.built.company_id).kind_of(g.envelope.payload.supplier_id)
             cases[k] += 1
+        ordinary = {sp.kind for sp in pack("MY").generation.special_suppliers() if sp.ordinary}
         for kind, names in used.items():
-            if cases[kind] >= 3 * per_kind:
+            if kind not in ordinary and cases[kind] >= 3 * per_kind:   # an ordinary one's first is drawn most
                 assert len(names) == per_kind, kind                 # every supplier of the kind is used
 
 
@@ -293,13 +309,20 @@ def test_foreign_invoices_state_their_own_currency_and_a_varying_rate():
             supplier = g.records.supplier(g.envelope.payload.supplier_id)
             inv = g.envelope.payload.invoice
             if supplier.country == "MY":
-                assert inv.currency == "MYR" and inv.exchange_rate is None
+                # A domestic supplier invoices in ringgit, or (the special kind invoicing in US dollars) at a stated
+                # rate, which ME-4 in turn leaves off.
+                if supplier.currency == "MYR":
+                    assert inv.currency == "MYR" and inv.exchange_rate is None
+                else:
+                    assert inv.currency == supplier.currency == "USD"
+                    if inv.exchange_rate is not None:
+                        rates.setdefault("domestic", set()).add(inv.exchange_rate)
                 continue
             assert inv.currency == g_my.foreign_currencies[supplier.country]
             base, _ = g_my.RATES[inv.currency]
             assert base * Decimal("0.95") <= inv.exchange_rate <= base * Decimal("1.05")
             rates.setdefault(inv.currency, set()).add(inv.exchange_rate)
-    assert set(rates) == set(g_my.foreign_currencies.values())
+    assert set(rates) == set(g_my.foreign_currencies.values()) | {"domestic"}
     assert all(len(v) > 1 for v in rates.values())                    # never one constant rate
 
 

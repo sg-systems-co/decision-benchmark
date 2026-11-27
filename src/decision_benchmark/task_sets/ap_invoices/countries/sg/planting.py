@@ -78,12 +78,16 @@ SG_SPECIAL_SUPPLIERS = (
                     homes=("JP", "CN", "GB"), residence=True, facts=dict(NO_BRANCH)),
     SpecialSupplier("sg_ovr", ("it_services",), foreign=True, homes=("US", "GB", "IN"), registered_for=("service",),
                     registration_type="ovr", facts=dict(NO_BRANCH)),
+    SpecialSupplier("sg_fx", ("industrial_valves", "bearings", "hand_tools", "advertising", "business_consultancy",
+                              "security_guards"), currency="USD", ordinary=True),
 )
 """The split's suppliers of each kind, shared by its Singapore companies: a supplier not registered for GST (SG-4);
 foreign suppliers without a Singapore branch: without a certificate of residence (domestic withholding rates), resident
 in Malaysia with one (the treaty's confirmed royalty and technical-fee rates), and resident where the treaty rows are
 not confirmed (WH-5 HAND_OVER, planting limit 5); overseas vendors registered under the OVR regime, which may not
-charge GST to a GST-registered buyer (SG-4)."""
+charge GST to a GST-registered buyer (SG-4); a GST-registered Singapore supplier that invoices in US dollars, at a
+stated rate with the SGD totals (review of the B1-5 fixes: the first is also an ordinary supplier; SG-2 in turn
+plants its invoice without the SGD amounts)."""
 
 
 def registered(supplier: dict, day: date) -> bool:
@@ -474,14 +478,22 @@ SG_BRANCHES["gst_rate_2024"] = _branch_rate
 def finish(d) -> None:
     """A partially exempt buyer attributes each claimable purchase (SG-9): every line it would claim under SG-1 states
     its attribution (taxable here), and SG-9 decides it. A buyer meeting the de minimis rule states what each purchase
-    is for too (in turn: exempt, residual or taxable supplies), but claims all its input tax: the line stays claimable
-    under SG-1 whatever the attribution (sheet SG-9: not claimable "unless the de minimis rule is met")."""
+    is for too (in turn: exempt, residual or taxable supplies) and claims all its input tax: a line for exempt or
+    residual supplies is claimable by SG-9 (sheet SG-9: not claimable "unless the de minimis rule is met"; engine
+    0.10.5), one for taxable supplies by SG-1. A line the rate check decides (SG-3) states taxable use and keeps SG-3."""
     if foreign(d):
         return
     if de_minimis(d.cw.company):
         for n, (_, treatment, basis) in enumerate(d.built.planted.lines, 1):
-            if treatment == T.CLAIMABLE.value and basis == "SG-1":
-                d.state(n, "purchase_attribution", d.turn("SG-9 de minimis", ["exempt", "residual", "taxable"]))
+            if treatment == T.CLAIMABLE.value and basis == "SG-3":
+                d.state(n, "purchase_attribution", "taxable")
+            elif treatment == T.CLAIMABLE.value and basis == "SG-1" and "invalid_invoice" in d.types:
+                d.state(n, "purchase_attribution", "taxable")     # an invalid invoice makes every claim SG-2
+            elif treatment == T.CLAIMABLE.value and basis == "SG-1":
+                attribution = d.turn("SG-9 de minimis", ["exempt", "residual", "taxable"])
+                d.state(n, "purchase_attribution", attribution)
+                if attribution != "taxable":
+                    d.planted_line(n, treatment, "SG-9")
         return
     if not partially_exempt(d.cw.company):
         return
@@ -521,7 +533,20 @@ SG2_PLAIN = ("SG-1", "SG-2", "SG-9")
 """Line bases whose answer doesn't turn on the amounts (a simplified invoice may scale such lines down)."""
 
 
-def drop_particular(invoice: dict, d=None) -> None:
+SGD_AMOUNTS = "FOREIGN_CURRENCY_NO_SGD_AMOUNTS"
+
+
+def drop_particular(invoice: dict, d=None) -> str:
+    """Remove a tax-invoice particular (SG-2) and return the finding code. An invoice in another currency, in turn,
+    leaves off its SGD totals (the gross and the GST in SGD; validity.check), after the last refresh."""
+    if d is not None and invoice.get("currency", "SGD") != "SGD" and d.turn("SG-2 currency", ["sgd", "other"]) == "sgd":
+        d.final.append(lambda: d.invoice["einvoice"].update(gross_sgd=None, tax_total_sgd=None))
+        return SGD_AMOUNTS
+    _drop(invoice, d)
+    return "INVALID_TAX_INVOICE"
+
+
+def _drop(invoice: dict, d=None) -> None:
     which = d.turn("SG-2 particular", list(SG2_PARTICULARS)) if d is not None else "supplier_address"
     if which == "simplified":
         if all(basis in SG2_PLAIN for _, _, basis in d.built.planted.lines):
@@ -597,7 +622,7 @@ SG_BRANCH_FACTS = (
     ("SG-8", "low_value_goods_full_credit", "low-value goods to a buyer entitled to full credit: no reverse charge",
      lambda c, n, lr: _sg8(lr, "NO_GST") and _fact(c, n, "low_value_goods") is True),
     ("SG-9", "de_minimis_claims_all", "a buyer meeting the de minimis rule claims a purchase for its exempt or mixed "
-     "supplies in full (the line stays SG-1)", lambda c, n, lr: lr is not None and lr.basis == "SG-1"
+     "supplies in full, by SG-9 (engine 0.10.5)", lambda c, n, lr: lr is not None and lr.basis == "SG-9"
      and lr.treatment == "CLAIMABLE" and _company(c).input_tax_status == "de_minimis_met"
      and _fact(c, n, "purchase_attribution") in ("exempt", "residual")),
 )

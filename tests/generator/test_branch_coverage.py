@@ -89,3 +89,40 @@ def test_the_review_branches_are_planted():
 def test_the_index_reads_each_country_once_and_stably():
     a = [b.id for b in index_for("SG", {r.id for r in GEN.rules}).branches()]
     assert a == list(table(500)["SG"]) and len(a) == len(set(a))
+
+
+def test_a_line_without_a_description_shows_as_me4_only_on_an_ordinary_invoice():
+    """Review of the B1-5 fixes (ME-4 description): on an e-invoice a line without a description misses a MyInvois
+    mandatory field too, and the key keeps one finding per code, so it names that finding (ME-2, no rule in the
+    evidence) and ME-4 can't be seen. On an ordinary invoice (a supplier exempt from e-invoicing) MyInvois doesn't
+    apply and the key names ME-4, which is how the generator plants it. Fails if the one-finding-per-code rule or
+    the order of the two checks changes."""
+    from rules.factory import answer
+    from rules.my_cases import one_line
+
+    r, c = one_line(rate="8", day="2026-03-02")
+    c["invoice"]["lines"][0]["description"] = None
+    found = [(f.code.value, f.evidence) for f in answer(r, c).findings]
+    assert found == [("MISSING_MANDATORY_FIELD", {"missing": ["line1.description"]})]
+    c["invoice"]["einvoice"]["is_einvoice"] = False
+    found = [(f.code.value, f.evidence) for f in answer(r, c).findings]
+    assert found == [("MISSING_MANDATORY_FIELD", {"missing": ["line1.description"], "rule": "ME-4"})]
+
+
+def test_the_review_fix_branches_are_planted():
+    """Review of the B1-5 fixes: the uncharged MS-3 form, the de minimis basis (SG-9), the foreign-currency
+    particulars in both countries, the description on an ordinary invoice (ME-4), an unregistered buyer (MS-9) and a
+    Labuan FSA-regulated one (MS-5 item 6)."""
+    expected = {"MY": {"MS-3 service_tax.assess#1", "ME-4 fact missing ringgit_amounts", "ME-4 fact missing description",
+                       "MS-9 imported.assess#1", "MS-5 b2b.check#1"},
+                "SG": {"SG-9 fact de_minimis_claims_all", "SG-2 fact foreign currency without SGD amounts"}}
+    for c, ids in expected.items():
+        low = {bid for bid in ids if table(2000)[c][bid]["cases"] < FLOOR[2000] or table(500)[c][bid]["cases"] < 1}
+        assert not low, sorted(low)
+
+
+def test_the_me3_phase_hand_over_is_planted():
+    """Review of the B1-5 fixes: a company record without its e-invoicing phase hands over on ME-3 in the Ambiguous
+    slots its kind takes (generation.yaml handover_companies)."""
+    for n in (2000, 500):
+        assert table(n)["MY"]["ME-3 einvoice.buyer_in_phase#1"]["cases"] >= 1

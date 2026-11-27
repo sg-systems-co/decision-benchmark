@@ -44,11 +44,23 @@ SELF_BILLED_ACTION = (ISSUE_SELF_BILLED, None, None)
 
 # -- companies -----------------------------------------------------------------------------------------------------
 
-COMPANY_KINDS = ("it", "msme", "fin", "new_sme", "builder", "plain")
-"""Given to the Malaysian companies of a split in turn, so a split of 6 Malaysian companies has one of each."""
+COMPANY_KINDS = ("builder", "it", "msme", "fin", "new_sme", "plain", "unregistered", "labuan", "phase_unknown")
+"""Given to the Malaysian companies of a split in turn, so a split of 6 Malaysian companies has one of each ordinary
+kind. The reserved kinds come last (generation.yaml reserved_companies: only the cases that name them): a small trading
+company registered for neither sales nor service tax (review of the B1-5 fixes: an FRP's digital service to it is
+undercharged, MS-9); a company regulated by Labuan FSA, whose Group H purchases B2B order item 6 exempts from 1 Jul 2025
+(MS-5); a company whose record doesn't show its e-invoicing phase (its hand-over cases only: ME-3).
+"""
+LABUAN = ("labuan",)
+PHASE_UNKNOWN = ("phase_unknown",)
+UNREGISTERED = ("unregistered",)
+"""Kinds registered for no SST: below the RM500,000 threshold, no B2B item, no manufacturing licence, exempt from
+e-invoicing (turnover below RM1m)."""
 PROVIDED = {"it": ["G(h)", "I8"], "builder": ["L", "G(f)"], "fin": ["H3", "H2"]}
 """First Schedule items each kind provides itself (the B2B order, MS-5; P-1; L-3)."""
 SME_KINDS = ("msme", "new_sme")
+B2B_KINDS = ("it", "builder")
+"""The kinds whose purchases the B2B order exempts on the items ME-4 plants (G(h), I8, G(f), L): reg 10(1A)."""
 COMPANY_EINVOICE = {
     "it": {"turnover_band": "above_100m", "turnover_basis": "fy2022_audited"},
     "fin": {"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"},
@@ -56,6 +68,9 @@ COMPANY_EINVOICE = {
     "plain": {"turnover_band": "3m_to_5m", "turnover_basis": "fy2022_audited"},
     "msme": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"},
     "new_sme": {"turnover_band": "1m_to_3m", "turnover_basis": "new_business", "business_started_on": "2025-11-03"},
+    "unregistered": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"},
+    "labuan": {"turnover_band": "25m_to_100m", "turnover_basis": "fy2022_audited"},
+    "phase_unknown": None,
 }
 """Each kind's turnover, which fixes its own e-invoicing phase (ME-3, by the ME-1 timeline): the SME kinds are below
 RM3m (exempt: they never self-bill), the others spread over the four phases (1 Aug 2024, 1 Jan 2025, 1 Jul 2025,
@@ -65,9 +80,13 @@ SHIP_OWNER_KINDS = ("plain",)
 
 
 def company_facts(kind: str) -> dict:
-    facts = {"country": "MY", "is_registered_manufacturer": True, "services_provided": list(PROVIDED.get(kind, [])),
-             "einvoice": dict(COMPANY_EINVOICE[kind]),
+    facts = {"country": "MY", "is_registered_manufacturer": kind not in UNREGISTERED, "services_provided": list(PROVIDED.get(kind, [])),
+             "einvoice": dict(COMPANY_EINVOICE[kind]) if COMPANY_EINVOICE[kind] else None,
              "buyer_kinds": ["registered_ship_owner"] if kind in SHIP_OWNER_KINDS else []}
+    if kind in LABUAN:
+        facts["labuan_fsa_regulated"] = True
+    if kind in PHASE_UNKNOWN:
+        facts["einvoice_phase_known"] = False
     if kind == "msme":
         # K-1: declared sales below RM1m, registered in MyPMK; paid-up capital and group holding within the limits.
         facts["msme"] = {"mypmk_registered_on": "2025-03-14", "declared_sales_band": "below_1m",
@@ -135,6 +154,8 @@ SPECIAL_SUPPLIERS = (
                     homes=("US", "CN", "IN")),
     # Review of B1-5 (branch coverage): suppliers some branches need, offered only to the rule that plants them
     # (generation.py suppliers_for, in turn).
+    SpecialSupplier("fx", ("industrial_valves", "bearings", "hand_tools", "advertising", "business_consultancy",
+                           "security_guards"), facts=dict(BIG), currency="USD", ordinary=True),
     SpecialSupplier("late_registrant", ("advertising", "business_consultancy", "hand_tools"),
                     registered_from="2025-10-01", facts=dict(BIG)),
     SpecialSupplier("frp", ("foreign_digital_services",), foreign=True, homes=("SG", "US", "GB"),
@@ -322,8 +343,14 @@ def buyer_in_phase(company: dict, day: date) -> bool:
 
 
 def self_billing(company: dict, day: date) -> tuple:
-    """ME-3: the buyer self-bills from its own implementation date (relaxation period included)."""
-    return (SELF_BILLED_ACTION,) if buyer_in_phase(company, day) else ()
+    """ME-3: the buyer self-bills from its own implementation date (relaxation period included). A record that doesn't
+    show the phase gives no action (the engine hands the case over on ME-3: einvoice_phase_unknown)."""
+    from ...findings import NotSettled
+
+    try:
+        return (SELF_BILLED_ACTION,) if buyer_in_phase(company, day) else ()
+    except NotSettled:
+        return ()
 
 
 def self_billed(d) -> tuple:
@@ -463,9 +490,9 @@ MS3_SERVICES = ["advertising", "security_guards", "legal_services", "audit_accou
 MS3_EARLY = ["wholly_before", "paid_before_period", "paid_before", "spanning"]
 """MS-3's branches at the 1 Mar 2024 rate change (6% -> 8%), in turn: a service provided wholly before it; part paid
 before it (with a service period after it, or none); a service period across it, with the value provided before it."""
-MS3_LATE = {CORRECT: ["scope_period"], PROBLEM: ["paid_before_scope_period", "paid_before_scope"]}
+MS3_LATE = {CORRECT: ["scope_period", "paid_before_scope"], PROBLEM: ["paid_before_scope_period", "paid_before_scope"]}
 """At the 1 Jul 2025 scope start (construction): a service period wholly before it; paid in full before it (with a
-period after it, or none). Paid before it and charged nothing is not planted (the engine answers MS-9 there; report)."""
+period after it, or none). The correct forms charge nothing (reg 3A; the paid form since engine 0.10.5)."""
 
 
 @recipe("MS-3")
@@ -620,8 +647,12 @@ def _ms4(d, n, form):
 
 @recipe("MS-5")
 def _ms5(d, n, form):
-    """B2B order items 1, 9: the company provides the same item and buys it for its business."""
+    """B2B order items 1, 9: the company provides the same item and buys it for its business; for a buyer regulated by
+    Labuan FSA, item 6 (from 1 Jul 2025): a Group H service, here card activation (RM25 a card)."""
     need_domestic(d, "MS-5")
+    if d.cw.kind in LABUAN:
+        _ms5_labuan(d, n, form)
+        return
     options = {"G(h)": ["it_services", "software_development"], "I8": ["advertising"],
                "G(f)": ["architectural_services"]}
     if d.day >= scope.NEW_SCOPE_FROM:
@@ -650,6 +681,51 @@ def _ms5(d, n, form):
     if form == CORRECT and variant != "sublet_part":
         # Reg 10(1A): the exempt line shows why (ME-4).
         _ext(d, n)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
+
+
+def _ms5_labuan(d, n, form) -> None:
+    if d.day < scope.NEW_SCOPE_FROM:
+        raise CannotPlant("MS-5 item 6 applies from 1 Jul 2025")
+    _labuan_card(d, n, form)
+
+
+def _labuan_card(d, n, form) -> None:
+    """Item 6: card activation for a buyer regulated by Labuan FSA. Problem: RM25 a card charged (should be exempt);
+    correct: none, the exemption reason on the line (reg 10(1A), ME-4)."""
+    if form == PROBLEM:
+        d.set_line(n, "card_activation", Decimal(8), service_ext(Decimal(8)))
+        d.tax_due[n] = lambda x: rates.CARD_TAX * Decimal(str(x["qty"]))
+        d.expect(n, T.SST_SHOULD_BE_EXEMPT.value, "MS-5", (Code.TAX_SHOULD_BE_EXEMPT.value,))
+        return
+    d.set_line(n, "card_activation", Decimal(0), service_ext(Decimal(0)))
+    d.expect(n, T.NO_SST.value, "MS-5")
+    _ext(d, n)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
+
+
+def einvoice_phase_unknown(d, n: int) -> None:
+    """Hand-over (ME-3): an agent's commission, which the buyer self-bills when it is in its e-invoicing phase, and the
+    buyer's record doesn't show the phase. From 1 Aug 2024 that decides (HAND_OVER, ME-3); before it no business is in
+    a phase, so the line needs no self-billed e-invoice, and the case hands over on two open POs that fit it."""
+    from ...generator import ops
+
+    d.state(n, "self_billing_type", "agents_dealers_distributors")
+    if d.day < tl.earliest_implementation_date():
+        if d.po is None:
+            raise CannotPlant("the ME-3 hand-over before 1 Aug 2024 needs a PO")
+        ops.add_second_fitting_po(d)
+
+
+def finish(d) -> None:
+    """A buyer regulated by Labuan FSA: from 1 Jul 2025 any other line of a Group H service the case carries is exempt
+    under B2B order item 6 (MS-5) as well, so it charges none and shows why."""
+    if d.cw.kind not in LABUAN or d.day < scope.NEW_SCOPE_FROM or foreign(d):
+        return
+    for m, (_, treatment, basis) in enumerate(d.built.planted.lines, 1):
+        cat = d.line(m)["category"]
+        if (item_of(cat) or "").startswith("H") and treatment == T.SST_CORRECT.value and basis == "MS-2":
+            d.set_line(m, cat, Decimal(0), service_ext(Decimal(0)))
+            d.expect(m, T.NO_SST.value, "MS-5")
+            _ext(d, m)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
 
 
 @recipe("MS-6")
@@ -736,7 +812,11 @@ def _ms8(d, n, form):
 
 @recipe("MS-9")
 def _ms9(d, n, form):
-    """A taxable service, or in turn goods the registered manufacturer made, without the tax due."""
+    """A taxable service, or in turn goods the registered manufacturer made, without the tax due; on a foreign
+    supplier's case, an FRP's digital service to a buyer not registered for service tax (_ms9_frp)."""
+    if foreign(d):
+        _ms9_frp(d, n)
+        return
     need_domestic(d, "MS-9")
     goods = goods_on(d)
     if d.turn("MS-9", ["service", "goods"]) == "goods" and goods and is_manufacturer(d.supplier) \
@@ -746,6 +826,18 @@ def _ms9(d, n, form):
         c = pick(d, SERVICES_8 + SERVICES_6, "plain service")
         d.set_line(n, c, Decimal(0), service_ext(Decimal(0)))
     d.expect(n, T.SST_UNDERCHARGED.value, "MS-9", (Code.TAX_UNDERCHARGED.value,))
+
+
+def _ms9_frp(d, n) -> None:
+    """MS-9 through imported services: a foreign registered person's digital service to a buyer not registered for
+    service tax carries the tax itself (no B2B item 3, no s26 for the buyer); charged none, it is undercharged. Every
+    line of the case is such a service (the case's supplier is the FRP)."""
+    if d.cw.kind not in UNREGISTERED or d.supplier_kind != "frp":
+        raise CannotPlant("MS-9 through imported services needs an FRP and a buyer not registered for service tax")
+    billed = self_billed(d)
+    for m in range(1, len(d.invoice["lines"]) + 1):
+        d.set_line(m, "foreign_digital_services", Decimal(0), service_ext(Decimal(0)))
+        d.expect(m, T.SST_UNDERCHARGED.value, "MS-9", (Code.TAX_UNDERCHARGED.value,), billed)
 
 
 # P-1 to P-20: Service Tax Policies
@@ -1288,8 +1380,10 @@ def _me3(d, n, form):
 
 
 ME4_SUPPLIER = ("supplier_name", "supplier_address", "supplier_sst_no")
-"""Reg 10(1), in turn: what an invoice charging SST must show (the supplier's name, address and SST number). A line
-without a description is not planted: it misses a MyInvois field too, and the key names that finding (ME-2)."""
+"""Reg 10(1), in turn: what an invoice charging SST must show (the supplier's name, address and SST number); from the
+supplier that invoices in US dollars, the ringgit amounts; from a supplier exempt from e-invoicing, a line's description
+(generation.py offers both to ME-4 in turn). A line without a description on an e-invoice is not ME-4 in the key: it
+misses a MyInvois field too, and the key, one finding per code, names that finding (ME-2)."""
 ME4_B2B = ("buyer_sst_no", "tax_exemption_reason", "buyer_name", "buyer_address")
 """Reg 10(1A), in turn for a buyer that provides a B2B item: what an invoice exempting it under the B2B order must
 show (the exemption reason on the line, the buyer's name, address and SST number)."""
@@ -1301,6 +1395,23 @@ def _me4(d, n, form):
     it is exempt under the B2B order."""
     need_domestic(d, "ME-4")
     b2b = _b2b_categories(d)
+    if d.supplier_kind == "einv_small":
+        # A supplier exempt from e-invoicing (turnover below RM1m) sends an ordinary invoice with a line that has no
+        # description: reg 10(1) (ME-4). On an e-invoice the same gap is a MyInvois mandatory field too, and the key,
+        # one finding per code, names that one (ME-2); on an ordinary invoice MyInvois doesn't apply.
+        if not Decimal(d.line(n)["tax_rate"]) > 0:
+            taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
+        _paper_invoice(d)
+        d.final.append(lambda: d.invoice["lines"][n - 1].update(description=None))
+        d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
+        return
+    if d.invoice.get("currency", "MYR") != "MYR":
+        # A domestic supplier invoicing in US dollars charges SST without the ringgit amounts (no exchange rate).
+        if not Decimal(d.line(n)["tax_rate"]) > 0:
+            taxed(d, n, pick(d, SERVICES_8 + SERVICES_6, "plain service"), "MS-2")
+        d.final.append(lambda: d.invoice.pop("exchange_rate", None))
+        d.findings.append(Code.MISSING_MANDATORY_FIELD.value)
+        return
     if b2b:
         which = d.turn("ME-4 b2b", ["buyer", "tax_exemption_reason"])
         exempt(d, n, CORRECT, d.r.choice(b2b), "MS-5")
@@ -1362,7 +1473,7 @@ def _withholding(d, nature: str) -> tuple:
 @recipe("WH-1")
 def _wh1(d, n, form):
     need_foreign(d, "WH-1")
-    if d.r.random() < 0.5:
+    if d.turn("WH-1", ["royalty", "interest"]) == "royalty":
         d.set_line(n, "software_royalty", Decimal(0), service_ext(Decimal(0)))
         d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (),
                  (IMPORTED_ACTION,) + self_billed(d) + (_withholding(d, "royalty"),))

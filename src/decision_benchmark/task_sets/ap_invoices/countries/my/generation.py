@@ -74,9 +74,11 @@ class MalaysiaGeneration:
     def registration_no(self, r: random.Random, start: date, ids) -> str:
         return f"{start.year}{ids.digits(8)}"
 
-    def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
+    def company_registrations(self, r: random.Random, start: date, ids, kind: str = "") -> list[dict]:
         sst = ids.digits(12)
         number = f"W10-{sst[:4]}-{sst[4:]}"
+        if kind in planting.UNREGISTERED:
+            return [{"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"}]
         return [
             {"scheme": "MY_TIN", "number": f"C{ids.digits(10)}", "type": "tin"},
             {"scheme": "MY_SST", "number": number, "type": "sales", "valid_from": str(date(2018, 9, 1))},
@@ -233,7 +235,9 @@ class MalaysiaGeneration:
         planting.plant_branch(d, line, branch, side)
 
     def plant_handover(self, d, line: int, kind: str) -> None:
-        raise CannotPlant(f"no Malaysian hand-over recipe {kind}")
+        if kind != "einvoice_phase_unknown":
+            raise CannotPlant(f"no Malaysian hand-over recipe {kind}")
+        planting.einvoice_phase_unknown(d, line)
 
     def plant_split(self, d, line: int) -> None:
         planting.plant_split(d, line)
@@ -242,7 +246,7 @@ class MalaysiaGeneration:
         planting.mix_line(d, line)
 
     def finish_case(self, d) -> None:
-        return None
+        planting.finish(d)
 
     def suppliers_for(self, cw, kind: str, needs: set[str], foreign: bool, day: date,
                       turns=None) -> list[dict] | None:
@@ -251,6 +255,8 @@ class MalaysiaGeneration:
         special = lambda k: [cw.supplier(sid) for sid in cw.special.get(k, [])]   # noqa: E731
         alone = "shared" not in needs        # one rule planted: a pool only its branch needs may be offered
         if foreign:
+            if cw.kind in planting.UNREGISTERED:
+                return special("frp")            # MS-9: an FRP's digital service to a buyer not registered
             if alone and "foreign_turn" in needs and turns is not None and cw.kind in planting.GROUP_BUYERS:
                 # MS-8's branches that turn on the overseas supplier, for a buyer with a group (an SME has none; an IT
                 # or financial provider takes its own branch with an ordinary supplier).
@@ -263,13 +269,24 @@ class MalaysiaGeneration:
             which = turns.take(zone, ["", "fz_maker", "da_maker", "", "fz_maker", "jda_maker"])
             if which:
                 return special(which)
+        if "me4_turn" in needs and turns is not None and cw.kind not in planting.B2B_KINDS:
+            # ME-4: in turn, the supplier that invoices in US dollars (its invoice leaves off the ringgit amounts) and
+            # one exempt from e-invoicing (its ordinary invoice leaves off a line's description); a buyer that
+            # provides a B2B item takes the reg 10(1A) particulars instead (rules.yaml appearance_turns).
+            which = turns.take("ME-4 supplier", ["fx", "einv_small", "", "einv_small", "", "", ""])
+            if which == "einv_small" and needs & {"goods", "phase", "phase1"}:
+                which = "fx"                    # a rule sharing the case needs what it lacks (generation.yaml)
+            if which:
+                return special(which)
         late = next((x for x in sorted(needs) if x.startswith("late_turn")), None)
-        if alone and late and turns is not None and day < planting.LATE_REGISTRATION:
-            # A supplier not yet registered (MS-1, MG-1), in turn with ordinary ones (per rule and form).
+        lates = sum(1 for x in needs if x.startswith("late_turn"))
+        if (alone or lates > 1) and late and turns is not None and day < planting.LATE_REGISTRATION:
+            # A supplier not yet registered (MS-1, MG-1), in turn with ordinary ones (per rule and form); a case
+            # sharing them (MS-1 with MG-1, both forms that take it) too.
             order = ["late_registrant", ""] if late.endswith("problem") else ["", "", "late_registrant"]
             if turns.take(late, order):
                 return special("late_registrant")
-        needs = {x for x in needs if x not in ("shared", "foreign_turn") and not x.startswith(("zone_turn", "late_turn"))}
+        needs = {x for x in needs if x not in ("shared", "foreign_turn", "me4_turn") and not x.startswith(("zone_turn", "late_turn"))}
         if not needs:
             return None
         return [s for s in cw.ordinary_suppliers() if planting.supplier_fits(s, needs, day)]

@@ -414,6 +414,20 @@ Choices made while building B1-4 that the plan didn't fix. None changes a rule o
 - **Engine stop, not planted.** MS-3: a line charging no tax for a service paid in full before the 1 Jul 2025 scope start. Sheet MS-3 (reg 3A) says that payment is not taxed; the engine answers MS-9 (undercharged), because `service_tax.assess` checks prepayments only on a line that charges tax. The charged form (no tax was due) is planted.
 - **The generator calls the engine's `buyer_in_phase`** for self-billing instead of its own copy.
 
+### Review of the B1-5 fixes (27 Nov 2026)
+
+- **Engine 0.10.5** (its own PR): MS-3 reads the prepayment on a line that charges no tax (reg 3A: no tax due, the line right, basis MS-3); a de minimis buyer's exempt or residual line is claimable by SG-9. The uncharged MS-3 form is planted in turn at the 1 Jul 2025 scope start (rules.yaml MS-3 `branches`, `window_turns`); MS-3 no longer takes a government, local-authority or transitional-contract supplier (`reg_3a`), whose own rules decide a 2025-scope line first.
+- **Foreign-currency invoices from domestic suppliers.** A special supplier in each country invoices in US dollars at the invoice's stated rate (Singapore: with the SGD gross and GST); its first supplier is also an ordinary one, so most of its invoices are valid. ME-4 offers it in turn (no exchange rate: the ringgit amounts missing), and SG-2 in turn leaves off the SGD totals (`FOREIGN_CURRENCY_NO_SGD_AMOUNTS`).
+- **ME-4, a line without a description.** The earlier reason was wrong in part: the MyInvois check runs only on an e-invoice. On an ordinary invoice from a supplier exempt from e-invoicing (turnover below RM1m), the key names ME-4, and ME-4 now plants that in turn. On an e-invoice the key names the MyInvois finding (ME-2); `test_a_line_without_a_description_shows_as_me4_only_on_an_ordinary_invoice` pins both.
+- **Reserved company kinds** (generation.yaml `reserved_companies`): kinds that take only the cases whose rule appearances name them (rules.yaml `appearance_turns`, applied where the split has a branch floor). They come last in the kind order, so the 300-case split's six Malaysian companies are the ordinary kinds.
+  - **unregistered**: registered for no SST, below the e-invoicing threshold, no B2B item. MS-9's foreign appearance: an FRP's digital service charged no tax is undercharged.
+  - **labuan**: regulated by Labuan FSA. MS-5's item 6, card activation from 1 Jul 2025; any other Group H line of its case is exempt too.
+  - **phase_unknown**: its record doesn't show its e-invoicing phase. It takes a quarter of the Malaysian hand-over slots (`handover_companies`, within the 3% share: 8 / 2 / 0) with the family `einvoice_phase_unknown`. That family is an agent's commission it would self-bill: HAND_OVER on ME-3 from 1 Aug 2024; before that date, two fitting POs.
+- **Still below the floor** (12, all Malaysian):
+  - 10 are outside the case window;
+  - a company that is itself exempt from e-invoicing (accepted);
+  - ME-3's phase not shown before 1 Aug 2024 (planted only when a phase-unknown hand-over case falls before that date).
+
 ## 8a. Questions as raised
 
 1. **H2 definition.** H2 means the counterfactual key differs, and H2 is planted only from the precedence table in section 3.2a. *Recommended: yes; Sebastian approves the table.*

@@ -71,7 +71,16 @@ def test_clean_cases_cover_both_kinds_and_the_whole_window():
     for country, (lo, hi) in GEN.windows.items():
         days = [g.envelope.payload.invoice.issue_date for g in b.cases if g.envelope.country == country]
         assert min(days) - lo < (hi - lo) / 10 and hi - max(days) < (hi - lo) / 10
-    assert len({g.built.company_id for g in b.cases}) == 60
+    # Every company but the reserved kinds (generation.yaml reserved_companies), which take only the cases whose rule
+    # appearances name them.
+    kinds = {cw.company_id: cw.kind for cws in b.world.values() for cw in cws}
+    assert len(kinds) == 60
+    ordinary = {cid for cid, kind in kinds.items() if kind not in GEN.reserved_companies}
+    assert ordinary <= {g.built.company_id for g in b.cases}
+    for g in b.cases:
+        if kinds[g.built.company_id] in GEN.reserved_companies:
+            assert any(kinds[g.built.company_id] in t.companies for r in GEN.rules if r.id in g.rules
+                       for turns in r.appearance_turns.values() for t in turns), g.built.case_id
 
 
 # -- evidence, reference row, reproducibility --------------------------------------------------------------------

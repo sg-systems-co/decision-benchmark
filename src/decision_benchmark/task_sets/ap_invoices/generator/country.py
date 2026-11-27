@@ -47,6 +47,10 @@ class SpecialSupplier:
     registration_type: str | None = None
     """A foreign supplier registered in the buyer's country under this registration type (e.g. an overseas vendor
     scheme); None: a foreign supplier holds no registration there."""
+    currency: str | None = None
+    """A domestic supplier that invoices in this currency, at the invoice's stated rate (None: the country's own)."""
+    ordinary: bool = False
+    """Its first supplier is also one the clean base and any rule draw from, like the ordinary ones."""
 
 
 class CannotPlant(ValueError):
@@ -82,7 +86,7 @@ class CountryGeneration(Protocol):
     def registration_no(self, r: random.Random, start: date, ids) -> str:
         """ids: the split's identifier source (entities.Ids); every number comes from ids.digits()."""
 
-    def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]: ...
+    def company_registrations(self, r: random.Random, start: date, ids, kind: str = "") -> list[dict]: ...
 
     def company_facts(self, r: random.Random, kind: str) -> dict | None: ...
 

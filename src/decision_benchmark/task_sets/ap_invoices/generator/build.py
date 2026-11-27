@@ -26,6 +26,7 @@ from functools import cached_property
 
 from decision_benchmark.core.case import Provenance
 from decision_benchmark.core.generator.seeds import rng
+from decision_benchmark.core.generator.quotas import as_fraction
 from decision_benchmark.core.generator.slots import Allocation, Slot, allocate
 from decision_benchmark.core.generator.spec import Generation, SplitSpec
 
@@ -283,11 +284,29 @@ def cause_of(diffs: list[str], planted: Planted, answer: AnswerKey) -> str:
 def assign_companies(gen: Generation, slots: list[Slot], world: dict[str, list[CompanyWorld]]) -> dict[int, CompanyWorld]:
     """Slots to companies, round robin per country in case order among the companies of a kind the slot's rules
     allow (each company gets an even share of what it can take), foreign-supplier slots in a round of their own (so
-    every kind of buyer gets its share of the rules that turn on the buyer there)."""
+    every kind of buyer gets its share of the rules that turn on the buyer there). A reserved kind takes only the slots
+    that name it, a hand-over kind its share of the hand-over slots."""
     out: dict[int, CompanyWorld] = {}
     seen: Counter = Counter()
+    handovers: Counter = Counter()
     for s in sorted(slots, key=lambda s: s.case_index):
-        companies = [cw for cw in world[s.country] if s.companies is None or cw.kind in s.companies]
+        if gen.type(s.primary).handover and s.companies is None:
+            # A hand-over kind takes its share of the country's hand-over slots (one in every 1/share, where it has a company).
+            i, handovers[s.country] = handovers[s.country], handovers[s.country] + 1
+            took = None
+            for kind, share in sorted(gen.handover_companies.items()):
+                mine = [cw for cw in world[s.country] if cw.kind == kind]
+                step = int(1 / as_fraction(share))
+                if mine and i % step == 0:
+                    took = mine[seen[(s.country, kind)] % len(mine)]
+                    seen[(s.country, kind)] += 1
+                    break
+            if took is not None:
+                out[s.case_index] = took
+                continue
+        allowed = (lambda kind: kind in s.companies) if s.companies is not None else (
+            lambda kind: kind not in gen.reserved_companies)
+        companies = [cw for cw in world[s.country] if allowed(cw.kind)]
         if not companies:
             raise PlantingFailed(f"slot {s.case_index}: no {s.country} company of kind {s.companies}")
         key = (s.country, s.companies, s.foreign)
@@ -304,6 +323,10 @@ def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> b
     """A drawn family's rule can join the slot: its problem form on the slot's dates, supplier and company."""
     if t.foreign is not None and t.foreign != slot.foreign:
         return False
+    if t.companies and cw.kind not in t.companies:
+        return False
+    if cw.kind in gen.handover_companies and cw.kind not in t.companies:
+        return False                   # a hand-over kind takes only the families that name it
     if t.supplier and slot.supplier and t.supplier != slot.supplier:
         return False
     if t.rule is None:
@@ -318,7 +341,10 @@ def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> b
                   and (u.carrier == "line" or rules[u.rule].takes_line or rules[u.rule].foreign))
         if slot.lines < 1 + own:
             return False
-    if (r.foreign and not slot.foreign) or ((r.domestic or PROBLEM in r.domestic_forms) and slot.foreign):
+    turns = r.appearance_turns.get(PROBLEM, ())
+    sides = {t.foreign for t in turns if t.foreign is not None and (not t.companies or cw.kind in t.companies)}
+    if slot.foreign not in sides and ((r.foreign and not slot.foreign)
+                                      or ((r.domestic or PROBLEM in r.domestic_forms) and slot.foreign)):
         return False
     if set(r.exclude_types) & set(slot.types()):
         return False
@@ -337,8 +363,10 @@ def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> b
         return False
     if gen.needs_clash(needs):
         return False
-    if r.companies and cw.kind not in r.companies:
+    if r.companies and cw.kind not in set(r.companies).union(*(t.companies for t in turns)):
         return False
+    if cw.kind in gen.reserved_companies and cw.kind not in set(r.companies).union(*(t.companies for t in turns)):
+        return False                   # a reserved company takes only the rules that name its kind
     lo, hi = r.window(PROBLEM, gen.windows[slot.country])
     assert slot.window is not None
     return max(lo, slot.window[0]) <= min(hi, slot.window[1])
@@ -478,7 +506,8 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
     except (NoCleanForm, CannotPlant) as e:
         build.families.setdefault(names[0], _Tally()).add("no clean form", str(e))
         return None, str(e), names
-    d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt), uses=list(slot.rules), turns=turns)
+    d = Draft(built, cw, rng(split.seed, "case", slot.case_index, "ops", attempt), uses=list(slot.rules), turns=turns,
+              types=tuple(slot.types()))
     taken: set[int] = set()
     calls = [(t, t.calls(rng(split.seed, "case", slot.case_index, "params", t.family, attempt))) for t in families]
     try:

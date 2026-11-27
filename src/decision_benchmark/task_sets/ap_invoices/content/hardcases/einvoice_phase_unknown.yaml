@@ -1,0 +1,20 @@
+# Review of the B1-5 fixes: the buyer's record doesn't show its e-invoicing phase (ME-3 hand-over), in the Malaysian
+# Ambiguous slots its company kind takes (generation.yaml handover_companies).
+family: einvoice_phase_unknown
+version: 1
+countries:
+- MY
+primary_type: ambiguous
+companies: [phase_unknown]
+weight: 1
+summary: 'An agent''s commission the buyer self-bills in its e-invoicing phase, and its record doesn''t show the phase: HAND_OVER
+  (ME-3) from 1 Aug 2024; before it, two fitting POs.'
+params: {}
+ops:
+- op: plant_handover
+  args:
+    line: 1
+    kind: einvoice_phase_unknown
+expect:
+  decision: HAND_OVER
+  findings: []

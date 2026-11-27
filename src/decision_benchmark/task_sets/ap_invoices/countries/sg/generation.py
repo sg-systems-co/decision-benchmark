@@ -13,7 +13,7 @@ from pathlib import Path
 from decimal import Decimal
 
 from ...generator.country import CannotPlant, CleanLine, ProblemLine
-from ...generator.entities import stated_rate
+from ...generator.entities import in_base, money, stated_rate
 from ...models import Category
 from . import planting
 from .models import SgTaxProfile, SgTaxTreatment as T
@@ -60,7 +60,7 @@ class SingaporeGeneration:
     def registration_no(self, r: random.Random, start: date, ids) -> str:
         return f"{start.year}{ids.digits(5)}{chr(65 + r.randrange(26))}"
 
-    def company_registrations(self, r: random.Random, start: date, ids) -> list[dict]:
+    def company_registrations(self, r: random.Random, start: date, ids, kind: str = "") -> list[dict]:
         return [{"scheme": "SG_GST", "number": _gst_no(r, ids), "type": "local", "valid_from": str(start)}]
 
     def company_facts(self, r: random.Random, kind: str = "") -> dict | None:
@@ -108,15 +108,20 @@ class SingaporeGeneration:
         return ProblemLine(clean.rate + 1, T.GST_WRONGLY_CHARGED.value, "SG-3")    # above every allowed rate
 
     def make_invalid(self, invoice: dict, rules: list[str] = (), d=None) -> tuple[list[str], tuple[str, str] | None]:
-        planting.drop_particular(invoice, d)           # an IRAS tax-invoice particular (SG-2), in turn
-        return ["INVALID_TAX_INVOICE"], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
+        code = planting.drop_particular(invoice, d)    # an IRAS tax-invoice particular (SG-2), in turn
+        return [code], (T.NOT_CLAIMABLE_INVALID_INVOICE.value, "SG-2")
 
     def exchange_rate(self, currency: str, day: date) -> Decimal:
         base, places = self.RATES[currency]
         return stated_rate(base, currency, day, places)       # an invoice's own stated rate; read as printed
 
     def refresh_einvoice(self, invoice: dict) -> None:
-        return None
+        """An invoice in another currency shows its gross and GST in SGD at its own stated rate (validity.check)."""
+        if invoice.get("currency", "SGD") == "SGD":
+            return
+        totals = invoice["totals"]
+        invoice["einvoice"]["gross_sgd"] = money(in_base(invoice, Decimal(totals["gross"])))
+        invoice["einvoice"]["tax_total_sgd"] = money(in_base(invoice, Decimal(totals["tax"] or 0)))
 
     def plant(self, d, line: int, rule: str, form: str) -> None:
         planting.plant(d, line, rule, form)
@@ -157,6 +162,11 @@ class SingaporeGeneration:
                 return [s for s in cw.ordinary_suppliers() if planting.registered(s, day)]
         if "no_gst" in needs or "not_entitled" in needs:
             return [cw.supplier(sid) for sid in cw.special.get("sg_unregistered", [])]
+        if "fx_turn" in needs and "shared" not in needs and turns is not None:
+            # SG-2: in turn, the supplier that invoices in US dollars (its invoice then leaves off the SGD amounts).
+            if turns.take("SG-2 supplier", ["sg_fx", "", "", "", ""]):
+                return [cw.supplier(sid) for sid in cw.special.get("sg_fx", [])]
+        needs = needs - {"fx_turn"}
         ordinary = [s for s in cw.ordinary_suppliers() if planting.registered(s, day)]
         return [s for s in ordinary if planting.supplier_fits(s, needs, day)]
 

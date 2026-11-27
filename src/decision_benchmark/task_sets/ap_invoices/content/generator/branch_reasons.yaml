@@ -5,8 +5,6 @@
 # or no longer exists. Hand-over branches need no entry: HAND_OVER is planted only in Ambiguous cases (limit 5 plants the
 # unconfirmed treaty rows; the missing-information cases are B1-6's H3).
 MY:
-  MS-5 b2b.check#1: >-
-    needs facts no generated company has: a buyer regulated by Labuan FSA (B2B order item 6, from 1 Jul 2025)
   MS-8 imported.assess#1: >-
     outside the case window: no tax on imported services before 1 Jan 2019 (the window starts 2 Jan 2024)
   MS-8 imported.assess#3: >-
@@ -14,9 +12,6 @@ MY:
     B2B order item 3 came in on 1 Jan 2020 (from then MS-5)
   P-20 imported.assess#1: >-
     outside the case window: imported services to a company in Labuan, exempt to 31 Dec 2021
-  MS-9 imported.assess#1: >-
-    needs facts no generated company has: a buyer not registered for service tax (every generated Malaysian company
-    is a registered person; an FRP's digital service to one is then undercharged)
   WH-2 withholding._s109b#1 via withholding#1: >-
     outside the case window: services performed outside Malaysia are chargeable only when performed 17 Jan-5 Sep 2017
   WH-2 withholding._s109b#2 via withholding#1: &before_dec_2018 >-
@@ -27,19 +22,11 @@ MY:
   WH-2 withholding._s109b#5 via withholding#2: *before_dec_2018
   WH-2 withholding._s109b#5 via withholding#3: *before_dec_2018
   ME-3 einvoice.buyer_in_phase return#1: >-
-    needs facts no generated company has: a company record that doesn't show its e-invoicing phase (every company's
-    turnover band is in its record, review of B1-4 fix 1); the branch is the date before 1 Aug 2024 when that decides
-    nothing
+    planted only by chance: the company whose record doesn't show its e-invoicing phase takes only hand-over slots
+    (generation.yaml handover_companies), and this branch is such a case dated before 1 Aug 2024, when the phase
+    decides nothing (its einvoice_phase_unknown family then hands over on two fitting POs); the slots' dates are drawn
+    over the window, so it falls below the floor in a split where few of them come before that date
   ME-3 einvoice.buyer_in_phase return#2: >-
     needs facts no generated company has: a buying company that is itself exempt from e-invoicing (a foreign
     diplomatic office, an individual not in business, a statutory body or international organisation to 30 Jun 2025)
-  ME-4 fact missing description: >-
-    not plantable as ME-4: a line without a description misses a MyInvois mandatory field too, and the key keeps one
-    finding per code, which then names ME-2
-  ME-4 fact missing ringgit_amounts: >-
-    not generated: a domestic SST-registered supplier invoicing in another currency without ringgit amounts (the
-    generated domestic suppliers invoice in ringgit)
-SG:
-  SG-2 fact foreign currency without SGD amounts: >-
-    not generated: an invalid tax invoice in another currency (invalid-invoice cases stay domestic and in SGD, review
-    of B1-4 fix 4)
+SG: {}
