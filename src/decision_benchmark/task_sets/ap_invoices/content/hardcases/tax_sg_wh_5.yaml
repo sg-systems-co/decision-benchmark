@@ -1,0 +1,18 @@
+# The family of rule WH-5 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_wh_5
+version: 1
+countries:
+- SG
+primary_type: null
+rule: WH-5
+summary: 'A payment to a non-resident without a Singapore branch: withhold (domestic or confirmed treaty rate).'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: WH-5
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

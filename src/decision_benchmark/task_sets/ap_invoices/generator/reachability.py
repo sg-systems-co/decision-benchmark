@@ -44,13 +44,15 @@ def check(gen: Generation, split: SplitSpec, draws: int = DRAWS) -> dict:
         for form in forms:
             build = Build(split, None, world)  # type: ignore[arg-type]
             agreed, causes, diffs = 0, Counter(), []
-            pool = [cw for cw in world[rule.country] if not rule.companies or cw.kind in rule.companies]
+            # A reserved kind only where a turn names it (rules.yaml appearance_turns).
+            pool = [cw for cw in world[rule.country]
+                    if (cw.kind in rule.companies if rule.companies else cw.kind not in gen.reserved_companies)]
             for draw in range(draws):
                 slot = slot_for(gen, rule, form, draw)
                 if form == PROBLEM:
                     slot.rules = [RuleUse(rule.id, PROBLEM, rule.carrier)]
                 case, last, _ = attempt_slot(gen, split, pool[draw % len(pool)], slot, companies, None, build, draw)
-                if case is not None and (rule.id in case.rules):
+                if case is not None and (rule.id in case.rules or rule.id in case.realized):
                     agreed += 1
                 else:
                     causes[last.split(":")[0] if last else "rule not planted"] += 1

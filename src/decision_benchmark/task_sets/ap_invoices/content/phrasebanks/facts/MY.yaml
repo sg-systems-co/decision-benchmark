@@ -45,6 +45,7 @@ facts:
       labuan: [delivered to our Labuan site]
       tioman: [delivered to our Tioman site]
       pangkor: [delivered to our Pangkor site]
+      free_zone: [delivered to our free zone warehouse]
   residential:
     kind: bool
     values:
@@ -62,6 +63,7 @@ facts:
       foreign_worker_screening: [foreign worker medical screening]
       diplomat_with_mofa_letter: [diplomat patient with a Wisma Putra letter]
       newborn_with_citizen_parent: [newborn of a Malaysian parent]
+      non_citizen: [non-citizen patient]
   referral_walk_in:
     kind: bool
     values:
@@ -169,3 +171,70 @@ facts:
     kind: enum
     values:
       tcm_practitioner_premises: [at a registered T&CM practitioner's premises]
+  materials_works_separated:
+    kind: bool
+    values:
+      false: [materials and works not shown separately]
+      true: [materials invoiced apart from the works]
+  package_single_price:
+    kind: bool
+    values:
+      true: [package at one price]
+  itemised_consultation_fee:
+    kind: bool
+    values:
+      false: [consultation fee not itemised]
+  medical_aid:
+    kind: bool
+    values:
+      true: [under the company's medical aid scheme]
+  fully_sponsored:
+    kind: bool
+    values:
+      true: [fees fully sponsored by the company]
+  student_category:
+    kind: enum
+    values:
+      diplomat_child: [child of a foreign diplomat]
+      citizen: [student is a Malaysian citizen]
+      disabled_citizen: [student is a disabled citizen (OKU)]
+  education_provider_kind:
+    kind: enum
+    values:
+      private_school: [at a registered private school]
+      higher_education: [at a private higher education institution]
+  annual_fee_per_student:
+    kind: money
+    templates: ["annual fee RM{value} per student"]
+  statutory_fee_amount:
+    kind: money
+    templates: ["including RM{value} of statutory fees"]
+  amount_paid_before_change:
+    kind: money
+    templates: ["RM{value} paid in advance"]
+  value_provided_before_change:
+    kind: money
+    templates: ["RM{value} of the service provided before the rate change"]
+  same_service_as_buyer:
+    kind: bool
+    values:
+      true: [the same service we provide to our customers]
+  sublet:
+    kind: bool
+    values:
+      true: [rented to sublet to our customers]
+  sublet_share:
+    kind: share
+    templates: ["{value} of it sublet"]
+  supplier_paid:
+    kind: bool
+    values:
+      true: [the overseas supplier has been paid]
+  subject_outside_malaysia:
+    kind: bool
+    values:
+      true: [on a matter outside Malaysia]
+  ship_platform_election:
+    kind: enum
+    values:
+      construction: [platform works elected as construction]

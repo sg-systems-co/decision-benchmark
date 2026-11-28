@@ -21,7 +21,7 @@ def two_lines(records, case, first, second, country="MY"):
     return records, case
 
 
-def test_5a_my_wrongly_charged_line_makes_the_whole_invoice_corrected():
+def test_5a_my_wrongly_charged_line_makes_the_whole_case_corrected():
     r, c = one_line("it_services")
     second = {"category": "legal_services", "unit_price": "1000.00", "gl_account": "6160-000",
               "line": my_line(2, "legal_services", 1, "1000.00", rate="8", po_line_no=2, subject_outside_malaysia=True)}

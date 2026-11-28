@@ -58,6 +58,12 @@ class Template(Model):
     """The exception type the family is drawn for; None: it is planted only where a slot names its rule."""
     rule: str | None = None
     """The rule a tax family plants (rules.yaml id)."""
+    supplier: str = ""
+    """The special supplier kind the family needs ('' any)."""
+    foreign: bool | None = None
+    """The family needs a foreign (True) or domestic (False) supplier; None: either."""
+    companies: list[str] = []
+    """The company kinds the family needs (empty: any but a hand-over kind, generation.yaml handover_companies)."""
     weight: int = 1
     summary: str
     params: dict[str, ParamSpec] = {}

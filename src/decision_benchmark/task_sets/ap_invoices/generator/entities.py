@@ -101,6 +101,8 @@ class CompanyWorld:
     """The company's kind (rules.yaml ``companies``)."""
     special: dict[str, list[str]] = field(default_factory=dict)
     """Special supplier kind -> its supplier_ids (the split's suppliers of that kind)."""
+    also_ordinary: set[str] = field(default_factory=set)
+    """Special suppliers the clean base draws from too (SpecialSupplier.ordinary)."""
 
     @property
     def company_id(self) -> str:
@@ -117,7 +119,7 @@ class CompanyWorld:
 
     def ordinary_suppliers(self) -> list[dict]:
         """The domestic suppliers the clean base draws from: the ordinary ones and the general special one."""
-        special = {sid for k, sids in self.special.items() if k != GENERAL for sid in sids}
+        special = {sid for k, sids in self.special.items() if k != GENERAL for sid in sids} - self.also_ordinary
         return [s for s in self.domestic_suppliers() if s["supplier_id"] not in special]
 
     def supplier(self, supplier_id: str) -> dict:
@@ -273,9 +275,10 @@ def _company(gen: Generation, split: SplitSpec, country: str, k: int, namer: _Na
         "company_id": cid, "split": split.name, "country": country, "legal_name": legal,
         "registration_no": g.registration_no(r, start, ids),
         "address": _address(r, bank, country), "base_currency": currency, "industry": r.choice(bank["industries"]),
-        "tax_registrations": g.company_registrations(r, start, ids), "people": people, "policy_pack": policy,
+        "tax_registrations": [], "people": people, "policy_pack": policy,
     }
     kind = g.company_kinds[k % len(g.company_kinds)] if g.company_kinds else ""
+    company["tax_registrations"] = g.company_registrations(r, start, ids, kind)
     facts = g.company_facts(r, kind)
     if facts is not None:
         company["tax_facts"] = facts
@@ -345,6 +348,14 @@ def _special_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Id
             for reg in identity.get("tax_registrations", []):
                 if "valid_from" in reg:
                     reg["valid_from"] = spec.registered_from
+        if spec.foreign and spec.registration_type:
+            from ..countries import scheme_types
+
+            identity["tax_registrations"] = [
+                reg | {"type": spec.registration_type} if spec.registration_type in scheme_types(reg["scheme"]) else reg
+                for reg in g.supplier_registrations(r, set(spec.registered_for), start, ids)]
+        if spec.currency and not spec.foreign:
+            identity["currency"] = spec.currency
         if spec.foreign:
             identity.pop("residence_from", None)
             if spec.residence:
@@ -363,6 +374,8 @@ def _special_supplier(cw: CompanyWorld, r: random.Random, namer: _Names, ids: Id
     cw.suppliers.append(supplier)
     cw.categories[sid] = list(identity["categories"])
     cw.special.setdefault(spec.kind, []).append(sid)
+    if spec.ordinary and index == 0:
+        cw.also_ordinary.add(sid)
 
 
 def _special_contracts(cw: CompanyWorld, specs: tuple[SpecialSupplier, ...]) -> None:

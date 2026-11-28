@@ -104,6 +104,8 @@ def test_thresholds_stop_the_build():
 def test_db_generate_writes_planting_json(tmp_path):
     assert main(["--task-set", SPEC.id, "--split", "test", "--out", str(tmp_path)]) == 0
     report = json.loads((tmp_path / "test/report/planting.json").read_text())
+    branches = json.loads((tmp_path / "test/report/branches.json").read_text())
+    assert set(branches["branches"]) == {"MY", "SG"} and branches["cases"] == report["cases"]
     assert report["cases"] == 500 and report["families"]["price_above_po"]["attempts"] > 0
 
 

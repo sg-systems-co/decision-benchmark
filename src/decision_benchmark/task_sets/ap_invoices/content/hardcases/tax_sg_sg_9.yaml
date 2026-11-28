@@ -1,0 +1,18 @@
+# The family of rule SG-9 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_9
+version: 1
+countries:
+- SG
+primary_type: null
+rule: SG-9
+summary: A partially exempt buyer attributes the purchase (exempt, residual, taxable).
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-9
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

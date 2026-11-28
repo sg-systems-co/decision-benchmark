@@ -1,0 +1,18 @@
+# The family of rule SG-11 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_11
+version: 1
+countries:
+- SG
+primary_type: null
+rule: SG-11
+summary: A duplicate claim, caught by the duplicate check.
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-11
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

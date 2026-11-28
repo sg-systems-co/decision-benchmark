@@ -1,0 +1,18 @@
+# The family of rule SG-4 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_4
+version: 1
+countries:
+- SG
+primary_type: tax_problem
+rule: SG-4
+summary: 'A supplier not registered for GST charges it; correct: no GST.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-4
+    form: problem
+expect:
+  decision: REQUEST_CORRECTED_INVOICE
+  findings: []

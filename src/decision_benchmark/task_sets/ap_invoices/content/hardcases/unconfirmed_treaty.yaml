@@ -1,0 +1,20 @@
+# B1-5, planting limit 5: the only case that reads an unconfirmed Singapore treaty row, in an Ambiguous slot.
+family: unconfirmed_treaty
+version: 1
+countries:
+- SG
+primary_type: ambiguous
+weight: 4
+supplier: sg_foreign_unconfirmed
+foreign: true
+summary: 'Planting limit 5: a royalty to a payee with a certificate of residence where the treaty row is not confirmed: HAND_OVER
+  (WH-5).'
+params: {}
+ops:
+- op: plant_handover
+  args:
+    line: 1
+    kind: unconfirmed_treaty
+expect:
+  decision: HAND_OVER
+  findings: []

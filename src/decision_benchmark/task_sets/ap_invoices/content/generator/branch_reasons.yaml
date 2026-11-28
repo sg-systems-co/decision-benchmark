@@ -1,0 +1,32 @@
+# Branches the rules engine can decide that the splits don't plant at the branch floor (review of B1-5: at least 2 cases
+# in train and 1 in test for each in-window branch), each with its reason. generator/branches.py lists the branches;
+# report/branches.json gives each one's planted count and, for these, the reason; tests/generator/
+# test_branch_coverage.py checks that every branch below the floor is here and that nothing here is planted at the floor
+# or no longer exists. Hand-over branches need no entry: HAND_OVER is planted only in Ambiguous cases (limit 5 plants the
+# unconfirmed treaty rows; the missing-information cases are B1-6's H3).
+MY:
+  MS-8 imported.assess#1: >-
+    outside the case window: no tax on imported services before 1 Jan 2019 (the window starts 2 Jan 2024)
+  MS-8 imported.assess#3: >-
+    outside the case window: a foreign registered person's service a registered buyer accounts for under MS-8, before
+    B2B order item 3 came in on 1 Jan 2020 (from then MS-5)
+  P-20 imported.assess#1: >-
+    outside the case window: imported services to a company in Labuan, exempt to 31 Dec 2021
+  WH-2 withholding._s109b#1 via withholding#1: >-
+    outside the case window: services performed outside Malaysia are chargeable only when performed 17 Jan-5 Sep 2017
+  WH-2 withholding._s109b#2 via withholding#1: &before_dec_2018 >-
+    outside the case window: an invoice before 5 Dec 2018, when a payer bearing the tax regrossed the base
+  WH-2 withholding._s109b#2 via withholding#2: *before_dec_2018
+  WH-2 withholding._s109b#2 via withholding#3: *before_dec_2018
+  WH-2 withholding._s109b#5 via withholding#1: *before_dec_2018
+  WH-2 withholding._s109b#5 via withholding#2: *before_dec_2018
+  WH-2 withholding._s109b#5 via withholding#3: *before_dec_2018
+  ME-3 einvoice.buyer_in_phase return#1: >-
+    planted only by chance: the company whose record doesn't show its e-invoicing phase takes only hand-over slots
+    (generation.yaml handover_companies), and this branch is such a case dated before 1 Aug 2024, when the phase
+    decides nothing (its einvoice_phase_unknown family then hands over on two fitting POs); the slots' dates are drawn
+    over the window, so it falls below the floor in a split where few of them come before that date
+  ME-3 einvoice.buyer_in_phase return#2: >-
+    needs facts no generated company has: a buying company that is itself exempt from e-invoicing (a foreign
+    diplomatic office, an individual not in business, a statutory body or international organisation to 30 Jun 2025)
+SG: {}

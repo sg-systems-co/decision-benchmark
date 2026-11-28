@@ -1,0 +1,18 @@
+# The family of rule SG-8 (B1-5): countries/sg/planting.py plants it; the recipe adds its finding.
+family: tax_sg_sg_8
+version: 1
+countries:
+- SG
+primary_type: null
+rule: SG-8
+summary: 'An imported service: no GST on the invoice; reverse-charged by a buyer without full credit.'
+params: {}
+ops:
+- op: plant_rule
+  args:
+    line: 1
+    rule: SG-8
+    form: correct
+expect:
+  decision: APPROVE
+  findings: []

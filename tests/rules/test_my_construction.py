@@ -174,7 +174,7 @@ def _manufacturer(r):
     supplier_facts(r, is_manufacturer=True)
 
 
-def test_l8_materials_not_separated_tax_the_whole_invoice():
+def test_l8_materials_not_separated_tax_the_whole_case():
     assert result(*works(materials_works_separated=False)) == (OK, "SST_CORRECT", "L-8")
 
 

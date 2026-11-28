@@ -12,7 +12,7 @@ windows:
 # Step 11 plan §5.2: priority tiers. Same order as TaskSetSpec.quotas.
 types:
 - {name: clean}
-- {name: tax_problem, tier: 3, tax: true}
+- {name: tax_problem, tier: 3, tax: true, foreign_countries: [MY]}   # a Singapore tax problem needs a GST-registered (so domestic) supplier, except SG-4, which decides the whole invoice
 - {name: price_mismatch, tier: 4}
 - {name: quantity_mismatch, tier: 4}
 - {name: invalid_invoice, tier: 3, foreign: false}   # the invoice requirements (e-invoice, SST particulars) bind domestic suppliers
@@ -49,6 +49,9 @@ mixed:
   share: '12'
   split_share: '1/3'
   split_countries: [MY]
+  # The §5-b splits the recipes plant (packages, L-8, P-12, P-16) all decide from 1 Mar 2024 (packages) or later.
+  split_window: ['2024-03-01', '2026-10-31']
+  split_needs: [service]
 
 # B1 plan §3.4: foreign-supplier lines carry MS-8, ME-3 and the withholding rules (15% of each country's cases).
 foreign_share: '15'
@@ -57,10 +60,11 @@ foreign_share: '15'
 lines: {'1': '45', '2': '30', '3': '15', '4-6': '10'}
 
 # B1 plan §3.4 (decision 5): 16 per rule in train with 2 problem forms per rule that has one; 4 in test with 2
-# problem lines per family; 2 in a 300-case split.
+# problem lines per family; 2 in a 300-case split. Review of B1-5: a rule whose recipe takes several deciding branches
+# in turn (rules.yaml branches) gets 2 appearances per branch in train and 1 in test.
 rule_floor:
-- {min_cases: 2000, per_rule: 16, problem_per_rule: 2}
-- {min_cases: 500, per_rule: 4, problem_per_family: 2}
+- {min_cases: 2000, per_rule: 16, problem_per_rule: 2, per_branch: 2}
+- {min_cases: 500, per_rule: 4, problem_per_family: 2, per_branch: 1}
 - {min_cases: 300, per_rule: 2}
 
 # Suppliers of each special kind (rules.yaml supplier) per split: three in train, two in test, one in a 300-case split
@@ -73,14 +77,29 @@ special_suppliers:
 # The supplier kinds the rules need (rules.yaml supplier) and what each can't do (rules.yaml needs): the co-owner of a
 # rented property isn't registered and isn't in an e-invoicing phase (K-8); the Government exempts its 2025-scope
 # services itself (K-5, L-7, P-8); group relief (MS-6) and the transitional contracts (K-4, L-1) decide before the
-# B2B order (MS-5).
+# B2B order (MS-5); both, and the Government, decide a 2025-scope line before reg 3A (MS-3: reg_3a).
+# Company kinds that take only the cases whose rule appearances name them (rules.yaml appearance_turns): a buyer not
+# registered for service tax (MS-9 through an FRP's digital service) and one regulated by Labuan FSA (MS-5, B2B order
+# item 6), which most rules' recipes don't fit.
+reserved_companies: [unregistered, labuan, phase_unknown]
+# A company whose record doesn't show its e-invoicing phase takes a quarter of the Malaysian hand-over slots (review of
+# the B1-5 fixes, within the 3% share): its families (hardcases/einvoice_phase_unknown.yaml) hand over on ME-3.
+handover_companies: {phase_unknown: '1/4'}
 supplier_lacks:
   co_owner: [service, goods, phase, phase1, b2b]
-  government: [not_public_scope, b2b]
-  local_authority: [not_public_scope, b2b]
+  government: [not_public_scope, b2b, reg_3a]
+  local_authority: [not_public_scope, b2b, reg_3a]
+  sg_unregistered: [gst]
   group: [b2b]
-  k4_landlord: [b2b]
-  l1_contractor: [b2b]
+  k4_landlord: [b2b, reg_3a]
+  l1_contractor: [b2b, reg_3a]
+  einv_small: [goods, phase, phase1]
+  einv_unknown: [goods, phase, phase1]
+  einv_3m5m: [goods, phase, phase1]
+
+# Needs no one supplier meets together: registered for GST and not (SG-4).
+needs_conflict:
+- [gst, no_gst]
 
 # B1 plan decision 3: buying companies per split (half per country).
 companies:
@@ -106,15 +125,19 @@ boundaries:
 - {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m', branch: me3_phase_1, companies: [it]}
 - {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))', branch: wellness_tcm, needs: [service]}
 - {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m', branch: me3_phase_2, companies: [fin]}
-- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {before: [clean, tax_problem, price_mismatch, quantity_mismatch, duplicate, not_received, no_po_or_above_limit, bank_change], after: [invalid_invoice]}}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}, findings: [after]}
 - {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)', branch: ms7_items_5_7, needs: [service]}
 - {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start', branch: scope_2025, companies: [it, fin, plain, msme, new_sme], needs: [service, not_public_scope, b2b]}
 - {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}
 - {country: MY, day: '2025-10-01', note: 'K-5 and L-7 local authorities end 30 Sep 2025', branch: local_authority_end, supplier: local_authority, companies: [it, fin, builder, plain]}
 - {country: MY, day: '2026-01-01', note: 'rental 6%; K-1 RM1m-1.5m; G-3; ME-1 up to RM5m and relaxation end 31 Dec 2025', branch: rental_rate_2026, companies: [it, fin, builder, plain], needs: [service, not_public_scope, b2b]}
-- {country: MY, day: '2026-05-01', note: 'P-15', branch: p15_taxable, needs: [service]}
+- {country: MY, day: '2026-05-01', note: 'P-15', branch: p15_taxable, needs: [service, b2b]}
 - {country: MY, day: '2026-06-01', note: 'P-7 TIA-i', branch: tia_i, needs: [service, not_public_scope]}
 - {country: MY, day: '2026-07-01', note: 'K-4 ends 30 Jun 2026; P-10; ME-1 new businesses', branch: k4_end, supplier: k4_landlord, companies: [it, fin, builder, plain]}
 - {country: MY, day: '2026-09-01', note: 'G-3 ends 31 Aug 2026; MG-4 Schedule B items 5-7', branch: g3_end, needs: [goods]}
 - {country: MY, day: '2026-09-22', note: 'P-9 DGTA-approved organisations', branch: dgta_mro, supplier: dgta_mro, companies: [plain]}
-- {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)'}
+- {country: MY, day: '2024-08-01', note: 'ME-1 first phase starts: a supplier below RM1m is exempt either side (review of B1-5)', branch: me1_small, supplier: einv_small, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2025-02-01', note: 'ME-1: no supplier past its relaxation period before 1 Feb 2025, so a phase not shown decides nothing (review of B1-5)', branch: me1_unknown_phase, supplier: einv_unknown, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2025-07-01', note: 'ME-1: statutory bodies and local authorities exempt to 30 Jun 2025, then for statutory fees only (review of B1-5)', branch: me1_public_body, supplier: local_authority, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: MY, day: '2026-01-01', note: 'ME-1: RM3m-5m phase starts, relaxation to 31 Dec 2027 (review of B1-5)', branch: me1_phase_3m5m, supplier: einv_3m5m, exclude_types: {before: [invalid_invoice], after: [invalid_invoice]}}
+- {country: SG, day: '2024-01-01', note: 'GST 8% -> 9% (SG-3)', branch: gst_rate_2024, needs: [gst], companies: [plain, receipts]}

@@ -27,6 +27,8 @@ class ExceptionType(Model):
     """The type's problem is a tax problem (rule-floor problem forms go to these primaries and secondaries)."""
     foreign: bool = True
     """The type's cases can come from a foreign supplier (False: never chosen for the foreign-supplier share)."""
+    foreign_countries: tuple[str, ...] | None = None
+    """Where foreign is True: only in these countries (None: every country)."""
 
 
 class TwoProblems(Model):
@@ -71,6 +73,10 @@ class Mixed(Model):
     split_share: str
     """Fraction of the mixed cases that are split cases."""
     split_countries: tuple[str, ...]
+    split_window: tuple[date, date] | None = None
+    """The dates a split case can take (where the task set's splits decide)."""
+    split_needs: tuple[str, ...] = ()
+    """What a split case's supplier must be able to do (as a rule's needs)."""
 
 
 class RuleSpec(Model):
@@ -85,10 +91,14 @@ class RuleSpec(Model):
     """The rule can decide a problem line (wrongly charged or undercharged)."""
     types: tuple[str, ...] = ()
     """Exception types whose cases can carry it. Empty: any type that isn't a hand-over type."""
+    exclude_types: tuple[str, ...] = ()
+    """Exception types whose cases can't carry it (their own problem would decide its line)."""
     foreign: bool = False
     """It needs a foreign supplier."""
     domestic: bool = False
     """It needs a domestic supplier (never on a foreign-supplier slot)."""
+    domestic_forms: tuple[str, ...] = ()
+    """Forms that need a domestic supplier when the rule itself doesn't."""
     correct_form: bool = True
     """The rule can decide a correct line. False: every appearance is a problem form (e.g. undercharged)."""
     supplier: str = ""
@@ -96,12 +106,34 @@ class RuleSpec(Model):
     need different kinds never share a slot."""
     companies: tuple[str, ...] = ()
     """Company kinds that can carry it, as the task set names them (empty: any)."""
+    whole_case: bool = False
+    """The rule decides every line of the case (a mixed slot can't carry it)."""
     takes_line: bool = False
     """A finding or action rule that needs a line of its own (it can't ride on another rule's line)."""
     needs: tuple[str, ...] = ()
     """What the case's supplier must be able to do, as the task set names it (e.g. charge a tax)."""
+    form_needs: dict[str, tuple[str, ...]] = {}
+    """Per form: what the supplier must do on top of needs (the pool the case's supplier comes from)."""
+    min_lines: dict[str, int] = {}
+    """Per form: the fewest lines a case carrying it needs (a whole-case rule's branch on another line)."""
+    alternate_foreign: bool = False
+    """Its appearances alternate between foreign- and domestic-supplier cases (its branches differ between them)."""
+    alone: tuple[str, ...] = ()
+    """Forms whose case plants no other rule (a branch that needs a supplier no other rule's line could take)."""
+    alone_with: tuple[str, ...] = ()
+    """Rules it may share such a case with (their branches take the same supplier)."""
+    window_turns: dict[str, tuple[tuple[date, date], ...]] = {}
+    """Per form: date windows its floor appearances take in turn (a rule whose branches sit near different dates),
+    each inside the form's window."""
     windows: dict[str, tuple[date, date]] = {}
     """Per form ('problem', 'correct'): the case dates the rule can be planted on (absent: the country window)."""
+    appearance_turns: dict[str, tuple[AppearanceTurn, ...]] = {}
+    """Per form: what its floor appearances take in turn, besides the rule's own needs (a branch that turns on the
+    buyer's kind or on a foreign supplier, e.g. a reserved company kind). They apply in splits with a branch floor
+    (FloorTier.per_branch); elsewhere each appearance takes the rule's own needs."""
+    branches: dict[str, int] = {}
+    """Per form: the deciding branches the rule's recipe takes in turn (review of B1-5: each branch planted at least
+    ``per_branch`` times), so the floor gives the form at least branches x per_branch appearances."""
     note: str = ""
 
     @field_validator("carrier")
@@ -120,11 +152,28 @@ class RuleSpec(Model):
         for form, (lo, hi) in self.windows.items():
             if form not in ("problem", "correct") or lo > hi:
                 raise ValueError(f"rule {self.id}: bad window {form} {lo}..{hi}")
+        for form, turns in self.window_turns.items():
+            lo, hi = self.windows.get(form, (date.min, date.max))
+            if form not in ("problem", "correct") or any(a > b or a < lo or b > hi for a, b in turns):
+                raise ValueError(f"rule {self.id}: bad window_turns {form}")
+        for form, k in self.branches.items():
+            if form not in ("problem", "correct") or k < 1 or not (self.problem_form if form == "problem"
+                                                                     else self.correct_form):
+                raise ValueError(f"rule {self.id}: bad branches {form}: {k}")
         return self
 
     def window(self, form: str, country_window: tuple[date, date]) -> tuple[date, date]:
         lo, hi = self.windows.get(form, country_window)
         return max(lo, country_window[0]), min(hi, country_window[1])
+
+
+class AppearanceTurn(Model):
+    """One floor appearance's own needs, taken in turn (RuleSpec.appearance_turns)."""
+
+    companies: tuple[str, ...] = ()
+    """The company kinds it takes (empty: the rule's own)."""
+    foreign: bool | None = None
+    """True: a foreign-supplier case, False: a domestic one (None: as the rule says)."""
 
 
 class FloorTier(Model):
@@ -136,6 +185,8 @@ class FloorTier(Model):
     """Problem forms per rule that has one."""
     problem_per_family: int = 0
     """Problem forms per family (when a per-rule problem floor can't hold)."""
+    per_branch: int = 0
+    """Appearances per deciding branch a rule declares (RuleSpec.branches)."""
 
 
 class BoundaryTier(Model):
@@ -171,7 +222,11 @@ class Boundary(Model):
     needs: tuple[str, ...] = ()
     """As a rule's (RuleSpec): the supplier kind, company kinds and supplier needs the branch line takes."""
     types: dict[str, tuple[str, ...]] = {}
-    """Per side ('before', 'after'): the exception types whose slots can carry the branch (absent: any non-hand-over)."""
+    """Per side ('before', 'after'): a slot carrying the branch has one of these exception types (absent: any)."""
+    exclude_types: dict[str, tuple[str, ...]] = {}
+    """Per side: a slot carrying the branch has none of these exception types."""
+    findings: tuple[str, ...] = ()
+    """Sides whose branch line brings a finding-carrier rule (the slot then carries no other finding rule)."""
 
 
 class Generation(Model):
@@ -210,6 +265,17 @@ class Generation(Model):
     special_suppliers: tuple[SpecialTier, ...] = ()
     """How many suppliers of each special kind a split has (the largest tier that fits; default one)."""
     supplier_lacks: dict[str, tuple[str, ...]] = {}
+    handover_companies: dict[str, str] = {}
+    """Reserved company kinds that take this share of their country's hand-over slots (a buyer whose own record leaves
+    a fact out, so its cases hand over: the families naming the kind plant them)."""
+    reserved_companies: tuple[str, ...] = ()
+    """Company kinds that take only the cases whose rule appearances name them (a buyer most rules' recipes don't fit,
+    e.g. one not registered for a tax the others are)."""
+    needs_conflict: tuple[tuple[str, str], ...] = ()
+    """Pairs of rule needs no one supplier meets together (e.g. registered and not registered)."""
+
+    def needs_clash(self, needs: set[str]) -> bool:
+        return any(a in needs and b in needs for a, b in self.needs_conflict)
     """Supplier kind -> the rule needs it can't meet (a rule that needs one never joins a slot of that kind)."""
 
     @model_validator(mode="after")

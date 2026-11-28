@@ -142,7 +142,7 @@ def test_p12_itemised_consultation_fee_is_exempt():
     assert result(*care(itemised_consultation_fee=True)) == (*EXEMPT, "P-12")
 
 
-def test_p12_near_miss_not_itemised_the_whole_invoice_is_taxed():
+def test_p12_near_miss_not_itemised_the_whole_case_is_taxed():
     assert result(*care(itemised_consultation_fee=False)) == (*CORRECT, "P-12")
 
 

@@ -1369,6 +1369,20 @@ categories:
   - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%201-2025%20(Financial)%20(Amendment%20No.%205).pdf
   note: Group H items 3-4 from 1 Jul 2025; P-1 to P-7.
 
+- category: imported_financial_services
+  kind: service
+  label: Financial services from an overseas bank
+  countries:
+  - MY
+  tax:
+    MY:
+      tax_class: service_8
+      service_item: H3
+  gl_role: bank_charges
+  sources:
+  - https://pub-359af8e1f79c472292a7e44ec60f3027.r2.dev/Service%20Tax%20Policy/EN/STP%201-2025%20(Financial)%20(Amendment%20No.%205).pdf
+  note: Imported Group H service; STP 1/2025 item 6 (a registered Group H provider buying it for its own financial services, MS-8). Taxable from 1 Jul 2025.
+
 - category: card_activation
   kind: service
   label: Credit and charge card fees
