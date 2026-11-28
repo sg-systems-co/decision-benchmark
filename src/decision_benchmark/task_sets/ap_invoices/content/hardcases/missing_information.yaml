@@ -1,0 +1,21 @@
+# B1-6, H3 (missing information): a fact the rules need, with no ordinary default, is in no document of the case, so
+# the case hands over with that rule as basis. Drawn only on the Ambiguous slots given H3 (generator/build.py
+# family_fits); each country's recipe picks the fact in turn (countries/*/planting.py missing_information).
+family: missing_information
+version: 1
+countries: [MY, SG]
+primary_type: ambiguous
+hard: H3
+needs: [service, gst]      # a domestic case's supplier charges the tax (a foreign one is any)
+weight: 4
+summary: 'H3: a fact the rules need is in no document (a service period''s end, an education provider''s kind, whether
+  staff medical cover is obligatory, where foreign work was done ...): HAND_OVER with that rule as basis.'
+params: {}
+ops:
+- op: plant_handover
+  args:
+    line: 1
+    kind: missing_information
+expect:
+  decision: HAND_OVER
+  findings: []

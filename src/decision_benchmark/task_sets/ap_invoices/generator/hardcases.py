@@ -62,6 +62,11 @@ class Template(Model):
     """The special supplier kind the family needs ('' any)."""
     foreign: bool | None = None
     """The family needs a foreign (True) or domestic (False) supplier; None: either."""
+    hard: str | None = None
+    """The hard kind it plants (e.g. H3, missing information): drawn only on slots of that kind, and a slot of a kind
+    some family plants draws only such families."""
+    needs: list[str] = []
+    """What the case's supplier must be able to do (as a rule's needs, rules.yaml), for the family's recipe."""
     companies: list[str] = []
     """The company kinds the family needs (empty: any but a hand-over kind, generation.yaml handover_companies)."""
     weight: int = 1

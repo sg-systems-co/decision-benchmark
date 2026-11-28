@@ -48,6 +48,9 @@ def case_docs(g) -> dict[str, dict]:
     supplier = g.records.supplier(g.envelope.payload.supplier_id)
     docs[f"supplier:{supplier.supplier_id}"] = export_dict(supplier)
     docs[f"company:{g.records.company.company_id}"] = export_dict(g.records.company)
+    for email in g.records.emails:
+        if email.case_id == g.built.case_id:
+            docs[email.message_id] = export_dict(email)
     return docs
 
 

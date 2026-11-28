@@ -1,20 +1,22 @@
 # Review of the B1-5 fixes: the buyer's record doesn't show its e-invoicing phase (ME-3 hand-over), in the Malaysian
-# Ambiguous slots its company kind takes (generation.yaml handover_companies).
+# H3 slots its company kind takes (generation.yaml handover_companies). Before 1 Aug 2024 the phase decides nothing, so
+# the recipe plants another missing fact (countries/my/planting.py missing_information).
 family: einvoice_phase_unknown
 version: 1
 countries:
 - MY
 primary_type: ambiguous
 companies: [phase_unknown]
+hard: H3
 weight: 1
-summary: 'An agent''s commission the buyer self-bills in its e-invoicing phase, and its record doesn''t show the phase: HAND_OVER
-  (ME-3) from 1 Aug 2024; before it, two fitting POs.'
+summary: 'H3: an agent''s commission the buyer self-bills in its e-invoicing phase, and its record doesn''t show the phase:
+  HAND_OVER (ME-3) from 1 Aug 2024; before it, another missing fact.'
 params: {}
 ops:
 - op: plant_handover
   args:
     line: 1
-    kind: einvoice_phase_unknown
+    kind: missing_information
 expect:
   decision: HAND_OVER
   findings: []

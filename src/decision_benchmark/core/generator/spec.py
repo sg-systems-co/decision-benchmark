@@ -45,6 +45,24 @@ class PrecedenceRow(Model):
     countries: tuple[str, ...]
     types: tuple[str, ...]
     """Exception types whose cases can carry this row."""
+    foreign: bool | None = None
+    """True: only foreign-supplier cases; False: only domestic ones (None: either)."""
+    supplier: dict[str, str] = {}
+    """Per country: the special supplier kind the row's case needs (absent: any)."""
+    companies: dict[str, tuple[str, ...]] = {}
+    """Per country: the company kinds that can carry it (absent: any but the reserved kinds)."""
+    windows: dict[str, tuple[date, date]] = {}
+    """Per country: the dates its case can take (absent: the country window)."""
+    needs: tuple[str, ...] = ()
+    """What the case's supplier must be able to do (as a rule's needs)."""
+    line: bool = True
+    """The row plants a line of its own (the case needs a line no rule takes)."""
+    unmixed: bool = False
+    """The row's case can't be a mixed one (e.g. its supplier charges no tax on any line)."""
+    rides_on: tuple[str, ...] = ()
+    """Rules whose line the row's conflict can use instead of a line of its own (with ``line`` false, only such a line:
+    a slot carrying one takes the row, its hard label moved from a conflicting-documents slot of the same type and
+    country)."""
 
 
 class HardCases(Model):
@@ -221,6 +239,10 @@ class Boundary(Model):
     companies: tuple[str, ...] = ()
     needs: tuple[str, ...] = ()
     """As a rule's (RuleSpec): the supplier kind, company kinds and supplier needs the branch line takes."""
+    line: bool = True
+    """The branch plants a line of its own (False: it changes the case, not a line, e.g. a document's form)."""
+    finding_rule: str = ""
+    """The rule whose finding the branch brings (``findings``): a slot whose only finding rule is that one can take it."""
     types: dict[str, tuple[str, ...]] = {}
     """Per side ('before', 'after'): a slot carrying the branch has one of these exception types (absent: any)."""
     exclude_types: dict[str, tuple[str, ...]] = {}
@@ -266,8 +288,8 @@ class Generation(Model):
     """How many suppliers of each special kind a split has (the largest tier that fits; default one)."""
     supplier_lacks: dict[str, tuple[str, ...]] = {}
     handover_companies: dict[str, str] = {}
-    """Reserved company kinds that take this share of their country's hand-over slots (a buyer whose own record leaves
-    a fact out, so its cases hand over: the families naming the kind plant them)."""
+    """Reserved company kinds that take this share of their country's missing-information (H3) slots (a buyer whose
+    own record leaves a fact out, so its cases hand over: the families naming the kind plant them)."""
     reserved_companies: tuple[str, ...] = ()
     """Company kinds that take only the cases whose rule appearances name them (a buyer most rules' recipes don't fit,
     e.g. one not registered for a tax the others are)."""

@@ -156,6 +156,14 @@ SPECIAL_SUPPLIERS = (
     # (generation.py suppliers_for, in turn).
     SpecialSupplier("fx", ("industrial_valves", "bearings", "hand_tools", "advertising", "business_consultancy",
                            "security_guards"), facts=dict(BIG), currency="USD", ordinary=True),
+    # B1-6 (H2, precedence rows): a landlord whose tenancy has a price-review clause (contract_record), and a payee
+    # resident in Singapore that holds no certificate of residence in the records (certificate_of_residence).
+    SpecialSupplier("landlord", ("commercial_premises_rental", "parking"), registered_for=("service",), facts=dict(BIG),
+                    contract={"signed_on": "2025-04-15", "stamped_on": "2025-04-22", "has_price_review_clause": True,
+                              "states_service": True, "states_fixed_value": True, "states_period": True,
+                              "start": "2025-05-01", "end": "2028-04-30"}),
+    SpecialSupplier("foreign_sg_nocert", ("imported_consultancy", "foreign_digital_services"), foreign=True,
+                    homes=("SG",)),
     SpecialSupplier("late_registrant", ("advertising", "business_consultancy", "hand_tools"),
                     registered_from="2025-10-01", facts=dict(BIG)),
     SpecialSupplier("frp", ("foreign_digital_services",), foreign=True, homes=("SG", "US", "GB"),
@@ -167,7 +175,7 @@ SPECIAL_SUPPLIERS = (
     SpecialSupplier("foreign_group", ("imported_consultancy",), foreign=True, homes=("SG", "JP", "CN"),
                     facts={"pe_in_country": False}),
     SpecialSupplier("einv_unknown", ("advertising", "business_consultancy"), registered_for=("service",),
-                    facts={"is_manufacturer": False, "einvoice_phase_known": False}),
+                    facts={"is_manufacturer": False, "einvoice": None, "einvoice_phase_known": False}),
     SpecialSupplier("einv_small", ("advertising", "business_consultancy"), registered_for=("service",),
                     facts={"is_manufacturer": False,
                            "einvoice": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"}}),
@@ -187,7 +195,7 @@ MS-6); the foreign group company is in the buyer's group (MS-6); the e-invoicing
 are below RM1m, or are RM3m-5m (implementation 1 Jan 2026) (ME-1); the manufacturers are on Langkawi, in a free zone
 and in the JDA (MG-5)."""
 SPECIAL_KINDS = tuple(s.kind for s in SPECIAL_SUPPLIERS)
-OFFERED_IN_TURN = ("late_registrant", "frp", "frp_group", "foreign_group", "einv_unknown", "einv_small", "einv_3m5m",
+OFFERED_IN_TURN = ("foreign_sg_nocert", "late_registrant", "frp", "frp_group", "foreign_group", "einv_unknown", "einv_small", "einv_3m5m",
                    "da_maker", "fz_maker", "jda_maker")
 """Kinds offered only to the rule whose branch needs them (never in a pool of ordinary or foreign suppliers)."""
 ZONE_MAKERS = ("da_maker", "fz_maker", "jda_maker")
@@ -702,17 +710,64 @@ def _labuan_card(d, n, form) -> None:
     _ext(d, n)["tax_exemption_reason"] = "Exempt under the Service Tax (Persons Exempted from Payment of Tax) Order"
 
 
-def einvoice_phase_unknown(d, n: int) -> None:
-    """Hand-over (ME-3): an agent's commission, which the buyer self-bills when it is in its e-invoicing phase, and the
-    buyer's record doesn't show the phase. From 1 Aug 2024 that decides (HAND_OVER, ME-3); before it no business is in
-    a phase, so the line needs no self-billed e-invoice, and the case hands over on two open POs that fit it."""
-    from ...generator import ops
+MISSING = ("period_end", "education_kind")
+"""H3 (missing information) on a domestic case, in turn: a service period with its start but not its end (MS-3); an
+education fee from 1 Jul 2025 that doesn't say what kind of provider charges it (MS-4). On a foreign case: technical
+advice that doesn't say where it was performed (WH-2). The buyer whose record doesn't show its e-invoicing phase, and
+the supplier whose record doesn't show its own, give theirs (ME-3, ME-1)."""
 
-    d.state(n, "self_billing_type", "agents_dealers_distributors")
-    if d.day < tl.earliest_implementation_date():
-        if d.po is None:
-            raise CannotPlant("the ME-3 hand-over before 1 Aug 2024 needs a PO")
-        ops.add_second_fitting_po(d)
+
+def missing_information(d, n: int) -> None:
+    """Plant H3 on line n: a fact the engine needs, with no ordinary default, stated in no document of the case, so the
+    case hands over with that rule as basis (B1 plan section 3.2)."""
+    if foreign(d):
+        if not d.invoice.get("service_period_start"):
+            raise CannotPlant("the WH-2 hand-over keeps the invoice's service period (planting limit 7)")
+        d.set_line(n, "technical_services_from_abroad", Decimal(0), service_ext(Decimal(0)))
+        d.expect(n, T.SST_BUYER_ACCOUNTS.value, "MS-8", (), (IMPORTED_ACTION,) + self_billed(d))
+        d.missing.append({"party": "line", "line": n, "fact": "place_of_performance", "supply": "in_country"})
+        return                                  # where the advice was performed is in no document: WH-2
+    if d.cw.kind in PHASE_UNKNOWN and d.day >= tl.earliest_implementation_date():
+        d.state(n, "self_billing_type", "agents_dealers_distributors")
+        d.missing.append({"party": "company", "fact": "einvoice", "supply": dict(COMPANY_EINVOICE["it"])})
+        return                                  # an agent's commission the buyer would self-bill: ME-3
+    if d.supplier_kind == "einv_unknown" and d.day > tl.earliest_relaxation_end():
+        _paper_invoice(d)
+        d.missing.append({"party": "supplier", "fact": "einvoice",
+                          "supply": {"turnover_band": "below_1m", "turnover_basis": "fy2022_audited"}})
+        return                                  # an ordinary invoice, the supplier's phase not shown: ME-1
+    variant = d.turn("H3 MY", list(MISSING))
+    education = not (d.day < scope.NEW_SCOPE_FROM or "M" in provided(d)
+                     or d.supplier_kind in ("government", "local_authority"))
+    if variant == "education_kind" and not education:
+        variant = "period_end"
+    if variant == "period_end" and education and not registered(d.supplier, "service", d.day):
+        variant = "education_kind"              # the education exclusion is read before the registration
+    if variant == "education_kind":
+        d.set_line(n, "staff_education_fees", Decimal(0), service_ext(Decimal(0)))
+        d.state(n, "student_category", "citizen")
+        d.planted_line(n, None, "MS-4")
+        d.missing.append({"party": "line", "line": n, "fact": "education_provider_kind", "supply": "higher_education"})
+        return
+    if not registered(d.supplier, "service", d.day):
+        raise CannotPlant("the MS-3 hand-over needs a supplier registered for service tax")
+    c = pick(d, MS3_SERVICES, "8% service")
+    rate = standard_rate(c, d.day)
+    d.set_line(n, c, rate, service_ext(rate))
+    _period(d, n, None, None)
+    if d.invoice.get("service_period_start"):
+        # The header's period would state the end for this line too: the other lines state theirs in their own text.
+        start, end = (date.fromisoformat(d.invoice[k]) for k in ("service_period_start", "service_period_end"))
+        for m in range(1, len(d.invoice["lines"]) + 1):
+            if m != n and "service_period_start" in (d.line(m).get("facts") or {}):
+                _period(d, m, start, end)
+        d.invoice["service_period_start"] = d.invoice["service_period_end"] = None
+    # The start after the last rate change before the invoice, so the one missing fact is the end (stated, the line
+    # is settled: the null-fact check).
+    last = max((c for c in rates.RATE_CHANGES if c <= d.day), default=date.min)
+    d.state(n, "service_period_start", max(last, d.day - timedelta(days=d.r.randint(10, 40))))
+    d.planted_line(n, None, "MS-3")
+    d.missing.append({"party": "line", "line": n, "fact": "service_period_end", "supply": d.day.isoformat()})
 
 
 def finish(d) -> None:
@@ -1911,3 +1966,165 @@ def plant(d, n: int, rule: str, form: str) -> None:
     fn(d, n, form)
 
 
+
+
+# -- conflicting documents (B1-6, H2): the invoice states A, the governing document B, the key follows B --------------
+
+def _note(d, row: str, **values) -> str:
+    from ...generator import phrases
+
+    text = phrases.conflict("MY", row, d.r, **values)
+    d.invoice.setdefault("notes", []).append(text)
+    return text
+
+
+def _riding(d, ok) -> int:
+    """A line already planted that the row can ride on (its outcome and category fit), else CannotPlant."""
+    for m, (_, treatment, basis) in enumerate(d.built.planted.lines, 1):
+        if ok(d.line(m)["category"], treatment, basis):
+            return m
+    raise CannotPlant("no free line, and no planted line the conflict can ride on")
+
+
+def plant_conflict(d, n: int | None, row: str) -> None:
+    """Plant the precedence row's conflict on line n (None: a row that plants no line of its own). Records what the
+    invoice says and the patches that put it in the governing document (generator/hard.py check_conflict)."""
+    CONFLICTS[row](d, n)
+
+
+def _c_supplier_registration(d, n) -> None:
+    """The supplier registers for SST only from 1 Oct 2025, but its invoice already prints the number (the supplier
+    record on the invoice date governs: it charges none, rightly)."""
+    if d.supplier_kind != "late_registrant" or registered(d.supplier, "service", d.day):
+        raise CannotPlant("supplier_registration needs the supplier not yet registered")
+    regs = d.supplier.get("tax_registrations", [])
+    number = next(x["number"] for x in regs if x["scheme"] == "MY_SST")
+    d.invoice["einvoice"]["supplier_sst_no"] = number
+    says = _note(d, "supplier_registration", number=number)
+    patches = [{"target": "supplier", "path": f"tax_registrations[{i}].valid_from", "value": "2018-09-01"}
+               for i, x in enumerate(regs) if x["scheme"] == "MY_SST"]
+    d.conflict = {"row": "supplier_registration", "says": says, "patches": patches}
+
+
+def _c_group_relation(d, n) -> None:
+    """A service group relief would cover, charged at the standard rate: the invoice says group relief applies, the
+    company record shows no group relation with the supplier."""
+    if (d.supplier.get("tax_facts") or {}).get("group_company_id") or d.supplier_kind in ("government",
+                                                                                          "local_authority"):
+        raise CannotPlant("group_relation needs a supplier outside the group (and not the Government)")
+    cats = [c for c in GROUP_RELIEF if item_of(c) not in provided(d)]
+    if not cats:
+        raise CannotPlant("group_relation: the company provides every group-relief item")
+    if n is None:
+        n = _riding(d, lambda c, t, b: c in cats and (t, b) == (T.SST_CORRECT.value, "MS-2"))
+    else:
+        taxed(d, n, d.r.choice(cats), "MS-2")
+    says = _note(d, "group_relation")
+    cid, gid = d.cw.company_id, f"{d.built.case['supplier_id']}-{d.cw.company_id}-group"
+    holder = f"{cid}-holding"
+    held = {x["held_id"] for x in (d.cw.company["tax_facts"].get("group") or {}).get("shareholdings", [])}
+    patches = [{"target": "company", "path": "tax_facts.group.shareholdings", "op": "append",
+                "value": {"holder_id": holder, "held_id": gid, "pct": "75"}},
+               {"target": "supplier", "path": "tax_facts.group_company_id", "value": gid},
+               {"target": "supplier", "path": "tax_facts.external_share_within_5pct", "value": True}]
+    if cid not in held:
+        patches.insert(0, {"target": "company", "path": "tax_facts.group.shareholdings", "op": "append",
+                           "value": {"holder_id": holder, "held_id": cid, "pct": "60"}})
+    d.conflict = {"row": "group_relation", "says": says, "patches": patches}
+
+
+def _c_exemption_certificate(d, n) -> None:
+    """Goods the company's Schedule C certificate doesn't cover, taxed: the invoice cites the certificate."""
+    certs = (d.cw.company.get("policy_pack") or {}).get("exemption_certificates", [])
+    i = next((k for k, c in enumerate(certs) if c["kind"] == "schedule_c"), None)
+    if i is None:
+        raise CannotPlant("exemption_certificate needs a Schedule C certificate")
+    covered = set(certs[i]["categories"])
+    cats = [c for c in goods_on(d) if c not in covered and profile(c).schedule_c_eligible]
+    if not cats:
+        raise CannotPlant("exemption_certificate: no eligible goods outside the certificate on the day")
+    if n is None:
+        n = _riding(d, lambda x, t, b: x in cats and (t, b) == (T.SST_CORRECT.value, "MG-2"))
+        c = d.line(n)["category"]
+    else:
+        c = d.r.choice(cats)
+        rate = TAX_CLASS_RATE[goods_class(c, d.day)]
+        d.set_line(n, c, rate, goods_ext(rate))
+        d.expect(n, T.SST_CORRECT.value, "MG-2")
+    says = _note(d, "exemption_certificate", number=certs[i]["number"])
+    d.conflict = {"row": "exemption_certificate", "says": says, "patches": [
+        {"target": "company", "path": f"policy_pack.exemption_certificates[{i}].categories", "op": "append",
+         "value": c}]}
+
+
+def _c_zone(d, n) -> None:
+    """Goods made in the principal customs area, taxed: the invoice's ship-to address is on Langkawi, but the delivery
+    zone is the company master's (never read from an address, catalog README)."""
+    if n is None:
+        n = _riding(d, lambda x, t, b: not profile(x).area_goods and (t, b) == (T.SST_CORRECT.value, "MG-2"))
+    else:
+        cats = [c for c in goods_on(d) if not profile(c).area_goods]
+        if not cats:
+            raise CannotPlant("zone: no goods on the day")
+        c = d.r.choice(cats)
+        rate = TAX_CLASS_RATE[goods_class(c, d.day)]
+        d.set_line(n, c, rate, goods_ext(rate))
+        d.expect(n, T.SST_CORRECT.value, "MG-2")
+    says = _note(d, "zone")
+    d.conflict = {"row": "zone", "says": says, "patches": [
+        {"target": "invoice", "path": f"lines[{n - 1}].facts.delivery_zone",
+         "value": {"value": "langkawi", "evidence": [{"doc_id": d.invoice["invoice_id"], "path": "notes[0]"}]}}]}
+
+
+def _c_contract_record(d, n) -> None:
+    """Rent under a tenancy whose record has a price-review clause, taxed: the invoice says the rent is fixed (K-4)."""
+    if d.supplier_kind != "landlord":
+        raise CannotPlant("contract_record needs the landlord")
+    k = next(c for c in d.cw.contracts if c["supplier_id"] == d.built.case["supplier_id"])
+    taxed(d, n, "commercial_premises_rental", "MS-2")
+    says = _note(d, "contract_record", signed=f"{date.fromisoformat(k['signed_on']):%-d %B %Y}")
+    d.conflict = {"row": "contract_record", "says": says, "patches": [
+        {"target": f"contract:{k['contract_id']}", "path": "has_price_review_clause", "value": False}]}
+
+
+def _c_time_of_supply(d, n) -> None:
+    """An 8% service provided in February 2024, invoiced after the 1 Mar 2024 change at 6%: the service period on the
+    invoice governs (MS-3), not the issue date."""
+    if not registered(d.supplier, "service", d.day):
+        raise CannotPlant("time_of_supply needs a supplier registered for service tax")
+    c = pick(d, MS3_SERVICES, "8% service")
+    start = day_between(d.r, date(2024, 2, 1), date(2024, 2, 12))
+    end = day_between(d.r, start + timedelta(days=7), date(2024, 2, 29))
+    d.set_line(n, c, Decimal(6), service_ext(Decimal(6)))
+    _period(d, n, start, end)
+    d.expect(n, T.SST_CORRECT.value, "MS-3")
+    d.conflict = {"row": "time_of_supply", "says": f"issue date {d.day.isoformat()}", "patches": [
+        {"target": "invoice", "path": f"lines[{n - 1}].facts.service_period_start", "op": "delete"},
+        {"target": "invoice", "path": f"lines[{n - 1}].facts.service_period_end", "op": "delete"}]}
+
+
+def _c_price(d, n) -> None:
+    from ...generator.conflicts import price_conflict
+
+    d.final.append(lambda: price_conflict(d, "MY"))
+
+
+def _c_certificate_of_residence(d, n) -> None:
+    """WH-1's interest or royalty, paid to a payee resident in Singapore with no certificate of residence in the
+    records: the domestic rate, though the invoice claims the treaty rate (the row rides on WH-1's line)."""
+    if d.supplier_kind != "foreign_sg_nocert":
+        raise CannotPlant("certificate_of_residence needs the uncertified treaty resident")
+    if not any(a[0] == WITHHOLD_TAX and a[2] == "WH-1" for acts in d.built.planted.line_actions.values() for a in acts):
+        raise CannotPlant("certificate_of_residence rides on WH-1's withholding line")
+    says = _note(d, "certificate_of_residence", country="Singapore")
+    sid = d.built.case["supplier_id"]
+    d.conflict = {"row": "certificate_of_residence", "says": says, "patches": [
+        {"target": "records", "path": "residence_certificates", "op": "append",
+         "value": {"certificate_id": f"COR-H2-{d.built.case_id}", "supplier_id": sid, "country": "SG",
+                   "valid_from": "2020-01-01", "valid_to": None}}]}
+
+
+CONFLICTS = {"supplier_registration": _c_supplier_registration, "group_relation": _c_group_relation,
+             "exemption_certificate": _c_exemption_certificate, "zone": _c_zone, "contract_record": _c_contract_record,
+             "time_of_supply": _c_time_of_supply, "price": _c_price, "certificate_of_residence": _c_certificate_of_residence}
+"""The Malaysian precedence rows' planters (generation.yaml hard_cases.rows)."""

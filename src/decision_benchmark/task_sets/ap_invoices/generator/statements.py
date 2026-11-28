@@ -6,7 +6,7 @@ document, and its evidence names that document and where in it.
 invoice line description) and cites that field; the text reads back to the value with the fact's parser
 (generator/phrases.py). ``check_evidence`` is the acceptance check over a finished case: every gold fact's evidence
 names a document of the case, and a path resolves in that document's exported record to the fact's value, or to a text
-that parses back to it. Spans (character offsets) arrive with the full phrasebanks (B1-6).
+that parses back to it, and a span's text (an email body's characters) equals its quote and reads back to the value.
 """
 
 from __future__ import annotations
@@ -70,6 +70,20 @@ class Statements:
                                               "evidence": [{"doc_id": doc_id, "path": path, "quote": phrase}]}
 
 
+    def state_in_email(self, line: dict, fact: str, value: Any, sentence: str, phrase: str, doc_id: str) -> None:
+        """Record ``fact`` on an invoice line, stated by ``phrase`` inside ``sentence`` appended to the body of the email
+        ``doc_id``, and cite it by its character span in the body (B1-6)."""
+        email = self.docs.get(doc_id)
+        if email is None:
+            raise EvidenceError(f"unknown document {doc_id!r}")
+        body = email.get("body") or ""
+        body = f"{body}\n{sentence}" if body else sentence
+        start = body.rindex(phrase)
+        email["body"] = body
+        line.setdefault("facts", {})[fact] = {"value": value, "evidence": [
+            {"doc_id": doc_id, "span": {"start": start, "end": start + len(phrase)}, "quote": phrase}]}
+
+
 def _assign(record: Any, path: str, value: Any) -> None:
     parts = PATH_PART.findall(path)
     target = record
@@ -104,6 +118,14 @@ def check_evidence(gold_facts: list[dict] | None, docs: dict[str, dict],
                 doc = docs.get(ref["doc_id"])
                 if doc is None:
                     problems.append(f"line {line_no} {name}: {ref['doc_id']} is not a document of the case")
+                    continue
+                if ref.get("span") is not None:
+                    text = doc.get("body") if isinstance(doc.get("body"), str) else None
+                    span = ref["span"]
+                    quoted = None if text is None else text[span["start"]:span["end"]]
+                    if quoted is None or quoted != ref.get("quote") or not _reads_back(parse, name, quoted, value):
+                        problems.append(f"line {line_no} {name}: {ref['doc_id']} span {span} doesn't read back to "
+                                        f"{value!r}")
                     continue
                 if "path" in ref:
                     try:
