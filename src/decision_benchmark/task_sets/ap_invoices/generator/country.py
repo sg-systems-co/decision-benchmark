@@ -136,6 +136,10 @@ class CountryGeneration(Protocol):
     def plant_handover(self, d, line: int, kind: str) -> None:
         """Plant a line that raises a question the rules leave open (a hand-over family)."""
 
+    def plant_conflict(self, d, line: int | None, row: str) -> None:
+        """Plant a precedence row's conflicting documents (H2) on a line of its own (None: a row that plants none):
+        the invoice states A, the governing document B; set ``d.conflict`` (generator/hard.py check_conflict)."""
+
     def plant_split(self, d, line: int) -> None:
         """Plant a line that turns on a split (a mixed 'split' case)."""
 

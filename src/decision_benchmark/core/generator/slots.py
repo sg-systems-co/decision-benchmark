@@ -146,6 +146,7 @@ def allocate(gen: Generation, quotas: dict[str, object], split: SplitSpec) -> Al
     a.mixed()
     a.rule_floor()
     a.boundaries()
+    a.precedence_rows()
     a.order()
     return Allocation(split, a.slots, gen, quotas)
 
@@ -237,27 +238,34 @@ class _Allocator:
             for s in self._pick(pool, k, f"scan-only in {t}/{c}", "H1", t, c):
                 s.hard = H1
         # H2 over the cells with at least one compatible precedence row.
-        rows_for = {k: [r for r in hc.rows if k[1] in r.countries and k[0] in r.types] for k in self.cells}
-        conflict_cells = {k: v for k, v in self.cells.items() if rows_for[k] and not self.gen.type(k[0]).handover}
+        # H2 over every non-hand-over cell of a country with precedence rows; precedence_rows moves a label from a
+        # slot no row fits (its type, supplier or lines) to one a row fits.
+        conflict_cells = {k: v for k, v in self.cells.items() if not self.gen.type(k[0]).handover
+                          and any(k[1] in r.countries for r in hc.rows)}
         for (t, c), k in self._apportion_cells(conflict, conflict_cells).items():
             pool = [s for s in self.cells[(t, c)] if s.hard is None]
             for s in self._pick(pool, k, f"conflicting documents in {t}/{c}", "H2", t, c):
                 s.hard = H2
-        # Precedence rows: fewest options first, then the least used row, within the cap.
-        row_cap = floor(conflict * as_fraction(hc.conflict_row_cap))
-        used = Counter()
-        h2 = sorted((s for s in self.slots if s.hard == H2), key=lambda s: (len(rows_for[(s.primary, s.country)]), s.key))
-        for s in h2:
-            options = [r.id for r in rows_for[(s.primary, s.country)] if used[r.id] < row_cap]
-            if not options:
-                raise InfeasibleDemand(f"conflicting documents: no precedence row under the cap {row_cap} for "
-                                       f"{s.primary}/{s.country}")
-            choice = min(options, key=lambda r: (used[r], [x.id for x in hc.rows].index(r)))
-            s.row = choice
-            used[choice] += 1
-        # Band: each type that takes conflicting documents keeps its hard share inside the band.
+        self._check_band()
+
+    def _band_allows(self, give: str, take: str) -> bool:
+        """Moving a hard label from a slot of type ``give`` to one of type ``take`` keeps both inside the band."""
+        if give == take:
+            return True
+        lo, hi = (as_fraction(x) for x in self.gen.hard_cases.type_hard_share_band)
+
+        def share(t: str, delta: int) -> Fraction:
+            n_t = sum(len(v) for k, v in self.cells.items() if k[0] == t)
+            return Fraction((sum(1 for s in self.slots if s.primary == t and s.hard) + delta) * 100, n_t)
+
+        return share(give, -1) >= lo and share(take, 1) <= hi
+
+    def _check_band(self) -> None:
+        """Each type that takes conflicting documents keeps its hard share inside the band."""
+        hc = self.gen.hard_cases
         lo, hi = (as_fraction(x) for x in hc.type_hard_share_band)
-        for t in {k[0] for k in conflict_cells}:
+        for t in {k[0] for k in self.cells if not self.gen.type(k[0]).handover
+                  and any(k[1] in r.countries for r in hc.rows)}:
             n_t = sum(len(v) for k, v in self.cells.items() if k[0] == t)
             h_t = sum(1 for s in self.slots if s.primary == t and s.hard)
             if n_t and not lo <= Fraction(h_t * 100, n_t) <= hi:
@@ -546,7 +554,8 @@ class _Allocator:
         if tier.per_side == 0:
             return
         taken: set[int] = set()
-        for b in self.gen.boundaries:
+        # The boundaries whose branch needs a type of slot first, so the others don't take the few that fit.
+        for b in sorted(self.gen.boundaries, key=lambda b: not b.types):
             lo, hi = self.gen.windows[b.country]
             sides = {
                 "before": (max(lo, b.day - timedelta(days=tier.days)), b.day - timedelta(days=1)),
@@ -557,7 +566,8 @@ class _Allocator:
                     raise InfeasibleDemand(f"boundary {b.country} {b.day}: no {side} days inside the window")
                 pool = [s for s in self.slots if s.country == b.country and s.key not in taken
                         and not any(u.form in self._rule(u.rule).alone for u in s.rules)
-                        and not (s.mixed == "lines" and s.lines - sum(u.carrier == "line" for u in s.rules) < 2)
+                        and not (s.mixed == "lines" and s.lines - sum(
+                            u.carrier == "line" or self._rule(u.rule).takes_line for u in s.rules) < 1 + b.line)
                         and max(window[0], s.window[0]) <= min(window[1], s.window[1])
                         and (side == "before" or s.window[0] <= b.day)      # the after side starts on the day
                         and (not b.branch or self._takes_branch(s, b, side))]
@@ -581,11 +591,11 @@ class _Allocator:
             return False
         if set(b.exclude_types.get(side, ())) & set(s.types()):
             return False
-        if side in b.findings and any(u.carrier == "finding" for u in s.rules):
+        if side in b.findings and any(u.carrier == "finding" and u.rule != b.finding_rule for u in s.rules):
             return False                  # one finding per code: the branch's would hide the slot's
         used = self._tax(s) + (s.mixed == "split") + sum(
             1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line)
-        if s.lines - used < 1:
+        if b.line and s.lines - used < 1:
             return False
         if b.supplier and s.supplier and b.supplier != s.supplier:
             return False
@@ -603,6 +613,108 @@ class _Allocator:
         if b.supplier and any(self._rule(u.rule).domestic for u in s.rules) and s.foreign:
             return False
         return not s.foreign
+
+    # 4d. precedence rows for the conflicting-documents cases
+    def precedence_rows(self) -> None:
+        """Each H2 slot takes a precedence row it can carry (country, type, supplier side and kind, company kinds,
+        dates, a free line): fewest options first, then the least used row, within the cap per row."""
+        hc = self.gen.hard_cases
+        h2 = [s for s in self.slots if s.hard == H2]
+        row_cap = floor(len(h2) * as_fraction(hc.conflict_row_cap))
+        used: Counter = Counter()
+        # Rows that ride on a rule's line: a slot carrying the rule takes the row, its H2 label moved from a domestic
+        # H2 slot of the same type and country (which keeps its counts exact).
+        for row in hc.rows:
+            if not row.rides_on or row.line:
+                continue
+            for s in self._shuffled([s for s in self.slots if s.hard is None
+                                     and any(u.rule in row.rides_on for u in s.rules)], "rides", row.id):
+                if used[row.id] >= row_cap or not self._row_fits(s, row):
+                    continue
+                donor = next((x for x in sorted(h2, key=lambda x: x.key) if x.row is None and x.country == s.country
+                              and x.primary == s.primary and not x.foreign), None)
+                if donor is None:
+                    continue
+                donor.hard, s.hard = None, H2
+                h2 = [x for x in h2 if x is not donor] + [s]
+                self._take_row(s, row)
+                used[row.id] += 1
+        # The others: fewest fitting rows first, then the least used row. A slot no row fits under the cap (its lines
+        # all taken) passes its H2 label to an unlabelled slot that one fits: of the same type where one is free (in
+        # the same country first), else of another type (the hard total is exact and the plan sets no per-country
+        # count; each type's hard share stays in the band, checked below).
+        def rows_for(s: Slot) -> list:
+            return [r for r in hc.rows if (r.line or not r.rides_on) and used[r.id] < row_cap and self._row_fits(s, r)]
+
+        rest = sorted((s for s in h2 if s.row is None), key=lambda s: (len(rows_for(s)), s.key))
+        for s in rest:
+            fits = rows_for(s)
+            if not fits:
+                pool = self._shuffled([x for x in self.slots if x.hard is None and x.row is None
+                                       and not self.gen.type(x.primary).handover], "h2-swap", s.key)
+                # The same type first (the same country before another), then other types (keeping the band).
+                pool.sort(key=lambda x: (x.primary != s.primary, x.country != s.country))
+                swap = next((x for x in pool if rows_for(x) and self._band_allows(s.primary, x.primary)), None)
+                if swap is None:
+                    raise InfeasibleDemand(f"conflicting documents: no precedence row under the cap {row_cap} fits "
+                                           f"{s.primary}/{s.country}")
+                s.hard, swap.hard, s = None, H2, swap
+                fits = rows_for(s)
+            row = min(fits, key=lambda r: (used[r.id], [x.id for x in hc.rows].index(r.id)))
+            self._take_row(s, row)
+            used[row.id] += 1
+        self._check_band()
+
+    def _take_row(self, s: Slot, row) -> None:
+        """The slot carries the row: its supplier kind, company kinds and dates narrowed to the row's."""
+        s.row = row.id
+        kind = row.supplier.get(s.country, "")
+        s.supplier = s.supplier or kind
+        kinds = row.companies.get(s.country)
+        if kinds:
+            s.companies = tuple(sorted(set(kinds) & set(s.companies or kinds)))
+        lo, hi = row.windows.get(s.country, self.gen.windows[s.country])
+        assert s.window is not None
+        s.window = (max(lo, s.window[0]), min(hi, s.window[1]))
+
+    def _row_fits(self, s: Slot, row) -> bool:
+        if s.country not in row.countries or not set(s.types()) <= set(row.types):
+            return False
+        if row.line and any(self._rule(u.rule).whole_case for u in s.rules):
+            return False                  # a rule deciding every line would decide the row's line too
+        if row.foreign is not None and s.foreign != row.foreign:
+            return False
+        if row.unmixed and s.mixed is not None:
+            return False
+        if any(u.form in self._rule(u.rule).alone for u in s.rules):
+            return False                  # a rule that plants alone (its branch's own supplier) shares with no row
+        kind = row.supplier.get(s.country, "")
+        if kind and s.supplier and s.supplier != kind:
+            return False
+        needs = set(row.needs).union(*(self._rule(u.rule).needs for u in s.rules))
+        boundary = next((b for b in self.gen.boundaries if s.boundary and b.country == s.country
+                         and b.day == s.boundary[0] and b.branch == s.branch), None)
+        if boundary is not None:
+            needs |= set(boundary.needs)
+        if (kind or s.supplier) and needs & set(self.gen.supplier_lacks.get(kind or s.supplier, ())):
+            return False
+        if self.gen.needs_clash(needs):
+            return False
+        kinds = set(row.companies.get(s.country, ()))
+        if s.companies is not None and set(s.companies) <= set(self.gen.reserved_companies):
+            return False                  # a reserved company's case takes only what names its kind
+        if kinds and s.companies is not None and not kinds & set(s.companies):
+            return False
+        lo, hi = row.windows.get(s.country, self.gen.windows[s.country])
+        assert s.window is not None
+        if max(lo, s.window[0]) > min(hi, s.window[1]):
+            return False
+        ride = any(u.rule in row.rides_on and (u.form == CORRECT or not row.line) for u in s.rules)
+        if row.line:
+            used = self._tax(s) + (s.mixed is not None) + (s.boundary is not None) + sum(
+                1 for u in s.rules if u.carrier == "line" or self._rule(u.rule).takes_line or self._rule(u.rule).foreign)
+            return s.lines - used >= 1 or ride
+        return ride or not row.rides_on
 
     # 5. final order
     def order(self) -> None:

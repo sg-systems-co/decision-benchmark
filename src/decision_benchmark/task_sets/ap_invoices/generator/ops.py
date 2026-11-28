@@ -64,6 +64,12 @@ class Draft:
     """The split's turns (Turns.take): a recipe's branches in rotation rather than drawn."""
     types: tuple[str, ...] = ()
     """The slot's exception types (primary first)."""
+    conflict: dict | None = None
+    """H2: {"row": the precedence row, "says": what the invoice (or an email) states, "patches": the edits that put
+    that value in the governing document} (generator/hard.py check_conflict applies them; the key must change)."""
+    missing: list[dict] = field(default_factory=list)
+    """H3: the facts planted missing, each {"party": "line" | "company" | "supplier", "line": n, "fact": name,
+    "supply": a value that settles it} (the null-fact check states it and the hand-over must go)."""
     realized: dict = field(default_factory=dict)
     """Rule -> the rule the key names for it, where a recipe plants one of its branches that another rule decides (an
     imported service from a group company abroad is MS-8's branch, decided by group relief)."""
@@ -164,11 +170,36 @@ class Draft:
         return st
 
     def state(self, n: int, fact: str, value) -> None:
-        """State a line fact as a phrasebank phrase in the invoice line's description."""
+        """State a line fact as a phrasebank phrase: in the invoice line's description, or (one enum or yes/no fact in
+        five, in turn) in an email from the supplier about the invoice, cited by its character span."""
         country = self.cw.country
         phrase = phrases.express(country, fact, value, self.r)
-        self.statements().state_phrase(self.line(n), fact, phrases.json_value(country, fact, value), phrase,
+        value_json = phrases.json_value(country, fact, value)
+        kind = phrases.bank(country)[fact]["kind"]
+        if kind in ("enum", "bool") and self.turn("fact by email", ["email", "", "", "", ""]) == "email":
+            doc_id = self.fact_email()
+            sentence = phrases.emails()["fact_email"]["item"].format(line=n, phrase=phrase)
+            self.statements().state_in_email(self.line(n), fact, value_json, sentence, phrase, doc_id)
+            return
+        self.statements().state_phrase(self.line(n), fact, value_json, phrase,
                                        self.invoice["invoice_id"], f"lines[{n - 1}].description")
+
+    def fact_email(self) -> str:
+        """The case's email from the supplier that states line facts (made on first use); its message id."""
+        mid = f"M-{self.built.case_id}-facts"
+        if mid not in self.built.docs:
+            frame = phrases.emails()["fact_email"]
+            number = self.invoice["invoice_number"]
+            contact = self.supplier["contacts"][0]
+            domain = self.cw.company["people"][0]["email"].split("@")[1]
+            email = {"thread_id": f"T-{self.built.case_id}-facts", "message_id": mid, "company_id": self.cw.company_id,
+                     "case_id": self.built.case_id, "sent_at": f"{self.day}T{self.r.randrange(8, 18):02d}:05:00",
+                     "sender": {"name": contact["name"], "address": contact["email"]}, "to": [{"address": f"ap@{domain}"}],
+                     "subject": self.r.choice(frame["subjects"]).format(number=number),
+                     "body": self.r.choice(frame["openings"]).format(number=number), "intent": "other", "signals": []}
+            self.built.records.setdefault("emails_add", []).append(email)
+            self.statements().document(mid, email)
+        return mid
 
     def expect(self, n: int, treatment: str, basis: str, findings: tuple[str, ...] = (),
                actions: tuple[tuple[str, str | None, str | None], ...] = ()) -> None:

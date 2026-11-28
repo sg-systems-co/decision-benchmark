@@ -1,0 +1,12 @@
+# Emails the generator writes around a case's facts (B1-6): a supplier states some line facts in an email linked to
+# the invoice, and the gold facts cite them by character span. English starter set; B2 adds languages.
+fact_email:
+  subjects:
+  - "Details for invoice {number}"
+  - "Invoice {number}: line details"
+  - "Re: invoice {number}"
+  openings:
+  - "Hello, some details for invoice {number}:"
+  - "Dear Accounts Payable, for invoice {number} please note:"
+  - "Hi, to go with invoice {number}:"
+  item: "Line {line}: {phrase}."

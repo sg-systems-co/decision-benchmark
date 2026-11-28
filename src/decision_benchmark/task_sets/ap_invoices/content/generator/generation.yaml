@@ -31,18 +31,20 @@ hard_cases:
   missing_share_of_handover: '2/3'
   conflict_row_cap: '1/4'
   type_hard_share_band: ['30', '70']
-  # B1 plan §3.2a. Every type except the hand-over type can carry a precedence pattern: the key's tax lines, findings
-  # and reason codes follow the governing document whatever the decision.
+  # B1 plan §3.2a. Each row: the invoice states A, the governing document states B, the key follows B (B1-6: the
+  # pack's conflict planter, countries/*/conflicts.py; generator/hard.py checks that A in the governing document changes
+  # the key). Per row: the types, supplier side and kind, company kinds and dates its case needs (allocator
+  # precedence_rows), and whether it plants a line of its own.
   rows:
-  - {id: supplier_registration, countries: [MY, SG], types: &h2types [clean, tax_problem, price_mismatch, quantity_mismatch, invalid_invoice, duplicate, not_received, no_po_or_above_limit, bank_change]}
-  - {id: group_relation, countries: [MY], types: *h2types}
-  - {id: exemption_certificate, countries: [MY], types: *h2types}
-  - {id: zone, countries: [MY], types: *h2types}
-  - {id: contract_record, countries: [MY], types: *h2types}
-  - {id: time_of_supply, countries: [MY, SG], types: *h2types}
-  - {id: price, countries: [MY, SG], types: *h2types}
-  - {id: certificate_of_residence, countries: [MY, SG], types: *h2types}
-  - {id: partial_exemption, countries: [SG], types: *h2types}
+  - {id: supplier_registration, countries: [MY, SG], types: &plain [clean, price_mismatch, quantity_mismatch, duplicate, not_received, no_po_or_above_limit, bank_change], foreign: false, supplier: {MY: late_registrant, SG: sg_unregistered}, windows: {MY: ['2024-01-02', '2025-09-30']}, line: false, unmixed: true}
+  - {id: group_relation, countries: [MY], types: &h2types [clean, tax_problem, price_mismatch, quantity_mismatch, invalid_invoice, duplicate, not_received, no_po_or_above_limit, bank_change], foreign: false, companies: {MY: [it, fin, builder, plain]}, needs: [service, outside_group]}
+  - {id: exemption_certificate, countries: [MY], types: *h2types, foreign: false, companies: {MY: [builder, it, msme, fin, new_sme, plain]}, needs: [goods]}
+  - {id: zone, countries: [MY], types: *h2types, foreign: false, needs: [goods], rides_on: [MG-2]}
+  - {id: contract_record, countries: [MY], types: *h2types, foreign: false, supplier: {MY: landlord}, companies: {MY: [it, fin, builder, plain]}, windows: {MY: ['2025-07-01', '2026-06-30']}}
+  - {id: time_of_supply, countries: [MY, SG], types: [clean, price_mismatch, invalid_invoice, duplicate, bank_change], foreign: false, windows: {MY: ['2024-03-01', '2024-05-31'], SG: ['2024-01-01', '2024-03-31']}, needs: [service, gst], unmixed: true}
+  - {id: price, countries: [MY, SG], types: [price_mismatch], line: false}
+  - {id: certificate_of_residence, countries: [MY, SG], types: *plain, foreign: true, supplier: {MY: foreign_sg_nocert, SG: sg_foreign_my_nocert}, line: false, rides_on: [WH-1, WH-5]}
+  - {id: partial_exemption, countries: [SG], types: [clean, tax_problem, price_mismatch, quantity_mismatch, duplicate, not_received, no_po_or_above_limit, bank_change], companies: {SG: [partial]}, needs: [gst]}
 
 # B1 plan §3.3: at least 12% mixed (240 / 60 / 36), a third of them Malaysian §5-b split cases (80 / 20 / 12).
 mixed:
@@ -82,15 +84,18 @@ special_suppliers:
 # registered for service tax (MS-9 through an FRP's digital service) and one regulated by Labuan FSA (MS-5, B2B order
 # item 6), which most rules' recipes don't fit.
 reserved_companies: [unregistered, labuan, phase_unknown]
-# A company whose record doesn't show its e-invoicing phase takes a quarter of the Malaysian hand-over slots (review of
-# the B1-5 fixes, within the 3% share): its families (hardcases/einvoice_phase_unknown.yaml) hand over on ME-3.
+# A company whose record doesn't show its e-invoicing phase takes a quarter of the Malaysian missing-information (H3)
+# slots (review of the B1-5 fixes, within the 3% share): its family (hardcases/einvoice_phase_unknown.yaml) hands over
+# on ME-3.
 handover_companies: {phase_unknown: '1/4'}
 supplier_lacks:
   co_owner: [service, goods, phase, phase1, b2b]
-  government: [not_public_scope, b2b, reg_3a]
-  local_authority: [not_public_scope, b2b, reg_3a]
+  government: [not_public_scope, b2b, reg_3a, outside_group]
+  local_authority: [not_public_scope, b2b, reg_3a, outside_group]
   sg_unregistered: [gst]
-  group: [b2b]
+  group: [b2b, outside_group]
+  late_registrant: [service, goods, b2b]
+  landlord: [goods, b2b, reg_3a]
   k4_landlord: [b2b, reg_3a]
   l1_contractor: [b2b, reg_3a]
   einv_small: [goods, phase, phase1]
@@ -125,7 +130,7 @@ boundaries:
 - {country: MY, day: '2024-08-01', note: 'ME-1 implementation, above RM100m', branch: me3_phase_1, companies: [it]}
 - {country: MY, day: '2024-11-27', note: '0.10.3: wellness T&CM premises exclusion (P.U. (A) 354/2024 para 2(c))', branch: wellness_tcm, needs: [service]}
 - {country: MY, day: '2025-01-01', note: 'ME-1 implementation, RM25m-100m', branch: me3_phase_2, companies: [fin]}
-- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}, findings: [after]}
+- {country: MY, day: '2025-02-01', note: 'ME-1 relaxation ends 31 Jan 2025', branch: me1_relaxation_end, needs: [phase1], types: {after: [invalid_invoice]}, exclude_types: {before: [invalid_invoice]}, findings: [after], finding_rule: ME-1, line: false}
 - {country: MY, day: '2025-05-30', note: '0.10.3: MS-7 area order items 5 and 7 (P.U. (A) 165/2025)', branch: ms7_items_5_7, needs: [service]}
 - {country: MY, day: '2025-07-01', note: '2025 SST expansion and orders; ME-1 RM5m-25m and relaxation end 30 Jun 2025; K-1, K-4, K-5/L-7 start', branch: scope_2025, companies: [it, fin, plain, msme, new_sme], needs: [service, not_public_scope, b2b]}
 - {country: MY, day: '2025-09-01', note: '0.10.3: P-9 foreign-company buyers'}

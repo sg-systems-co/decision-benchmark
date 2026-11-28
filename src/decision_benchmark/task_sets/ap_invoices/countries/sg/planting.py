@@ -8,7 +8,7 @@ reads, and says what the engine must find, from the rule sheet for the situation
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Callable
 
@@ -78,6 +78,8 @@ SG_SPECIAL_SUPPLIERS = (
                     homes=("JP", "CN", "GB"), residence=True, facts=dict(NO_BRANCH)),
     SpecialSupplier("sg_ovr", ("it_services",), foreign=True, homes=("US", "GB", "IN"), registered_for=("service",),
                     registration_type="ovr", facts=dict(NO_BRANCH)),
+    SpecialSupplier("sg_foreign_my_nocert", ("business_consultancy", "it_services"), foreign=True, homes=("MY",),
+                    facts=dict(NO_BRANCH)),
     SpecialSupplier("sg_fx", ("industrial_valves", "bearings", "hand_tools", "advertising", "business_consultancy",
                               "security_guards"), currency="USD", ordinary=True),
 )
@@ -459,6 +461,37 @@ def unconfirmed_treaty(d, n: int) -> None:
         d.planted_line(n, T.REVERSE_CHARGE.value, "SG-8")
 
 
+SG_MISSING = ("staff_medical", "insurance", "motor_car")
+"""H3 (missing information) on a domestic case, in turn: staff medical costs or staff insurance that don't say whether
+they're obligatory, a car that doesn't say whether it's a motor car (SG-10); for a partially exempt buyer, a purchase
+that doesn't say what it's for (SG-9). On a foreign case: a technical fee that doesn't say where the work was done
+(WH-5)."""
+
+
+def missing_information(d, n: int) -> None:
+    """Plant H3 on line n: a fact the engine needs, with no ordinary default, stated in no document of the case, so the
+    case hands over with that rule as basis (B1 plan section 3.2)."""
+    if foreign(d):
+        no_gst(d, n, "technical_services_from_abroad", "SG-8", actions=_reverse(d))
+        if not full_credit(d.cw.company):
+            d.planted_line(n, T.REVERSE_CHARGE.value, "SG-8")
+        d.missing.append({"party": "line", "line": n, "fact": "place_of_performance", "supply": "in_country"})
+        return                                  # where the work was done is in no document: WH-5
+    need_registered(d, "missing information")
+    if partially_exempt(d.cw.company):
+        d.set_line(n, d.r.choice(PLAIN_SERVICES), rate_on(d.day), ext(True))
+        d.planted_line(n, None, "SG-9")         # what the purchase is for: SG-9
+        d.missing.append({"party": "line", "line": n, "fact": "purchase_attribution", "supply": "taxable"})
+        return
+    variant = d.turn("H3 SG", list(SG_MISSING))
+    category = {"staff_medical": "staff_medical", "insurance": "group_medical_insurance"}.get(variant)
+    d.set_line(n, category or d.r.choice(MOTOR_CARS), rate_on(d.day), ext(True))
+    d.planted_line(n, None, "SG-10")
+    fact = {"staff_medical": "staff_medical_obligatory", "insurance": "insurance_obligatory"}.get(variant,
+                                                                                                "vehicle_is_motor_car")
+    d.missing.append({"party": "line", "line": n, "fact": fact, "supply": True})
+
+
 # -- the 1 Jan 2024 branch, partial exemption, mixed lines --------------------------------------------------------
 
 SG_BRANCHES: dict[str, Recipe] = {}
@@ -648,3 +681,95 @@ SG_CASE_FACTS = tuple(
      lambda c, n, tax: any(f.code.value == "NEAR_DUPLICATE" for f in c.answer.findings)),
 )
 """Case-level: (rule, name, what it is, holds(case, None, tax result))."""
+
+
+# -- conflicting documents (B1-6, H2): the invoice states A, the governing document B, the key follows B --------------
+
+def _note(d, row: str, **values) -> str:
+    from ...generator import phrases
+
+    text = phrases.conflict("SG", row, d.r, **values)
+    d.invoice.setdefault("notes", []).append(text)
+    return text
+
+
+def plant_conflict(d, n: int | None, row: str) -> None:
+    """Plant the precedence row's conflict on line n (None: a row that plants no line of its own). Records what the
+    invoice says and the patches that put it in the governing document (generator/hard.py check_conflict)."""
+    SG_CONFLICTS[row](d, n)
+
+
+def _c_supplier_registration(d, n) -> None:
+    """A supplier not registered for GST prints a GST registration number; it charges no GST, rightly (the supplier
+    record governs, SG-4)."""
+    if d.supplier_kind != "sg_unregistered" or registered(d.supplier, d.day):
+        raise CannotPlant("supplier_registration needs the unregistered supplier")
+    number = f"M9{d.r.randrange(10**7):07d}{d.r.choice('ABCDEFGHJKLMNPQRSTUVWXYZ')}"
+    d.invoice["einvoice"]["supplier_gst_no"] = number
+    says = _note(d, "supplier_registration", number=number)
+    d.conflict = {"row": "supplier_registration", "says": says, "patches": [
+        {"target": "supplier", "path": "tax_registrations", "op": "append",
+         "value": {"scheme": "SG_GST", "number": number, "type": "local", "valid_from": "2015-01-01"}}]}
+
+
+def _c_time_of_supply(d, n) -> None:
+    """A service performed in December 2023 and invoiced in early 2024 at 8%: the goods receipt shows when it was
+    performed (SG-3), not the issue date."""
+    import copy
+
+    need_registered(d, "time_of_supply")
+    if d.gr is None or d.po is None:
+        raise CannotPlant("time_of_supply needs the goods receipt")
+    performed = day_between(d.r, date(2023, 12, 1), date(2023, 12, 28))
+    d.po["po_date"] = str(min(date.fromisoformat(d.po["po_date"]), performed - timedelta(days=d.r.randint(10, 30))))
+    standard(d, n, d.r.choice(PLAIN_SERVICES), "SG-3", Decimal(8))
+    # The line's own service confirmation, dated when the work was done; the main receipt records none of it.
+    gr = copy.deepcopy(d.gr)
+    gr.update(gr_number=f"{d.gr['gr_number']}-B", gr_date=str(performed), kind="service_confirmation")
+    gr["lines"] = [dict(x) for x in d.gr["lines"] if x.get("po_line_no") == n]
+    for x in d.gr["lines"]:
+        if x.get("po_line_no") == n:
+            x["qty_received"] = 0
+    d.built.records["goods_receipts"].append(gr)
+    d.statements().document(gr["gr_number"], gr)
+    d.statements().state(d.line(n), "delivery_date", gr["gr_number"], "gr_date")
+    d.conflict = {"row": "time_of_supply", "says": f"issue date {d.day.isoformat()}", "patches": [
+        {"target": "invoice", "path": f"lines[{n - 1}].facts.delivery_date", "op": "delete"}]}
+
+
+def _c_price(d, n) -> None:
+    from ...generator.conflicts import price_conflict
+
+    d.final.append(lambda: price_conflict(d, "SG"))
+
+
+def _c_certificate_of_residence(d, n) -> None:
+    """WH-5's payment to a payee resident in Malaysia with no certificate of residence in the records: the domestic
+    rate, though the invoice claims the treaty rate (the row rides on WH-5's line)."""
+    if d.supplier_kind != "sg_foreign_my_nocert":
+        raise CannotPlant("certificate_of_residence needs the uncertified treaty resident")
+    if not any(a[0] == WITHHOLD_TAX and a[2] == "WH-5" for acts in d.built.planted.line_actions.values() for a in acts):
+        raise CannotPlant("certificate_of_residence rides on WH-5's withholding line")
+    says = _note(d, "certificate_of_residence", country="Malaysia")
+    d.conflict = {"row": "certificate_of_residence", "says": says, "patches": [
+        {"target": "records", "path": "residence_certificates", "op": "append",
+         "value": {"certificate_id": f"COR-H2-{d.built.case_id}", "supplier_id": d.built.case["supplier_id"],
+                   "country": "MY", "valid_from": "2020-01-01", "valid_to": None}}]}
+
+
+def _c_partial_exemption(d, n) -> None:
+    """A partially exempt buyer: nothing on the invoice says so; the company record decides its claims (SG-9) and
+    its reverse charge (SG-8). Line n: a purchase it claims (finish states its attribution)."""
+    if not partially_exempt(d.cw.company):
+        raise CannotPlant("partial_exemption needs a partially exempt buyer")
+    if n is not None and not foreign(d):
+        standard(d, n, d.r.choice(PLAIN_SERVICES))      # a claim the record decides (finish: SG-9)
+    # (From a foreign supplier, its imported services are reverse-charged because the buyer is partially exempt.)
+    d.conflict = {"row": "partial_exemption", "says": "", "patches": [
+        {"target": "company", "path": "tax_facts.input_tax_status", "value": "fully_taxable"}]}
+
+
+SG_CONFLICTS = {"supplier_registration": _c_supplier_registration, "time_of_supply": _c_time_of_supply,
+                "price": _c_price, "certificate_of_residence": _c_certificate_of_residence,
+                "partial_exemption": _c_partial_exemption}
+"""The Singapore precedence rows' planters (generation.yaml hard_cases.rows)."""

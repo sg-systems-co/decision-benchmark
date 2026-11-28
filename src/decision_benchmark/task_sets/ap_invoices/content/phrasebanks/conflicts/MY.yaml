@@ -1,0 +1,25 @@
+# Conflicting documents (B1-6, H2), Malaysia, English: what the invoice (or a supplier email) says, value A, where the
+# governing document in the precedence table (B1 plan section 3.2a) says B and the key follows B. One template per
+# variant, {name} filled from the case. generator/phrases.py loads it (conflict).
+conflicts:
+  supplier_registration:
+  - "SST registration no. {number}"
+  - "Registered for SST, no. {number}"
+  group_relation:
+  - "Group relief applies: supplied within our group of companies"
+  - "Intra-group supply, no service tax under group relief"
+  exemption_certificate:
+  - "Exempt under your sales tax exemption certificate no. {number}"
+  - "Sales tax exemption: certificate no. {number} on file"
+  zone:
+  - "Ship to: Lot 12, Jalan Pandak Mayah, 07000 Kuah, Langkawi"
+  - "Deliver to: Kawasan Perindustrian Kuah, Langkawi"
+  contract_record:
+  - "Rent under our fixed-price tenancy agreement signed {signed}, with no price review clause"
+  - "Fixed rent for the full term of the agreement signed {signed}; no price review"
+  certificate_of_residence:
+  - "We are resident in {country} for tax purposes; the treaty rate applies"
+  - "Treaty resident of {country}: please withhold at the treaty rate"
+  price:
+  - "As agreed with your purchasing team, the unit price is now {price}."
+  - "Following our call, the new unit price of {price} applies from this invoice."

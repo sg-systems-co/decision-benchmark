@@ -38,6 +38,16 @@ Engine: 0.10.5. Rules as of: 2026-11-27.
 - The supplier record states the facts that fix the phase (`einvoice`: turnover band, turnover basis, commencement date, the date turnover reached RM1m) instead of a phase start date; the unused free-text `turnover_band` is gone. Three supplier kinds are added for the exempt persons (foreign diplomatic office, individual not conducting business, international organisation). A statutory body or local authority is exempt for supplies before 1 Jul 2025 and, after that, for statutory fees and charges only (the line fact `statutory_fee_amount`).
 - A validated e-invoice now settles ME-1 before the supplier's phase is looked at, so an unknown phase no longer hands over an invoice that has one; an unknown phase hands over only from 1 Feb 2025, when it can decide.
 
+### Generator B1-6: hard cases
+
+- **H1 scan-only:** the invoice ships as a scan, a photo or a PDF only (4 / 3 / 3 in every 10). The generator truth says `scan_only`; B1-7's export withholds the structured record.
+- **H3 missing information**, in the Ambiguous slots given H3: a fact the rules need, with no ordinary default, is in no document, so the case hands over with that rule as basis. Malaysia: MS-3, MS-4, WH-2, and the supplier's or the buyer's own e-invoicing phase (ME-1, ME-3). Singapore: SG-10, SG-9, WH-5. The null-fact check: the fact is stated nowhere, and stating it ends the hand-over.
+- **H2 conflicting documents**, from the precedence table only: each case's invoice (or a supplier email) states value A where the governing document states B, and the key follows B. The counterfactual check puts A in the governing document, and the key must change. All nine rows are planted, each within a quarter of a split's H2 cases. The allocator assigns rows after the rule floor and moves an H2 label to a slot that can carry a row where needed (the hard total and each type's band are kept).
+- **Spans:** one in five enum or yes/no line facts a recipe states is said in an email from the supplier, cited by character span and quote; the acceptance check reads spans back.
+- **New committed text:** conflict statements (`content/phrasebanks/conflicts/`) and the fact email's framing (`content/phrasebanks/emails.yaml`).
+- **New special suppliers:** a landlord with a reviewable tenancy, and treaty-resident payees without a certificate of residence, one for each country.
+- **Generic additions:** precedence rows' supplier, companies, windows, needs, line, `rides_on` and `unmixed`; a template's `hard`; `Draft.conflict` and `Draft.missing`; `generator/hard.py` (both checks). No answer key changes (engine untouched).
+
 ### Generator B1-5, review of the fixes (engine 0.10.5)
 
 - Engine 0.10.5 (separate PR): the uncharged MS-3 form (paid before the 1 Jul 2025 scope start, no tax due) is planted at the branch floor; a de minimis buyer's exempt or residual line plants with basis SG-9.

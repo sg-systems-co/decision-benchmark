@@ -122,4 +122,25 @@ def _read(kind: str, text: str) -> Any:
     return text
 
 
-__all__ = ["PhraseError", "bank", "can_express", "express", "json_value", "parse"]
+@cache
+def emails() -> dict:
+    """The framing of the emails that state facts (content/phrasebanks/emails.yaml)."""
+    return yaml.safe_load((CONTENT / "phrasebanks" / "emails.yaml").read_text(encoding="utf-8"))
+
+
+@cache
+def conflicts(country: str) -> dict[str, list[str]]:
+    """The invoice-side statements of conflicting documents (H2), per precedence row (content/phrasebanks/conflicts)."""
+    path = CONTENT / "phrasebanks" / "conflicts" / f"{country}.yaml"
+    return yaml.safe_load(path.read_text(encoding="utf-8"))["conflicts"]
+
+
+def conflict(pack_country: str, row: str, r: random.Random, **values: Any) -> str:
+    """A statement of value A for the precedence row, filled from the case."""
+    templates = conflicts(pack_country).get(row)
+    if not templates:
+        raise PhraseError(f"no conflict phrase for {pack_country} {row}")
+    return r.choice(templates).format(**values)
+
+
+__all__ = ["PhraseError", "bank", "can_express", "conflict", "conflicts", "emails", "express", "json_value", "parse"]

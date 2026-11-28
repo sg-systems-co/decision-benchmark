@@ -30,7 +30,7 @@ from decision_benchmark.core.generator.quotas import as_fraction
 from decision_benchmark.core.generator.slots import Allocation, Slot, allocate
 from decision_benchmark.core.generator.spec import Generation, SplitSpec
 
-from decision_benchmark.core.generator.slots import PROBLEM
+from decision_benchmark.core.generator.slots import H1, H2, H3, PROBLEM
 from decision_benchmark.core.generator.spec import RuleSpec
 
 from ..countries import pack
@@ -71,6 +71,14 @@ class GeneratedCase:
     """The dated branch the case plants, "<branch>:<side>" (generation.yaml boundaries)."""
     realized: dict[str, str] = field(default_factory=dict)
     """A slot rule planted as one of its branches that another rule decides: slot rule -> the rule in the key."""
+    hard: str | None = None
+    """The hard kind the slot was given (H1 scan-only, H2 conflicting documents, H3 missing information)."""
+    row: str | None = None
+    """H2: the precedence row (generation.yaml hard_cases.rows)."""
+    missing: list[dict] = field(default_factory=list)
+    """H3: the facts planted missing (Draft.missing)."""
+    conflict: dict | None = None
+    """H2: what the invoice says and the patches that put it in the governing document (Draft.conflict)."""
 
     def export(self) -> dict:
         """The case as JSON-ready data: envelope, the records the case adds, the answer key, the generator truth."""
@@ -89,8 +97,17 @@ class GeneratedCase:
             "planted_rules": self.rules,
             "branch": self.branch,
             "open_questions": self.built.planted.open_questions,
+            "hard_kinds": [self.hard] if self.hard else [],
+            "precedence_row": self.row,
+            "scan_only": self.hard == H1,
+            "missing_facts": self.missing,
+            "conflict": self.conflict,
             "attempt": self.built.attempt,
         }
+
+
+SCAN_ONLY_MODALITIES = ("scan", "photo", "pdf", "scan", "photo", "pdf", "scan", "photo", "pdf", "scan")
+"""The scan-only invoice files in turn: 4 scans, 3 photos, 3 PDFs in every 10 (B1 plan decision 11)."""
 
 
 @dataclass
@@ -290,8 +307,9 @@ def assign_companies(gen: Generation, slots: list[Slot], world: dict[str, list[C
     seen: Counter = Counter()
     handovers: Counter = Counter()
     for s in sorted(slots, key=lambda s: s.case_index):
-        if gen.type(s.primary).handover and s.companies is None:
-            # A hand-over kind takes its share of the country's hand-over slots (one in every 1/share, where it has a company).
+        if gen.type(s.primary).handover and s.hard == H3 and s.companies is None:
+            # A hand-over kind takes its share of the country's missing-information slots (one in every 1/share, where
+            # it has a company).
             i, handovers[s.country] = handovers[s.country], handovers[s.country] + 1
             took = None
             for kind, share in sorted(gen.handover_companies.items()):
@@ -319,10 +337,17 @@ def _rules(gen: Generation) -> dict[str, RuleSpec]:
     return {r.id: r for r in gen.rules}
 
 
+def planted_hard_kinds() -> set[str]:
+    """The hard kinds some family plants (Template.hard)."""
+    return {t.hard for ts in templates().values() for t in ts if t.hard}
+
+
 def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> bool:
     """A drawn family's rule can join the slot: its problem form on the slot's dates, supplier and company."""
     if t.foreign is not None and t.foreign != slot.foreign:
         return False
+    if t.hard != (slot.hard if slot.hard in planted_hard_kinds() else None):
+        return False                   # a hard kind some family plants comes only from such a family
     if t.companies and cw.kind not in t.companies:
         return False
     if cw.kind in gen.handover_companies and cw.kind not in t.companies:
@@ -350,6 +375,8 @@ def family_fits(gen: Generation, t: Template, slot: Slot, cw: CompanyWorld) -> b
         return False
     if r.whole_case and slot.mixed:
         return False                   # it decides every line, so the case can't be a mixed one
+    if r.whole_case and slot.row and next(x for x in gen.hard_cases.rows if x.id == slot.row).line:
+        return False                   # nor carry a precedence row's own line
     if slot.lines < r.min_lines.get(PROBLEM, 1):
         return False
     if r.supplier and slot.supplier and r.supplier != slot.supplier:
@@ -498,6 +525,10 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         needs |= set(boundary.needs)
     if slot.mixed == "split":
         needs |= set(gen.mixed.split_needs)
+    needs |= {x for t in families for x in t.needs}
+    if slot.row:
+        # A precedence row's case: what its supplier must do (a supplier offered in turn must do it too).
+        needs |= set(next(r for r in gen.hard_cases.rows if r.id == slot.row).needs)
     turns = Turns(build.turns, attempt)
     try:
         window = _window(gen, slot, [(rules[x], PROBLEM) for x in family_rules])
@@ -520,11 +551,12 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         if boundary is not None:
             free = [k for k in range(1, len(d.invoice["lines"]) + 1)
                     if k not in taken and not (family_rules and k == 1)]
-            if not free:
+            if not free and boundary.line:
                 raise CannotPlant(f"no free line for the {boundary.branch} branch")
-            g.plant_branch(d, free[0], boundary.branch, slot.boundary[1])
+            g.plant_branch(d, free[0] if boundary.line else 0, boundary.branch, slot.boundary[1])
             branch = f"{boundary.branch}:{slot.boundary[1]}"
-            taken.add(free[0])
+            if boundary.line:
+                taken.add(free[0])
         if slot.mixed == "split" and g.plants_rules:
             free = [k for k in range(1, len(d.invoice["lines"]) + 1)
                     if k not in taken and not (family_rules and k == 1)]
@@ -532,6 +564,20 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
                 raise CannotPlant("no free line for the split")
             g.plant_split(d, free[0])
             taken.add(free[0])
+        if slot.hard == H2 and slot.row and g.plants_rules:
+            row = next(r for r in gen.hard_cases.rows if r.id == slot.row)
+            line = None
+            if row.line:
+                free = [k for k in range(1, len(d.invoice["lines"]) + 1)
+                        if k not in taken and not (family_rules and k == 1)]
+                if slot.mixed == "lines":
+                    free = free[:-1]                       # the last free line is the mixing line's (_mix)
+                if not free and not row.rides_on:
+                    raise CannotPlant(f"no free line for the {row.id} conflict")
+                line = free[0] if free else None          # None: it rides on a planted line (rides_on)
+                if line is not None:
+                    taken.add(line)
+            g.plant_conflict(d, line, row.id)
         if g.plants_rules:
             g.finish_case(d)
         if slot.mixed == "lines" and g.plants_rules:          # before the families' ops, which scale amounts
@@ -544,15 +590,25 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         for fn in d.late:
             fn()
         d.refresh()
-    for fn in d.final:                                        # edits the last refresh would undo
-        fn()
+    try:
+        for fn in d.final:                                    # edits the last refresh would undo
+            fn()
+    except CannotPlant as e:
+        _tally(build, families, built.planted, "cannot plant", str(e), planted_rules, _branch_names(boundary))
+        return None, f"cannot plant: {e}", names
+    if slot.hard == H2 and g.plants_rules and d.conflict is None:
+        raise PlantingFailed(f"slot {slot.case_index}: the {slot.row} conflict recorded no patch")
     types = [slot.primary] + ([slot.secondary] if slot.secondary else [])
     built.planted = planted_truth(built, families, d)
     built.case |= {"exception_types": [] if slot.primary == "clean" else types,
                    "families": [t.family for t in families] or ["clean_base"],
                    "two_problems": slot.secondary is not None}
+    modality = "pdf"
+    if slot.hard == H1:
+        # Scan-only: the invoice ships as a scan, a photo or a PDF only (B1 plan decision 11: 40 / 30 / 30), in turn.
+        modality = turns.take("H1 modality", list(SCAN_ONLY_MODALITIES))
     env = envelope(built.case_id, split.name, Case.model_validate(built.case), provenance=provenance,
-                   canary=split.canary)
+                   canary=split.canary, modality=modality)
     records = companies.records_for(built)
     try:
         answer = answer_case(records, env, catalog())
@@ -564,7 +620,8 @@ def attempt_slot(gen: Generation, split: SplitSpec, cw: CompanyWorld, slot: Slot
         _tally(build, families, built.planted, None, "", planted_rules, _branch_names(boundary))
         turns.commit()
         planted = list(dict.fromkeys(d.realized.get(x, x) for x in planted_rules))
-        return GeneratedCase(built, env, records, answer, names, planted, branch, dict(d.realized)), "", names
+        return GeneratedCase(built, env, records, answer, names, planted, branch, dict(d.realized), slot.hard,
+                             slot.row, list(d.missing), d.conflict), "", names
     _tally(build, families, built.planted, cause_of(diffs, built.planted, answer), "; ".join(diffs), planted_rules,
            _branch_names(boundary))
     return None, "; ".join(diffs), names

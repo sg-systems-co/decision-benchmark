@@ -1,0 +1,11 @@
+# Conflicting documents (B1-6, H2), Singapore, English: as content/phrasebanks/conflicts/MY.yaml.
+conflicts:
+  supplier_registration:
+  - "GST Reg. No. {number}"
+  - "GST registration no. {number}"
+  certificate_of_residence:
+  - "We are resident in {country} for tax purposes; the treaty rate applies"
+  - "Treaty resident of {country}: please withhold at the treaty rate"
+  price:
+  - "As agreed with your purchasing team, the unit price is now {price}."
+  - "Following our call, the new unit price of {price} applies from this invoice."

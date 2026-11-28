@@ -1,0 +1,21 @@
+# B1-6, H3: a supplier whose record doesn't show its e-invoicing phase sends an ordinary invoice; from 1 Feb 2025,
+# when a supplier can be past its relaxation period, that decides (HAND_OVER, ME-1). Earlier, the recipe plants
+# another missing fact.
+family: missing_einvoice_phase
+version: 1
+countries: [MY]
+primary_type: ambiguous
+hard: H3
+supplier: einv_unknown
+foreign: false
+weight: 1
+summary: 'H3: an ordinary invoice from a supplier whose record doesn''t show its e-invoicing phase: HAND_OVER (ME-1).'
+params: {}
+ops:
+- op: plant_handover
+  args:
+    line: 1
+    kind: missing_information
+expect:
+  decision: HAND_OVER
+  findings: []

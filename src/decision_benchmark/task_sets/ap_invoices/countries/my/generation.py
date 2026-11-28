@@ -235,9 +235,12 @@ class MalaysiaGeneration:
         planting.plant_branch(d, line, branch, side)
 
     def plant_handover(self, d, line: int, kind: str) -> None:
-        if kind != "einvoice_phase_unknown":
+        if kind != "missing_information":
             raise CannotPlant(f"no Malaysian hand-over recipe {kind}")
-        planting.einvoice_phase_unknown(d, line)
+        planting.missing_information(d, line)
+
+    def plant_conflict(self, d, line: int | None, row: str) -> None:
+        planting.plant_conflict(d, line, row)
 
     def plant_split(self, d, line: int) -> None:
         planting.plant_split(d, line)
@@ -263,12 +266,15 @@ class MalaysiaGeneration:
                 return special(turns.take("MS-8 supplier", ["foreign_group", "frp_group", "frp", "frp"]))
             skip = set().union(*(cw.special.get(k, []) for k in ("foreign_pe", *planting.OFFERED_IN_TURN)))
             return [s for s in cw.suppliers if s["country"] != self.country and s["supplier_id"] not in skip]
+        plain = {x for x in needs if x not in ("shared", "foreign_turn", "me4_turn")
+                 and not x.startswith(("zone_turn", "late_turn"))}
         zone = next((x for x in sorted(needs) if x.startswith("zone_turn")), None)
         if alone and zone and turns is not None:
             # MG-5's branches that turn on where the manufacturer is, in turn with ordinary suppliers (per form).
             which = turns.take(zone, ["", "fz_maker", "da_maker", "", "fz_maker", "jda_maker"])
-            if which:
-                return special(which)
+            fits = [x for x in special(which) if planting.supplier_fits(x, plain, day)] if which else []
+            if fits:
+                return fits                 # (a precedence row's needs can rule the makers out: then an ordinary one)
         if "me4_turn" in needs and turns is not None and cw.kind not in planting.B2B_KINDS:
             # ME-4: in turn, the supplier that invoices in US dollars (its invoice leaves off the ringgit amounts) and
             # one exempt from e-invoicing (its ordinary invoice leaves off a line's description); a buyer that

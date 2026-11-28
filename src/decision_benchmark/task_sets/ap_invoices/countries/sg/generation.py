@@ -133,9 +133,15 @@ class SingaporeGeneration:
         fn(d, line, side)
 
     def plant_handover(self, d, line: int, kind: str) -> None:
+        if kind == "missing_information":
+            planting.missing_information(d, line)
+            return
         if kind != "unconfirmed_treaty":
             raise CannotPlant(f"no hand-over recipe {kind}")
         planting.unconfirmed_treaty(d, line)
+
+    def plant_conflict(self, d, line: int | None, row: str) -> None:
+        planting.plant_conflict(d, line, row)
 
     def plant_split(self, d, line: int) -> None:
         raise CannotPlant("no Singapore split cases (the §5-b splits are Malaysian)")

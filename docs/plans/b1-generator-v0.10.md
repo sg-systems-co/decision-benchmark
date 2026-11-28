@@ -428,6 +428,36 @@ Choices made while building B1-4 that the plan didn't fix. None changes a rule o
   - a company that is itself exempt from e-invoicing (accepted);
   - ME-3's phase not shown before 1 Aug 2024 (planted only when a phase-unknown hand-over case falls before that date).
 
+## 8d. Built in B1-6 (hard cases), for review
+
+- **H1 scan-only.** The slot's case ships its invoice as a scan, a photo or a PDF only, in turn 4 / 3 / 3 in every 10 (decision 11). In B1 the case keeps its structured record internally (the engine reads it, evidence paths point into it, decision 7); the generator truth says `scan_only`, and B1-7's export withholds `invoice_json`.
+- **H3 missing information** (the Ambiguous slots given H3). The family `missing_information` has each country's recipe pick the fact in turn:
+  - Malaysia: a service period with a start but no end (MS-3); an education fee from 1 Jul 2025 without the provider's kind (MS-4); technical advice from abroad without where it was performed (WH-2).
+  - Malaysian party records: a supplier record without its e-invoicing phase gives ME-1 (family `missing_einvoice_phase`, from 1 Feb 2025); the buyer record without its own phase gives ME-3 (`phase_unknown`, a quarter of the Malaysian H3 slots).
+  - Singapore: staff medical costs or insurance without whether they're obligatory, a car without whether it's a motor car (SG-10); a partially exempt buyer's purchase without its attribution (SG-9); a technical fee from abroad without where the work was done (WH-5).
+  - **Null-fact check:** the fact is stated nowhere: not as a line fact, not in an invoice field, no text of the line, the notes or the case's emails reads back to it, and a party record exports it as null with its `*_known` flag false. Stating it ends the hand-over (re-running the engine).
+  - The engine's gold facts don't list a missing fact as null, and adding that would change every key, so the generator truth records it (`missing_facts`).
+- **H2 conflicting documents.** Each H2 case carries a precedence row. Its planter (`countries/*/planting.py` CONFLICTS; price in `generator/conflicts.py`) puts value A on the invoice, or in a supplier email for price, while the governing document holds B. It also records patches that would put A in the governing document. **Counterfactual check:** with the patches applied, the key (decision, line treatments and bases, findings, buyer actions) must change. A case where A leaves the rules open beside another problem (the engine's `UnsupportedCase`) counts as changed.
+
+| Row | The invoice says (A) | Governs (B) | Patch |
+| --- | --- | --- | --- |
+| supplier_registration | an SST / GST number (MY: the supplier registers from 1 Oct 2025; SG: not registered) | the supplier record on the date | registration from before the date |
+| group_relation (MY) | "group relief applies" on a group-relief service, taxed | the company's group structure (no relation) | the supplier in the group, within 5% |
+| exemption_certificate (MY) | "exempt under certificate no. …" on goods the certificate doesn't cover | the certificate in the policy pack | the goods added to it |
+| zone (MY) | a Langkawi ship-to address on PCA goods, taxed | the master's zone (never an address) | the line's delivery zone Langkawi |
+| contract_record (MY) | "fixed rent, no price review" (rental, K-4 window) | the tenancy record (with a review clause) | no review clause |
+| time_of_supply | the issue date only (MY: 8% service in Feb 2024 at 6%, invoiced Mar–May; SG: performed Dec 2023, invoiced Jan–Mar 2024 at 8%) | MY the service period on the invoice; SG the line's own service confirmation | the period or delivery date removed |
+| price | an email: the higher price was agreed | the PO with approved amendments | the invoiced price on the PO |
+| certificate_of_residence | "treaty resident, treaty rate applies" | the policy pack (no certificate) | a certificate of residence |
+| partial_exemption (SG) | nothing | the company record (partially exempt) | fully taxable |
+
+- **Allocation.** Rows are assigned after the rule floor and the boundaries, so each H2 slot gets a row it can carry. A row can carry its case if these match: the slot's types, supplier side and kind (new special suppliers: a landlord with a reviewable tenancy, a Singapore-resident payee without a certificate, and a Malaysian-resident payee without one for Singapore buyers), company kinds, dates, and a free line. Two rows ride on a rule's line instead of a line of their own: `zone` on MG-2's correct form, and `certificate_of_residence` on WH-1 / WH-5. An H2 slot no row fits passes its label to an unlabelled slot that one fits, first of the same country and type, then of the same country, then of another country. The plan sets the hard total and each type's band, not a count per country; the band is re-checked.
+  - Malaysian lines are the binding constraint: after the rule floor about a quarter of them are free in test (121 of 500). H2 per country (MY / SG): 2,000: 287 / 353; 500: 52 / 108; 300: 48 / 48. The allocator spreads H2 over every non-hand-over cell, then moves the labels no row can carry (the same type first, in either country).
+  - Per row, 2,000 / 500 / 300 (cap a quarter: 160 / 40 / 24): partial_exemption 128 / 38 / 16, supplier_registration 113 / 33 / 16, time_of_supply 112 / 33 / 16, group_relation 56 / 11 / 11, exemption_certificate 56 / 11 / 10, zone 56 / 11 / 10, contract_record 56 / 11 / 10, price 47 / 10 / 6, certificate_of_residence 16 / 2 / 1.
+  - Not on invalid invoices: supplier_registration (the supplier charges no tax, so no particular is checked), partial_exemption (an invalid invoice makes every Singapore line with GST SG-2, so the status decides no claim). time_of_supply takes no mixed case (on an invalid one its line would be SG-2 like the rest).
+  - Boundaries: those whose branch needs a type of slot are placed first; the ME-1 relaxation branch plants no line of its own (`line: false`) and can share a slot whose finding rule is ME-1 itself (`finding_rule`). Every seed from 1 to 40 at 500 cases allocates (before, about one in six failed at that boundary).
+- **Spans.** One enum or yes/no line fact in five that a recipe states goes into an email from the supplier about the invoice (`content/phrasebanks/emails.yaml`). The gold fact cites it by character span and quote; the acceptance check reads the span's text back to the value.
+
 ## 8a. Questions as raised
 
 1. **H2 definition.** H2 means the counterfactual key differs, and H2 is planted only from the precedence table in section 3.2a. *Recommended: yes; Sebastian approves the table.*
