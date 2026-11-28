@@ -90,13 +90,15 @@ def test_sg9_partially_exempt_buyer_by_attribution(attribution, code):
     assert result(r, c) == (OK, code, "SG-9")
 
 
-def test_sg9_near_miss_de_minimis_met_claims_in_full():
-    r, c = sg_one_line(purchase_attribution="exempt")
+@pytest.mark.parametrize("attribution, basis", [("exempt", "SG-9"), ("residual", "SG-9"), ("taxable", "SG-1")])
+def test_sg9_near_miss_de_minimis_met_claims_in_full(attribution, basis):
+    # Engine 0.10.5: the de minimis rule is SG-9's exception, so exempt and residual lines are claimable by SG-9.
+    r, c = sg_one_line(purchase_attribution=attribution)
     sg_company_facts(r, input_tax_status="de_minimis_met")
-    assert result(r, c) == (OK, "CLAIMABLE", "SG-1")
+    assert result(r, c) == (OK, "CLAIMABLE", basis)
 
 
-@pytest.mark.parametrize("status, facts", [("partially_exempt", {}), (None, {})])
+@pytest.mark.parametrize("status, facts", [("partially_exempt", {}), (None, {}), ("de_minimis_met", {})])
 def test_sg9_unknown_attribution_or_status_is_a_hand_over(status, facts):
     r, c = sg_one_line(**facts)
     sg_company_facts(r, input_tax_status=status)

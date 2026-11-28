@@ -121,6 +121,28 @@ def _paid_before_change(ctx: LineCtx, first_day: date, taxable: Decimal) -> Outc
     return None
 
 
+def uncharged_due(ctx: LineCtx, taxable: Decimal) -> bool | None:
+    """MS-3 (reg 3A) for a line that charges no tax: False when no tax is due because the line's value was paid, or
+    provided, before the service became taxable; True when some tax is due; None when no rate or scope change bears
+    on the line. A spanning supply follows _spanning_tax: the value provided before the start counts with the
+    payment, and not shown, where it decides, is HAND_OVER."""
+    span = period(ctx)
+    first = ctx.day if span is None else span[0]
+    if span is not None and line_rate(ctx, span[0]) != line_rate(ctx, span[1]):
+        if line_rate(ctx, span[0]) > ZERO:
+            return True
+        return _spanning_tax(ctx, taxable, ZERO, line_rate(ctx, span[1])) > ZERO
+    paid = min(ctx.fact("amount_paid_before_change", ZERO, "MS-3"), taxable)
+    if paid <= ZERO:
+        return None
+    changes = sorted(set(RATE_CHANGES) | set(scope.scope_dates(ctx.item)), reverse=True)
+    for change in changes:
+        old = line_rate(ctx, change - timedelta(days=1))
+        if change <= first and old != line_rate(ctx, change):
+            return _tax(paid, old) + _tax(taxable - paid, line_rate(ctx, change)) > ZERO
+    return None
+
+
 def check_rate(ctx: LineCtx, partials: list[Partial]) -> Outcome:
     """Tax charged on a taxable line: right rate (and amount, where only part is taxable)?"""
     line = ctx.line

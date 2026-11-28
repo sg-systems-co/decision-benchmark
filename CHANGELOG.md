@@ -13,7 +13,7 @@ Versioning rules:
 
 Spec: v0.10 (synthetic, rules-based), in review. Scores comparable with: v0.10.* (none exist yet).
 
-Engine: 0.10.4. Rules as of: 2026-11-23.
+Engine: 0.10.5. Rules as of: 2026-11-27.
 
 ### Engine (A12, build PRs #12, #14, #15, #17 and this one)
 
@@ -70,6 +70,12 @@ Engine: 0.10.4. Rules as of: 2026-11-23.
 - `core/generator/`: derived seeds, exact counts, the generic generation config (`TaskSetSpec.generation`), the slot allocator and the pipeline hash. `db-generate --task-set <id> --split train|test` (or `--split-spec`) writes the slot table and its report (`report/slots.json`) and provenance. No cases yet; B1-2 builds them.
 - ap-invoices: the generator config (`content/generator/generation.yaml`), the rule table the per-rule floor counts (`content/generator/rules.yaml`, 75 rules; problem forms checked against the golden keys), the two-problem pairs (`content/hardcases/pairs.yaml`) and the public release seeds (`content/release-seeds.yaml`).
 - The allocator reproduces every table of B1 plan section 3 for 2,000, 500 and 300 cases, and an infeasible demand stops the build with the demand named. Catalog README: the v0.10 planting limits, each with the test that enforces it.
+
+### Engine 0.10.5: reg 3A on uncharged lines (MS-3); the de minimis basis (SG-9)
+
+- A line that charges no service tax for a service paid, or provided, before it became taxable (26 Feb 2024, 1 Jul 2025; reg 3A) is right: `NO_SST` by MS-3. Engine 0.10.4 read the prepayment only on a line that charges tax and called the uncharged line undercharged (MS-9). Part paid, or a spanning supply, follows the charged form: the value provided before the date, and HAND_OVER where the documents don't settle it.
+- A de minimis buyer's claim on a line attributable to exempt supplies, or residual, has basis SG-9 (the de minimis rule is part of sheet SG-9); a line for taxable supplies stays SG-1; attribution not shown is HAND_OVER.
+- One existing answer key changes its basis (SG-1 -> SG-9); none changes its decision or treatment (tests/fixtures/keys/changes.md, 0.10.5).
 
 ### Engine 0.10.4: ME-3 by the buyer's own e-invoicing phase
 
